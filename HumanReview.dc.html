@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail" data-bg-color="#f2efe9"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#b1543a"/><g fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"><path d="M70 100l20 20 42-45"/></g><rect x="60" y="140" width="80" height="8" rx="4" fill="#f7d9cd"/></svg></template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f2efe9;color:#221f1c;font-family:"Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#b1543a;text-decoration:none}
+a:hover{color:#8f4029}
+textarea,button,input{font-family:inherit}
+textarea:focus{outline:none;border-color:#b1543a}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#f2efe9;padding-bottom:120px">
+
+  <div style="display:flex;align-items:center;gap:clamp(14px,2vw,28px);padding:0 clamp(14px,2vw,28px);min-height:56px;background:#fff;border-bottom:1px solid #e8e2d9;position:sticky;top:0;z-index:20;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:24px;height:24px;border-radius:6px;background:#b1543a;color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center">F</div>
+      <div style="font-size:16px;font-weight:600;letter-spacing:-0.01em">forge</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;font-size:13.5px;color:#6b645d;flex-wrap:wrap">
+      <div style="padding:6px 10px;border-radius:7px">任务</div>
+      <div style="padding:6px 10px;border-radius:7px">数据集</div>
+      <div style="padding:6px 10px;border-radius:7px">资源</div>
+      <div style="padding:6px 10px;border-radius:7px">标注</div>
+      <div style="padding:6px 10px;border-radius:7px;background:#f2efe9;color:#221f1c;font-weight:500">人工审核</div>
+      <div style="padding:6px 10px;border-radius:7px">交付数据单</div>
+      <div style="padding:6px 10px;border-radius:7px">模型</div>
+    </div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:18px;font-size:13px;color:#6b645d">
+      <div>一万</div>
+      <div>登出</div>
+    </div>
+  </div>
+
+  <div style="max-width:1160px;margin:0 auto;padding:clamp(20px,3vw,36px) clamp(16px,2.4vw,28px) 0">
+
+    <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:26px">
+      <div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <h1 style="margin:0;font-size:26px;font-weight:600;letter-spacing:-0.02em">人工审核</h1>
+          <div style="font-size:12.5px;color:#b1543a;background:#fdf0eb;border:1px solid #f2ddd3;border-radius:999px;padding:3px 10px">{{ pendingBadge }}</div>
+        </div>
+        <div style="margin-top:7px;font-size:13.5px;color:#6b645d">处理待审核节点，并查看已经提交的审核记录。</div>
+      </div>
+      <div style="flex:1"></div>
+      <button onClick="{{ noop }}" style="border:1px solid #e2dcd2;background:#fff;border-radius:8px;padding:8px 14px;font-size:13.5px;color:#4a453f;cursor:pointer;display:flex;align-items:center;gap:7px" style-hover="border-color:#c9bfb1"><span style="font-size:16px;line-height:1">↻</span>刷新</button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap">
+      <div style="display:flex;gap:2px;background:#e9e4db;border-radius:10px;padding:3px">
+        <sc-if value="{{ isPending }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#b1543a;color:#fff;border-radius:8px;padding:7px 18px;font-size:14px;font-weight:600">{{ pendingTabLabel }}</div>
+          <div onClick="{{ goReviewed }}" style="border-radius:8px;padding:7px 18px;font-size:14px;color:#6b645d;cursor:pointer" style-hover="color:#221f1c">已审核</div>
+        </sc-if>
+        <sc-if value="{{ isReviewed }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ goPending }}" style="border-radius:8px;padding:7px 18px;font-size:14px;color:#6b645d;cursor:pointer" style-hover="color:#221f1c">{{ pendingTabLabel }}</div>
+          <div style="background:#b1543a;color:#fff;border-radius:8px;padding:7px 18px;font-size:14px;font-weight:600">已审核</div>
+        </sc-if>
+      </div>
+
+      <div onClick="{{ toggleMine }}" style="display:flex;align-items:center;gap:9px;height:38px;padding:0 6px;cursor:pointer;user-select:none" style-hover="opacity:.82">
+        <sc-if value="{{ mineOn }}" hint-placeholder-val="{{ false }}">
+          <div style="width:20px;height:20px;border-radius:5px;background:#b1543a;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none">✓</div>
+        </sc-if>
+        <sc-if value="{{ mineOff }}" hint-placeholder-val="{{ true }}">
+          <div style="width:20px;height:20px;border-radius:5px;border:1.5px solid #c1b8ab;background:#fff;flex:none"></div>
+        </sc-if>
+        <div style="font-size:14px;color:#3a352f;white-space:nowrap">只看我的</div>
+      </div>
+
+      <div style="flex:1"></div>
+
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="position:relative;width:clamp(200px,26vw,280px)">
+          <div style="position:absolute;left:11px;top:50%;transform:translateY(-50%);display:flex;pointer-events:none"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="#9c948b" stroke-width="1.8" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"></circle><path d="M12.8 12.8L17 17"></path></svg></div>
+          <input onChange="{{ onQuery }}" value="{{ query }}" placeholder="搜索 case 名称或编号" style="width:100%;height:38px;border:1px solid #ddd6cb;background:#fff;border-radius:10px;padding:0 36px 0 34px;font-size:13.5px;color:#221f1c" />
+          <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ clearQuery }}" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;color:#8b847c;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#f2efe9;color:#221f1c">×</div>
+          </sc-if>
+        </div>
+
+        <div style="position:relative">
+        <div onClick="{{ toggleSortMenu }}" style="display:flex;align-items:center;gap:9px;height:38px;border:1px solid #ddd6cb;background:#fff;border-radius:10px;padding:0 12px;font-size:13.5px;color:#3a352f;cursor:pointer;white-space:nowrap;user-select:none" style-hover="border-color:#c1b8ab;background:#fdfcfa">
+          {{ sortLabel }}
+          <span style="font-size:11px;line-height:1;color:#8b847c">{{ sortChev }}</span>
+        </div>
+        <sc-if value="{{ sortMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:calc(100% + 6px);right:0;min-width:132px;background:#fff;border:1px solid #e2dcd2;border-radius:10px;padding:5px;box-shadow:0 8px 22px rgba(34,31,28,.14);z-index:30">
+            <div onClick="{{ setLatest }}" style="display:flex;align-items:center;gap:8px;border-radius:7px;padding:8px 10px;font-size:13.5px;color:#3a352f;cursor:pointer" style-hover="background:#f6f3ee">
+              <span style="width:14px;font-size:12px;color:#b1543a">{{ latestMark }}</span>最新
+            </div>
+            <div onClick="{{ setOldest }}" style="display:flex;align-items:center;gap:8px;border-radius:7px;padding:8px 10px;font-size:13.5px;color:#3a352f;cursor:pointer" style-hover="background:#f6f3ee">
+              <span style="width:14px;font-size:12px;color:#b1543a">{{ oldestMark }}</span>最旧
+            </div>
+          </div>
+        </sc-if>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1px dashed #ddd6cb;background:#faf8f5;border-radius:14px;padding:44px 24px;text-align:center">
+        <div style="display:flex;justify-content:center;margin-bottom:12px"><svg width="26" height="26" viewBox="0 0 20 20" fill="none" stroke="#b8b0a5" stroke-width="1.8" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"></circle><path d="M12.8 12.8L17 17"></path></svg></div>
+        <div style="font-size:13.5px;color:#6b645d">{{ noResultsText }}</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPending }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <sc-for list="{{ pendingSections }}" as="sec" hint-placeholder-count="2">
+          <div style="background:#faf8f5;border:1px solid #e8e2d9;border-radius:14px">
+            <div onClick="{{ sec.toggle }}" style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer">
+              <div style="font-size:16px;line-height:1;color:#8b847c;width:18px;text-align:center">{{ sec.chev }}</div>
+              <div style="flex:1">
+                <div style="font-size:14.5px;font-weight:600;letter-spacing:-0.01em">{{ sec.name }}</div>
+                <div style="margin-top:4px;font-size:12.5px;color:#8b847c">{{ sec.meta }}</div>
+              </div>
+              <div style="font-size:13px;color:#8b847c;white-space:nowrap">{{ sec.countLabel }}</div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;padding:0 12px 12px">
+              <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="2">
+                <div style="background:#fff;border:1px solid #e8e2d9;border-radius:11px">
+
+                  <sc-if value="{{ it.collapsed }}" hint-placeholder-val="{{ true }}">
+                    <div onClick="{{ it.open }}" style="display:grid;grid-template-columns:clamp(72px,8vw,96px) minmax(0,0.95fr) minmax(0,1.25fr) clamp(104px,12vw,132px);align-items:center;gap:clamp(10px,1.4vw,16px);padding:10px clamp(12px,1.6vw,18px);border-radius:11px;cursor:pointer" style-hover="background:#fdfcfa">
+                      <div style="height:60px;border-radius:7px;border:1px solid #e8e2d9;background-color:#f4f1ec;background-image:repeating-linear-gradient(135deg,#eae5dc 0 6px,#f4f1ec 6px 12px);display:flex;align-items:flex-end;justify-content:center;padding:8px">
+                        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b847c;background:rgba(255,255,255,.86);border-radius:4px;padding:2px 6px">preview</div>
+                      </div>
+                      <div style="min-width:0">
+                        <div style="font-size:13.5px;font-weight:600;letter-spacing:-0.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.caseName }}</div>
+                        <div style="margin-top:6px;display:flex;align-items:center;gap:8px;min-width:0">
+                          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:#9c948b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.shortId }}</div>
+                        </div>
+                      </div>
+                      <div style="min-width:0">
+                        <div style="font-size:13.5px;color:#3a352f">{{ it.title }}</div>
+                        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
+                          <div style="font-size:11.5px;color:#1f7a5c;border:1px solid #7fc7ac;border-radius:5px;padding:2px 8px;white-space:nowrap">{{ it.category }}</div>
+                          <div style="font-size:11.5px;color:#6a4bb8;border:1px solid #b7a4ec;border-radius:5px;padding:2px 8px;white-space:nowrap">{{ it.mode }}</div>
+                        </div>
+                      </div>
+                      <div style="text-align:right;justify-self:end">
+                        <div onMouseEnter="{{ it.showTip }}" onMouseLeave="{{ it.hideTip }}" style="position:relative;display:inline-block;font-size:13px;font-weight:500;border-bottom:1px dotted #c9bfb1;cursor:help" style-hover="border-bottom-color:#b1543a">
+                          {{ it.roundLabel }}
+                          <sc-if value="{{ it.tipOpen }}" hint-placeholder-val="{{ false }}">
+                            <div style="position:absolute;top:calc(100% + 10px);right:0;width:252px;text-align:left;background:#221f1c;color:#f7f4ef;border-radius:8px;padding:9px 11px;font-size:12px;font-weight:400;line-height:1.65;box-shadow:0 6px 18px rgba(34,31,28,.22);pointer-events:none;z-index:5">{{ it.roundTip }}</div>
+                          </sc-if>
+                        </div>
+                        <div style="margin-top:5px;font-size:12.5px;color:#a8642f;white-space:nowrap">{{ it.waitLabel }}</div>
+                      </div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ it.expanded }}" hint-placeholder-val="{{ false }}">
+                    <div>
+                      <div onClick="{{ it.close }}" style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) clamp(120px,14vw,150px) 72px;align-items:center;gap:clamp(12px,1.6vw,18px);padding:14px clamp(12px,1.6vw,16px);border-radius:11px 11px 0 0;background:#faf8f5;border-bottom:1px solid #eee9e1;cursor:pointer">
+                        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.id }}</div>
+                        <div style="font-size:13px;color:#6b645d">{{ it.title }}</div>
+                        <div style="font-size:12.5px;color:#6b645d">{{ it.roundWait }}</div>
+                        <div style="font-size:13px;color:#8b847c;text-align:right;white-space:nowrap">收起 ↑</div>
+                      </div>
+
+                      <div style="padding:16px">
+                        <div style="border:1px solid #f0e8e2;background:#fdfaf8;border-radius:10px;padding:13px 15px;margin-bottom:14px">
+                          <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
+                            <div style="font-size:11.5px;color:#6a4bb8;border:1px solid #b7a4ec;border-radius:5px;padding:2px 8px;white-space:nowrap">{{ it.mode }}</div>
+                            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#8b847c">{{ it.routeMeta }}</div>
+                          </div>
+                          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#8b847c;line-height:1.7;white-space:pre-line">{{ it.routeDetail }}</div>
+                        </div>
+
+                        <div style="border:1px solid #e8e2d9;border-radius:10px;overflow:hidden">
+                          <div style="display:flex;gap:4px;padding:8px;background:#faf8f5;border-bottom:1px solid #eee9e1">
+                            <sc-if value="{{ it.showPreview }}" hint-placeholder-val="{{ true }}">
+                              <div style="background:#fff;border-radius:7px;padding:5px 14px;font-size:13px;font-weight:500;box-shadow:0 1px 2px rgba(34,31,28,.06)">预览</div>
+                              <div onClick="{{ it.toFiles }}" style="border-radius:7px;padding:5px 14px;font-size:13px;color:#6b645d;cursor:pointer">文件</div>
+                            </sc-if>
+                            <sc-if value="{{ it.showFiles }}" hint-placeholder-val="{{ false }}">
+                              <div onClick="{{ it.toPreview }}" style="border-radius:7px;padding:5px 14px;font-size:13px;color:#6b645d;cursor:pointer">预览</div>
+                              <div style="background:#fff;border-radius:7px;padding:5px 14px;font-size:13px;font-weight:500;box-shadow:0 1px 2px rgba(34,31,28,.06)">文件</div>
+                            </sc-if>
+                          </div>
+                          <sc-if value="{{ it.showPreview }}" hint-placeholder-val="{{ true }}">
+                            <div>
+                              <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f0ece5">
+                                <div style="width:7px;height:7px;border-radius:50%;background:#5f9a63"></div>
+                                <div style="flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#6b645d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.previewUrl }}</div>
+                                <div style="font-size:13px;color:#b1543a;white-space:nowrap">新标签打开 ↗</div>
+                              </div>
+                              <div style="height:300px;background-color:#f4f1ec;background-image:repeating-linear-gradient(135deg,#eae5dc 0 8px,#f4f1ec 8px 16px);display:flex;align-items:center;justify-content:center">
+                                <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#8b847c;background:rgba(255,255,255,.9);border:1px solid #e8e2d9;border-radius:6px;padding:7px 12px">interactive preview · index.html</div>
+                              </div>
+                            </div>
+                          </sc-if>
+                          <sc-if value="{{ it.showFiles }}" hint-placeholder-val="{{ false }}">
+                            <div style="padding:6px 0">
+                              <sc-for list="{{ files }}" as="f" hint-placeholder-count="3">
+                                <div style="display:flex;align-items:center;gap:12px;padding:9px 16px;border-bottom:1px solid #f4f0ea">
+                                  <div style="flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#3a352f">{{ f.name }}</div>
+                                  <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#9c948b">{{ f.size }}</div>
+                                </div>
+                              </sc-for>
+                            </div>
+                          </sc-if>
+                        </div>
+
+                        <div style="margin-top:16px;border:1px solid #e8e2d9;border-radius:10px;padding:16px;background:#fcfbf9">
+                          <div style="font-size:13px;font-weight:600;margin-bottom:3px">审核结论</div>
+                          <div style="font-size:12.5px;color:#8b847c;margin-bottom:13px">{{ it.decisionHint }}</div>
+
+                          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+                            <sc-if value="{{ it.passSelected }}" hint-placeholder-val="{{ false }}">
+                              <div style="border:1.5px solid #5f9a63;background:#eff4ee;border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px">
+                                <div style="width:24px;height:24px;border-radius:50%;background:#5f9a63;color:#fff;font-size:14px;flex:none;display:flex;align-items:center;justify-content:center">✓</div>
+                                <div style="font-size:14px;font-weight:600;color:#33603a">通过</div>
+                              </div>
+                            </sc-if>
+                            <sc-if value="{{ it.passUnselected }}" hint-placeholder-val="{{ true }}">
+                              <div onClick="{{ it.choosePass }}" style="border:1.5px solid #dcd5ca;background:#fff;border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer" style-hover="border-color:#5f9a63;background:#fbfdfb">
+                                <div style="width:24px;height:24px;border-radius:50%;border:1.5px solid #b8b0a5;font-size:14px;color:#8b847c;flex:none;display:flex;align-items:center;justify-content:center">✓</div>
+                                <div style="font-size:14px;font-weight:600;color:#3a352f">通过</div>
+                              </div>
+                            </sc-if>
+
+                            <sc-if value="{{ it.reworkSelected }}" hint-placeholder-val="{{ false }}">
+                              <div style="border:1.5px solid #b1543a;background:#fdf0eb;border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px">
+                                <div style="width:24px;height:24px;border-radius:50%;background:#b1543a;color:#fff;font-size:14px;flex:none;display:flex;align-items:center;justify-content:center">↩</div>
+                                <div style="font-size:14px;font-weight:600;color:#8f4029">要求返工</div>
+                              </div>
+                            </sc-if>
+                            <sc-if value="{{ it.reworkUnselected }}" hint-placeholder-val="{{ true }}">
+                              <div onClick="{{ it.chooseRework }}" style="border:1.5px solid #dcd5ca;background:#fff;border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer" style-hover="border-color:#b1543a;background:#fffbf9">
+                                <div style="width:24px;height:24px;border-radius:50%;border:1.5px solid #b8b0a5;font-size:14px;color:#8b847c;flex:none;display:flex;align-items:center;justify-content:center">↩</div>
+                                <div style="font-size:14px;font-weight:600;color:#3a352f">要求返工</div>
+                              </div>
+                            </sc-if>
+                          </div>
+
+                          <sc-if value="{{ it.passSelected }}" hint-placeholder-val="{{ false }}">
+                            <div style="margin-top:16px">
+                              <div style="font-size:12.5px;color:#6b645d;margin-bottom:7px">审核备注（可选）</div>
+                              <textarea onChange="{{ it.onNote }}" value="{{ it.note }}" placeholder="例如：符合预期，可以通过。" style="width:100%;min-height:82px;resize:vertical;border:1px solid #e2dcd2;border-radius:9px;padding:11px 13px;font-size:13.5px;color:#221f1c;background:#fff;line-height:1.6"></textarea>
+                              <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:13px">
+                                <button onClick="{{ it.cancel }}" style="border:1px solid #e2dcd2;background:#fff;border-radius:8px;padding:9px 18px;font-size:13.5px;color:#6b645d;cursor:pointer" style-hover="color:#221f1c;border-color:#c9bfb1">取消</button>
+                                <button onClick="{{ it.submitPass }}" style="border:none;background:#4f7a52;color:#fff;border-radius:8px;padding:9px 20px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#456b48">确认通过</button>
+                              </div>
+                            </div>
+                          </sc-if>
+
+                          <sc-if value="{{ it.reworkSelected }}" hint-placeholder-val="{{ false }}">
+                            <div style="margin-top:16px">
+                              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:7px">
+                                <div style="font-size:12.5px;color:#6b645d">返工要求</div>
+                                <div style="font-size:12px;color:#b1543a">必填</div>
+                              </div>
+                              <textarea onChange="{{ it.onFeedback }}" value="{{ it.feedback }}" placeholder="说明需要修改的内容，越具体越好：需要保留什么、需要改什么、验收标准。" style="width:100%;min-height:118px;resize:vertical;border:1px solid #e2dcd2;border-radius:9px;padding:11px 13px;font-size:13.5px;color:#221f1c;background:#fff;line-height:1.6"></textarea>
+
+                              <div style="margin-top:13px;border:1px solid #ece7df;border-radius:9px;padding:13px;background:#fff">
+                                <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px">
+                                  <div style="font-size:12.5px;color:#6b645d">参考图片</div>
+                                  <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#9c948b">{{ it.imgCount }}</div>
+                                  <div style="flex:1"></div>
+                                  <div style="font-size:12px;color:#9c948b">支持 PNG / JPEG / WebP，可粘贴</div>
+                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:9px">
+                                  <sc-for list="{{ it.images }}" as="img" hint-placeholder-count="0">
+                                    <div style="position:relative;width:66px;height:66px;border-radius:8px;border:1px solid #e8e2d9;background-color:#f4f1ec;background-image:repeating-linear-gradient(135deg,#eae5dc 0 5px,#f4f1ec 5px 10px)">
+                                      <div onClick="{{ img.remove }}" style="position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;background:#fff;border:1px solid #e2dcd2;color:#6b645d;font-size:14px;box-shadow:0 1px 3px rgba(34,31,28,.12);display:flex;align-items:center;justify-content:center;cursor:pointer">×</div>
+                                    </div>
+                                  </sc-for>
+                                  <sc-if value="{{ it.canAddImage }}" hint-placeholder-val="{{ true }}">
+                                    <div onClick="{{ it.addImage }}" style="width:66px;height:66px;border-radius:8px;border:1px dashed #d3cabd;background:#fcfbf9;color:#9c948b;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="border-color:#b1543a;color:#b1543a">＋</div>
+                                  </sc-if>
+                                </div>
+                              </div>
+
+                              <div style="display:flex;align-items:center;gap:12px;margin-top:13px">
+                                <div style="flex:1;font-size:12.5px;color:#9c948b">{{ it.submitHint }}</div>
+                                <button onClick="{{ it.cancel }}" style="border:1px solid #e2dcd2;background:#fff;border-radius:8px;padding:9px 18px;font-size:13.5px;color:#6b645d;cursor:pointer" style-hover="color:#221f1c;border-color:#c9bfb1">取消</button>
+                                <sc-if value="{{ it.canSubmitRework }}" hint-placeholder-val="{{ false }}">
+                                  <button onClick="{{ it.submitRework }}" style="border:none;background:#b1543a;color:#fff;border-radius:8px;padding:9px 20px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#95452f">确认提交</button>
+                                </sc-if>
+                                <sc-if value="{{ it.cannotSubmitRework }}" hint-placeholder-val="{{ true }}">
+                                  <button style="border:1px solid #e8e2d9;background:#f4f1ec;color:#b3aca3;border-radius:8px;padding:9px 20px;font-size:13.5px;font-weight:600;cursor:not-allowed">确认提交</button>
+                                </sc-if>
+                              </div>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ it.done }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;gap:12px;padding:16px">
+                      <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:#6b645d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.id }}</div>
+                      <div style="flex:1"></div>
+                      <div style="font-size:12.5px;color:#4f7a52;background:#eff4ee;border-radius:6px;padding:3px 10px">{{ it.doneLabel }}</div>
+                      <div onClick="{{ it.undo }}" style="font-size:12.5px;color:#8b847c;cursor:pointer">撤销</div>
+                    </div>
+                  </sc-if>
+
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isReviewed }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <sc-for list="{{ reviewedSections }}" as="sec" hint-placeholder-count="2">
+          <div style="background:#faf8f5;border:1px solid #e8e2d9;border-radius:14px">
+            <div onClick="{{ sec.toggle }}" style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer">
+              <div style="font-size:16px;line-height:1;color:#8b847c;width:18px;text-align:center">{{ sec.chev }}</div>
+              <div style="flex:1">
+                <div style="font-size:14.5px;font-weight:600;letter-spacing:-0.01em">{{ sec.name }}</div>
+                <div style="margin-top:4px;font-size:12.5px;color:#8b847c">{{ sec.meta }}</div>
+              </div>
+              <div style="font-size:13px;color:#8b847c;white-space:nowrap">{{ sec.countLabel }}</div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;padding:0 12px 12px">
+              <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="2">
+                <div style="background:#fff;border:1px solid #e8e2d9;border-radius:11px;overflow:hidden">
+
+                  <div onClick="{{ it.toggle }}" style="display:grid;grid-template-columns:clamp(72px,8vw,96px) minmax(0,1.2fr) clamp(112px,13vw,140px) clamp(150px,18vw,190px) clamp(96px,11vw,112px);align-items:center;gap:clamp(10px,1.4vw,16px);padding:10px clamp(12px,1.6vw,18px);cursor:pointer" style-hover="background:#fdfcfa">
+                    <div style="height:60px;border-radius:7px;border:1px solid #e8e2d9;background-color:#f4f1ec;background-image:repeating-linear-gradient(135deg,#eae5dc 0 6px,#f4f1ec 6px 12px);display:flex;align-items:flex-end;justify-content:center;padding:8px">
+                      <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8b847c;background:rgba(255,255,255,.86);border-radius:4px;padding:2px 6px">latest</div>
+                    </div>
+                    <div style="min-width:0">
+                      <div style="font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.caseName }}</div>
+                      <div style="margin-top:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:#9c948b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.id }}</div>
+                      <div style="margin-top:5px;font-size:12px;color:#9c948b">{{ it.category }}</div>
+                    </div>
+                    <div>
+                      <div style="font-size:13px;font-weight:500">{{ it.roundsLabel }}</div>
+                      <div style="margin-top:5px;font-size:12.5px;color:#8b847c">{{ it.attemptsLabel }}</div>
+                    </div>
+                    <div>
+                      <div style="font-size:13px;color:#3a352f">{{ it.reviewer }}</div>
+                      <div style="margin-top:5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#9c948b">{{ it.time }}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:flex-end">
+                      <div style="font-size:12.5px;border-radius:6px;padding:4px 10px;white-space:nowrap;background:{{ it.statusBg }};color:{{ it.statusFg }}">{{ it.status }}</div>
+                    </div>
+                  </div>
+
+                  <sc-if value="{{ it.expanded }}" hint-placeholder-val="{{ false }}">
+                    <div style="border-top:1px solid #eee9e1;background:#fcfbf9;padding:20px 22px">
+                      <div style="font-size:12px;color:#9c948b;letter-spacing:.06em;margin-bottom:16px">审核历史</div>
+
+                      <sc-for list="{{ it.rounds }}" as="r" hint-placeholder-count="2">
+                        <div style="position:relative;border-left:1px solid #e2dcd2;padding:0 0 18px 24px">
+                          <div style="position:absolute;left:-5px;top:4px;width:9px;height:9px;border-radius:50%;background:{{ r.dot }};box-shadow:0 0 0 3px #fcfbf9"></div>
+
+                          <div onClick="{{ r.toggle }}" style="display:grid;grid-template-columns:clamp(76px,9vw,96px) clamp(96px,11vw,116px) minmax(0,1fr) clamp(118px,14vw,150px);align-items:center;gap:clamp(10px,1.2vw,14px);cursor:pointer">
+                            <div style="font-size:13.5px;font-weight:600">{{ r.roundLabel }}</div>
+                            <div style="font-size:12.5px;border-radius:6px;padding:3px 9px;justify-self:start;background:{{ r.badgeBg }};color:{{ r.badgeFg }}">{{ r.result }}</div>
+                            <div style="font-size:12.5px;color:#6b645d">{{ r.who }}</div>
+                            <div style="font-size:12.5px;color:#8b847c;text-align:right;white-space:nowrap">{{ r.attempts }}</div>
+                          </div>
+
+                          <sc-if value="{{ r.expanded }}" hint-placeholder-val="{{ false }}">
+                            <div style="margin-top:14px;border:1px solid #e8e2d9;border-radius:11px;background:#fff;overflow:hidden">
+                              <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f0ece5">
+                                <div style="width:7px;height:7px;border-radius:50%;background:#5f9a63"></div>
+                                <div style="flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#6b645d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.previewUrl }}</div>
+                                <div style="font-size:13px;color:#b1543a;white-space:nowrap">新标签打开 ↗</div>
+                              </div>
+                              <div style="height:230px;background-color:#f4f1ec;background-image:repeating-linear-gradient(135deg,#eae5dc 0 8px,#f4f1ec 8px 16px);display:flex;align-items:center;justify-content:center">
+                                <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#8b847c;background:rgba(255,255,255,.9);border:1px solid #e8e2d9;border-radius:6px;padding:7px 12px">{{ r.previewCaption }}</div>
+                              </div>
+
+                              <div style="padding:16px 18px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(140px,200px);gap:clamp(16px,2vw,24px);border-top:1px solid #f0ece5">
+                                <div>
+                                  <div style="font-size:12px;color:#9c948b;margin-bottom:6px">审核反馈</div>
+                                  <div style="font-size:13.5px;color:#3a352f;line-height:1.75;text-wrap:pretty">{{ r.feedback }}</div>
+                                  <div style="margin-top:12px;display:flex;align-items:center;gap:9px">
+                                    <div style="font-size:12px;color:#9c948b">参考图片</div>
+                                    <div style="display:flex;gap:7px">
+                                      <sc-for list="{{ r.refImages }}" as="img" hint-placeholder-count="0">
+                                        <div style="width:44px;height:44px;border-radius:6px;border:1px solid #e8e2d9;background-color:#f4f1ec;background-image:repeating-linear-gradient(135deg,#eae5dc 0 5px,#f4f1ec 5px 10px)"></div>
+                                      </sc-for>
+                                    </div>
+                                    <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#9c948b">{{ r.refLabel }}</div>
+                                  </div>
+
+                                  <div style="margin-top:16px">
+                                    <div style="font-size:12px;color:#9c948b;margin-bottom:8px">返工执行记录</div>
+                                    <div style="display:flex;flex-direction:column;gap:6px">
+                                      <sc-for list="{{ r.attemptRows }}" as="a" hint-placeholder-count="1">
+                                        <div style="display:flex;align-items:center;gap:12px;border:1px solid #ece7df;border-radius:8px;padding:9px 12px;background:#fcfbf9">
+                                          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#6b645d">{{ a.name }}</div>
+                                          <div style="flex:1"></div>
+                                          <div style="font-size:12px;color:{{ a.stateFg }}">{{ a.state }}</div>
+                                          <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#9c948b">{{ a.dur }}</div>
+                                        </div>
+                                      </sc-for>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <div style="font-size:12px;color:#9c948b;margin-bottom:6px">审核人</div>
+                                  <div style="font-size:13.5px;color:#3a352f">{{ r.reviewer }}</div>
+                                  <div style="font-size:12px;color:#9c948b;margin:14px 0 6px">审核时间</div>
+                                  <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#3a352f">{{ r.time }}</div>
+                                  <div style="font-size:12px;color:#9c948b;margin:14px 0 6px">节点</div>
+                                  <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#3a352f">{{ r.node }}</div>
+                                </div>
+                              </div>
+
+                              <div style="border-top:1px solid #f0ece5;padding:14px 18px;display:flex;align-items:center;gap:12px;background:#fcfbf9">
+                                <div style="flex:1;font-size:12.5px;color:#8b847c">{{ r.actionHint }}</div>
+                                <sc-if value="{{ r.isProcessing }}" hint-placeholder-val="{{ false }}">
+                                  <button onClick="{{ r.stop }}" style="border:1px solid #b1543a;background:#fff;color:#b1543a;border-radius:8px;padding:9px 18px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#fdf0eb">停止当前返工</button>
+                                </sc-if>
+                                <sc-if value="{{ r.canRerun }}" hint-placeholder-val="{{ false }}">
+                                  <button onClick="{{ r.rerun }}" style="border:1px solid #dcd5ca;background:#fff;color:#3a352f;border-radius:8px;padding:9px 18px;font-size:13.5px;font-weight:500;cursor:pointer" style-hover="border-color:#b8b0a5;background:#faf8f5">{{ r.rerunLabel }}</button>
+                                </sc-if>
+                              </div>
+
+                              <sc-if value="{{ r.composing }}" hint-placeholder-val="{{ false }}">
+                                <div style="border-top:1px solid #f0ece5;padding:16px 18px;background:#fff">
+                                  <div style="font-size:13px;font-weight:600;margin-bottom:3px">{{ r.composeTitle }}</div>
+                                  <div style="font-size:12.5px;color:#8b847c;margin-bottom:11px">将以该轮次的产物与上下文为起点，发起新一轮返工。</div>
+                                  <textarea onChange="{{ r.onText }}" value="{{ r.text }}" placeholder="说明本次需要修改的内容。" style="width:100%;min-height:100px;resize:vertical;border:1px solid #e2dcd2;border-radius:9px;padding:11px 13px;font-size:13.5px;line-height:1.6;background:#fff"></textarea>
+                                  <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+                                    <div style="flex:1;font-size:12.5px;color:#9c948b">{{ r.composeHint }}</div>
+                                    <button onClick="{{ r.cancelCompose }}" style="border:1px solid #e2dcd2;background:#fff;border-radius:8px;padding:9px 18px;font-size:13.5px;color:#6b645d;cursor:pointer">取消</button>
+                                    <sc-if value="{{ r.canConfirm }}" hint-placeholder-val="{{ false }}">
+                                      <button onClick="{{ r.confirmCompose }}" style="border:none;background:#b1543a;color:#fff;border-radius:8px;padding:9px 20px;font-size:13.5px;font-weight:600;cursor:pointer">确认提交</button>
+                                    </sc-if>
+                                    <sc-if value="{{ r.cannotConfirm }}" hint-placeholder-val="{{ true }}">
+                                      <button style="border:1px solid #e8e2d9;background:#f4f1ec;color:#b3aca3;border-radius:8px;padding:9px 20px;font-size:13.5px;font-weight:600;cursor:not-allowed">确认提交</button>
+                                    </sc-if>
+                                  </div>
+                                </div>
+                              </sc-if>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pending&quot;,&quot;reviewed&quot;],&quot;default&quot;:&quot;pending&quot;,&quot;tsType&quot;:&quot;'pending' | 'reviewed'&quot;,&quot;section&quot;:&quot;行为&quot;},&quot;pendingSort&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;oldest&quot;,&quot;latest&quot;],&quot;default&quot;:&quot;oldest&quot;,&quot;tsType&quot;:&quot;'oldest' | 'latest'&quot;,&quot;section&quot;:&quot;行为&quot;},&quot;reviewedSort&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;latest&quot;,&quot;oldest&quot;],&quot;default&quot;:&quot;latest&quot;,&quot;tsType&quot;:&quot;'latest' | 'oldest'&quot;,&quot;section&quot;:&quot;行为&quot;},&quot;expandLatestRound&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;行为&quot;},&quot;maxRefImages&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:8,&quot;min&quot;:1,&quot;max&quot;:12,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;行为&quot;}}">
+class Component extends DCLogic {
+  state = {
+    tab: null,
+    sortPending: null,
+    sortReviewed: null,
+    closedSections: {},
+    expanded: null,
+    decision: {},
+    note: {},
+    feedback: {},
+    imgs: {},
+    submitted: {},
+    pv: {},
+    openItems: null,
+    openRounds: {},
+    stopped: {},
+    compose: null,
+    composeText: '',
+    query: '',
+    mine: false,
+    sortMenu: false
+  };
+
+  pendingData() {
+    return [
+      { key: 'p1', name: 'web3d-spatial-science-explainer-v1', items: [
+        { id: '6e66fcb8df6c422aa71f1f975709fa9b', owner: '一万', caseName: '火山喷发剖面 · 交互讲解', node: 'human_review_rework', title: '交互式科学场景返工人工审核', category: 'Science / Mechanism', mode: '带上下文返工', round: '第 2 / 3 轮', waitH: 52,
+          routeMeta: '从 multi_repair 重新开始 · 最多 3 轮', routeDetail: 'Workspace 继承 · Session 继承 · Feedback 继承\n通过并继续 → review', previewUrl: '/api/previews/pv2_hBZNR824XPJsWQWFlmI7kOhGkB60/dist/index.html' },
+        { id: 'cf47f35eeaa041b0922b65d9a6dfa3b2', owner: 'allen', caseName: '板块俯冲带 · 机制演示', node: 'human_review_rework', title: '交互式科学场景返工人工审核', category: 'Science / Mechanism', mode: '带上下文返工', round: '第 1 / 3 轮', waitH: 50,
+          routeMeta: '从 multi_repair 重新开始 · 最多 3 轮', routeDetail: 'Workspace 继承 · Session 继承 · Feedback 继承\n通过并继续 → review', previewUrl: '/api/previews/pv2_zaiT3OQuOOMEqLed3nwb--GK6o/dist/index.html' },
+        { id: '145fce2168e34037b33fcafb533eb55d', owner: '一万', caseName: '大气环流 · 三圈模型', node: 'human_review_initial', title: '首次 Science / Mechanism 页面审核', category: 'Science / Mechanism', mode: '条件路由', round: '第 1 轮', waitH: 19,
+          routeMeta: '审核决定会选择一条前向分支继续执行', routeDetail: '通过并继续 → review\n要求返工 → multi_repair（携带反馈）', previewUrl: '/api/previews/pv2_EUKsN5v7XdYgnMR3aGrUowMu/dist/index.html' }
+      ]},
+      { key: 'p2', name: 'Anatomy original-GLB smoke · Pulmonary Respiration · v3', items: [
+        { id: 'ea3b3085f06e49dd89f5b54bda5348ca', owner: 'yokiguan', caseName: '肺部呼吸 · GLB 冒烟测试', node: 'human_review_initial', title: '首次 Anatomy / Physiology Web3D 人工审核', category: 'Anatomy / Physiology', mode: '条件路由', round: '第 1 轮', waitH: 44,
+          routeMeta: '审核决定会选择一条前向分支继续执行', routeDetail: '通过并继续 → review\n要求返工 → build_repair（携带反馈）', previewUrl: '/api/previews/pv2_Cqye3Rh6M1wqD0Q5wCIyUcRkg/app/dist/index.html' }
+      ]},
+      { key: 'p3', name: 'web3d-science-mechanism-explainer-v1', items: [
+        { id: '1a5e24ca8853433db2eeb8d4cce95e0c', owner: '一万', caseName: '洋流分层 · 温盐环流', node: 'human_review_initial', title: '首次 Science / Mechanism 页面审核', category: 'Science / Mechanism', mode: '条件路由', round: '第 1 轮', waitH: 18,
+          routeMeta: '审核决定会选择一条前向分支继续执行', routeDetail: '通过并继续 → review\n要求返工 → build（携带反馈）', previewUrl: '/api/previews/pv2_9Kd2mTQpLbX4rVnZ0AsyEuq/dist/index.html' }
+      ]},
+      { key: 'p4', name: 'reroll · building · CC Opus 4.8 · batch 1', items: [
+        { id: '31a92ed816de4c7ca6d8d81155e37a0d', owner: 'allen', caseName: '迪拜帆船酒店 · 结构复原', node: 'human_review_initial', title: '首次 Web3D 成品人工审核', category: 'Building / Landmark', mode: '条件路由', round: '第 1 轮', waitH: 17,
+          routeMeta: '审核决定会选择一条前向分支继续执行', routeDetail: '通过并继续 → review\n要求返工 → build_product（携带反馈）', previewUrl: '/api/previews/pv2_Ta7sQmR0fWpLc9dYb31KxHu/dist/index.html' }
+      ]}
+    ];
+  }
+
+  reviewedData() {
+    return [
+      { key: 'r1', name: 'web3d-spatial-science-explainer-v1', at: '08-17 18:20', items: [
+        { id: 'b9426b60006b4f5680a4c588b4f58328', caseName: '火山喷发剖面 · 交互讲解', title: '交互式科学场景返工人工审核', category: 'Science / Mechanism', status: '已通过', reviewer: '一万', time: '2026/08/20 16:03', ts: 20260820163,
+          rounds: [
+            { n: 1, result: '要求返工', who: 'yokiguan', time: '2026/08/17 13:52', node: 'human_review_initial', attempts: 1, feedback: '重做开场序列：首屏需要给出完整的外部喷发场景，三分之四机位，保留现有地形数据与时间轴控件。', refs: 0, previewUrl: '/api/previews/pv2_EUKsN5v7XdYgnMR3aGrUowMu/dist/index.html', caption: 'round 1 · whole system' },
+            { n: 2, result: '要求返工', who: 'allen', time: '2026/08/20 14:53', node: 'human_review_rework', attempts: 2, feedback: '请立刻结束本轮，火山口细节与喷发柱粒子密度不符合预期。', refs: 1, previewUrl: '/api/previews/pv2_zaiT3OQuOOMEqLed3nwb--GK6o/dist/index.html', caption: 'round 2 · vent + column' },
+            { n: 3, result: '已通过', who: '一万', time: '2026/08/20 16:03', node: 'human_review_rework', attempts: 2, feedback: '符合预期，可以通过。', refs: 2, previewUrl: '/api/previews/pv2_hBZNR824XPJsWQWFlmI7kOhGkB60/dist/index.html', caption: 'round 3 · conduit detail' }
+          ] },
+        { id: '56e6ba00968d43a1a14f6cc34ea8ac5a', caseName: '洋流分层 · 温盐环流', title: '交互式科学场景返工人工审核', category: 'Science / Mechanism', status: '返工执行中', reviewer: 'yokiguan', time: '2026/08/20 15:41', ts: 20260820154,
+          rounds: [
+            { n: 1, result: '要求返工', who: 'yokiguan', time: '2026/08/17 13:23', node: 'human_review_initial', attempts: 1, feedback: '海洋环流分层缺少深度标注，请补充比例尺与图例。', refs: 0, previewUrl: '/api/previews/pv2_Lm4pXcQ8rTyVbNz2AeWq0Kd/dist/index.html', caption: 'round 1 · circulation' },
+            { n: 2, result: '返工执行中', who: 'yokiguan', time: '2026/08/20 15:41', node: 'multi_repair', attempts: 2, feedback: '补充深度轴与图例，保留现有洋流路径与配色。', refs: 1, processing: true, previewUrl: '/api/previews/pv2_Zn8tKq2VbXyR0MdLcWe4Ap/dist/index.html', caption: 'round 2 · in progress' }
+          ] },
+        { id: '14b793e895974816ae8993ab4c16c177', caseName: '大气环流 · 三圈模型', title: '交互式科学场景返工人工审核', category: 'Science / Mechanism', status: '已通过', reviewer: 'allen', time: '2026/08/18 02:41', ts: 20260818024,
+          rounds: [
+            { n: 1, result: '要求返工', who: 'allen', time: '2026/08/17 15:27', node: 'human_review_initial', attempts: 3, feedback: '首屏信息密度过高，先给出整体系统再进入细节。', refs: 0, previewUrl: '/api/previews/pv2_Qw3rTy6UiOp1AsDf2GhJk/dist/index.html', caption: 'round 1 · overview' },
+            { n: 2, result: '要求返工', who: 'allen', time: '2026/08/18 00:21', node: 'human_review_rework', attempts: 4, feedback: '过渡动画仍然过快，建议放慢至 1.2s 并保留可暂停控件。', refs: 2, previewUrl: '/api/previews/pv2_Rt5yUi8OpAsDf3GhJkLz/dist/index.html', caption: 'round 2 · transitions' },
+            { n: 3, result: '已通过', who: 'allen', time: '2026/08/18 02:41', node: 'human_review_rework', attempts: 2, feedback: '动画节奏与标注已达标，通过。', refs: 0, previewUrl: '/api/previews/pv2_Yu7iOpAsDf4GhJkLzXc/dist/index.html', caption: 'round 3 · final' }
+          ] }
+      ]},
+      { key: 'r2', name: '迪拜帆船 · reroll · web3d-gen-build-eval-v3', at: '08-20 09:11', items: [
+        { id: '41fa5c4d9a444079b1b2bd2e7b6f96ee', caseName: '迪拜帆船酒店 · 结构复原', title: '首次 Web3D 成品人工审核', category: 'Building / Landmark', status: '已通过', reviewer: '一万', time: '2026/08/20 15:19', ts: 20260820151,
+          rounds: [
+            { n: 1, result: '已通过', who: '一万', time: '2026/08/20 15:19', node: 'human_review_initial', attempts: 1, feedback: '结构与材质符合参考，直接通过。', refs: 1, previewUrl: '/api/previews/pv2_Bn6mQwErTyUi9OpAsDf/dist/index.html', caption: 'round 1 · burj al arab' }
+          ] }
+      ]}
+    ];
+  }
+
+  get tab() { return this.state.tab || this.props.defaultTab || 'pending'; }
+  get sortPending() { return this.state.sortPending || this.props.pendingSort || 'oldest'; }
+  get sortReviewed() { return this.state.sortReviewed || this.props.reviewedSort || 'latest'; }
+  get maxImgs() { return this.props.maxRefImages ?? 8; }
+
+  set(patch) { this.setState(patch); }
+  keyed(obj, k, v) { const n = Object.assign({}, obj); n[k] = v; return n; }
+
+  roundTip(round) {
+    const m = /第\s*(\d+)\s*\/\s*(\d+)\s*轮/.exec(round);
+    if (m) {
+      const cur = +m[1], max = +m[2];
+      return '当前第 ' + cur + ' 轮，返工上限 ' + max + ' 轮，还剩 ' + (max - cur) + ' 次机会。';
+    }
+    return '首轮人工审核，尚未返工。要求返工后进入第 2 轮。';
+  }
+
+  match(it) {
+    const q = (this.state.query || '').trim().toLowerCase();
+    if (q && (it.caseName || '').toLowerCase().indexOf(q) < 0 && it.id.toLowerCase().indexOf(q) < 0) return false;
+    if (this.state.mine && !this.isMine(it)) return false;
+    return true;
+  }
+
+  isMine(it) {
+    const me = this.props.currentUser ?? '一万';
+    if (it.owner) return it.owner === me;
+    if (it.rounds) return it.rounds.some(r => r.who === me) || it.reviewer === me;
+    return false;
+  }
+
+  waitLabel(h) { return h >= 24 ? '已等待 ' + Math.floor(h / 24) + ' 天' : '已等待 ' + h + ' 小时'; }
+
+  renderVals() {
+    const st = this.state;
+    const tab = this.tab;
+    const files = [
+      { name: 'dist/index.html', size: '12.4 KB' },
+      { name: 'dist/assets/main.js', size: '284 KB' },
+      { name: 'dist/assets/scene.glb', size: '4.2 MB' },
+      { name: 'dist/assets/style.css', size: '8.1 KB' }
+    ];
+
+    const pendingRaw = this.pendingData()
+      .map(sec => Object.assign({}, sec, { items: sec.items.filter(i => this.match(i)) }))
+      .filter(sec => sec.items.length);
+    let total = 0;
+    this.pendingData().forEach(sec => { total += sec.items.filter(i => !st.submitted[i.id]).length; });
+
+    const sortAsc = (tab === 'pending' ? this.sortPending : this.sortReviewed) === 'oldest';
+
+    const pendingSections = pendingRaw.map(sec => {
+      const live = sec.items.filter(i => !st.submitted[i.id] || st.expanded === i.id);
+      const items = sec.items.slice().sort((a, b) => sortAsc ? b.waitH - a.waitH : a.waitH - b.waitH);
+      const open = !st.closedSections[sec.key];
+      const maxWait = Math.max.apply(null, sec.items.map(i => i.waitH));
+      return {
+        name: sec.name,
+        meta: live.length + ' 个待审核 Item · 最长' + this.waitLabel(maxWait),
+        countLabel: (open ? '收起' : '展开') + ' · ' + sec.items.length + ' 个 item',
+        chev: open ? '▾' : '▸',
+        toggle: () => this.set({ closedSections: this.keyed(st.closedSections, sec.key, !st.closedSections[sec.key]) }),
+        items: open ? items.map(it => this.pendingItem(it)) : []
+      };
+    });
+
+    const reviewedSections = this.reviewedData()
+      .map(sec => Object.assign({}, sec, { items: sec.items.filter(i => this.match(i)) }))
+      .filter(sec => sec.items.length)
+      .map(sec => {
+      const items = sec.items.slice().sort((a, b) => sortAsc ? a.ts - b.ts : b.ts - a.ts);
+      const open = !st.closedSections[sec.key];
+      return {
+        name: sec.name,
+        meta: sec.items.length + ' 个 Item · 最近提交 ' + sec.at,
+        countLabel: (open ? '收起' : '展开') + ' · ' + sec.items.length + ' 个 item',
+        chev: open ? '▾' : '▸',
+        toggle: () => this.set({ closedSections: this.keyed(st.closedSections, sec.key, !st.closedSections[sec.key]) }),
+        items: open ? items.map(it => this.reviewedItem(it)) : []
+      };
+    });
+
+    const sortIsOldest = sortAsc;
+    return {
+      noop: () => {},
+      files,
+      pendingBadge: total + ' 个待审核',
+      pendingTabLabel: '待审核 ' + total,
+      isPending: tab === 'pending',
+      isReviewed: tab === 'reviewed',
+      goPending: () => this.set({ tab: 'pending', expanded: null }),
+      goReviewed: () => this.set({ tab: 'reviewed' }),
+      sortIsOldest,
+      sortIsLatest: !sortAsc,
+      setOldest: () => this.set(tab === 'pending' ? { sortPending: 'oldest', sortMenu: false } : { sortReviewed: 'oldest', sortMenu: false }),
+      setLatest: () => this.set(tab === 'pending' ? { sortPending: 'latest', sortMenu: false } : { sortReviewed: 'latest', sortMenu: false }),
+      sortLabel: sortAsc ? '最旧' : '最新',
+      sortChev: st.sortMenu ? '▲' : '▼',
+      sortMenuOpen: st.sortMenu,
+      toggleSortMenu: () => this.set({ sortMenu: !st.sortMenu }),
+      latestMark: sortAsc ? '' : '✓',
+      oldestMark: sortAsc ? '✓' : '',
+      mineOn: st.mine,
+      mineOff: !st.mine,
+      toggleMine: () => this.set({ mine: !st.mine }),
+      query: st.query,
+      hasQuery: (st.query || '').length > 0,
+      onQuery: e => this.set({ query: e.target.value }),
+      clearQuery: () => this.set({ query: '' }),
+      noResults: (tab === 'pending' ? pendingSections.length === 0 : reviewedSections.length === 0),
+      noResultsText: (st.query || '').trim()
+        ? '没有匹配「' + (st.query || '').trim() + '」的 case' + (st.mine ? '（已限定「只看我的」）' : '') + '，试试其他关键词或编号片段。'
+        : (st.mine ? '当前没有分配给你的' + (tab === 'pending' ? '待审核任务' : '审核记录') + '，取消「只看我的」查看全部。' : '暂无记录。'),
+      pendingSections,
+      reviewedSections
+    };
+  }
+
+  pendingItem(it) {
+    const st = this.state;
+    const id = it.id;
+    const expanded = st.expanded === id;
+    const done = !!st.submitted[id] && !expanded;
+    const decision = st.decision[id] || null;
+    const feedback = st.feedback[id] || '';
+    const imgs = st.imgs[id] || 0;
+    const showFiles = st.pv[id] === 'files';
+    const canSubmit = feedback.trim().length > 0;
+    return {
+      id, node: it.node, title: it.title, category: it.category, mode: it.mode,
+      roundLabel: it.round, waitLabel: this.waitLabel(it.waitH),
+      caseName: it.caseName,
+      shortId: it.id,
+      roundTip: this.roundTip(it.round),
+      tipOpen: st.tip === id,
+      showTip: () => this.set({ tip: id }),
+      hideTip: () => this.set({ tip: null }),
+      roundWait: it.round + ' · ' + this.waitLabel(it.waitH),
+      routeMeta: it.routeMeta, routeDetail: it.routeDetail, previewUrl: it.previewUrl,
+      collapsed: !expanded && !done,
+      expanded, done,
+      doneLabel: st.submitted[id] === 'pass' ? '已提交 · 通过' : '已提交 · 要求返工',
+      undo: () => this.set({ submitted: this.keyed(st.submitted, id, null) }),
+      open: () => this.set({ expanded: id }),
+      close: () => this.set({ expanded: null }),
+      showPreview: !showFiles, showFiles,
+      toFiles: () => this.set({ pv: this.keyed(st.pv, id, 'files') }),
+      toPreview: () => this.set({ pv: this.keyed(st.pv, id, 'preview') }),
+      decisionHint: decision ? '可以随时切换结论；提交后本 Item 才会离开待审核列表。' : '先选择结论，再填写对应内容。默认不预选任何结论。',
+      passSelected: decision === 'pass',
+      passUnselected: decision !== 'pass',
+      reworkSelected: decision === 'rework',
+      reworkUnselected: decision !== 'rework',
+      choosePass: () => this.set({ decision: this.keyed(st.decision, id, 'pass') }),
+      chooseRework: () => this.set({ decision: this.keyed(st.decision, id, 'rework') }),
+      cancel: () => this.set({ decision: this.keyed(st.decision, id, null) }),
+      note: st.note[id] || '',
+      onNote: e => this.set({ note: this.keyed(st.note, id, e.target.value) }),
+      feedback,
+      onFeedback: e => this.set({ feedback: this.keyed(st.feedback, id, e.target.value) }),
+      imgCount: imgs + '/' + this.maxImgs + ' 张',
+      images: Array.from({ length: imgs }).map((_, i) => ({
+        remove: e => { e.stopPropagation(); this.set({ imgs: this.keyed(st.imgs, id, Math.max(0, imgs - 1)) }); }
+      })),
+      canAddImage: imgs < this.maxImgs,
+      addImage: () => this.set({ imgs: this.keyed(st.imgs, id, Math.min(this.maxImgs, imgs + 1)) }),
+      canSubmitRework: canSubmit,
+      cannotSubmitRework: !canSubmit,
+      submitHint: canSubmit ? '提交后进入下一轮 Agent workspace' : '填写返工要求后才能提交，其间可以先处理其他 Item',
+      submitPass: () => this.set({ submitted: this.keyed(st.submitted, id, 'pass'), expanded: null, decision: this.keyed(st.decision, id, null) }),
+      submitRework: () => this.set({ submitted: this.keyed(st.submitted, id, 'rework'), expanded: null, decision: this.keyed(st.decision, id, null) })
+    };
+  }
+
+  reviewedItem(it) {
+    const st = this.state;
+    const id = it.id;
+    const expanded = st.openItems === id;
+    const stopped = !!st.stopped[id];
+    const status = stopped ? '已停止' : it.status;
+    const palette = { '已通过': ['#eff4ee', '#3f6b45'], '返工执行中': ['#fbf3e6', '#8a5a16'], '已停止': ['#f2efe9', '#6b645d'] };
+    const p = palette[status] || palette['已通过'];
+    const attempts = it.rounds.reduce((s, r) => s + r.attempts, 0);
+    const latest = it.rounds[it.rounds.length - 1].n;
+    const openRounds = st.openRounds[id];
+    return {
+      id, title: it.title, category: it.category,
+      status, statusBg: p[0], statusFg: p[1],
+      roundsLabel: it.rounds.length + ' 轮审核',
+      attemptsLabel: attempts + ' 条执行记录',
+      reviewer: it.reviewer, time: it.time,
+      historyLabel: expanded ? '收起历史 ↑' : '查看历史 →',
+      expanded,
+      toggle: () => this.set({ openItems: expanded ? null : id }),
+      rounds: it.rounds.map(r => this.round(it, r, id, latest, openRounds, stopped))
+    };
+  }
+
+  round(item, r, id, latest, openRounds, stopped) {
+    const st = this.state;
+    const rkey = 'r' + r.n;
+    const defaultOpen = (this.props.expandLatestRound ?? true) && r.n === latest;
+    const openMap = openRounds || {};
+    const expanded = rkey in openMap ? openMap[rkey] : defaultOpen;
+    const processing = !!r.processing && !stopped;
+    const result = r.processing ? (stopped ? '已停止' : '返工执行中') : r.result;
+    const palette = { '已通过': ['#eff4ee', '#3f6b45'], '要求返工': ['#fdf0eb', '#8f4029'], '返工执行中': ['#fbf3e6', '#8a5a16'], '已停止': ['#f2efe9', '#6b645d'] };
+    const p = palette[result] || palette['要求返工'];
+    const dots = { '已通过': '#5f9a63', '要求返工': '#b1543a', '返工执行中': '#c8912f', '已停止': '#a9a29a' };
+    const composeKey = id + ':' + rkey;
+    const composing = st.compose === composeKey;
+    const text = st.composeText || '';
+    return {
+      roundLabel: '第 ' + r.n + ' 轮',
+      result, badgeBg: p[0], badgeFg: p[1], dot: dots[result] || '#b1543a',
+      who: r.who + ' · ' + r.time,
+      attempts: r.attempts + ' 条返工执行记录',
+      toggleLabel: expanded ? '收起详情 ↑' : '展开详情 ↓',
+      toggle: () => this.set({ openRounds: this.keyed(st.openRounds, id, Object.assign({}, openMap, { [rkey]: !expanded })) }),
+      expanded,
+      previewUrl: r.previewUrl,
+      previewCaption: r.caption,
+      feedback: r.feedback,
+      refImages: Array.from({ length: r.refs }).map(() => ({})),
+      refLabel: r.refs + ' 张',
+      attemptRows: Array.from({ length: r.attempts }).map((_, i) => ({
+        name: 'attempt ' + (i + 1) + ' · ' + r.node,
+        state: processing && i === r.attempts - 1 ? '执行中' : '成功',
+        stateFg: processing && i === r.attempts - 1 ? '#8a5a16' : '#3f6b45',
+        dur: processing && i === r.attempts - 1 ? '04:12 …' : (8 + i * 3) + 'm ' + (12 + i * 7) + 's'
+      })),
+      reviewer: r.who, time: r.time, node: r.node,
+      isProcessing: processing,
+      canRerun: !processing,
+      rerunLabel: '基于第 ' + r.n + ' 轮重新返工',
+      actionHint: processing ? '返工正在执行，停止后可基于当前产物重新发起。' : '可以基于该轮次的产物与上下文，重新发起一轮返工。',
+      stop: () => this.set({ stopped: this.keyed(st.stopped, id, true) }),
+      rerun: () => this.set({ compose: composeKey, composeText: '' }),
+      composing,
+      composeTitle: '基于第 ' + r.n + ' 轮重新返工',
+      text,
+      onText: e => this.set({ composeText: e.target.value }),
+      canConfirm: text.trim().length > 0,
+      cannotConfirm: text.trim().length === 0,
+      composeHint: text.trim().length > 0 ? '提交后该 Item 回到待审核队列' : '填写修改说明后才能提交',
+      cancelCompose: () => this.set({ compose: null, composeText: '' }),
+      confirmCompose: () => this.set({ compose: null, composeText: '', stopped: this.keyed(st.stopped, id, false) })
+    };
+  }
+}
+</script>
+</body>
+</html>
