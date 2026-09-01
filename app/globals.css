@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #fbfaf8;
+}
+
+.site-shell,
+.forge-frame {
+  width: 100%;
+  height: 100%;
+}
+
+.site-shell {
+  position: fixed;
+  inset: 0;
+}
+
+.forge-frame {
+  display: block;
+  border: 0;
+  background: #fbfaf8;
+}
+
+.fallback-link {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #b1543a;
+  font: 600 16px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
