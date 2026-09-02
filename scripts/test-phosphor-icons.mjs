@@ -26,7 +26,7 @@ function component(props = {}) {
 test('every interface SVG uses unmodified official Phosphor Regular geometry', () => {
   const icons = [...markup.matchAll(/<svg\b([^>]*)>([\s\S]*?)<\/svg>/g)];
   // Includes branch progress connectors and compact record/remove actions.
-  assert.equal(icons.length, 160);
+  assert.equal(icons.length, 162);
   const names = new Set();
   for (const [, attrs, geometry] of icons) {
     const name = attrs.match(/data-phosphor="([\w-]+)"/)?.[1];

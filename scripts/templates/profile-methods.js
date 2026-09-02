@@ -55,6 +55,8 @@
     const visibleItems = new Set(work.flatMap(task => task.itemIds || []));
     return this.deliveryData().flatMap(group => group.sheets).filter(sheet => {
       if (identity.key === 'lead') return true;
+      if (Array.isArray(sheet.members)) return sheet.members.some(member => member.accountName === identity.accountName)
+        || (identity.key === 'project-owner' && (sheet.projectIds || []).some(id => identity.ownedProjects.includes(id)));
       const itemIds = this.sheetRows(sheet).map(row => String(row[2]));
       if (itemIds.some(id => visibleItems.has(id))) return true;
       if (identity.key === 'project-owner') return (sheet.projectIds || []).some(id => identity.ownedProjects.includes(id));

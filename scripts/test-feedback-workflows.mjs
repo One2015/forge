@@ -25,6 +25,14 @@ function component() {
   return context.instance;
 }
 const file = (name = 'roof.png', extra = {}) => ({ name, type: 'image/png', size: 256000, ...extra });
+test('image box shows used and remaining slots, disables at six and reopens after removal', async () => {
+  const c = component(); let view = c.feedbackView('test');
+  assert.equal(view.countLabel, '已上传 0/6 张'); assert.equal(view.remaining, 6); assert.match(view.capacityHint, /6 张/);
+  await c.addFeedbackImages('test', Array.from({ length: 6 }, (_, i) => file('test-' + i + '.png')));
+  view = c.feedbackView('test'); assert.equal(view.countLabel, '已上传 6/6 张'); assert.equal(view.remaining, 0); assert(view.full);
+  assert.equal(view.uploadLabel, '已达 6 张上限'); view.images[0].remove();
+  view = c.feedbackView('test'); assert.equal(view.remaining, 1); assert(!view.full); assert.equal(view.uploadLabel, '点击上传图片');
+});
 const focused = c => c.renderVals().review.items.find(row => row.expanded);
 function review(c) {
   c.setState({ view: 'review', reviewOwner: 'all' });

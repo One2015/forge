@@ -89,12 +89,15 @@
             <label for="forge-rework-note">返工说明 <span class="forge-feedback-required">*</span></label>
             <textarea id="forge-rework-note" aria-label="返工说明" aria-required="true" required maxlength="5000" sc-camel-on-change="{{ it.onNote }}" value="{{ it.noteText }}" placeholder="说明这一轮要改什么：保留什么、改什么、验收标准。" aria-describedby="forge-rework-hint"></textarea>
           </div>
-          <div class="forge-feedback-upload-row">
-            <label class="forge-feedback-upload" data-disabled="{{ it.feedback.full }}">[[icon:paperclip:20]]<span>上传图片</span><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple disabled="{{ it.feedback.full }}" aria-label="上传返工参考图片" sc-camel-on-change="{{ it.feedback.upload }}" /></label>
-            <span class="forge-feedback-paste">[[icon:clipboard:20]] Ctrl/⌘ + V 粘贴图片</span>
-            <span class="forge-feedback-count">{{ it.feedback.count }}</span>
-          </div>
-          <p class="forge-feedback-limit">PNG、JPG、WebP、GIF · 单张不超过 10 MB</p>
+          <!-- feedback-image-box:start -->
+          <div class="forge-feedback-image-heading"><span>参考图片 <span class="forge-feedback-optional">选填</span></span><span class="forge-feedback-count" role="status" aria-live="polite">{{ it.feedback.countLabel }}</span></div>
+          <label class="forge-feedback-image-box" data-disabled="{{ it.feedback.full }}">
+            <span class="forge-feedback-image-box-icon">[[icon:image:24]]</span>
+            <span class="forge-feedback-image-box-copy"><strong>{{ it.feedback.uploadLabel }}</strong><span>{{ it.feedback.capacityHint }}</span><span class="forge-feedback-image-paste">支持 Ctrl / ⌘ + V 粘贴图片</span></span>
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple disabled="{{ it.feedback.full }}" aria-label="上传返工参考图片" aria-describedby="forge-rework-image-help" sc-camel-on-change="{{ it.feedback.upload }}" />
+          </label>
+          <p class="forge-feedback-limit" id="forge-rework-image-help">PNG、JPG、WebP、GIF · 最多 6 张 · 单张不超过 10 MB</p>
+          <!-- feedback-image-box:end -->
           <div class="forge-feedback-attachments" aria-live="polite">
             <sc-for list="{{ it.feedback.images }}" as="img" hint-placeholder-count="0">
               <div class="forge-feedback-attachment">

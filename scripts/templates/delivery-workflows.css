@@ -20,6 +20,27 @@
 .forge-delivery-editor textarea{display:block;min-height:80px;resize:vertical}
 .forge-delivery-editor :is(input,textarea)::placeholder,.forge-review-skill-composer input::placeholder{color:var(--forge-muted)}
 .forge-delivery-field{margin-bottom:16px}
+.forge-delivery-members{margin:4px 0 16px;padding-top:16px;border-top:1px solid var(--forge-border)}
+.forge-delivery-members .forge-delivery-skill-search{margin-top:12px}
+.forge-delivery-member-results{padding:0 10px;margin:8px 0;border:1px solid var(--forge-border);border-radius:6px;max-height:210px;overflow:auto;scrollbar-width:thin}
+.forge-delivery-member-results-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--forge-muted)}
+.forge-delivery-person-option{display:flex!important;align-items:center;justify-content:space-between!important;text-align:left;width:100%;min-height:48px;padding:6px;border:0;border-top:1px solid var(--forge-border);border-radius:0;background:var(--forge-panel);color:var(--forge-text);gap:10px}
+.forge-delivery-person-copy{min-width:0;flex:1;overflow-wrap:anywhere}
+.forge-delivery-person-copy strong{display:block;font-size:13px;font-weight:500;line-height:20px}
+.forge-delivery-person-copy>span{display:block;font-size:12px;color:var(--forge-muted);line-height:18px}
+.forge-delivery-person-action{display:inline-flex;align-items:center;gap:4px;flex:none;font-size:12px;color:var(--forge-accent)}
+.forge-delivery-members .forge-delivery-person-option:disabled{background:var(--forge-subtle);color:var(--forge-muted);cursor:default}
+.forge-delivery-person-option:disabled .forge-delivery-person-action{color:var(--forge-muted)}
+.forge-delivery-member-row{display:flex;align-items:center;gap:10px;min-height:62px;padding:10px 0;border-bottom:1px solid var(--forge-border)}
+.forge-delivery-member-avatar{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--forge-subtle);color:var(--forge-muted);flex:none;font-size:12px}
+.forge-delivery-member-self{font-size:11px;font-weight:400;color:var(--forge-muted);margin-left:6px}
+.forge-delivery-editor.forge-feedback .forge-delivery-members .forge-delivery-member-row select{width:128px;flex:none;font-size:12px}
+.forge-delivery-editor.forge-feedback .forge-delivery-members .forge-delivery-skill-search input{padding-left:34px;padding-right:10px}
+.forge-delivery-member-role{font-size:12px;color:var(--forge-muted);flex:none}
+.forge-delivery-member-row button:disabled{color:var(--forge-disabled-text);background:transparent;cursor:not-allowed}
+.forge-delivery-member-notice:empty{display:none}
+@media(hover:hover){.forge-delivery-person-option:not(:disabled):hover{background:var(--forge-subtle)}}
+@media(max-width:600px){.forge-delivery-member-row{gap:8px;flex-wrap:wrap}.forge-delivery-member-row .forge-delivery-person-copy{flex-basis:calc(100% - 42px)}.forge-delivery-editor.forge-feedback .forge-delivery-members .forge-delivery-member-row select{width:auto;flex:1;margin-left:38px}.forge-delivery-member-role{margin-left:38px}}
 .forge-delivery-field>label{display:block;font-size:13px;line-height:20px;font-weight:500;margin-bottom:6px}
 .forge-delivery-field>label>span{color:var(--forge-accent)}
 .forge-delivery-field-grid{display:grid;grid-template-columns:minmax(0,1fr) 160px;gap:16px}

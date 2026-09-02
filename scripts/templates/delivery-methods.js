@@ -59,12 +59,15 @@
     const sheet = key ? this.deliverySheet(key) : null;
     if (key && !sheet) return;
     const entries = sheet ? this.deliveryEntries(sheet) : [];
+    const identity = this.profileIdentity();
+    const members = sheet ? this.deliverySheetMembers(sheet) : [{ accountName: identity.accountName, name: identity.name, role: 'owner' }];
     this.setState({ deliveryEditor: {
       id: 'editor-' + Date.now() + '-' + (this._deliverySequence = (this._deliverySequence || 0) + 1), key,
       tab: 'basic', name: sheet?.name || '', customer: sheet?.customer || '', desc: sheet?.desc || '', target: sheet ? String(sheet.target) : '',
       logo: sheet?.logo || null, archive: sheet?.archive || null, entries, listText: entries.map(entry => entry.source).join('\n'),
       listChanged: !sheet, tags: (sheet?.tags || []).map(tag => Object.assign({}, tag)),
       skills: (sheet?.skills || []).map(skill => Object.assign({}, skill)), skillQuery: '', skillNotice: '', tagName: '', tagColor: '#64748b',
+      members, memberActor: identity.accountName, memberBaseline: this.deliveryMemberSignature(members), memberQuery: '', memberNotice: '',
       logoLoading: false, listLoading: false, skillLoading: false, logoError: '', listError: '', skillError: '', error: ''
     } });
     setTimeout(() => {
@@ -250,6 +253,8 @@
     if (!/^\d+$/.test(editor.target) || Number(editor.target) < 1 || Number(editor.target) > 100000) return '目标数量须为 1–100000 的整数。';
     if (editor.logoLoading || editor.listLoading || editor.skillLoading) return '文件正在读取，请稍候。';
     if (editor.listError) return editor.listError;
+    const memberIssue = this.deliveryMembersIssue();
+    if (memberIssue) return memberIssue;
     if (editor.skills.length > 12) return '最多绑定 12 个 Skill。';
     const commands = new Set();
     for (const skill of editor.skills) {
@@ -276,6 +281,7 @@
       entryTags: Object.fromEntries(editor.entries.filter(entry => entry.itemId).map(entry => [entry.itemId, entry.tagId])),
       cat: previous?.cat || '自定义', created: previous?.created || date.replaceAll('-', '/') + ' 创建 · ' + (this.props.currentUser || '一万'), at: previous?.at || Number(date.replaceAll('-', ''))
     });
+    if (!previous || this.deliveryMemberSignature(editor.members) !== editor.memberBaseline) sheet.members = editor.members.map(member => Object.assign({}, member));
     if (editor.listChanged || !previous || Array.isArray(previous.entries)) sheet.entries = editor.entries.map(entry => Object.assign({}, entry));
     const custom = (this.state.deliverySheets || []).slice();
     const index = custom.findIndex(value => value.key === key);
@@ -301,6 +307,7 @@
     return Object.assign({}, editor, {
       open: true, title: editor.key ? '编辑数据单' : '创建数据单', saveLabel: editor.key ? '保存更改' : '创建数据单',
       basic: editor.tab === 'basic', list: editor.tab === 'list', skillTab: editor.tab === 'skills',
+      membership: this.deliveryMembersValues(),
       tabs: [['basic', '基础信息'], ['list', 'List 与 Tag'], ['skills', '审核 Skill']].map(([key, label]) => ({ key, label, selected: editor.tab === key, pick: () => patch({ tab: key, error: '' }) })),
       onName: event => patch({ name: event.target.value, error: '' }), onCustomer: event => patch({ customer: event.target.value, error: '' }),
       onDesc: event => patch({ desc: event.target.value }), onTarget: event => patch({ target: event.target.value, error: '' }),

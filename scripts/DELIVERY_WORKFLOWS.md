@@ -4,7 +4,7 @@ This extends the existing localhost prototype. It does not add a backend, durabl
 
 ## User flow
 
-1. In **交付**, choose **创建数据单**. Enter sheet name, customer, target and optional description/logo.
+1. In **交付**, choose **创建数据单**. Enter sheet name, customer, target and optional description/logo. In **成员与角色**, search people and assign sheet-local Owner, Reviewer, Member or Outsourcing roles. The creator starts as Owner; at least one Owner must remain. This does not change global account roles or send invitations.
 2. **List 与 Tag** accepts pasted lines or a ZIP directory. Inspect linked/unlinked entries, add Tags with preset/custom colors, and assign one Tag per entry.
 3. **审核 Skill** supports searching and selecting existing platform Skills by name, slash command or description, as well as uploading multiple Markdown files or ZIP packages containing `SKILL.md`. Choices and uploads share a 12-Skill limit. Each selected Skill has an editable slash-command name and an inert content preview.
 4. Save. The sheet shows its actual linked fixture Items, clear unlinked entries, color filters and bound command names. The header's **编辑数据单** opens the same editor; the duplicate 编辑配置 link was removed.
@@ -29,10 +29,10 @@ Edit `scripts/templates/delivery-{editor,sheet-extras}.html`, `review-skills.htm
 
 For the searchable Skill extension, also maintain `scripts/templates/delivery-skill-library.js` and run `node scripts/add-delivery-skill-library.mjs`. This focused, idempotent generator updates only the editor, its styles and delivery methods; it preserves current review, history, sidebar and profile changes. Run `node --test scripts/test-delivery-skill-library.mjs` for search, visibility, multi-selection, snapshot isolation, command conflicts, shared capacity, upload cancellation and review invocation checks.
 
-For the current searchable-Skill change, use the focused builder below. Do not replay older migration scripts over later sidebar/review/feedback refinements:
+For the current delivery-member and rework-image extensions, use the focused builder below. It includes the searchable-Skill builder and updates the member/feedback source blocks and both inline rework image boxes. Do not replay older migration scripts over later sidebar/review/feedback refinements:
 
 ```sh
-node scripts/add-delivery-skill-library.mjs
+node scripts/update-delivery-members-feedback.mjs
 node --test scripts/test-*.mjs
 npm run build
 ```
@@ -40,6 +40,8 @@ npm run build
 The installer is repeatable. JavaScript block replacements must use function replacers: source regex literals contain `$` sequences that string replacement would interpolate.
 
 ## Verification
+
+- Member/image-box update: full suite 172 passing tests; production build passes. Browser checks covered file choosing, approved image paste, the six-image cap, individual image removal, member search/add/role changes, and new-sheet Save. Layout was inspected on desktop and mobile. Existing seeded-sheet Save was not browser-validated. Six reviewed captures are in `.impeccable/review/members-and-image-box/`. Finish-review disposition: ship, no material fixes. These results do not establish real authorization, durable invitations or persisted uploads.
 
 - Searchable library update: 11 new tests cover search, scoped catalog visibility, multi-selection, snapshot isolation, collisions, shared capacity, stale/cancelled operations and review invocation. Full suite: 161 passing tests; production build passes. The new UI has not yet had browser validation (approval pending). The following browser evidence refers to the earlier upload-only version.
 

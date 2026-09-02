@@ -58,6 +58,9 @@
         remove: e => { e?.stopPropagation(); this.setFeedbackImages(key, this.feedbackImages(key).filter(x => x.id !== img.id), ''); }
       })),
       count: images.length + ' / 6', full: images.length >= 6,
+      countLabel: '已上传 ' + images.length + '/6 张', remaining: Math.max(0, 6 - images.length),
+      uploadLabel: images.length >= 6 ? '已达 6 张上限' : '点击上传图片',
+      capacityHint: images.length >= 6 ? '移除一张后可继续上传' : '还可上传 ' + (6 - images.length) + ' 张',
       loading: images.some(img => img.loading),
       error: (this.state.feedbackErrors || {})[key] || '',
       hasError: !!(this.state.feedbackErrors || {})[key],
