@@ -1,0 +1,96 @@
+/* feedback-workflows:start */
+.forge-feedback{color:var(--forge-text);font-family:var(--forge-font);font-size:14px;line-height:1.5;color-scheme:light}
+.forge-feedback *{box-sizing:border-box}
+.forge-feedback :where(input,textarea,select,button){font:inherit;color:inherit}
+.forge-feedback :is(input,textarea,select){accent-color:#ff4d00;caret-color:#e64700}
+.forge-feedback :is(button,input,textarea,select):focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}
+.forge-feedback ::selection{background:#ffdfd1;color:#171717}
+.forge-feedback button{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;touch-action:manipulation}
+.forge-feedback button:disabled,.forge-feedback select:disabled{cursor:not-allowed;background:#efeeec;color:#817b75}
+.forge-feedback-field{margin-top:16px}
+.forge-feedback-field>label{display:block;font-size:13px;line-height:20px;font-weight:500;margin-bottom:6px}
+.forge-feedback-field :is(input,textarea){display:block;width:100%;border:1px solid #d9d9d9;border-radius:7px;background:#fff;padding:8px 12px;box-sizing:border-box}
+.forge-feedback-field input{height:38px}
+.forge-feedback-field textarea{height:88px;min-height:88px;resize:vertical;line-height:1.6}
+.forge-feedback-field :is(input,textarea)::placeholder{color:#737373}
+.forge-feedback-field p,.forge-feedback-limit{font-size:12px;color:#6b645d;margin:4px 0 0}
+.forge-feedback-required{color:#c1380a;margin-left:5px}
+.forge-feedback-upload-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin-top:6px;color:#625c56;font-size:12px}
+.forge-feedback-upload{position:relative;display:inline-flex;align-items:center;gap:6px;min-height:32px;cursor:pointer}
+.forge-feedback-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.forge-feedback-upload:focus-within{outline:2px solid var(--forge-accent);outline-offset:2px;border-radius:4px}
+.forge-feedback-upload[data-disabled="true"]{opacity:.5;cursor:not-allowed}
+.forge-feedback-upload[data-disabled="true"] input{cursor:not-allowed}
+.forge-feedback-paste{display:inline-flex;align-items:center;gap:6px}
+.forge-feedback-count{margin-left:auto;font-size:12px;font-variant-numeric:tabular-nums}
+.forge-feedback-attachments{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.forge-feedback-attachments:not(:has(.forge-feedback-attachment)){display:none;margin:0}
+.forge-feedback-attachment{display:flex;align-items:center;gap:10px;min-width:0;padding:6px;border:1px solid #e1dfdc;border-radius:6px;background:#fff}
+.forge-feedback-attachment>img,.forge-feedback-image-loading{width:52px;height:42px;object-fit:cover;border-radius:5px;flex:none;background:#f4f3f1}
+.forge-feedback-image-loading{display:flex;align-items:center;justify-content:center;color:#777}
+.forge-feedback-attachment>div{min-width:0;flex:1}
+.forge-feedback-attachment strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:500}
+.forge-feedback-attachment>div>span{display:block;color:#6b645d;font-size:12px;margin-top:2px}
+.forge-feedback-attachment>button{width:32px;height:36px;flex:none;background:none;border:0;padding:0;border-radius:4px;color:#666}
+.forge-feedback .forge-feedback-error{color:#b03412;font-size:13px;margin:8px 0 0;overflow-wrap:anywhere}
+.forge-branch-dialog{width:min(560px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 48px);padding:0;margin:auto;border:0;border-radius:10px;background:#fff;box-shadow:0 12px 40px rgba(24,27,24,.18);overflow:hidden}
+.forge-branch-dialog[open]{display:flex;flex-direction:column}
+.forge-branch-dialog::backdrop{background:rgba(24,27,24,.32)}
+.forge-branch-header{padding:16px 20px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex:none}
+.forge-branch-header h2{font-size:18px;line-height:26px;font-weight:600;letter-spacing:0;margin:0}
+.forge-branch-header p{color:#6b645d;margin:4px 0 0;font-size:12px;line-height:18px}
+.forge-branch-close{flex:none;width:32px;height:32px;background:none;border:0;border-radius:5px;padding:0}
+.forge-branch-scroll{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#c7c2bc #fff;padding:0 20px 12px}
+.forge-branch-source{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:center;padding:10px;border:1px solid #e5e2df;border-radius:6px;background:#faf9f7}
+.forge-branch-preview{height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#756e67;background:#eeeae5;border-radius:7px;font-size:12px;overflow:hidden}
+.forge-branch-preview img{width:100%;height:100%;object-fit:cover}
+.forge-branch-source-copy{min-width:0;color:#555;overflow-wrap:anywhere}
+.forge-branch-source-copy>span{font-size:12px;margin-right:8px}
+.forge-branch-source-copy strong{display:inline;color:var(--forge-text);font-size:13px;line-height:20px;font-weight:600}
+.forge-branch-source-copy p{margin:3px 0 0;color:#6b645d;font-size:12px}
+.forge-branch-source-copy .forge-branch-submitted{font-size:12px;margin-top:4px}
+.forge-branch-config{margin-top:12px;border:0;border-top:1px solid #e1dfdc;border-radius:0;padding:10px 0 0}
+.forge-branch-config-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.forge-branch-config-heading strong{font-size:13px;font-weight:500}
+.forge-branch-config-heading button{height:28px;padding:0 9px;border:1px solid #d9d9d9;border-radius:5px;background:#fff;font-size:12px;white-space:nowrap}
+.forge-branch-config>p{font-size:12px;color:#6b645d;margin:4px 0 0;overflow-wrap:anywhere}
+.forge-branch-config-fields{display:grid;grid-template-columns:72px minmax(0,1fr);gap:8px;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid #e5e2df;font-size:13px}
+.forge-branch-config-fields select{width:100%;min-width:0;height:36px;border:1px solid #d9d9d9;border-radius:6px;padding:0 10px;background:#fff}
+.forge-branch-notice{display:flex;align-items:flex-start;gap:8px;padding:0;background:transparent;border:0;margin-top:12px}
+.forge-branch-notice>.forge-icon{color:#e64700;flex:none}
+.forge-branch-notice p{font-size:12px;margin:0;color:#514d48;line-height:1.6}
+.forge-branch-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 20px 14px;flex:none;background:#fff;border-top:1px solid var(--forge-border)}
+.forge-branch-footer button{height:36px;padding:0 14px;border-radius:6px;font-size:13px;border:1px solid #d9d9d9;background:#fff}
+.forge-branch-footer .forge-feedback-primary{background:#d33e00;border-color:#d33e00;color:white}
+.forge-branch-footer .forge-feedback-primary:disabled{background:#e8e5e1;border-color:#e8e5e1;color:#827b74;opacity:1}
+.forge-branch-footer kbd{font-family:inherit;font-size:11px;white-space:nowrap;margin-left:4px}
+.review-workbench-rework-form.forge-feedback{padding:0;margin:0;border:0}
+.review-workbench-rework-form .forge-feedback-title{font-size:18px;line-height:26px;margin:0 0 6px;font-weight:600}
+.review-workbench-rework-form .forge-feedback-context{font-size:12px;color:#6b645d;margin:0;padding-bottom:14px;border-bottom:1px solid #e5e2df;overflow-wrap:anywhere}
+.review-workbench-rework-form .forge-feedback-field textarea{margin-top:0;height:128px;min-height:128px}
+.review-workbench-rework-form .forge-feedback-attachments{grid-template-columns:1fr}
+.review-workbench-rework-form .forge-feedback-upload-row{gap:6px 14px}
+.forge-feedback-submit-context{margin-top:16px;padding:12px;background:#faf9f7;border:1px solid #e5e2df;border-radius:7px;font-size:13px;color:#625c56}
+.forge-feedback-submit-context strong{display:block;color:#333;font-weight:500;margin-bottom:5px}
+.forge-sheet-feedback{padding:20px}
+.forge-sheet-actions>.forge-feedback-secondary,.forge-sheet-actions>.forge-feedback-primary{flex:1;min-height:38px;border:1px solid #d9d9d9;border-radius:7px;background:#fff;padding:0 16px;font-size:14px}
+.forge-sheet-actions>.forge-feedback-primary{background:#d33e00;border-color:#d33e00;color:#fff}
+.forge-sheet-actions>.forge-feedback-primary:disabled{background:#e8e5e1;border-color:#e8e5e1;color:#827b74}
+[data-review-workbench="true"] .review-workbench-reject:disabled{background:#e8e5e1;border-color:#e8e5e1;color:#827b74;opacity:1}
+
+/* Branch-only compact density: shared rework panels keep their existing size. */
+.forge-branch-dialog .forge-feedback-field{margin-top:12px}
+.forge-branch-dialog .forge-feedback-field>label{margin-bottom:4px}
+.forge-branch-dialog .forge-feedback-field input{height:34px;padding:6px 10px}
+.forge-branch-dialog .forge-feedback-field textarea{height:72px;min-height:72px;padding:8px 10px}
+.forge-branch-dialog .forge-feedback-upload{min-height:28px}
+.forge-branch-dialog .forge-feedback-upload-row{gap:4px 14px;margin-top:4px}
+.forge-branch-dialog .forge-feedback-limit{margin-top:0}
+.forge-branch-notice>.forge-icon{width:16px;height:16px;margin-top:2px;color:var(--forge-muted)}
+
+@media(hover:hover){.forge-feedback-attachment>button:hover,.forge-branch-close:hover{background:#f1efec}.forge-branch-footer .forge-feedback-primary:not(:disabled):hover,.forge-sheet-actions>.forge-feedback-primary:not(:disabled):hover{background:#c93b00;border-color:#c93b00}.forge-feedback-upload:not([data-disabled="true"]):hover{color:#c53b00}}
+@media(max-width:600px){.forge-branch-dialog{width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);border-radius:10px}.forge-branch-header{padding:14px 16px 12px;gap:10px}.forge-branch-header h2{font-size:18px;line-height:26px}.forge-branch-header p{font-size:12px}.forge-branch-scroll{padding:0 16px 12px}.forge-branch-source{grid-template-columns:72px minmax(0,1fr);gap:10px;padding:10px}.forge-branch-preview{height:64px;font-size:12px}.forge-branch-source-copy strong{font-size:13px}.forge-branch-source-copy>span,.forge-branch-source-copy p{font-size:12px}.forge-branch-source-copy .forge-branch-submitted{font-size:12px;margin-top:4px}.forge-feedback-attachments{grid-template-columns:1fr}.forge-branch-footer{padding:12px 16px;gap:8px}.forge-branch-footer button{padding:0 14px;font-size:14px;height:44px}.forge-branch-footer .forge-feedback-primary{flex:1}.forge-branch-footer kbd{display:none}.forge-branch-config-fields{grid-template-columns:1fr;gap:6px}.forge-branch-config-fields label:not(:first-child){margin-top:4px}}
+.forge-feedback-upload-row .forge-icon{width:16px;height:16px}
+.forge-branch-close .forge-icon{width:20px;height:20px}
+@media(pointer:coarse){.forge-feedback :is(input:not([type="file"]),textarea,select){font-size:16px}.forge-feedback-upload,.forge-branch-dialog .forge-feedback-upload,.forge-branch-dialog .forge-feedback-field input,.forge-feedback-attachment>button,.forge-branch-config-heading button,.forge-branch-close{min-height:44px}.forge-feedback-attachment>button,.forge-branch-close{min-width:44px}}
+/* feedback-workflows:end */

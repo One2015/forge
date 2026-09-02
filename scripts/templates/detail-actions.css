@@ -1,0 +1,31 @@
+/* detail-actions:start */
+.forge-item-id-row{display:flex;align-items:center;gap:4px;min-width:0;max-width:100%}
+.forge-item-id-row>code{font:12px/20px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--forge-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.forge-item-id-row .forge-item-id-link{display:inline-flex;align-items:center;gap:4px;min-width:0;max-width:100%;padding:0;border:0;background:transparent;color:var(--forge-accent);font:13px/20px var(--forge-font);cursor:pointer;text-align:left}
+.forge-item-id-link>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.forge-item-id-link>.forge-icon{flex:none}
+.forge-task-link-edit{display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;height:28px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--forge-muted);cursor:pointer}
+.forge-item-id-caption{margin-top:6px;gap:6px;font:12px/20px var(--forge-font);color:var(--forge-muted)}
+.forge-detail-footer.forge-sheet-actions{grid-column:2;grid-row:2;display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid var(--forge-border);background:var(--forge-panel);flex-wrap:wrap}
+.forge-detail-footer .forge-detail-action{flex:1;min-width:0;min-height:36px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;border:1px solid var(--forge-control-border);border-radius:6px;background:var(--forge-panel);color:var(--forge-text);font:500 13px/20px var(--forge-font);cursor:pointer}
+.forge-detail-footer .forge-detail-approve{color:var(--forge-success);border-color:#9ac9a7}
+.forge-detail-footer .forge-detail-primary{background:var(--forge-accent);border-color:var(--forge-accent);color:#fff}
+.forge-detail-footer .forge-detail-download{flex:0 0 40px;width:40px;padding:0}
+.forge-detail-footer .forge-detail-action:disabled{color:var(--forge-disabled-text);background:var(--forge-disabled-bg);border-color:var(--forge-border);cursor:not-allowed}
+.forge-detail-review-status{display:flex;align-items:baseline;gap:8px;flex:0 0 100%;font:12px/18px var(--forge-font);color:var(--forge-muted)}
+.forge-detail-review-status>span{flex:1;min-width:0;overflow-wrap:anywhere}
+.forge-sheet-actions .forge-detail-status-link{height:auto!important;flex:none;padding:0;border:0;background:none;color:var(--forge-accent);font-size:12px!important;line-height:18px;cursor:pointer}
+.forge-sheet-appended-round{position:relative;padding:0 0 15px 20px;border-left:1px solid var(--forge-control-border);font:13px/20px var(--forge-font)}
+.forge-sheet-appended-round:last-child{border-color:transparent}
+.forge-sheet-appended-dot{position:absolute;left:-5px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--forge-muted)}
+.forge-sheet-appended-round[data-approved="true"] .forge-sheet-appended-dot{background:var(--forge-success)}
+.forge-sheet-appended-heading{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.forge-sheet-appended-heading strong{font-weight:600}
+.forge-sheet-appended-heading span{font-size:12px;color:var(--forge-muted)}
+.forge-sheet-appended-round p{margin:6px 0 0;overflow-wrap:anywhere}
+.forge-sheet-appended-who{font-size:12px;color:var(--forge-muted)}
+.forge-task-link-edit:focus-visible,.forge-item-id-link:focus-visible,.forge-detail-action:focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}
+@media(hover:hover){.forge-task-link-edit:hover{background:var(--forge-subtle);color:var(--forge-accent)}.forge-detail-footer .forge-detail-action:hover:not(:disabled){background:var(--forge-subtle)}.forge-detail-footer .forge-detail-primary:hover:not(:disabled){background:var(--forge-accent-hover);border-color:var(--forge-accent-hover)}}
+@media(max-width:760px){.forge-detail-footer.forge-sheet-actions{padding:12px 16px}.forge-detail-footer .forge-detail-download{flex-basis:44px;width:44px}}
+@media(pointer:coarse){.forge-task-link-edit{flex-basis:44px;width:44px;height:44px}.forge-detail-footer .forge-detail-action{min-height:44px}.forge-detail-footer .forge-detail-download{flex-basis:44px;width:44px}}
+/* detail-actions:end */

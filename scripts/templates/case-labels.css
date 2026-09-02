@@ -1,0 +1,18 @@
+/* case-labels:start */
+.forge-case-section{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 12px;margin-top:13px;padding-top:12px;border-top:1px solid var(--forge-border)}
+.forge-case-label{font:400 12px/20px var(--forge-font);color:var(--forge-muted)}
+.forge-case-options{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.forge-case-options .forge-case-button{--case-color:#087b32;--case-border:#93c5a2;--case-soft:#edf7f0;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:108px;height:32px;margin:0;padding:0 10px;border:1px solid var(--case-border);border-radius:5px;background:var(--forge-panel);color:var(--case-color);font:400 13px/20px var(--forge-font);white-space:nowrap;cursor:pointer;touch-action:manipulation}
+.forge-case-options .forge-case-button[data-case="bad"]{--case-color:var(--forge-accent);--case-border:#edab93;--case-soft:var(--forge-accent-soft)}
+.forge-case-options .forge-case-button[aria-pressed="true"]{border-color:var(--case-color);background:var(--case-color);color:#fff;font-weight:600}
+.forge-case-options .forge-case-icon{display:inline-flex;align-items:center;justify-content:center;flex:none;width:18px;height:18px;border-radius:50%;background:var(--case-color);color:#fff}
+.forge-case-options .forge-case-button[aria-pressed="true"] .forge-case-icon{background:#fff;color:var(--case-color)}
+.forge-case-options .forge-case-icon .forge-icon{width:12px;height:12px;flex:none}
+.forge-case-options .forge-case-button:focus-visible{outline:2px solid var(--case-color);outline-offset:2px}
+.forge-case-options .forge-case-button:disabled{--case-color:var(--forge-disabled-text);--case-border:var(--forge-control-border);border-color:var(--case-border);background:var(--forge-disabled-bg);color:var(--forge-disabled-text);cursor:not-allowed;opacity:1}
+.forge-case-help{grid-column:1/-1;margin:0;font:400 12px/18px var(--forge-font);color:var(--forge-muted)}
+.review-workbench-case-options.forge-case-options>p{flex:0 0 100%}
+@media(hover:hover){.forge-case-options .forge-case-button:hover:not(:disabled):not([aria-pressed="true"]){border-color:var(--case-color);background:var(--case-soft)}}
+@media(max-width:360px){.forge-case-section{grid-template-columns:1fr}}
+@media(pointer:coarse){.forge-case-options .forge-case-button{min-height:44px}}
+/* case-labels:end */

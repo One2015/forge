@@ -1,0 +1,62 @@
+<!-- branch-dialog:start -->
+<dialog class="forge-branch-dialog forge-feedback" aria-labelledby="forge-branch-title" aria-describedby="forge-branch-subtitle" sc-camel-on-cancel="{{ branch.cancel }}" sc-camel-on-click="{{ branch.backdrop }}">
+  <sc-if value="{{ branch.open }}" hint-placeholder-val="{{ false }}">
+    <header class="forge-branch-header">
+      <div><h2 id="forge-branch-title">{{ branch.title }}</h2><p id="forge-branch-subtitle">{{ branch.subtitle }}</p></div>
+      <button type="button" class="forge-branch-close" aria-label="关闭创建分支" sc-camel-on-click="{{ branch.cancel }}">[[icon:x:24]]</button>
+    </header>
+    <div class="forge-branch-scroll">
+      <section class="forge-branch-source" aria-label="来源版本">
+        <div class="forge-branch-preview">
+          <sc-if value="{{ branch.hasPreview }}" hint-placeholder-val="{{ false }}"><img src="{{ branch.previewImage }}" alt="来源版本产物预览" /></sc-if>
+          <sc-if value="{{ branch.noPreview }}" hint-placeholder-val="{{ true }}">[[icon:image:24]]<span>暂无版本预览</span></sc-if>
+        </div>
+        <div class="forge-branch-source-copy"><span>来源版本</span><strong>{{ branch.sourceLabel }}</strong><p>该来源版本保持不变</p><p class="forge-branch-submitted">{{ branch.submitted }}</p></div>
+      </section>
+      <div class="forge-feedback-field">
+        <label for="forge-branch-name">分支名称</label>
+        <input id="forge-branch-name" value="{{ branch.name }}" sc-camel-on-change="{{ branch.onName }}" maxlength="100" aria-describedby="forge-branch-name-help" aria-invalid="{{ branch.duplicate }}" autofocus />
+        <p id="forge-branch-name-help">用于区分本次独立尝试，可稍后修改</p>
+        <sc-if value="{{ branch.duplicate }}" hint-placeholder-val="{{ false }}"><p class="forge-feedback-error" role="alert">{{ branch.nameError }}</p></sc-if>
+      </div>
+      <div class="forge-feedback-field">
+        <label for="forge-branch-note">本次迭代说明 <span class="forge-feedback-required">*</span></label>
+        <textarea id="forge-branch-note" value="{{ branch.note }}" sc-camel-on-change="{{ branch.onNote }}" placeholder="例如：保留主体结构，优化屋顶材质和台阶细节。" required aria-required="true" maxlength="5000"></textarea>
+      </div>
+      <div class="forge-feedback-upload-row">
+        <label class="forge-feedback-upload" data-disabled="{{ branch.full }}">[[icon:paperclip:20]]<span>上传图片</span><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple disabled="{{ branch.full }}" aria-label="上传分支参考图片" sc-camel-on-change="{{ branch.upload }}" /></label>
+        <span class="forge-feedback-paste">[[icon:clipboard:20]] Ctrl/⌘ + V 粘贴图片</span><span class="forge-feedback-count">{{ branch.count }}</span>
+      </div>
+      <p class="forge-feedback-limit">PNG、JPG、WebP、GIF · 单张不超过 10 MB</p>
+      <div class="forge-feedback-attachments" aria-live="polite">
+        <sc-for list="{{ branch.images }}" as="img" hint-placeholder-count="0">
+          <div class="forge-feedback-attachment">
+            <sc-if value="{{ img.ready }}" hint-placeholder-val="{{ true }}"><img src="{{ img.url }}" alt="{{ img.name }}" /></sc-if>
+            <sc-if value="{{ img.loading }}" hint-placeholder-val="{{ false }}"><span class="forge-feedback-image-loading">[[icon:image:20]]</span></sc-if>
+            <div><strong title="{{ img.name }}">{{ img.name }}</strong><span>{{ img.sizeLabel }}</span></div>
+            <button type="button" sc-camel-on-click="{{ img.remove }}" aria-label="{{ img.removeLabel }}">[[icon:x:16]]</button>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ branch.hasError }}" hint-placeholder-val="{{ false }}"><p class="forge-feedback-error" role="alert">{{ branch.error }}</p></sc-if>
+      <section class="forge-branch-config">
+        <div class="forge-branch-config-heading"><strong>{{ branch.configHeading }}</strong><button type="button" sc-camel-on-click="{{ branch.toggleConfig }}" aria-expanded="{{ branch.configOpen }}" aria-controls="forge-branch-configuration">{{ branch.configLabel }}<span style="display:flex;transform:rotate({{ branch.configRotation }})">[[icon:caret-down:16]]</span></button></div>
+        <p>{{ branch.configuration }}</p>
+        <sc-if value="{{ branch.configOpen }}" hint-placeholder-val="{{ false }}">
+          <div id="forge-branch-configuration" class="forge-branch-config-fields">
+            <label for="forge-branch-pipeline">Pipeline</label>
+            <select id="forge-branch-pipeline" value="{{ branch.pipe }}" sc-camel-on-change="{{ branch.onPipe }}"><option value="">选择 Pipeline</option><sc-for list="{{ branch.pipelines }}" as="opt" hint-placeholder-count="1"><option value="{{ opt.value }}">{{ opt.label }}</option></sc-for></select>
+            <label for="forge-branch-dataset">数据集</label>
+            <select id="forge-branch-dataset" value="{{ branch.ds }}" sc-camel-on-change="{{ branch.onDs }}" disabled="{{ branch.dsDisabled }}"><option value="">选择关联数据集</option><sc-for list="{{ branch.datasets }}" as="opt" hint-placeholder-count="1"><option value="{{ opt.value }}">{{ opt.label }}</option></sc-for></select>
+            <label for="forge-branch-item">Item</label>
+            <select id="forge-branch-item" value="{{ branch.item }}" sc-camel-on-change="{{ branch.onItem }}" disabled="{{ branch.itemDisabled }}"><option value="">选择 Item</option><sc-for list="{{ branch.items }}" as="opt" hint-placeholder-count="1"><option value="{{ opt.value }}">{{ opt.label }}</option></sc-for></select>
+          </div>
+        </sc-if>
+        <sc-if value="{{ branch.invalidConfig }}" hint-placeholder-val="{{ false }}"><p class="forge-feedback-error" role="status">{{ branch.configError }}</p></sc-if>
+      </section>
+      <div class="forge-branch-notice">[[icon:git-branch:24]]<p>独立分支不会改变当前主线，也不计入主线 20 轮。通过后可再采纳为主线候选。</p></div>
+    </div>
+    <footer class="forge-branch-footer"><button type="button" class="forge-feedback-secondary" sc-camel-on-click="{{ branch.cancel }}">取消</button><button type="button" class="forge-feedback-primary" disabled="{{ branch.disabled }}" sc-camel-on-click="{{ branch.create }}">创建分支并运行 <kbd>⌘ / Ctrl + Enter</kbd></button></footer>
+  </sc-if>
+</dialog>
+<!-- branch-dialog:end -->

@@ -1,0 +1,33 @@
+<!-- task-link-dialog:start -->
+<dialog class="forge-task-link-dialog" aria-labelledby="forge-task-link-title" aria-describedby="forge-task-link-subtitle" sc-camel-on-cancel="{{ taskLink.cancel }}" sc-camel-on-click="{{ taskLink.backdrop }}">
+  <sc-if value="{{ taskLink.open }}" hint-placeholder-val="{{ false }}">
+    <header class="forge-task-link-header"><div><h2 id="forge-task-link-title">更换关联任务</h2><p id="forge-task-link-subtitle">选择交付 Item，关联当前任务版本；原有版本记录会保留。</p></div><button type="button" class="forge-task-link-icon" aria-label="关闭更换关联任务" sc-camel-on-click="{{ taskLink.cancel }}">[[icon:x:20]]</button></header>
+    <div class="forge-task-link-body">
+      <div class="forge-task-link-source"><div><strong>{{ taskLink.sourceName }}</strong><span>{{ taskLink.sourceMeta }}</span></div><span class="forge-task-link-status" data-approved="{{ taskLink.approved }}">{{ taskLink.status }}</span></div>
+      <p class="forge-task-link-run">Run ID · {{ taskLink.sourceId }}</p>
+      <label class="forge-task-link-field" for="forge-task-link-sheet">交付数据单</label>
+      <select id="forge-task-link-sheet" value="{{ taskLink.sheetKey }}" sc-camel-on-change="{{ taskLink.onSheet }}" autofocus><option value="" label="选择交付数据单">选择交付数据单</option><sc-for list="{{ taskLink.sheets }}" as="option" hint-placeholder-count="0"><option value="{{ option.value }}" label="{{ option.label }}" aria-label="{{ option.label }}">{{ option.label }}</option></sc-for></select>
+      <sc-if value="{{ taskLink.allowNew }}" hint-placeholder-val="{{ false }}"><div class="forge-task-link-modes" aria-label="关联方式"><button type="button" aria-pressed="{{ taskLink.existing }}" sc-camel-on-click="{{ taskLink.existingMode }}">关联已有 Item</button><button type="button" aria-pressed="{{ taskLink.isNew }}" sc-camel-on-click="{{ taskLink.newMode }}">创建新 Item</button></div></sc-if>
+      <sc-if value="{{ taskLink.existing }}" hint-placeholder-val="{{ true }}">
+        <label class="forge-task-link-field" for="forge-task-link-search">选择 Item <span>{{ taskLink.count }}</span></label>
+        <div class="forge-task-link-search">[[icon:magnifying-glass:16]]<input id="forge-task-link-search" type="search" placeholder="搜索 Item 名称或 ID" value="{{ taskLink.query }}" sc-camel-on-change="{{ taskLink.onQuery }}" /></div>
+        <div class="forge-task-link-results" role="group" aria-label="交付 Item 搜索结果">
+          <sc-for list="{{ taskLink.items }}" as="item" hint-placeholder-count="0"><button type="button" class="forge-task-link-item" aria-pressed="{{ item.selected }}" sc-camel-on-click="{{ item.choose }}">
+            <span class="forge-task-link-thumb"><sc-if value="{{ item.hasPreview }}" hint-placeholder-val="{{ false }}"><img src="{{ item.preview }}" alt="{{ item.name }} 预览" sc-camel-on-error="{{ item.imageError }}" /></sc-if><sc-if value="{{ item.noPreview }}" hint-placeholder-val="{{ true }}">[[icon:image:20]]<span>暂无预览</span></sc-if></span>
+            <span class="forge-task-link-item-copy"><strong>{{ item.name }}</strong><code>{{ item.id }}</code><small>{{ item.version }}{{ item.candidate }}</small></span>
+            <span class="forge-task-link-selected"><sc-if value="{{ item.selected }}" hint-placeholder-val="{{ false }}">[[icon:check-circle:20]]</sc-if><sc-if value="{{ item.unselected }}" hint-placeholder-val="{{ true }}">[[icon:square:20]]</sc-if></span>
+          </button></sc-for>
+          <sc-if value="{{ taskLink.empty }}" hint-placeholder-val="{{ false }}"><div class="forge-task-link-empty"><strong>{{ taskLink.emptyTitle }}</strong><p>{{ taskLink.emptyHint }}</p><sc-if value="{{ taskLink.hasQuery }}" hint-placeholder-val="{{ false }}"><button type="button" class="forge-task-link-secondary" sc-camel-on-click="{{ taskLink.clearQuery }}">清除搜索</button></sc-if></div></sc-if>
+        </div>
+        <sc-if value="{{ taskLink.hasSelection }}" hint-placeholder-val="{{ false }}"><section class="forge-task-link-consequence" aria-label="关联后的变化"><strong>{{ taskLink.selectedName }}</strong><code>{{ taskLink.selectedId }}</code><p>{{ taskLink.consequence }}</p><sc-if value="{{ taskLink.needsAck }}" hint-placeholder-val="{{ false }}"><label class="forge-task-link-ack"><input type="checkbox" checked="{{ taskLink.acknowledged }}" sc-camel-on-change="{{ taskLink.onAck }}" /><span>{{ taskLink.ackLabel }}</span></label></sc-if></section></sc-if>
+      </sc-if>
+      <sc-if value="{{ taskLink.isNew }}" hint-placeholder-val="{{ false }}"><label class="forge-task-link-field" for="forge-task-link-name">新 Item 名称</label><input id="forge-task-link-name" value="{{ taskLink.newName }}" maxlength="100" aria-invalid="{{ taskLink.nameDuplicate }}" sc-camel-on-change="{{ taskLink.onName }}" /><p class="forge-task-link-help">{{ taskLink.createHint }}</p></sc-if>
+      <sc-if value="{{ taskLink.hasError }}" hint-placeholder-val="{{ false }}"><p class="forge-task-link-error" role="alert">{{ taskLink.error }}</p></sc-if>
+    </div>
+    <footer class="forge-task-link-footer"><div><sc-if value="{{ taskLink.hasIssue }}" hint-placeholder-val="{{ false }}"><p id="forge-task-link-validation">{{ taskLink.issue }}</p></sc-if><small>本地演示 · 刷新后清空</small></div><div class="forge-task-link-actions"><button type="button" class="forge-task-link-secondary" sc-camel-on-click="{{ taskLink.cancel }}">取消</button><button type="button" class="forge-task-link-primary" disabled="{{ taskLink.disabled }}" aria-describedby="forge-task-link-validation" sc-camel-on-click="{{ taskLink.submit }}">{{ taskLink.submitLabel }}</button></div></footer>
+  </sc-if>
+</dialog>
+<div id="forge-task-link-toast" class="forge-task-link-toast" popover="manual" data-tone="{{ taskLinkToast.tone }}" sc-camel-on-mouse-enter="{{ taskLinkToast.pause }}" sc-camel-on-mouse-leave="{{ taskLinkToast.resume }}" sc-camel-on-focus-in="{{ taskLinkToast.pause }}" sc-camel-on-focus-out="{{ taskLinkToast.resume }}">
+  <div class="forge-task-link-toast-icon"><sc-if value="{{ taskLinkToast.success }}" hint-placeholder-val="{{ true }}">[[icon:check-circle:20]]</sc-if><sc-if value="{{ taskLinkToast.warning }}" hint-placeholder-val="{{ false }}">[[icon:x-circle:20]]</sc-if><sc-if value="{{ taskLinkToast.info }}" hint-placeholder-val="{{ false }}">[[icon:git-branch:20]]</sc-if></div><p role="status" aria-live="polite" aria-atomic="true">{{ taskLinkToast.text }}</p><button type="button" class="forge-task-link-icon" aria-label="关闭提醒" sc-camel-on-click="{{ taskLinkToast.dismiss }}">[[icon:x:16]]</button>
+</div>
+<!-- task-link-dialog:end -->

@@ -1,0 +1,127 @@
+<!-- review-workbench:start -->
+<header class="review-workbench-toolbar">
+  <button class="review-workbench-back" sc-camel-on-click="{{ review.closeFocus }}">[[icon:arrow-left:20]]<span>返回审核队列</span></button>
+  <div class="review-workbench-navigation">
+    <span aria-live="polite">{{ review.positionLabel }}</span>
+    <button class="review-workbench-switch" sc-camel-on-click="{{ review.next }}" disabled="{{ review.cannotSwitch }}" title="切换下一条；键盘上下方向键切换" aria-label="切换下一条待审核产物">[[icon:arrows-down-up:16]]<span>切换</span></button>
+  </div>
+  <a class="review-workbench-original" href="{{ it.previewUrl }}" target="_blank" rel="noopener" sc-camel-on-click="{{ it.stop }}">打开原始预览 [[icon:arrow-up-right:20]]</a>
+</header>
+<div class="review-workbench-body">
+  <section class="review-workbench-preview" aria-label="产物预览">
+    <sc-if value="{{ it.showPreview }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ it.hasPreviewImage }}" hint-placeholder-val="{{ false }}">
+        <img class="review-workbench-render" src="{{ it.previewImage }}" alt="{{ it.shortName }} 产物预览" />
+      </sc-if>
+      <sc-if value="{{ it.noPreviewImage }}" hint-placeholder-val="{{ true }}">
+        <div class="review-workbench-preview-empty">
+          [[icon:image:24]]
+          <strong>{{ it.workbenchPreviewTitle }}</strong>
+          <p>{{ it.workbenchPreviewHint }}</p>
+          <button sc-camel-on-click="{{ it.previewFiles }}">查看产物文件 [[icon:arrow-right:16]]</button>
+        </div>
+      </sc-if>
+    </sc-if>
+    <sc-if value="{{ it.showFiles }}" hint-placeholder-val="{{ false }}">
+      <div class="review-workbench-files">
+        <div class="review-workbench-section-heading"><h2>产物文件</h2><button sc-camel-on-click="{{ it.returnPreview }}">返回预览 [[icon:x:16]]</button></div>
+        <sc-for list="{{ it.files }}" as="f" hint-placeholder-count="3">
+          <div class="review-workbench-file"><span>{{ f.name }}</span><span>{{ f.size }}</span></div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </section>
+  <aside class="review-workbench-panel" aria-label="审核信息与操作">
+    <div class="review-workbench-scroll">
+      <sc-if value="{{ it.notNeedsNote }}" hint-placeholder-val="{{ true }}">
+      <section class="review-workbench-object">
+        <h2>审核对象</h2>
+        <dl class="review-workbench-metadata">
+          <dt>资产名称</dt><dd>{{ it.shortName }}</dd>
+          <dt>Item ID</dt><dd><div class="forge-item-id-row"><button type="button" class="review-workbench-item-link forge-item-id-link" sc-camel-on-click="{{ it.openLife }}" title="{{ it.id }}"><span>{{ it.id }}</span>[[icon:arrow-up-right:12]]</button><button type="button" class="forge-task-link-edit" title="更换关联任务" aria-label="更换关联任务" sc-camel-on-click="{{ it.link.open }}">[[icon:pencil-simple:16]]</button></div></dd>
+          <dt>资产类型</dt><dd>{{ it.assetType }}</dd>
+          <dt>文件格式</dt><dd>{{ it.fileFormat }}</dd>
+          <dt>生成时间</dt><dd>{{ it.generatedAt }}</dd>
+          <dt>提交人</dt><dd>{{ it.submitter }}</dd>
+        </dl>
+        <div class="review-workbench-case">
+          <span>案例标记</span>
+          <div class="review-workbench-case-options forge-case-options" role="group" aria-label="案例标记">
+            <button type="button" class="review-workbench-good forge-case-button" data-case="good" data-selected="{{ it.goodCase }}" aria-pressed="{{ it.goodCase }}" sc-camel-on-click="{{ it.markGood }}"><span class="forge-case-icon">[[icon:check:12]]</span><span>Good Case</span></button>
+            <button type="button" class="review-workbench-bad forge-case-button" data-case="bad" data-selected="{{ it.badCase }}" aria-pressed="{{ it.badCase }}" sc-camel-on-click="{{ it.markBad }}"><span class="forge-case-icon">[[icon:x:12]]</span><span>Bad Case</span></button>
+            <p>仅用于案例沉淀，不影响审核结论。</p>
+          </div>
+        </div>
+      </section>
+      <section class="review-workbench-references">
+        <div class="review-workbench-section-heading"><h2>参考依据</h2><span class="review-workbench-ref-count" data-available="{{ it.hasReferences }}">{{ it.referenceCount }}</span></div>
+        <div class="review-workbench-thumbnails">
+          <sc-for list="{{ it.referenceSlots }}" as="ref" hint-placeholder-count="4">
+            <sc-if value="{{ ref.available }}" hint-placeholder-val="{{ false }}"><a href="{{ ref.url }}" target="_blank" rel="noopener" title="{{ ref.name }}"><img src="{{ ref.url }}" alt="{{ ref.name }}" /></a></sc-if>
+            <sc-if value="{{ ref.empty }}" hint-placeholder-val="{{ true }}"><div class="review-workbench-thumbnail-empty" aria-label="未提供参考图">[[icon:image:20]]</div></sc-if>
+          </sc-for>
+        </div>
+        <p class="review-workbench-source">{{ it.referenceSource }}</p>
+      </section>
+      <section class="review-workbench-history">
+        <div class="review-workbench-section-heading"><h2>审核记录</h2><button sc-camel-on-click="{{ it.openLife }}">查看全部记录 [[icon:arrow-right:16]]</button></div>
+        <div class="review-workbench-timeline">
+          <div class="review-workbench-event">
+            <div class="review-workbench-event-heading"><time>{{ it.submittedWhen }}</time><span class="review-workbench-avatar" style="background:{{ it.authorBg }}">{{ it.authorInitial }}</span><span>{{ it.submitter }} <span class="review-workbench-event-description">· 提交了 {{ it.artifactVersion }}</span></span></div>
+            <dl class="review-workbench-submission">
+              <dt>Pipeline</dt><dd>{{ it.pipelineLabel }}</dd>
+              <dt>上轮 Prompt</dt><dd class="review-workbench-prompt" title="{{ it.promptText }}">{{ it.promptText }}</dd>
+              <dt>产物</dt><dd><button sc-camel-on-click="{{ it.previewFiles }}">{{ it.artifactSummary }}</button></dd>
+            </dl>
+          </div>
+          <div class="review-workbench-event">
+            <div class="review-workbench-event-heading"><time>待审核</time><span class="review-workbench-avatar review-workbench-reviewer">{{ it.reviewerInitial }}</span><span>Reviewer: {{ it.reviewer }}</span></div>
+            <p class="review-workbench-round">{{ it.round }}</p>
+          </div>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ it.needsNote }}" hint-placeholder-val="{{ false }}">
+        <section class="review-workbench-rework-form forge-feedback">
+          <h2 class="forge-feedback-title">要求返工</h2>
+          <p class="forge-feedback-context">{{ it.shortName }} · {{ it.artifactVersion }}<br>{{ it.round }}</p>
+          <div class="forge-feedback-field">
+            <label for="forge-rework-note">返工说明 <span class="forge-feedback-required">*</span></label>
+            <textarea id="forge-rework-note" aria-label="返工说明" aria-required="true" required maxlength="5000" sc-camel-on-change="{{ it.onNote }}" value="{{ it.noteText }}" placeholder="说明这一轮要改什么：保留什么、改什么、验收标准。" aria-describedby="forge-rework-hint"></textarea>
+          </div>
+          <div class="forge-feedback-upload-row">
+            <label class="forge-feedback-upload" data-disabled="{{ it.feedback.full }}">[[icon:paperclip:20]]<span>上传图片</span><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple disabled="{{ it.feedback.full }}" aria-label="上传返工参考图片" sc-camel-on-change="{{ it.feedback.upload }}" /></label>
+            <span class="forge-feedback-paste">[[icon:clipboard:20]] Ctrl/⌘ + V 粘贴图片</span>
+            <span class="forge-feedback-count">{{ it.feedback.count }}</span>
+          </div>
+          <p class="forge-feedback-limit">PNG、JPG、WebP、GIF · 单张不超过 10 MB</p>
+          <div class="forge-feedback-attachments" aria-live="polite">
+            <sc-for list="{{ it.feedback.images }}" as="img" hint-placeholder-count="0">
+              <div class="forge-feedback-attachment">
+                <sc-if value="{{ img.ready }}" hint-placeholder-val="{{ true }}"><img src="{{ img.url }}" alt="{{ img.name }}" /></sc-if>
+                <sc-if value="{{ img.loading }}" hint-placeholder-val="{{ false }}"><span class="forge-feedback-image-loading">[[icon:image:20]]</span></sc-if>
+                <div><strong title="{{ img.name }}">{{ img.name }}</strong><span>{{ img.sizeLabel }}</span></div>
+                <button type="button" sc-camel-on-click="{{ img.remove }}" aria-label="{{ img.removeLabel }}">[[icon:x:16]]</button>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ it.feedback.hasError }}" hint-placeholder-val="{{ false }}"><p class="forge-feedback-error" role="alert">{{ it.feedback.error }}</p></sc-if>
+          <div class="forge-feedback-submit-context" id="forge-rework-hint"><strong>提交后创建本轮修复任务</strong><span>{{ it.noteHint }}</span></div>
+        </section>
+      </sc-if>
+    </div>
+    <footer class="review-workbench-actions">
+      <sc-if value="{{ it.pending }}" hint-placeholder-val="{{ true }}">
+        <button class="review-workbench-approve" sc-camel-on-click="{{ it.pass }}">通过审核 <kbd>A</kbd></button>
+        <button class="review-workbench-reject" sc-camel-on-click="{{ it.rework }}">要求返工 <kbd>R</kbd></button>
+      </sc-if>
+      <sc-if value="{{ it.needsNote }}" hint-placeholder-val="{{ false }}">
+        <button class="review-workbench-approve" sc-camel-on-click="{{ it.cancelNote }}">取消返工</button>
+        <button class="review-workbench-reject" sc-camel-on-click="{{ it.submitNote }}" disabled="{{ it.cannotSubmitNote }}">提交返工</button>
+      </sc-if>
+      <sc-if value="{{ it.needsReroll }}" hint-placeholder-val="{{ false }}"><button class="review-workbench-reject review-workbench-action-wide" sc-camel-on-click="{{ it.reroll }}">前往生产配置 Reroll [[icon:arrow-right:20]]</button></sc-if>
+      <sc-if value="{{ it.rerolled }}" hint-placeholder-val="{{ false }}"><p>已发起 Reroll，运行完成后可继续审核。</p></sc-if>
+    </footer>
+  </aside>
+</div>
+<!-- review-workbench:end -->

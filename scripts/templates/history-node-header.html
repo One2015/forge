@@ -1,0 +1,9 @@
+<div class="forge-life-node-header">
+  <button type="button" class="forge-life-node-toggle" sc-camel-on-click="{{ n.toggle }}" aria-expanded="{{ n.expanded }}" aria-label="{{ n.expandLabel }}">
+    <span class="forge-life-node-kind">{{ n.kind }}</span><strong>{{ n.title }}</strong>
+    <span class="forge-life-node-badge" style="color:{{ n.badgeFg }};border-color:{{ n.badgeBorder }}">{{ n.badge }}</span>
+    <span class="forge-life-node-summary">{{ n.summary }}</span>
+    <span class="forge-life-node-chevron" data-expanded="{{ n.expanded }}">[[icon:caret-down:14]]</span>
+  </button>
+  <sc-if value="{{ n.canFork }}" hint-placeholder-val="{{ false }}"><button type="button" class="forge-life-append" disabled="{{ n.appendDisabled }}" title="{{ n.appendHint }}" sc-camel-on-click="{{ n.append }}">追加修改</button></sc-if>
+</div>

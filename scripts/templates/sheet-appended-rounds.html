@@ -1,0 +1,10 @@
+<!-- sheet-appended-rounds:start -->
+<sc-for list="{{ sheet.pick.appendedRounds }}" as="round" hint-placeholder-count="0">
+  <div class="forge-sheet-appended-round" data-approved="{{ round.approved }}">
+    <span class="forge-sheet-appended-dot"></span>
+    <div class="forge-sheet-appended-heading"><strong>{{ round.title }}</strong><span style="color:{{ round.fg }}">{{ round.label }}</span></div>
+    <p class="forge-sheet-appended-who">{{ round.who }}</p>
+    <p>{{ round.note }}</p>
+  </div>
+</sc-for>
+<!-- sheet-appended-rounds:end -->

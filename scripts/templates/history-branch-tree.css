@@ -1,0 +1,65 @@
+/* history-branch-tree:start */
+.forge-life-branch-shortcut{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:0;border:0;background:none;font:12px/20px var(--forge-font);color:var(--forge-accent);cursor:pointer;text-align:left}
+.forge-life-node-layout{display:flex;align-items:stretch;gap:clamp(12px,1.6vw,20px);flex-wrap:wrap}
+.forge-life-node-header{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.forge-life-node-toggle{display:flex;align-items:center;gap:10px;flex:1;min-width:0;min-height:34px;padding:0;border:0;background:transparent;text-align:left;color:var(--forge-text);font:13px/20px var(--forge-font);cursor:pointer}
+.forge-life-node-toggle strong{font-weight:600;font-size:14px;overflow-wrap:anywhere}
+.forge-life-node-kind{width:56px;flex:none;color:var(--forge-muted);font-size:12px}
+.forge-life-node-badge{flex:none;padding:1px 8px;border:1px solid;border-radius:5px;font-size:12px;white-space:nowrap}
+.forge-life-node-summary{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--forge-muted);font-size:12px}
+.forge-life-node-chevron{display:flex;flex:none;color:var(--forge-muted)}
+.forge-life-node-chevron[data-expanded="true"]{transform:rotate(180deg)}
+.forge-life-append{flex:none;min-height:34px;padding:5px 8px;border:0;border-radius:5px;background:transparent;color:var(--forge-accent);font:500 13px/20px var(--forge-font);cursor:pointer}
+.forge-life-append:disabled{color:var(--forge-disabled-text);cursor:not-allowed}
+.forge-branch-tree{--branch-indent:20px;--forge-branch-border:#e5bcae;width:100%;min-width:0;margin-top:12px;color:var(--forge-text);font:13px/1.5 var(--forge-font)}
+.forge-branch-tree-heading{display:flex;align-items:center;gap:8px;padding:0 0 10px;color:var(--forge-accent);font-size:13px;flex-wrap:wrap}
+.forge-branch-tree-list{list-style:none;padding:0;margin:0}
+.forge-branch-tree-node{position:relative;padding:0 0 10px calc(28px + var(--tree-depth)*var(--branch-indent));min-width:0}
+.forge-branch-tree-guides i{position:absolute;left:calc(8px + var(--guide-depth)*var(--branch-indent));top:0;bottom:0;width:1px;background:var(--forge-control-border)}
+.forge-branch-tree-elbow{position:absolute;left:calc(8px + var(--tree-depth)*var(--branch-indent));top:0;width:13px;height:25px;border-left:1px solid var(--forge-control-border);border-bottom:1px solid var(--forge-control-border);border-bottom-left-radius:5px}
+.forge-branch-tree-node:not([data-last="true"])::after{content:"";position:absolute;left:calc(8px + var(--tree-depth)*var(--branch-indent));top:25px;bottom:0;width:1px;background:var(--forge-control-border)}
+.forge-branch-tree-node[data-children="true"]::before{content:"";position:absolute;left:calc(8px + (var(--tree-depth) + 1)*var(--branch-indent));bottom:0;height:10px;width:1px;background:var(--forge-control-border)}
+.forge-branch-tree-content{min-width:0;border:1px solid var(--forge-border);border-radius:8px;padding:10px 12px;background:var(--forge-panel)}
+.forge-branch-tree-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.forge-branch-tree-toggle{display:flex;align-items:center;gap:7px;min-width:0;flex:1;min-height:32px;padding:0;border:0;background:none;color:inherit;text-align:left;font:inherit;cursor:pointer}
+.forge-branch-tree-toggle strong{font-size:13px;font-weight:500;overflow-wrap:anywhere}
+.forge-branch-tree-status{display:inline-flex;align-items:center;gap:5px;flex:none;border:1px solid;border-radius:4px;padding:1px 6px;font-size:12px;line-height:18px}
+.forge-branch-tree-status i{width:5px;height:5px;border-radius:50%;flex:none}
+.forge-branch-tree-time{font-size:12px;color:var(--forge-muted)}
+.forge-branch-tree-origin{margin:2px 0 0;font-size:12px;color:var(--forge-muted);overflow-wrap:anywhere}
+.forge-branch-tree-note{margin:6px 0 0;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.forge-branch-tree-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+.forge-branch-tree-actions button{display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:5px 7px;border:1px solid var(--forge-control-border);border-radius:5px;background:var(--forge-panel);font:12px/20px var(--forge-font);color:var(--forge-muted);cursor:pointer}
+.forge-branch-tree-actions .forge-life-append{color:var(--forge-text)}
+.forge-branch-tree-actions button:disabled{border-color:var(--forge-border);color:var(--forge-disabled-text);background:var(--forge-subtle);cursor:not-allowed}
+.forge-branch-tree-detail{padding-top:12px}
+.forge-branch-tree-detail dl{display:grid;grid-template-columns:64px minmax(0,1fr);gap:6px 12px;margin:0;font-size:12px}
+.forge-branch-tree-detail dt{color:var(--forge-muted)}
+.forge-branch-tree-detail dd{margin:0;overflow-wrap:anywhere}
+.forge-branch-tree-preview{position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--forge-border);border-radius:6px;background:var(--forge-subtle);color:var(--forge-muted);font-size:12px}
+.forge-branch-tree-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.forge-branch-tree-preview>span{padding:5px 9px;background:var(--forge-panel);border:1px solid var(--forge-border);border-radius:4px}
+.forge-branch-tree-stages{display:flex;align-items:center;gap:8px;flex-wrap:wrap;list-style:none;padding:0;margin:10px 0 14px}
+.forge-branch-tree-stages li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--forge-muted)}
+.forge-branch-tree-stages li>span{display:inline-flex;align-items:center;gap:5px;padding:2px 6px;border:1px solid var(--forge-border);border-radius:4px;line-height:18px}
+.forge-branch-tree-stages i{width:4px;height:4px;border-radius:50%;background:currentColor}
+.forge-branch-tree-stages [data-active="true"]{color:var(--step-color);border-color:currentColor}
+.forge-branch-tree-stages [data-complete="true"]{color:var(--forge-success)}
+.forge-branch-tree-stages .forge-icon{color:var(--forge-control-border);flex:none}
+.forge-branch-tree-detail .forge-branch-tree-id{display:inline;padding:0;border:0;background:none;color:var(--forge-accent);font:inherit;text-align:left;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere;cursor:pointer}
+.forge-branch-tree-footnote{margin:12px 0 0;color:var(--forge-muted);font-size:12px;line-height:1.6}
+.forge-branch-tree-actions .forge-branch-tree-icon-action{justify-content:center;width:32px;padding:0;flex:none}
+.forge-branch-tree-action-spacer{flex:1}
+.forge-branch-tree-images{display:flex;gap:8px;flex-wrap:wrap;list-style:none;padding:0;margin:12px 0}
+.forge-branch-tree-images li{width:76px;min-width:0;font-size:12px;color:var(--forge-muted)}
+.forge-branch-tree-images img{display:block;width:76px;height:54px;object-fit:cover;border:1px solid var(--forge-border);border-radius:5px}
+.forge-branch-tree-images span{display:block;margin-top:4px;overflow-wrap:anywhere}
+.forge-branch-tree-actions .forge-branch-tree-remove{color:var(--forge-danger)}
+.forge-branch-tree-confirm{padding-top:10px;border-top:1px solid var(--forge-border);margin-top:8px}
+.forge-branch-tree-confirm p{margin:0;font-size:12px}
+.forge-life-node-header button:focus-visible,.forge-branch-tree button:focus-visible,.forge-life-branch-shortcut:focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}
+@media(min-width:1040px){.forge-life-node-layout[data-branches="true"][data-expanded="true"]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}.forge-life-node-layout[data-branches="true"]>.forge-life-node-body{display:block!important;min-width:0!important;max-width:100%;box-sizing:border-box}.forge-life-node-layout[data-branches="true"]>.forge-life-node-body>div{min-width:0!important;max-width:none!important}.forge-life-node-layout[data-branches="true"]>.forge-life-node-body>div+div{margin-top:16px}}
+@media(hover:hover){.forge-life-node-toggle:hover,.forge-branch-tree-toggle:hover{color:var(--forge-accent)}.forge-life-append:not(:disabled):hover,.forge-branch-tree-actions button:not(:disabled):hover{background:var(--forge-subtle)}}
+@media(max-width:760px){.forge-life-node-header{gap:6px;flex-wrap:wrap}.forge-life-node-toggle{flex-basis:100%;flex-wrap:wrap;gap:6px}.forge-life-node-kind{width:auto}.forge-life-node-summary{flex-basis:100%;order:2;white-space:normal}.forge-life-node-chevron{margin-left:auto}.forge-life-node-header button,.forge-branch-tree button,.forge-life-branch-shortcut{min-height:44px}.forge-branch-tree .forge-branch-tree-icon-action{width:44px}.forge-branch-tree{--branch-indent:12px}.forge-branch-tree-node{padding-left:calc(20px + var(--tree-depth)*var(--branch-indent))}.forge-branch-tree-content{padding:7px 9px}.forge-branch-tree-row{gap:4px 8px}.forge-branch-tree-time{width:100%}.forge-branch-tree-detail dl{grid-template-columns:1fr;gap:3px}.forge-branch-tree-detail dd{margin-bottom:6px}.forge-life-node-body,.forge-life-node-body>div{min-width:0!important;max-width:100%!important}.forge-life-page{padding-inline:14px!important}.forge-life-history{padding-inline:14px!important}.forge-life-node{padding-left:16px!important}}
+@media(pointer:coarse){.forge-life-node-header button,.forge-branch-tree button,.forge-life-branch-shortcut{min-height:44px}.forge-branch-tree .forge-branch-tree-icon-action{width:44px}}
+/* history-branch-tree:end */

@@ -1,0 +1,45 @@
+<!-- history-branch-tree:start -->
+<sc-if value="{{ n.hasForks }}" hint-placeholder-val="{{ false }}">
+  <section class="forge-branch-tree" aria-label="{{ n.forkGroupLabel }}">
+    <div class="forge-branch-tree-heading">[[icon:git-branch:16]]<span>{{ n.forkGroupLabel }}</span></div>
+    <ol class="forge-branch-tree-list" aria-label="分支修改树">
+      <sc-for list="{{ n.tree }}" as="node" hint-placeholder-count="0">
+        <li class="forge-branch-tree-node" data-branch-card="{{ node.cardKey }}" style="--tree-depth:{{ node.visualDepth }}" data-last="{{ node.last }}" data-children="{{ node.hasChildren }}">
+          <div class="forge-branch-tree-guides" aria-hidden="true"><sc-for list="{{ node.guides }}" as="guide" hint-placeholder-count="0"><i style="--guide-depth:{{ guide.depth }}"></i></sc-for></div>
+          <span class="forge-branch-tree-elbow" aria-hidden="true"></span>
+          <div class="forge-branch-tree-content">
+            <div class="forge-branch-tree-row">
+              <button type="button" class="forge-branch-tree-toggle" aria-label="{{ node.toggleLabel }}" aria-expanded="{{ node.expanded }}" aria-controls="{{ node.detailsId }}" sc-camel-on-click="{{ node.toggle }}"><span class="forge-life-node-chevron" data-expanded="{{ node.expanded }}">[[icon:caret-down:14]]</span><strong>{{ node.name }}</strong></button>
+              <span class="forge-branch-tree-status" style="color:{{ node.stateFg }};border-color:{{ node.stateBorder }}"><i style="background:{{ node.stateDot }}"></i>{{ node.stateLabel }}</span>
+              <span class="forge-branch-tree-time">{{ node.created }}</span>
+            </div>
+            <p class="forge-branch-tree-origin">{{ node.origin }}</p>
+            <p class="forge-branch-tree-note">{{ node.description }}</p>
+            <sc-if value="{{ node.expanded }}" hint-placeholder-val="{{ false }}">
+              <div class="forge-branch-tree-detail" id="{{ node.detailsId }}">
+                <div class="forge-branch-tree-preview">
+                  <sc-if value="{{ node.hasPreviewImage }}" hint-placeholder-val="{{ false }}"><img src="{{ node.previewImage }}" alt="{{ node.name }} · 分支产物预览" /></sc-if>
+                  <sc-if value="{{ node.noPreviewImage }}" hint-placeholder-val="{{ true }}"><span>{{ node.previewLabel }}</span></sc-if>
+                </div>
+                <ol class="forge-branch-tree-stages" aria-label="分支进度"><sc-for list="{{ node.steps }}" as="step" hint-placeholder-count="3"><li><span data-active="{{ step.active }}" data-complete="{{ step.complete }}" style="--step-color:{{ step.fg }}"><i aria-hidden="true"></i>{{ step.label }}</span><sc-if value="{{ step.hasNext }}" hint-placeholder-val="{{ true }}">[[icon:arrow-right:14]]</sc-if></li></sc-for></ol>
+                <dl><dt>发起位置</dt><dd>{{ node.sourceWhere }}</dd><dt>源产物</dt><dd>{{ node.sourceVersion }}</dd><dt>源审核结论</dt><dd>{{ node.sourceVerdict }}</dd><dt>创建人</dt><dd>{{ node.creator }}</dd><dt>创建时间</dt><dd>{{ node.createdAt }}</dd><dt>分支 Item</dt><dd><button type="button" class="forge-branch-tree-id" sc-camel-on-click="{{ node.openRecord }}">{{ node.branchItemId }}</button></dd><dt>运行配置</dt><dd>{{ node.configuration }}</dd></dl>
+                <sc-if value="{{ node.hasAttachments }}" hint-placeholder-val="{{ false }}"><ul class="forge-branch-tree-images" aria-label="修改参考图片"><sc-for list="{{ node.attachments }}" as="img" hint-placeholder-count="0"><li><img src="{{ img.url }}" alt="{{ img.name }}" /><span>{{ img.name }}</span></li></sc-for></ul></sc-if>
+                <p class="forge-branch-tree-footnote">独立运行 · 不占用主线轮次 · 通过审核后可关联交付 Item</p>
+              </div>
+            </sc-if>
+            <div class="forge-branch-tree-actions">
+              <button type="button" class="forge-life-append" title="{{ node.appendHint }}" disabled="{{ node.appendDisabled }}" sc-camel-on-click="{{ node.append }}">追加修改</button>
+              <sc-if value="{{ node.canOpenRun }}" hint-placeholder-val="{{ false }}"><button type="button" sc-camel-on-click="{{ node.openRun }}" title="{{ node.runId }}">查看运行 [[icon:arrow-up-right:14]]</button></sc-if>
+              <sc-if value="{{ node.canLink }}" hint-placeholder-val="{{ false }}"><button type="button" sc-camel-on-click="{{ node.link }}">关联任务</button></sc-if>
+              <span class="forge-branch-tree-action-spacer"></span>
+              <button type="button" class="forge-branch-tree-icon-action" aria-label="查看分支完整记录" title="查看分支完整记录" sc-camel-on-click="{{ node.openRecord }}">[[icon:git-branch:16]]</button>
+              <button type="button" class="forge-branch-tree-icon-action forge-branch-tree-remove" aria-label="移除分支记录" title="移除分支记录" sc-camel-on-click="{{ node.askDiscard }}">[[icon:trash:16]]</button>
+            </div>
+            <sc-if value="{{ node.discardAsking }}" hint-placeholder-val="{{ false }}"><div class="forge-branch-tree-confirm" role="group" aria-label="确认移除分支记录"><p>移除此分支及其后续修改的树状记录？原运行和主线保留。</p><div class="forge-branch-tree-actions"><button type="button" sc-camel-on-click="{{ node.cancelDiscard }}">取消</button><button type="button" class="forge-branch-tree-remove" sc-camel-on-click="{{ node.discard }}">确认移除</button></div></div></sc-if>
+          </div>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+</sc-if>
+<!-- history-branch-tree:end -->

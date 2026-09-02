@@ -1,0 +1,87 @@
+<!-- forge-profile:start -->
+<section id="forge-profile-panel" class="forge-profile-panel" data-editing="{{ profile.editing }}" popover="auto" role="dialog" aria-modal="false" aria-label="个人工作区">
+  <header class="forge-profile-header">
+    <span class="forge-profile-avatar" aria-hidden="true">{{ profile.initial }}</span>
+    <div class="forge-profile-identity">
+      <h2>{{ profile.name }}</h2>
+      <span class="forge-profile-role">{{ profile.roleLabel }} · {{ profile.roleName }}</span>
+    </div>
+    <sc-if value="{{ profile.canEditIdentity }}" hint-placeholder-val="{{ false }}"><button type="button" class="forge-profile-edit-identity" sc-camel-on-click="{{ profile.editIdentity }}">编辑资料</button></sc-if>
+    <button type="button" class="forge-profile-close" popovertarget="forge-profile-panel" popovertargetaction="hide" aria-label="关闭个人工作区">[[icon:x:16]]</button>
+  </header>
+  <div class="forge-profile-switcher" role="group" aria-label="个人工作区内容">
+    <button type="button" aria-pressed="{{ profile.showTasks }}" aria-controls="forge-profile-tasks" sc-camel-on-click="{{ profile.pickTasks }}">任务列表 <span>{{ profile.taskCount }}</span></button>
+    <button type="button" aria-pressed="{{ profile.showSkills }}" aria-controls="forge-profile-skills" sc-camel-on-click="{{ profile.pickSkills }}">Skill <span>{{ profile.skillCount }}</span></button>
+  </div>
+  <div class="forge-profile-scroll">
+    <sc-if value="{{ profile.editingIdentity }}" hint-placeholder-val="{{ false }}">
+      <div class="forge-profile-skill-editor" role="group" aria-label="编辑个人资料">
+        <label class="forge-profile-skill-field"><span>姓名</span><input value="{{ profile.identityName }}" sc-camel-on-change="{{ profile.onIdentityName }}" maxlength="40" required /></label>
+        <label class="forge-profile-skill-field"><span>角色</span><select value="{{ profile.identityRole }}" sc-camel-on-change="{{ profile.onIdentityRole }}"><sc-for list="{{ profile.identityRoles }}" as="role" hint-placeholder-count="0"><option value="{{ role.key }}" label="{{ role.label }}" aria-label="{{ role.label }}">{{ role.label }}</option></sc-for></select></label>
+        <p class="forge-profile-identity-help">仅修改当前演示账号，刷新后恢复；改为 Member 或 Outsourcing 后将无法继续编辑资料。</p>
+        <sc-if value="{{ profile.identityIssue }}" hint-placeholder-val="{{ false }}"><p class="forge-profile-skill-error" role="status">{{ profile.identityIssue }}</p></sc-if>
+        <div class="forge-profile-editor-actions"><button type="button" sc-camel-on-click="{{ profile.cancelIdentity }}">取消</button><button type="button" class="forge-profile-primary" disabled="{{ profile.identitySaveDisabled }}" sc-camel-on-click="{{ profile.saveIdentity }}">保存资料</button></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ profile.showTasks }}" hint-placeholder-val="{{ false }}">
+      <section id="forge-profile-tasks" aria-label="任务列表">
+        <p class="forge-profile-list-note">{{ profile.taskHint }}</p>
+        <sc-if value="{{ profile.noTasks }}" hint-placeholder-val="{{ false }}">
+          <div class="forge-profile-empty"><h3>暂无交付数据单</h3><p>{{ profile.emptyTaskHint }}</p></div>
+        </sc-if>
+        <ul class="forge-profile-list">
+          <sc-for list="{{ profile.tasks }}" as="task" hint-placeholder-count="0">
+            <li>
+              <button type="button" class="forge-profile-task" sc-camel-on-click="{{ task.open }}" aria-label="{{ task.actionLabel }}">
+                <div class="forge-profile-task-heading"><span class="forge-profile-task-title">{{ task.title }}</span></div>
+                <div class="forge-profile-task-project">{{ task.customer }}</div>
+                <div class="forge-profile-task-meta"><span>{{ task.meta }}</span>[[icon:arrow-right:16]]</div>
+              </button>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+    </sc-if>
+    <sc-if value="{{ profile.showSkills }}" hint-placeholder-val="{{ false }}">
+      <section id="forge-profile-skills" aria-label="Skill">
+        <div class="forge-profile-skill-toolbar"><span>个人及数据单 Skill</span><label class="forge-profile-upload" data-disabled="{{ profile.uploadDisabled }}">[[icon:upload-simple:16]]<span>上传 Skill</span><input type="file" accept=".md,.markdown,.zip,text/markdown,application/zip" multiple disabled="{{ profile.uploadDisabled }}" aria-label="上传个人 Skill" sc-camel-on-change="{{ profile.uploadSkills }}" /></label></div>
+        <p class="forge-profile-skill-help">支持 MD 或含 SKILL.md 的 ZIP；上传后可命名并关联数据单。个人最多 12 个。</p>
+        <sc-if value="{{ profile.notice }}" hint-placeholder-val="{{ false }}"><p class="forge-profile-skill-notice" role="status">{{ profile.notice }}</p></sc-if>
+        <sc-if value="{{ profile.hasDraft }}" hint-placeholder-val="{{ false }}">
+          <div class="forge-profile-skill-editor" role="group" aria-label="命名和关联 Skill">
+            <sc-if value="{{ profile.draftLoading }}" hint-placeholder-val="{{ false }}"><p class="forge-profile-skill-help" role="status">正在读取 Skill…</p></sc-if>
+            <sc-if value="{{ profile.draftError }}" hint-placeholder-val="{{ false }}"><p class="forge-profile-skill-error" role="alert">{{ profile.draftError }}</p></sc-if>
+            <sc-for list="{{ profile.draftSkills }}" as="draft" hint-placeholder-count="0">
+              <div class="forge-profile-skill-draft">
+                <div class="forge-profile-draft-file"><strong>{{ draft.filename }}</strong><button type="button" class="forge-profile-close" aria-label="移除此 Skill 草稿" disabled="{{ profile.draftLoading }}" sc-camel-on-click="{{ draft.remove }}">[[icon:x:16]]</button></div>
+                <label class="forge-profile-skill-field"><span>Skill 名称</span><input aria-label="{{ draft.nameLabel }}" value="{{ draft.name }}" sc-camel-on-change="{{ draft.onName }}" maxlength="80" disabled="{{ profile.draftLoading }}" required /></label>
+                <label class="forge-profile-skill-field"><span>调用名</span><div class="forge-profile-command"><span>/</span><input aria-label="{{ draft.commandLabel }}" value="{{ draft.command }}" sc-camel-on-change="{{ draft.onCommand }}" maxlength="60" disabled="{{ profile.draftLoading }}" required /></div></label>
+              </div>
+            </sc-for>
+            <label class="forge-profile-skill-field"><span>关联到数据单 <small>选填</small></span><select aria-label="关联到交付数据单" value="{{ profile.targetSheet }}" sc-camel-on-change="{{ profile.onTargetSheet }}" disabled="{{ profile.draftLoading }}"><option value="">暂不关联，仅保存个人 Skill</option><sc-for list="{{ profile.targetSheets }}" as="sheet" hint-placeholder-count="0"><option value="{{ sheet.key }}" label="{{ sheet.label }}" aria-label="{{ sheet.label }}">{{ sheet.label }}</option></sc-for></select></label>
+            <sc-if value="{{ profile.draftIssue }}" hint-placeholder-val="{{ false }}"><p class="forge-profile-skill-error" role="status">{{ profile.draftIssue }}</p></sc-if>
+            <div class="forge-profile-editor-actions"><button type="button" sc-camel-on-click="{{ profile.cancelSkills }}">取消</button><button type="button" class="forge-profile-primary" disabled="{{ profile.draftSaveDisabled }}" sc-camel-on-click="{{ profile.saveSkills }}">{{ profile.draftSaveLabel }}</button></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ profile.noSkills }}" hint-placeholder-val="{{ false }}">
+          <div class="forge-profile-empty"><h3>还没有 Skill</h3><p>点击「上传 Skill」添加并命名，无需先关联任务。</p></div>
+        </sc-if>
+        <ul class="forge-profile-list">
+          <sc-for list="{{ profile.skills }}" as="skill" hint-placeholder-count="0">
+            <li class="forge-profile-skill">
+              <h3>{{ skill.displayName }}</h3>
+              <p class="forge-profile-skill-command">{{ skill.commandLabel }}</p>
+              <p class="forge-profile-skill-description">{{ skill.description }}</p>
+              <div class="forge-profile-skill-source">{{ skill.sheetName }}</div>
+              <div class="forge-profile-skill-footer"><span>{{ skill.fileLabel }}</span><button type="button" sc-camel-on-click="{{ skill.open }}" aria-label="{{ skill.actionLabel }}">{{ skill.action }} [[icon:arrow-right:16]]</button></div>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+    </sc-if>
+  </div>
+  <footer class="forge-profile-footer">
+    <p>本地演示 · 刷新后清空</p>
+  </footer>
+</section>
+<!-- forge-profile:end -->

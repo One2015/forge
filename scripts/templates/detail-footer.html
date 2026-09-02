@@ -1,0 +1,20 @@
+<!-- detail-footer:start -->
+<div class="forge-sheet-actions forge-feedback forge-detail-footer" role="group" aria-label="当前版本操作">
+  <sc-if value="{{ sheet.pick.reworkFormClosed }}" hint-placeholder-val="{{ true }}">
+    <sc-if value="{{ sheet.pick.approvedDetail }}" hint-placeholder-val="{{ false }}">
+      <button type="button" class="forge-detail-action forge-detail-secondary" disabled="{{ sheet.pick.cannotAppendRework }}" title="{{ sheet.pick.appendHint }}" sc-camel-on-click="{{ sheet.pick.appendRework }}">追加返工</button>
+      <button type="button" class="forge-detail-action forge-detail-download" title="下载已通过版本" aria-label="下载已通过版本" sc-camel-on-click="{{ sheet.pick.download }}">[[icon:download-simple:16]]</button>
+    </sc-if>
+    <sc-if value="{{ sheet.pick.showHistoryAction }}" hint-placeholder-val="{{ false }}"><button type="button" class="forge-detail-action" sc-camel-on-click="{{ sheet.pick.openRun }}">查看完整记录 [[icon:arrow-right:16]]</button></sc-if>
+    <sc-if value="{{ sheet.pick.needsReview }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ sheet.pick.hasReviewActionHint }}" hint-placeholder-val="{{ false }}"><div class="forge-detail-review-status" role="status"><span>{{ sheet.pick.reviewActionHint }}</span><sc-if value="{{ sheet.pick.showAppendRun }}" hint-placeholder-val="{{ false }}"><button type="button" class="forge-detail-status-link" sc-camel-on-click="{{ sheet.pick.openAppendRun }}">查看运行</button></sc-if></div></sc-if>
+      <button type="button" class="forge-detail-action forge-detail-approve" disabled="{{ sheet.pick.cannotReviewCandidate }}" title="{{ sheet.pick.reviewActionHint }}" sc-camel-on-click="{{ sheet.pick.pass }}">通过审核</button>
+      <button type="button" class="forge-detail-action forge-detail-primary" disabled="{{ sheet.pick.cannotReviewCandidate }}" title="{{ sheet.pick.reviewActionHint }}" sc-camel-on-click="{{ sheet.pick.rework }}">要求返工</button>
+    </sc-if>
+  </sc-if>
+  <sc-if value="{{ sheet.pick.reworkFormOpen }}" hint-placeholder-val="{{ false }}">
+    <button type="button" class="forge-detail-action" sc-camel-on-click="{{ sheet.pick.cancelRework }}">取消返工</button>
+    <button type="button" class="forge-detail-action forge-detail-primary" disabled="{{ sheet.pick.cannotSubmitRework }}" sc-camel-on-click="{{ sheet.pick.submitRework }}">提交返工</button>
+  </sc-if>
+</div>
+<!-- detail-footer:end -->

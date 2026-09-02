@@ -1,0 +1,14 @@
+<!-- case-labels:start -->
+<div class="forge-case-section">
+  <span class="forge-case-label">样本标注</span>
+  <div class="forge-case-options" role="group" aria-label="样本标注">
+    <sc-for list="{{ sheet.pick.sampleTabs }}" as="s" hint-placeholder-count="2">
+      <button type="button" class="forge-case-button" data-case="{{ s.kind }}" aria-pressed="{{ s.selected }}" sc-camel-on-click="{{ s.pick }}">
+        <span class="forge-case-icon"><sc-if value="{{ s.good }}" hint-placeholder-val="{{ true }}">[[icon:check:12]]</sc-if><sc-if value="{{ s.bad }}" hint-placeholder-val="{{ false }}">[[icon:x:12]]</sc-if></span>
+        <span>{{ s.label }}</span>
+      </button>
+    </sc-for>
+  </div>
+  <p class="forge-case-help">与审核结论相互独立 · 通过后仍可修改</p>
+</div>
+<!-- case-labels:end -->
