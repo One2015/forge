@@ -67,6 +67,38 @@
 .forge-delivery-skill-upload{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:16px;padding:20px 16px;border:1px dashed var(--forge-control-border);border-radius:6px;background:var(--forge-subtle);color:var(--forge-muted);cursor:pointer}
 .forge-delivery-skill-upload strong{font-size:13px;color:var(--forge-text);font-weight:500}
 .forge-delivery-skill-upload>span{font-size:12px;text-align:center}
+.forge-delivery-skill-library{margin-top:16px}
+.forge-delivery-skill-search{position:relative;display:flex;align-items:center;gap:6px}
+.forge-delivery-skill-search>.forge-icon{position:absolute;left:10px;color:var(--forge-muted);pointer-events:none}
+.forge-delivery-editor .forge-delivery-skill-search input{padding-left:34px;padding-right:36px}
+.forge-delivery-skill-search input::-webkit-search-cancel-button{display:none}
+.forge-delivery-skill-search>.forge-delivery-icon-button{position:absolute;right:4px}
+.forge-delivery-library-heading{margin:12px 0 6px}
+.forge-delivery-library-heading h4,.forge-delivery-selected-heading h4{margin:0;font-size:13px;line-height:20px;font-weight:500;color:var(--forge-text)}
+.forge-delivery-library-results{max-height:228px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--forge-control-border) transparent;border-block:1px solid var(--forge-border)}
+.forge-delivery-editor .forge-delivery-library-option{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:76px;margin:0;padding:10px 8px;border:0;border-bottom:1px solid var(--forge-border);border-radius:0;background:var(--forge-panel);color:var(--forge-text);font-family:inherit;line-height:18px;text-align:left;cursor:pointer}
+.forge-delivery-library-option:last-child{border-bottom:0}
+.forge-delivery-library-copy{display:block;min-width:0;flex:1}
+.forge-delivery-library-copy>strong{font-size:13px;font-weight:500;overflow-wrap:anywhere}
+.forge-delivery-library-command{font-size:12px;color:var(--forge-muted);margin-left:8px;overflow-wrap:anywhere}
+.forge-delivery-library-description,.forge-delivery-library-meta{display:block;font-size:12px;line-height:18px;color:var(--forge-muted);overflow-wrap:anywhere}
+.forge-delivery-library-meta{margin-top:2px}
+.forge-delivery-library-action{display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;min-width:60px;flex:none;color:var(--forge-muted);font-size:12px}
+.forge-delivery-editor .forge-delivery-library-option[aria-pressed="true"]{background:var(--forge-accent-soft)}
+.forge-delivery-library-option[aria-pressed="true"] .forge-delivery-library-action{color:var(--forge-accent);font-weight:500}
+.forge-delivery-editor .forge-delivery-library-option:disabled{cursor:not-allowed;color:var(--forge-disabled-text)}
+.forge-delivery-library-option:disabled .forge-delivery-library-action{color:var(--forge-disabled-text)}
+.forge-delivery-library-option:focus-visible{outline:2px solid var(--forge-accent);outline-offset:-2px}
+.forge-delivery-library-empty{padding:20px 8px;text-align:center}
+.forge-delivery-library-empty>strong{font-size:13px;font-weight:500}
+.forge-delivery-skill-upload-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;margin-top:16px}
+.forge-delivery-skill-upload-row>.forge-delivery-help{margin:0}
+.forge-delivery-skill-notice{min-height:18px;margin-top:8px}
+.forge-delivery-selected-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--forge-border)}
+.forge-delivery-selected-heading>span{font-size:12px;color:var(--forge-muted)}
+@media(hover:hover){.forge-delivery-editor .forge-delivery-library-option:not(:disabled):not([aria-pressed="true"]):hover{background:var(--forge-subtle)}}
+@media(max-width:600px){.forge-delivery-library-command{display:block;margin-left:0}.forge-delivery-editor .forge-delivery-library-option{gap:8px}.forge-delivery-library-results{max-height:252px}}
+@media(pointer:coarse){.forge-delivery-skill-search>.forge-delivery-icon-button{width:36px;height:44px;right:0}}
 .forge-delivery-skill{padding:14px 0;border-bottom:1px solid var(--forge-border)}
 .forge-delivery-skill-description{font-size:12px;color:var(--forge-muted);line-height:18px;margin:6px 0;overflow-wrap:anywhere}
 .forge-delivery-command-edit{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:14px;color:var(--forge-muted)}

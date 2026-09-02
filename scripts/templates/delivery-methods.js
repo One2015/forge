@@ -64,7 +64,7 @@
       tab: 'basic', name: sheet?.name || '', customer: sheet?.customer || '', desc: sheet?.desc || '', target: sheet ? String(sheet.target) : '',
       logo: sheet?.logo || null, archive: sheet?.archive || null, entries, listText: entries.map(entry => entry.source).join('\n'),
       listChanged: !sheet, tags: (sheet?.tags || []).map(tag => Object.assign({}, tag)),
-      skills: (sheet?.skills || []).map(skill => Object.assign({}, skill)), tagName: '', tagColor: '#64748b',
+      skills: (sheet?.skills || []).map(skill => Object.assign({}, skill)), skillQuery: '', skillNotice: '', tagName: '', tagColor: '#64748b',
       logoLoading: false, listLoading: false, skillLoading: false, logoError: '', listError: '', skillError: '', error: ''
     } });
     setTimeout(() => {
@@ -201,8 +201,8 @@
   async uploadDeliverySkills(files) {
     const editor = this.state.deliveryEditor;
     if (!editor || editor.skillLoading) return;
-    const id = editor.id, errors = [], additions = [], commands = new Set(editor.skills.map(skill => skill.command.toLowerCase()));
-    this.patchDeliveryEditor({ skillLoading: true, skillError: '' });
+    const id = editor.id, errors = [], additions = [], commands = new Set(editor.skills.map(skill => this.skillCommand(skill.command).toLowerCase()));
+    this.patchDeliveryEditor({ skillLoading: true, skillError: '', skillNotice: '' });
     const accept = skill => {
       if (editor.skills.length + additions.length >= 12) throw new Error('最多绑定 12 个 Skill。');
       if (commands.has(skill.command.toLowerCase())) throw new Error('调用名 /' + skill.command + ' 重复，请重命名后上传。');
@@ -250,6 +250,7 @@
     if (!/^\d+$/.test(editor.target) || Number(editor.target) < 1 || Number(editor.target) > 100000) return '目标数量须为 1–100000 的整数。';
     if (editor.logoLoading || editor.listLoading || editor.skillLoading) return '文件正在读取，请稍候。';
     if (editor.listError) return editor.listError;
+    if (editor.skills.length > 12) return '最多绑定 12 个 Skill。';
     const commands = new Set();
     for (const skill of editor.skills) {
       const command = this.skillCommand(skill.command);
@@ -319,11 +320,12 @@
       palette: colors.map(color => ({ color, label: 'Tag 颜色 ' + color, selected: color === editor.tagColor, pick: () => patch({ tagColor: color }) })),
       tagDisabled: !editor.tagName.trim() || tagDuplicate || editor.tags.length >= 20, tagHint: tagDuplicate ? '已有同名 Tag。' : 'Tag 用于清单筛选，不改变审核结论。', addTag: () => this.addDeliveryTag(),
       uploadSkills: event => { const files = Array.from(event.target.files || []); event.target.value = ''; this.uploadDeliverySkills(files); },
+      library: editor.tab === 'skills' ? this.deliverySkillLibraryValues() : { rows: [] },
       skillsFull: editor.skills.length >= 12 || editor.skillLoading, skillCount: editor.skills.length, noSkills: !editor.skills.length,
-      skills: editor.skills.map(skill => Object.assign({}, skill, { meta: skill.sourceFile + ' · ' + Math.ceil(skill.size / 1024) + ' KB', commandLabel: skill.name + ' 的调用名', removeLabel: '移除 Skill ' + skill.name,
+      skills: editor.skills.map(skill => Object.assign({}, skill, { meta: [skill.sourceLabel || '上传文件', skill.version ? 'v' + skill.version : '', skill.sourceFile || skill.filename || 'SKILL.md', Math.ceil((skill.size || new TextEncoder().encode(skill.content || '').length) / 1024) + ' KB'].filter(Boolean).join(' · '), commandLabel: skill.name + ' 的调用名', removeLabel: '移除 Skill ' + skill.name,
         commandIssue: commandIssue(skill), commandInvalid: !!commandIssue(skill), commandErrorId: commandIssue(skill) ? 'forge-skill-error-' + skill.id : '',
-        onCommand: event => patch({ skills: this.state.deliveryEditor.skills.map(value => value.id === skill.id ? Object.assign({}, value, { command: event.target.value.replace(/^\/+/, '') }) : value) }),
-        remove: () => patch({ skills: this.state.deliveryEditor.skills.filter(value => value.id !== skill.id), skillError: '' }) })),
+        onCommand: event => { if (!this.state.deliveryEditor?.skillLoading) patch({ skills: this.state.deliveryEditor.skills.map(value => value.id === skill.id ? Object.assign({}, value, { command: event.target.value.replace(/^\/+/, '') }) : value) }); },
+        remove: () => this.removeDeliverySkill(skill.id) })),
       issue, disabled: !!issue, cancel: event => this.closeDeliveryEditor(event), save: () => this.saveDeliveryEditor(),
       backdrop: event => { if (event.target === event.currentTarget) this.closeDeliveryEditor(event); }
     });
