@@ -52,7 +52,7 @@
 
 - `app/[...route]/page.tsx` 接收直接路径请求，复用原来的应用外壳。
 - `scripts/templates/routing-core.js` 是纯路由编解码；`routing-methods.js` 连接导航状态、历史记录、草稿保护及 section 定位。
-- `scripts/update-routing.mjs` 幂等同步到 `public/forge.html`；`npm run dev` 和 `npm run build` 自动执行，也可单独运行 `npm run routes`。
+- `scripts/update-routing.mjs` 幂等同步到 `scripts/templates/forge-base.html`；`npm run dev` 和 `npm run build` 自动执行，也可单独运行 `npm run routes`。
 - `node --test scripts/test-routing.mjs` 覆盖编解码、非法输入、实体匹配、框架历史、搜索、草稿离开保护、编辑 tab、草稿缺失和运行回执。
 - 本轮浏览器验收：主导航地址同步；创建页面 section 直达；表单继续/离开；交付 Item 下一项/关闭/编辑；费用模型页的日期和维度；无效运行链接。
 - 设计沿用 Forge 现有字号与色彩，新增轻量 section 链接和明确的无效地址反馈；没有改动业务审批逻辑或发布线上站点。

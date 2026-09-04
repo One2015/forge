@@ -32,7 +32,7 @@ test('large lists keep simultaneous animations bounded', () => {
   assert.equal(planListMotion(new Map(),Array.from({length:100},(_,i)=>row(String(i),i))).length,24);
 });
 test('flow migration is idempotent and keeps existing component syntax valid', () => {
-  const source=fs.readFileSync(new URL('../public/forge.html',import.meta.url),'utf8');
+  const source=fs.readFileSync(new URL('./templates/forge-base.html',import.meta.url),'utf8');
   assert.equal(updateFlowMotion(source),source);
   const t=JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
   new Function(t.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1]);

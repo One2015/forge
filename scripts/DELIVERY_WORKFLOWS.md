@@ -31,7 +31,7 @@ This extends the existing localhost prototype. It does not add a backend, durabl
 
 ## Source and rebuild
 
-Edit `scripts/templates/delivery-{editor,sheet-extras}.html`, `review-skills.html`, `delivery-workflows.css`, and `delivery-methods.js` with `apply_patch`. `public/forge.html` is a bundled JSON template.
+Edit `scripts/templates/delivery-{editor,sheet-extras}.html`, `review-skills.html`, `delivery-workflows.css`, and `delivery-methods.js` with `apply_patch`. `scripts/templates/forge-base.html` is a bundled JSON template.
 
 The shared `delivery-editor.html` source is rendered by `scripts/render-delivery-editor.mjs` into mutually exclusive creation-page and editing-dialog branches; only one set of form IDs is mounted. `delivery-create-page.js` owns navigation/dirty-state/keyboard guards. Preserve this renderer in focused member/Skill/layout generators; do not return to directly inserting the raw dialog template for creation.
 

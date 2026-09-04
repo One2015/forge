@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 // Focused CSS update: preserve the current markup, state and earlier sidebar refinements.
-const file = new URL('../public/forge.html', import.meta.url);
+const file = new URL('./templates/forge-base.html', import.meta.url);
 const source = fs.readFileSync(file, 'utf8');
 const opening = '<script type="__bundler/template">', closing = '\n</script>\n</body>\n</html>';
 const start = source.indexOf(opening), end = source.lastIndexOf(closing);

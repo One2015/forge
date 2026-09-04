@@ -33,7 +33,7 @@ export function updateBilling(source) {
   return updateOverviewSummary(source.slice(0, start + open.length) + '\n' + JSON.stringify(template).replaceAll('</script>', '<\\u002Fscript>') + close);
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const file = new URL('../public/forge.html', import.meta.url), source = fs.readFileSync(file, 'utf8');
+  const file = new URL('./templates/forge-base.html', import.meta.url), source = fs.readFileSync(file, 'utf8');
   const result = updateBilling(source);
   if (source !== result) fs.writeFileSync(file, result);
   console.log('Updated billing analytics');

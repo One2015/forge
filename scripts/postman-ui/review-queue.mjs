@@ -2,7 +2,7 @@ import fs from 'node:fs';
 const read = name => fs.readFileSync(new URL(name, import.meta.url), 'utf8');
 export function installReviewQueue(t) {
   const start = t.indexOf('<div class="forge-page pm-page-review"');
-  const end = t.indexOf('<!-- geist-runs:start -->', start);
+  const end = t.indexOf('<!-- forge-runs:start -->', start);
   if (start < 0 || end < start) throw Error('Review queue page boundary changed');
   const old = t.slice(start, end);
   let modal = old.slice(old.indexOf('<sc-if value="{{ review.isPending }}"'), old.indexOf('<sc-if value="{{ review.empty }}"'));

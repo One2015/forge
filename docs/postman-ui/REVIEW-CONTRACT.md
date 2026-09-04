@@ -4,7 +4,7 @@
 
 工作区：全局 40px 工具条、176px 模块侧栏、生产 40px 二级标签；常规主体 padding24px，控件32px，标题20px，正文13px，辅助12px。交付详情是代表页：对象标题与任务按钮同层，履约数据带，局部筛选与列表。全局推广覆盖概览、交付清单/详情、生产运行、Pipeline、数据集、资源、审核队列/工作台、成本与模型状态、创建/编辑弹窗、个人面板。
 
-源码入口 public/forge-postman.html 由 scripts/postman-ui/build.mjs 从当前 public/forge.html 定向生成；所有新设计资产在 public/postman-ui。保留原 prototype，不合并。旧共享组件和业务方法沿用。当前原型在制作期间新增路由，新的 routes.js 适配地址保持预览隔离，并修正 route 枚举与交付筛选器的映射。
+源码入口 `public/forge-postman.html` 由 `scripts/postman-ui/build.mjs` 从内部模板 `scripts/templates/forge-base.html` 定向生成；当前设计资产在 `public/postman-ui`。内部模板不作为独立页面发布，业务方法沿用。`routes.js` 保留页面壳的完整路由和独立 HTML 入口的路由编码，以及交付筛选器的映射。
 
 构建是 code-led，无生成图或获批静态效果图。事实截图在 ../output/postman-ui/before 与 after。请以实拍截图判断比例、可读性、对齐和完整性。未接入产物、资源schema、真实模型监控、批量导出属于原有原型限制，不允许制造业务内容。
 

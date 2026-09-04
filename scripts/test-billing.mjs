@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { updateBilling } from './update-billing.mjs';
 import { updateModelStatus } from './update-model-status.mjs';
 
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const NOW = Date.parse('2026-09-03T12:00:00+08:00');

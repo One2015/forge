@@ -30,7 +30,7 @@ export function addBranchToastAction(source) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const file = new URL('../public/forge.html', import.meta.url);
+  const file = new URL('./templates/forge-base.html', import.meta.url);
   const source = fs.readFileSync(file, 'utf8'), result = addBranchToastAction(source);
   if (result !== source) fs.writeFileSync(file, result);
   console.log('Branch creation Toast links to its exact submitted run');

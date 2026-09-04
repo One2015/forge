@@ -1,0 +1,27 @@
+/* Scout-selected, occasional feedback only. The existing Forge ease is shared
+   with drawers. Navigation, filters, resizing and data updates stay immediate. */
+@supports(transition-behavior:allow-discrete){
+ .forge-postman .pm-profile-create-menu{
+  transform-origin:top right;opacity:0;transform:translateY(-4px) scale(.98);
+  transition:opacity 110ms var(--forge-motion-ease),transform 110ms var(--forge-motion-ease),display 110ms allow-discrete,overlay 110ms allow-discrete;
+ }
+ .forge-postman .pm-profile-create-menu:popover-open{opacity:1;transform:none;transition-duration:160ms}
+ @starting-style{.forge-postman .pm-profile-create-menu:popover-open{opacity:0;transform:translateY(-4px) scale(.98)}}
+}
+/* These editors unmount on close: entrance only, with no delayed dismiss. */
+.forge-postman .pm-dataset-editor[open]{animation:pm-editor-enter 200ms var(--forge-motion-ease) both;transform-origin:center}
+@keyframes pm-editor-enter{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
+.forge-postman .pm-photo-filled>img{animation:pm-photo-ready 120ms ease-out both}
+@keyframes pm-photo-ready{from{opacity:0}to{opacity:1}}
+
+/* Explicit fades override the older blanket motion reset, without restoring
+   spatial movement. Visibility/display continue to follow the open state. */
+@media(prefers-reduced-motion:reduce){
+ .forge-postman .pm-profile-create-menu{transform:none!important;transition:opacity 90ms linear,display 90ms allow-discrete,overlay 90ms allow-discrete!important}
+ .forge-postman .pm-dataset-editor[open]{animation:pm-photo-ready 90ms linear both!important;transform:none!important}
+ .forge-postman .pm-photo-filled>img{animation:pm-photo-ready 90ms linear both!important}
+ @starting-style{.forge-postman .pm-profile-create-menu:popover-open{opacity:0;transform:none}}
+}
+/* Match Forge's established immediate keyboard interaction policy. */
+html[data-forge-input=keyboard] .forge-postman .pm-profile-create-menu{transition:none!important}
+html[data-forge-input=keyboard] .forge-postman .pm-dataset-editor[open]{animation:none!important}

@@ -28,7 +28,7 @@ export function updateFlowMotion(source) {
   return source.slice(0,start+opening.length)+'\n'+JSON.stringify(t).replaceAll('</script>','<\\u002Fscript>')+closing;
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)) {
-  const file=new URL('../public/forge.html',import.meta.url),source=fs.readFileSync(file,'utf8'),updated=updateFlowMotion(source);
+  const file=new URL('./templates/forge-base.html',import.meta.url),source=fs.readFileSync(file,'utf8'),updated=updateFlowMotion(source);
   if(source!==updated) fs.writeFileSync(file,updated);
   fs.copyFileSync(new URL('./flow-motion-runtime.mjs',import.meta.url),new URL('../public/forge-flow-motion.mjs',import.meta.url));
   console.log('Updated page, list, toast and resize feedback motion.');

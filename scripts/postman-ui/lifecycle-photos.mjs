@@ -1,8 +1,14 @@
 import fs from 'node:fs';
 const read = name => fs.readFileSync(new URL(name, import.meta.url), 'utf8');
 export const lifecyclePhotoCopy = [
-  ["  async addFeedbackImages(key, files) {", "  async addFeedbackImages(key, files) {\n    const limit = key.startsWith('life:') ? 8 : 6;"],
+  ["  async addFeedbackImages(key, files) {", "  async addFeedbackImages(key, files) {\n    const limit = /^(?:life|sheet):/.test(key) ? 8 : 6;"],
   ["if (images.length >= 6) { errors.push('最多添加 6 张图片，请先移除不需要的图片。'); break; }", "if (images.length >= limit) { errors.push('最多添加 ' + limit + ' 张图片，请先移除不需要的图片。'); break; }"],
+  ["  feedbackView(key) {", "  feedbackView(key) {\n    const limit = /^(?:life|sheet):/.test(key) ? 8 : 6;"],
+  ["emptySlots: Array.from({ length: Math.max(0, 6 - images.length) }", "emptySlots: Array.from({ length: Math.max(0, limit - images.length) }"],
+  ["      count: images.length + ' / 6', full: images.length >= 6,", "      count: images.length + ' / ' + limit, full: images.length >= limit,"],
+  ["      countLabel: '已上传 ' + images.length + '/6 张', remaining: Math.max(0, 6 - images.length),", "      countLabel: '已上传 ' + images.length + '/' + limit + ' 张', remaining: Math.max(0, limit - images.length),"],
+  ["      uploadLabel: images.length >= 6 ? '已达 6 张上限' : '点击上传图片',", "      uploadLabel: images.length >= limit ? '已达 ' + limit + ' 张上限' : '点击上传图片',"],
+  ["      capacityHint: images.length >= 6 ? '移除一张后可继续上传' : '还可上传 ' + (6 - images.length) + ' 张',", "      capacityHint: images.length >= limit ? '移除一张后可继续上传' : '还可上传 ' + (limit - images.length) + ' 张',"],
   ["      : s.view === 'review' && s.reviewOpen", "      : s.view === 'itemlife' && s.lifeAppend && s.lifeItem && !s.zoom ? 'life:' + s.lifeItem\n      : s.view === 'review' && s.reviewOpen"],
   ["openAppend: () => this.setState({ lifeAppend: true, lifeText: '', lifeImgs: 0 }),", "openAppend: () => { this.setFeedbackImages('life:' + r[2], [], ''); this.setState({ lifeAppend: true, lifeText: '', lifeImgs: 0 }); },"],
   ["cancelAppend: () => this.setState({ lifeAppend: false, lifeText: '', lifeImgs: 0 }),", "cancelAppend: () => { this.setFeedbackImages('life:' + r[2], [], ''); this.setState({ lifeAppend: false, lifeText: '', lifeImgs: 0 }); },"],

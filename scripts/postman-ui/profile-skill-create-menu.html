@@ -1,0 +1,9 @@
+<div class="forge-profile-skill-toolbar">
+  <span>个人及数据单 Skill</span>
+  <button id="pm-profile-skill-create-trigger" type="button" class="pm-profile-create-skill" disabled="{{ profile.uploadDisabled }}" popovertarget="pm-profile-skill-create-menu" sc-camel-on-click="{{ profile.positionSkillMenu }}">[[icon:plus:16]] 创建 Skill [[icon:caret-down:14]]</button>
+  <div id="pm-profile-skill-create-menu" class="pm-profile-create-menu" popover="auto" role="group" aria-label="创建 Skill 的方式">
+    <button type="button" disabled="{{ profile.uploadDisabled }}" sc-camel-on-click="{{ profile.createSkill }}">[[icon:pencil-simple:16]] <span class="pm-profile-create-option-copy"><strong>填写 Skill</strong><span>填写名称、用途和指令</span></span></button>
+    <button type="button" disabled="{{ profile.uploadDisabled }}" sc-camel-on-click="{{ profile.pickSkillFile }}">[[icon:upload-simple:16]] <span class="pm-profile-create-option-copy"><strong>上传 Skill</strong><span>支持 MD 或含 SKILL.md 的 ZIP</span></span></button>
+  </div>
+  <input id="pm-profile-skill-file" type="file" accept=".md,.markdown,.zip,text/markdown,application/zip" multiple hidden disabled="{{ profile.uploadDisabled }}" aria-label="上传个人 Skill" sc-camel-on-change="{{ profile.uploadSkills }}" />
+</div>

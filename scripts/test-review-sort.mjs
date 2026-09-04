@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { test } from 'node:test';
 import { updateReviewSort } from './update-review-sort.mjs';
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const decode = text => JSON.parse(text.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const template = decode(source);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];

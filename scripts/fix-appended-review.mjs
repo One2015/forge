@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 // Keep the compact detail entry/footer generator authoritative before applying state integration.
 await import('./refine-detail-actions.mjs');
-const file = new URL('../public/forge.html', import.meta.url), source = fs.readFileSync(file, 'utf8');
+const file = new URL('./templates/forge-base.html', import.meta.url), source = fs.readFileSync(file, 'utf8');
 const opening = '<script type="__bundler/template">', closing = '\n</script>\n</body>\n</html>';
 const start = source.indexOf(opening), end = source.lastIndexOf(closing);
 let template = JSON.parse(source.slice(start + opening.length, end).trim());

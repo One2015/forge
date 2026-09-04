@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { test } from 'node:test';
 import { updateSheetPreviewNavigation } from './update-sheet-preview-navigation.mjs';
 
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const opening = '<script type="__bundler/template">', closing = '\n</script>\n</body>\n</html>';
 const decode = input => JSON.parse(input.slice(input.indexOf(opening) + opening.length, input.lastIndexOf(closing)).trim());
 const template = decode(source);

@@ -1,6 +1,0 @@
-import './behavior.mjs';
-const form=document.querySelector('#demo-form'),name=document.querySelector('#demo-name'),error=document.querySelector('#name-error'),result=document.querySelector('#form-result');
-form.addEventListener('submit',event=>{event.preventDefault();const valid=name.value.trim().length>0;name.setAttribute('aria-invalid',String(!valid));error.textContent=valid?'':'请填写运行名称。';result.textContent=valid?'名称验证通过；此示例不会保存业务数据。':'';if(!valid)name.focus();});
-form.addEventListener('reset',()=>{name.removeAttribute('aria-invalid');error.textContent='';result.textContent='';});
-document.querySelector('#demo-search').addEventListener('input',event=>{document.querySelector('#search-result').textContent=event.target.value?'当前关键词：'+event.target.value:'';});
-document.addEventListener('click',event=>{const button=event.target.closest('[data-preview-state]');if(!button)return;const state=button.dataset.previewState;document.querySelectorAll('.fg-segmented [data-preview-state]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.previewState===state)));const template=document.querySelector('#state-'+state);document.querySelector('#state-panel').replaceChildren(template.content.cloneNode(true));document.querySelector('#state-announcement').textContent='当前演示：'+({ready:'就绪',loading:'加载中',empty:'空状态',error:'错误'})[state];});

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { test } from 'node:test';
 import { updateInteractionStates } from './update-interaction-states.mjs';
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const t = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = t.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const read = name => fs.readFileSync(new URL(name, import.meta.url), 'utf8');

@@ -57,7 +57,7 @@ export function updateSurfaceMotion(source) {
       let next = attrs.includes('data-motion-label=') ? attrs : ' data-motion-label="{{ ' + item + '.label }}"' + attrs;
       // The visible and width-reserving labels must share one grid cell. Legacy
       // inline flex styles make the hidden label a second item (and double width).
-      // Leave the separately owned Geist controls and their content slots intact.
+      // Leave the separately owned run record controls and their content slots intact.
       if (attrs.includes('data-motion-selected=')) next = next.replace(/style="([^"]*)"/, (_, style) => 'style="' + style.split(';').filter(rule => !/^(?:display|align-items|gap|text-align)\s*:/.test(rule.trim())).join(';') + '"');
       return start + next + end;
     });
@@ -78,7 +78,7 @@ export function updateSurfaceMotion(source) {
   return source.slice(0,start + opening.length) + '\n' + JSON.stringify(t).replaceAll('</script>','<\\u002Fscript>') + closing;
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const file = new URL('../public/forge.html',import.meta.url);
+  const file = new URL('./templates/forge-base.html',import.meta.url);
   const source = fs.readFileSync(file,'utf8'), updated = updateSurfaceMotion(source);
   if (source !== updated) fs.writeFileSync(file,updated);
   fs.copyFileSync(new URL('./surface-motion-runtime.js',import.meta.url),new URL('../public/forge-surface-motion.js',import.meta.url));

@@ -2,7 +2,13 @@ import fs from 'node:fs';
 const read=name=>fs.readFileSync(new URL(name,import.meta.url),'utf8');
 const icons=html=>html.replace(/\[\[icon:([\w-]+):(\d+)\]\]/g,(_,name,size)=>read('../../assets/phosphor/regular/'+name+'.svg').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="'+size+'" height="'+size+'" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
 export function installFeedbackRefinements(t){
- const slots=(view,id)=>icons(read('photo-slots.html').replaceAll('VIEW',view).replaceAll('HELP_ID',id));
+ const sheetHint='<div class="forge-feedback-submit-context" id="forge-sheet-rework-hint"><strong>提交后创建本轮修复任务</strong><span>{{ sheet.pick.noteHint }}</span></div>';
+ if(!t.includes(sheetHint))throw Error('Sheet rework hint boundary changed');
+ t=t.replace(sheetHint,'').replace(' aria-describedby="forge-sheet-rework-hint"','');
+ const slots=(view,id)=>{
+  const html=read('photo-slots.html').replaceAll('VIEW',view).replaceAll('HELP_ID',id);
+  return icons(view==='sheet.pick.feedback'?html.replaceAll('/6','/8').replace('最多 6 张','最多 8 张'):html);
+ };
  for(const [view,id] of [['sheet.pick.feedback','forge-sheet-rework-image-help'],['it.feedback','forge-rework-image-help']]){
   const field=t.indexOf('class="forge-feedback-image-heading"',t.indexOf('<!-- feedback-image-box:start -->'));
   const start=t.lastIndexOf('<!-- feedback-image-box:start -->',field);

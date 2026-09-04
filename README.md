@@ -26,19 +26,16 @@ npm run build:postman
 
 - `scripts/postman-ui/`、`public/postman-ui/`：当前重设计的生成器、样式和 Mock 资源。
 - `public/forge-postman.html`：生成后的当前界面。
-- `public/forge.html`：保留的基础原型，内含 JSON 编码的 DCLogic 模板和数据。
+- `scripts/templates/forge-base.html`：内部业务模板与模拟数据，内含 JSON 编码的 DCLogic 模板，不作为独立页面发布。
+- `public/postman-ui/primitives.css`：当前运行页使用的原生控件基础样式，复用当前 UI tokens。
 - `scripts/templates/`：对应功能的 HTML / CSS / 状态逻辑片段。
 - `scripts/ui/`：React 产物查看器和概览 Tooltip。
 - `scripts/test-*.mjs`：业务状态、模板、迁移、文件验证测试。
 - `assets/phosphor/regular/`：官方图标。
 - `public/models/`、`public/model-decoders/`：演示模型、解码器和许可证。
 
-`npm run dev` / `build` 会构建 React 查看器和 Tooltip，**不会批量重放历史迁移脚本**。不要按文件名或时间顺序运行全部 `scripts/*.mjs`；部分旧迁移只适用于当时版本。
+`npm run dev` / `build` 统一同步路由、构建 React 查看器、Tooltip 和当前界面；`dev:postman` / `build:postman` 是同一构建链的兼容命令。**不要批量重放历史迁移脚本**。不要按文件名或时间顺序运行全部 `scripts/*.mjs`；部分旧迁移只适用于当时版本。
 
 公开地址可能落后于本地源码包。部署必须经项目所有者批准，不要覆盖原站点配置或自行发布。
 
-## Geist 设计系统 · 第一阶段
-
-在当前开发端口打开 `/forge.html?view=runs` 使用运行记录迁移样板；`/design-system.html` 展示共享组件与可切换状态；`/design-system-responsive.html` 检查真实原型的 390px 布局。规范、来源、迁移顺序和验证见 [设计系统文档](docs/design-system/README.md)。
-
-`npm run design-system` 定向同步共享基础、样板页与展示入口（已接入 dev/build）；不要批量执行历史迁移。既有服务运行时，可使用 vinext 支持的 `VINEXT_NO_DEV_LOCK=1 npm run dev -- --port 3011` 在另一端口启动当前工作副本，保留原有服务。
+当前界面规范见 [设计说明](docs/postman-ui/DESIGN.md)，实现入口见 [实现说明](docs/postman-ui/IMPLEMENTATION.md)。

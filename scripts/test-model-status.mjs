@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { updateModelStatus } from './update-model-status.mjs';
 import { updateDeliverySkillWorkspace } from './update-delivery-skill-workspace.mjs';
 
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const NOW = Date.UTC(2026, 8, 2, 12);
@@ -317,7 +317,12 @@ test('status navigation reflows without an inner scroll area and both variants r
   for (const variant of [template, postman]) {
     const html = variant.match(/<!-- model-status:start -->[\s\S]*?<!-- model-status:end -->/)[0];
     assert(!html.includes('业务影响优先')); assert(!html.includes('forge-model-sort')); assert(!html.includes('modelStatus.onSort'));
-    for (const control of ['onProvider', 'onModel', 'onLine', 'onFilter', 'onQuery', 'onBusiness']) assert(html.includes('modelStatus.' + control));
+    for (const control of ['onProvider', 'onModel', 'onLine', 'onFilter', 'onQuery']) assert(html.includes('modelStatus.' + control));
+    // Postman uses summary cards and intentionally omits the business-impact checkbox.
+    if (variant === postman) {
+      assert(html.includes('pm-model-summary'));
+      assert(!html.includes('modelStatus.onBusiness'));
+    } else assert(html.includes('modelStatus.onBusiness'));
     const css = variant.match(/\/\* model-status:start \*\/[\s\S]*?\/\* model-status:end \*\//)[0];
     const navigation = css.match(/\.forge-model-issue-filters\{([^}]+)\}/)[1];
     assert.match(navigation, /display:grid/); assert.match(navigation, /repeat\(6,minmax\(0,1fr\)\)/); assert.match(navigation, /overflow:visible/);

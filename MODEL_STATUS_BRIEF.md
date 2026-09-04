@@ -86,7 +86,7 @@ type ModelMonitoring = {
 
 ## 维护与验证
 
-源文件：`scripts/templates/model-status-{methods.js,dashboard.js,demo.js,html,css}`；运行 `node scripts/update-model-status.mjs` 同步独立详情页和概览摘要到 `public/forge.html`。真实快照适配器与示例生成器分离，该更新器保留创建数据单、交付和审核逻辑。
+源文件：`scripts/templates/model-status-{methods.js,dashboard.js,demo.js,html,css}`；运行 `node scripts/update-model-status.mjs` 同步独立详情页和概览摘要到 `scripts/templates/forge-base.html`。真实快照适配器与示例生成器分离，该更新器保留创建数据单、交付和审核逻辑。
 
 `scripts/test-model-status.mjs` 验证真实适配器的去重、备用线路、未知/过期、冲突、指标独立性及示例层的分组、加权汇总、过滤、复测边界。2026-09-03：全量 429 项测试及生产构建通过；本地桌面 1280×900 与手机 390×844 已检查切换、筛选、hover、排查跳转和模拟复测。独立验收对时效校验、延迟指标不可混排、余额时长来源三项修复均判定解决；该结论仅覆盖列出的修复范围。源码设计检测使用降级解析，未取得计算后的对比度认证。真实服务接入与公开发布仍未执行。
 

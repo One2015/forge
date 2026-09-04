@@ -27,7 +27,7 @@ export function updateDeliveryDrafts(source) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const file = new URL('../public/forge.html', import.meta.url), source = fs.readFileSync(file, 'utf8');
+  const file = new URL('./templates/forge-base.html', import.meta.url), source = fs.readFileSync(file, 'utf8');
   const result = updateDeliveryDrafts(source);
   if (result !== source) fs.writeFileSync(file, result);
   console.log('Added persistent local delivery drafts');

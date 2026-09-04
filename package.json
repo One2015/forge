@@ -7,22 +7,23 @@
   },
   "scripts": {
     "test": "node --test scripts/test-*.mjs",
-    "dev": "npm run routes && npm run design-system && node scripts/build-summary-tooltips.mjs && node scripts/build-artifact-preview.mjs && vinext dev",
-    "build": "npm run routes && npm run design-system && node scripts/build-summary-tooltips.mjs && node scripts/build-artifact-preview.mjs && vinext build",
+    "dev": "npm run prepare:ui && vinext dev",
+    "build": "npm run prepare:ui && vinext build",
     "routes": "node scripts/update-routing.mjs",
     "start": "vinext start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "design-system": "node scripts/update-geist-design-system.mjs && node scripts/design-system/gallery.mjs",
-    "postman-ui": "node scripts/postman-ui/build.mjs",
-    "dev:postman": "npm run postman-ui && VINEXT_NO_DEV_LOCK=1 vinext dev --hostname 127.0.0.1 --port 3011",
-    "build:postman": "npm run postman-ui && vinext build"
+    "postman-ui": "node scripts/build-turbine-preview.mjs && node scripts/postman-ui/build.mjs",
+    "dev:postman": "VINEXT_NO_DEV_LOCK=1 npm run dev -- --hostname 127.0.0.1 --port 3011",
+    "build:postman": "npm run build",
+    "prepare:ui": "npm run routes && node scripts/build-summary-tooltips.mjs && node scripts/build-artifact-preview.mjs && npm run postman-ui"
   },
   "dependencies": {
     "@google/model-viewer": "^4.3.1",
     "@radix-ui/react-tooltip": "^1.2.16",
     "next": "16.2.6",
     "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "react-dom": "19.2.6",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",

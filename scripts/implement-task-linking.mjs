@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const file = new URL('../public/forge.html', import.meta.url);
+const file = new URL('./templates/forge-base.html', import.meta.url);
 const source = fs.readFileSync(file, 'utf8'), opening = '<script type="__bundler/template">', closing = '\n</script>\n</body>\n</html>';
 const start = source.indexOf(opening), end = source.lastIndexOf(closing);
 if (start < 0 || end < 0) throw new Error('Missing bundled template');

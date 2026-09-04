@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { test } from 'node:test';
 import { updateSurfaceMotion } from './update-surface-motion.mjs';
-const raw = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const raw = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const t = JSON.parse(raw.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const helpers = fs.readFileSync(new URL('./templates/surface-motion-methods.js', import.meta.url), 'utf8');
 const panel = fs.readFileSync(new URL('./templates/panel-motion-methods.js', import.meta.url), 'utf8');
@@ -70,7 +70,7 @@ test('segmented labels share one centered cell with their width-reserving copy',
   }
 });
 
-test('segment synchronization removes legacy flex without changing filters or Geist', () => {
+test('segment synchronization removes legacy flex without changing filters or run record controls', () => {
   const owner = /(<sc-for list="{{ review\.owners }}"[^>]*>\s*<button[^>]*style=")/;
   assert(owner.test(t));
   const legacy = t.replace(owner, '$1display:flex;align-items:center;gap:7px;text-align:inherit;');

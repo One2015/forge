@@ -1,0 +1,22 @@
+        <section aria-label="List 清单与 Tag" class="pm-list-editor">
+          <div class="forge-delivery-section-heading"><h3>关联条目</h3>[[upload]]</div>
+          <p class="forge-delivery-help">选择 Pipeline × 数据集的运行任务，或上传 ZIP（最大 20 MB）。重新选择来源会更新下方清单。</p>
+          <select class="pm-list-source" aria-label="关联 Pipeline × 数据集" value="" disabled="{{ deliveryEditor.listLoading }}" sc-camel-on-change="{{ deliveryEditor.association.pick }}">
+            <option value="">选择 Pipeline × 数据集 · Run</option>
+            <sc-for list="{{ deliveryEditor.association.available }}" as="task" hint-placeholder-count="0"><option value="{{ task.id }}" disabled="{{ task.disabled }}" label="{{ task.label }}">{{ task.label }}</option></sc-for>
+          </select>
+          <sc-if value="{{ deliveryEditor.association.hasSelected }}" hint-placeholder-val="{{ false }}"><div class="pm-list-sources"><sc-for list="{{ deliveryEditor.association.selected }}" as="source" hint-placeholder-count="0"><div class="pm-list-source-row"><div><strong>{{ source.label }}</strong><span>{{ source.id }}</span></div><button type="button" class="forge-delivery-text-button" disabled="{{ deliveryEditor.listLoading }}" aria-label="{{ source.removeLabel }}" sc-camel-on-click="{{ source.remove }}">移除</button></div></sc-for></div></sc-if>
+          <sc-if value="{{ deliveryEditor.hasArchive }}" hint-placeholder-val="{{ false }}"><p class="forge-delivery-help">ZIP · {{ deliveryEditor.archiveName }}</p></sc-if>
+          <sc-if value="{{ deliveryEditor.listLoading }}" hint-placeholder-val="{{ false }}"><p class="forge-delivery-help" role="status">正在读取 ZIP 文件目录…</p></sc-if>
+          <sc-if value="{{ deliveryEditor.listError }}" hint-placeholder-val="{{ false }}"><p class="forge-feedback-error" role="alert">{{ deliveryEditor.listError }}</p></sc-if>
+          <div class="forge-delivery-section-heading pm-list-preview-heading"><h3>条目预览</h3><span>{{ deliveryEditor.entrySummary }}</span></div>
+          <sc-if value="{{ deliveryEditor.hasEntries }}" hint-placeholder-val="{{ false }}">
+            <div class="pm-list-column-head" aria-hidden="true"><span>名称 / Item ID</span><span>运行状态</span><span>Task Tag</span></div>
+            <div class="forge-delivery-entry-preview pm-list-entry-preview"><sc-for list="{{ deliveryEditor.entries }}" as="entry" hint-placeholder-count="0">
+              <div class="forge-delivery-entry pm-list-entry"><div class="pm-list-identity"><strong title="{{ entry.source }}">{{ entry.name }}</strong><span title="{{ entry.linkedId }}">{{ entry.linkedId }}</span></div><span class="pm-list-run-state" data-state="{{ entry.runState }}">{{ entry.runLabel }}</span><select aria-label="{{ entry.tagLabel }}" value="{{ entry.tagId }}" sc-camel-on-change="{{ entry.onTag }}"><option value="">无 Tag</option><sc-for list="{{ entry.tags }}" as="tag" hint-placeholder-count="0"><option value="{{ tag.id }}" label="{{ tag.name }}">{{ tag.name }}</option></sc-for></select></div>
+            </sc-for></div>
+          </sc-if>
+          <sc-if value="{{ deliveryEditor.association.empty }}" hint-placeholder-val="{{ false }}"><p class="forge-delivery-help pm-list-empty">关联运行任务或上传 ZIP 后，条目会显示在这里。</p></sc-if>
+[[tags]]
+        </section>
+      </sc-if>

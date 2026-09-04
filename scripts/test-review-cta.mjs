@@ -5,7 +5,7 @@ import { updateReviewCta } from './update-review-cta.mjs';
 import { semanticMarkup } from './postman-ui/semantic-colors.mjs';
 
 const read = path => fs.readFileSync(new URL(path, import.meta.url), 'utf8');
-const source = read('../public/forge.html');
+const source = read('./templates/forge-base.html');
 const opening = '<script type="__bundler/template">', closing = '\n</script>\n</body>\n</html>';
 const decode = value => JSON.parse(value.slice(value.indexOf(opening) + opening.length, value.lastIndexOf(closing)).trim());
 const template = decode(source), css = read('./templates/review-cta.css');

@@ -31,7 +31,7 @@ export function updateBranchDefaultItem(source) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const file = new URL('../public/forge.html', import.meta.url);
+  const file = new URL('./templates/forge-base.html', import.meta.url);
   const source = fs.readFileSync(file, 'utf8'), result = updateBranchDefaultItem(source);
   if (result !== source) fs.writeFileSync(file, result);
   console.log('Updated branch source Item defaults');

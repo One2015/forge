@@ -41,7 +41,7 @@ export function updatePanelMotion(source) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const file = new URL('../public/forge.html', import.meta.url);
+  const file = new URL('./templates/forge-base.html', import.meta.url);
   const source = fs.readFileSync(file, 'utf8'), updated = updatePanelMotion(source);
   if (source !== updated) fs.writeFileSync(file, updated);
   console.log('Applied panel transitions and direct dataset resizing.');

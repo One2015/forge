@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { test } from 'node:test';
 
 const read = path => fs.readFileSync(new URL(path, import.meta.url), 'utf8');
-const template = JSON.parse(read('../public/forge.html').split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
+const template = JSON.parse(read('./templates/forge-base.html').split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const delivery = read('./templates/delivery-workflows.css');
 const feedback = read('./templates/feedback-workflows.css');
 

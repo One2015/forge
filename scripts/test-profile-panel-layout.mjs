@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { test } from 'node:test';
 import { refineProfilePanel } from './refine-profile-panel.mjs';
 
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const decode = source => JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const template = decode(source);
 const html = template.match(/<!-- forge-profile:start -->[\s\S]*?<!-- forge-profile:end -->/)[0];

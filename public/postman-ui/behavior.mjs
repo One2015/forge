@@ -1,3 +1,4 @@
+import './button-guards.mjs';
 // The legacy template has clickable divs. Preserve its click callbacks and add
 // keyboard parity without duplicating any business logic or changing text.
 const processed=new WeakSet();
@@ -28,14 +29,4 @@ document.addEventListener('keydown',event=>{
  const index=tabs.indexOf(current);
  const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
  event.preventDefault();tabs[next].focus();tabs[next].click();
-});
-// Keep the run overflow actions lightweight: dismiss on outside click or Escape.
-document.addEventListener('click',event=>{
- for(const toggle of document.querySelectorAll('.rr-more[aria-expanded=true]')){
-  if(!toggle.closest('.rr-menu-wrap').contains(event.target))toggle.click();
- }
-});
-document.addEventListener('keydown',event=>{
- if(event.key!=='Escape')return;
- for(const toggle of document.querySelectorAll('.rr-more[aria-expanded=true]')){event.preventDefault();toggle.click();toggle.focus();}
 });

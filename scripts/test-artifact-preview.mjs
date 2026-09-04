@@ -7,7 +7,7 @@ import { updateArtifactPreview } from './update-artifact-preview.mjs';
 import { configureModelViewer } from './ui/model-viewer-config.mjs';
 
 const read = path => fs.readFileSync(new URL(path, import.meta.url), 'utf8');
-const raw = read('../public/forge.html');
+const raw = read('./templates/forge-base.html');
 const template = JSON.parse(raw.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const ui = read('./ui/artifact-preview.tsx');
@@ -69,13 +69,15 @@ test('preview mode controls show icons only while keeping native radio names and
   assert(css.includes('label:has(input:focus-visible)'));
 });
 
-test('empty canvas has no visible placeholder or file heading but retains accessible status and real file actions', () => {
+test('empty previews expose status on the unified detail page while keeping embedded status accessible and real file actions', () => {
   const content = ui.slice(ui.indexOf('<div className="forge-artifact-content">'), ui.indexOf('\nconst roots ='));
   assert(!content.includes('<Icon svg={config.is3D'));
   assert(!content.includes('forge-artifact-message'));
   assert(!content.includes('forge-artifact-files-heading'));
   assert(!content.includes(' 个文件'));
-  assert.equal((content.match(/className="forge-artifact-sr-only" role="status"/g) || []).length, 2);
+  assert.equal((content.match(/className=\{toolbarHost \? 'forge-artifact-empty-state' : 'forge-artifact-sr-only'\} role="status"/g) || []).length, 2);
+  assert(content.includes('当前版本没有可预览的文件。'));
+  assert(content.includes('当前版本没有可查看的文件。'));
   assert(content.includes('<Media key={selected.url} file={selected}/>'));
   assert(content.includes('<ul aria-label="文件列表">'));
   assert(content.includes('files.map(file =>'));

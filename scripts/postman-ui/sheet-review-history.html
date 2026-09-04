@@ -1,0 +1,26 @@
+<div class="forge-sheet-history pm-review-history" style="padding:8px 20px 12px">
+  <sc-for list="{{ sheet.pick.rounds }}" as="q" hint-placeholder-count="0">
+    <article class="pm-review-round" style="--round-line:{{ q.line }};--round-dot:{{ q.dot }}">
+      <span class="pm-review-round-dot" aria-hidden="true"></span>
+      <header class="pm-review-round-heading">
+        <strong>{{ q.title }}</strong>
+        <sc-if value="{{ q.showBadge }}"><span class="pm-review-round-badge" style="color:{{ q.fg }};border-color:{{ q.border }}">{{ q.badge }}</span></sc-if>
+        <button type="button" class="pm-review-round-branch" sc-camel-on-click="{{ q.branch }}" aria-label="从{{ q.title }}的版本创建分支" title="从这一版分支">BRANCH_ICON</button>
+      </header>
+      <div class="pm-review-round-body">
+        <div class="pm-review-round-copy">
+          <p class="pm-review-round-who">{{ q.who }}</p>
+          <sc-if value="{{ q.hasNote }}"><p class="pm-review-round-note" style="-webkit-line-clamp:{{ q.clamp }}">{{ q.note }}</p></sc-if>
+          <sc-if value="{{ q.needsMore }}"><button type="button" class="forge-delivery-text-button" sc-camel-on-click="{{ q.toggleNote }}">{{ q.moreLabel }}</button></sc-if>
+        </div>
+        <div class="forge-sheet-history-thumb" aria-hidden="true"></div>
+      </div>
+      <sc-if value="{{ q.referenceImages.length }}">
+        <div class="pm-review-reference-strip" role="group" aria-label="本轮审核参考图">
+          <sc-for list="{{ q.referenceImages }}" as="photo" hint-placeholder-count="0">
+            <a href="{{ photo.url }}" target="_blank" rel="noopener noreferrer" title="{{ photo.name }}"><img src="{{ photo.url }}" alt="{{ photo.name }}" loading="lazy" /></a>
+          </sc-for>
+        </div>
+      </sc-if>
+    </article>
+  </sc-for>

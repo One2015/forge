@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {test} from 'node:test';
 
-const template = JSON.parse(fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8').split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
+const template = JSON.parse(fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8').split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const markup = template.slice(0, template.indexOf('<script type="text/x-dc"'));
 const footer = markup.match(/<!-- detail-footer:start -->([\s\S]*?)<!-- detail-footer:end -->/)[1];

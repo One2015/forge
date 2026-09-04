@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { updateDetailControlColors } from './update-detail-control-colors.mjs';
 
 const read = file => fs.readFileSync(new URL(file, import.meta.url), 'utf8');
-const source = read('../public/forge.html');
+const source = read('./templates/forge-base.html');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const actions = read('./templates/detail-actions.css');
 const refinement = read('./templates/forge-refinement.css');

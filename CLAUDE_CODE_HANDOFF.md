@@ -13,12 +13,12 @@
 
 ## 2. 当前架构与真源
 
-`app/page.tsx` 是 iframe 页面壳；实际 Forge 位于 `public/forge.html`，`/forge` 路由也可访问。它不是普通手写 HTML：`<script type="__bundler/template">` 内是一段 JSON 字符串，解码后才是 DCLogic 模板、CSS 与 `Component` 类。
+`app/page.tsx` 是 iframe 页面壳；当前 Forge 位于 `public/forge-postman.html`。`scripts/postman-ui/build.mjs` 将内部模板 `scripts/templates/forge-base.html` 与当前页面模块、样式组装为运行入口。内部模板不作为独立页面发布：`<script type="__bundler/template">` 内是一段 JSON 字符串，解码后才是 DCLogic 模板、CSS 与 `Component` 类。
 
 读取方式（不要直接打印完整单行到终端）：
 
 ```js
-const source = fs.readFileSync('public/forge.html', 'utf8');
+const source = fs.readFileSync('scripts/templates/forge-base.html', 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const logic = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 ```
@@ -28,7 +28,8 @@ const logic = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script
 | 范围 | 主要入口 |
 | --- | --- |
 | 页面壳与元信息 | `app/page.tsx`, `app/layout.tsx`, `app/globals.css` |
-| 实际页面与模拟数据 | `public/forge.html` |
+| 内部业务模板与模拟数据 | `scripts/templates/forge-base.html` |
+| 当前页面生成器与运行入口 | `scripts/postman-ui/build.mjs` → `public/forge-postman.html` |
 | 侧栏、hover/选中、临时展开 | `scripts/templates/forge-sidebar*`, `sidebar-interaction-methods.js`, `interaction-states.css` |
 | 数据单、成员、List/Tag、Skill | `scripts/templates/delivery-*`, `scripts/DELIVERY_WORKFLOWS.md` |
 | 个人面板 | `scripts/templates/forge-profile*`, `profile-methods.js` |

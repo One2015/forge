@@ -11,7 +11,7 @@ The complete Item history now separates expansion from **追加修改**. The app
 - `implement-history-branch-tree.mjs`: targeted, idempotent bundle update.
 - `test-history-branch-tree.mjs`: regression coverage.
 
-Run the generator only after editing these templates; it updates the serialized `public/forge.html` without replaying older whole-app migrations.
+Run the generator only after editing these templates; it updates the serialized `scripts/templates/forge-base.html` without replaying older whole-app migrations.
 
 ## State model
 

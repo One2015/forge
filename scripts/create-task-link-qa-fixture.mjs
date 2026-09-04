@@ -1,6 +1,6 @@
 // Isolated, temporary data only. Never link this fixture from the product.
 import fs from 'node:fs';
-const raw = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const raw = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const opening = '<script type="__bundler/template">', closing = '\n</script>\n</body>\n</html>';
 const at = raw.indexOf(opening), end = raw.lastIndexOf(closing);
 let template = JSON.parse(raw.slice(at + opening.length, end).trim());

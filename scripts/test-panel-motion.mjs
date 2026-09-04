@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { test } from 'node:test';
 import { updatePanelMotion } from './update-panel-motion.mjs';
-const raw = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const raw = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const t = JSON.parse(raw.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = t.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 

@@ -1,0 +1,184 @@
+/* Reflow by usable content width, including when the workspace rail is open.
+   Dense data stays in continuous rows; canvases and code retain local scrolling. */
+.forge-postman :is(.forge-page,.forge-billing,.forge-wizard-main,.forge-profile-body){min-width:0}
+.forge-postman :is(.fg-page-header,.pq-heading,.pm-sheet-heading)>div{min-width:0}
+.forge-postman :is(.fg-page-header,.pq-heading,.pm-sheet-heading) h1{overflow-wrap:anywhere}
+.forge-postman .rr-page{container:pm-runs / inline-size}
+.forge-postman .pm-page-run{container:pm-run / inline-size}
+.forge-postman .pm-review-queue{container:pm-review / inline-size}
+.forge-postman .pm-sheet-list{container:pm-sheet-list / inline-size}
+.forge-postman .forge-wizard-main{container:pm-wizard-main / inline-size}
+.forge-postman .rr-page .fg-runs-toolbar{flex-wrap:wrap;overflow:visible;gap:10px 16px}
+.forge-postman .rr-status-tabs{flex:0 1 auto;max-width:100%;min-width:0;overflow-x:auto;scrollbar-width:thin}
+.forge-postman .rr-filter-controls{flex:1 1 300px;min-width:0;flex-wrap:wrap;gap:8px 12px}
+.forge-postman .rr-page .rr-filter-controls .fg-search{min-width:140px}
+.forge-postman .rr-notice{gap:12px;overflow-wrap:anywhere}
+.forge-postman .rr-notice button{flex:none}
+
+@container pm-runs (max-width:1160px){
+ .forge-postman .rr-scroll{max-height:none;overflow:visible;min-height:0}
+ .forge-postman .rr-table{min-width:0}
+ .forge-postman .rr-heading{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0;white-space:nowrap}
+ .forge-postman .rr-row{height:auto;min-height:110px;grid-template-columns:minmax(210px,1.5fr) 100px minmax(140px,1fr) 130px;gap:10px 16px;padding:16px}
+ .forge-postman .rr-identity{grid-column:1;grid-row:1/3;gap:4px}
+ .forge-postman .rr-identity>strong,.forge-postman .rr-pipeline{white-space:normal;overflow-wrap:anywhere}
+ .forge-postman .rr-context{flex-wrap:wrap;gap:2px 4px}
+ .forge-postman .rr-context>span:first-child{flex-basis:100%;white-space:normal;overflow-wrap:anywhere}
+ .forge-postman .rr-context>span[aria-hidden]{display:none}
+ .forge-postman .rr-context>code{max-width:calc(100% - 28px)}
+ .forge-postman .rr-row>[role=cell]:nth-child(2){grid-column:2;grid-row:1}
+ .forge-postman .rr-progress{grid-column:3;grid-row:1}
+ .forge-postman .rr-progress>span{white-space:normal}
+ .forge-postman .rr-person{grid-column:2;grid-row:2}
+ .forge-postman .rr-row>.rr-number:nth-child(5){grid-column:3;grid-row:2}
+ .forge-postman .rr-row>.rr-number:nth-child(6){grid-column:4;grid-row:2}
+ .forge-postman .rr-number{text-align:left;display:flex;flex-wrap:wrap;gap:4px 8px}
+ .forge-postman .rr-number::before{content:attr(data-label);color:var(--pm-muted)}
+ .forge-postman .rr-operations{grid-column:4;grid-row:1}
+}
+@container pm-runs (max-width:720px){
+ .forge-postman .rr-row{grid-template-columns:minmax(0,1fr) auto;gap:12px}
+ .forge-postman .rr-identity{grid-column:1/-1;grid-row:1}
+ .forge-postman .rr-row>[role=cell]:nth-child(2){grid-column:1;grid-row:2}
+ .forge-postman .rr-person{grid-column:2;grid-row:2;text-align:right;gap:2px}
+ .forge-postman .rr-progress{grid-column:1/-1;grid-row:3}
+ .forge-postman .rr-row>.rr-number:nth-child(5){grid-column:1;grid-row:4}
+ .forge-postman .rr-row>.rr-number:nth-child(6){grid-column:2;grid-row:4;justify-content:flex-end}
+ .forge-postman .rr-operations{grid-column:1/-1;grid-row:5;justify-content:flex-end}
+ .forge-postman .rr-action{min-height:40px}
+}
+@container pm-run (max-width:760px){
+ .forge-postman .pm-run-item-row{grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important;padding:16px!important}
+ .forge-postman .pm-run-item-row>div:first-child{grid-column:1/-1}
+ .forge-postman .pm-run-item-name{white-space:normal!important;overflow-wrap:anywhere;font-weight:500;line-height:1.6}
+ .forge-postman .pm-run-item-row>div:nth-child(3){grid-column:1/-1;grid-row:2}
+ .forge-postman .pm-run-item-row>div:nth-child(2){grid-column:1;grid-row:3}
+ .forge-postman .pm-run-item-row>div:last-child{grid-column:2;grid-row:3;flex-wrap:wrap}
+ .forge-postman .pm-run-item-row .forge-item-id-row{max-width:100%}
+ .forge-postman .pm-run-item-row .forge-item-id-row code{font-size:11px}
+ .forge-postman .pm-run-item-row>div:last-child :is(button,[role=button]){min-height:40px}
+}
+
+@container pm-review (max-width:980px){
+ .forge-postman .pm-review-queue .pq-table-scroll{max-height:none;overflow:visible}
+ .forge-postman .pm-review-queue .pq-table{min-width:0}
+ .forge-postman .pm-review-queue .pq-table-head{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0;white-space:nowrap}
+ .forge-postman .pm-review-queue .pq-row{grid-template-columns:minmax(220px,1fr) 100px 120px;gap:10px 16px;padding:16px 12px}
+ .forge-postman .pm-review-queue .pq-task-cell{grid-column:1;grid-row:1/4}
+ .forge-postman .pm-review-queue .pq-task{padding:0;min-height:0;align-items:flex-start}
+ .forge-postman .pm-review-queue .pq-thumb{width:56px;height:44px}
+ .forge-postman .pm-review-queue .pq-task-copy>strong{display:block;line-height:1.5;-webkit-line-clamp:unset}
+ .forge-postman .pm-review-queue .pq-context{flex-wrap:wrap;gap:3px;line-height:1.5}
+ .forge-postman .pm-review-queue .pq-context code{flex-basis:100%;min-width:0;font-size:10px;overflow-wrap:anywhere;white-space:normal}
+ .forge-postman .pm-review-queue .pq-context>span[aria-hidden]{display:none}
+ .forge-postman .pm-review-queue .pq-context>span:last-child{white-space:normal;overflow-wrap:anywhere}
+ .forge-postman .pm-review-queue .pq-issue{white-space:normal;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .forge-postman .pm-review-queue .pq-row>[role=cell]:nth-child(2){grid-column:2;grid-row:1}
+ .forge-postman .pm-review-queue .pq-round{grid-column:2;grid-row:2}
+ .forge-postman .pm-review-queue .pq-person{grid-column:3;grid-row:1}
+ .forge-postman .pm-review-queue .pq-time{grid-column:3;grid-row:2}
+ .forge-postman .pm-review-queue .pq-actions{grid-column:3;grid-row:3;position:static;padding:0;box-shadow:none;background:transparent}
+}
+@container pm-review (max-width:600px){
+ .forge-postman .pm-review-queue .pq-row{grid-template-columns:minmax(0,1fr) auto;gap:10px 12px}
+ .forge-postman .pm-review-queue .pq-task-cell{grid-column:1/-1;grid-row:1}
+ .forge-postman .pm-review-queue .pq-task{gap:10px}
+ .forge-postman .pm-review-queue .pq-row>[role=cell]:nth-child(2){grid-column:1;grid-row:2}
+ .forge-postman .pm-review-queue .pq-round{grid-column:2;grid-row:2;text-align:right}
+ .forge-postman .pm-review-queue .pq-person{grid-column:1;grid-row:3;justify-content:flex-start;font-size:11px}
+ .forge-postman .pm-review-queue .pq-person::before{content:attr(data-label);color:var(--pm-muted)}
+ .forge-postman .pm-review-queue .pq-time{grid-column:2;grid-row:3;white-space:normal}
+ .forge-postman .pm-review-queue .pq-actions{grid-column:1/-1;grid-row:4}
+ .forge-postman .pm-review-queue .pq-action{min-height:40px}
+}
+
+@container pm-sheet-list (max-width:860px){
+ .forge-postman .pm-sheet-columns{display:none}
+ .forge-postman .pm-sheet-assignment-grid{min-width:0;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:16px}
+ .forge-postman .pm-sheet-item-open{grid-column:1/-1;grid-template-columns:40px minmax(0,1fr);gap:6px 12px}
+ .forge-postman .pm-sheet-item-thumbnail{grid-column:1;grid-row:1/3;align-self:start;height:40px}
+ .forge-postman .pm-sheet-item-identity{grid-column:2;gap:4px}
+ .forge-postman .pm-sheet-item-identity strong{white-space:normal;overflow-wrap:anywhere}
+ .forge-postman .pm-sheet-item-identity>span{font-size:10px;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+ .forge-postman .pm-sheet-item-path{grid-column:2;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+ .forge-postman .pm-sheet-item-open>span:last-child{grid-column:2;margin-top:2px}
+ .forge-postman :is(.pm-sheet-owner-display,.pm-sheet-task-tags-display){display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;font-size:12px}
+ .forge-postman .pm-sheet-owner-display::before{content:'负责人';color:var(--pm-muted)}
+ .forge-postman .pm-sheet-task-tags-display::before{content:'Task Tag';color:var(--pm-muted)}
+}
+
+/* Form layouts have their own width, independent of the viewport/summary rail. */
+@container pm-wizard-main (max-width:420px){
+ .forge-postman .forge-wizard-basic-identity{grid-template-columns:64px minmax(0,1fr);gap:16px 12px;align-items:center}
+ .forge-postman .forge-wizard-basic-logo{--forge-logo-size:64px;grid-column:1;grid-row:1}
+ .forge-postman .forge-wizard-basic-logo .forge-delivery-logo-tile{min-height:64px;height:64px}
+ .forge-postman .forge-wizard-basic-fields{display:contents}
+ .forge-postman .forge-wizard-basic-fields>.forge-delivery-field{grid-column:2;grid-row:1}
+ .forge-postman .forge-wizard-basic-fields>.forge-delivery-field-grid{grid-column:1/-1;grid-row:2;grid-template-columns:minmax(0,1fr)}
+ .forge-postman .forge-wizard-review>div{grid-template-columns:90px minmax(0,1fr)}
+ .forge-postman .pm-assignment-table{min-width:0;grid-template-columns:minmax(0,1fr) max-content}
+ .forge-postman .pm-assignment-table .pm-assignment-head{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0}
+ .forge-postman .pm-assignment-row{height:auto!important;min-height:0;grid-template-columns:minmax(0,1fr) max-content!important;gap:12px!important;padding:14px 10px!important}
+ .forge-postman .pm-assignment-row>div:first-child{grid-column:1/-1}
+ .forge-postman .pm-assignment-identity strong{white-space:normal;overflow-wrap:anywhere}
+ .forge-postman .pm-allocation-item-id{white-space:normal;overflow-wrap:anywhere}
+ .forge-postman .pm-assignment-row>div:nth-child(2)::before{content:'审核人';display:block;color:var(--pm-muted);font-size:12px;margin-bottom:6px}
+ .forge-postman .pm-assignment-row>div:nth-child(3)::before{content:'Task 状态';display:block;color:var(--pm-muted);font-size:12px;margin-bottom:6px}
+}
+
+.forge-postman :is(.pm-dataset-editor,.forge-branch-dialog,.forge-task-link-dialog){box-sizing:border-box;max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px)}
+.forge-postman .pm-dataset-editor :is(header,footer){flex-wrap:wrap}
+.forge-postman .pm-dataset-editor footer>div{flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+.forge-postman .pm-dataset-editor header>div{min-width:0;overflow-wrap:anywhere}
+.forge-postman .pm-dataset-edit-item-heading{flex-wrap:wrap}
+.forge-postman .pm-dataset-edit-item-heading code{min-width:0}
+.forge-postman .pm-pipeline-upload-heading>div{flex-wrap:wrap}
+.forge-postman .forge-profile-skill-field{min-width:0}
+.forge-postman .forge-profile-skill-field :is(input,select,textarea){min-width:0;max-width:100%;box-sizing:border-box}
+.forge-postman .pm-billing-date-range label{min-width:0}
+.forge-postman .pm-billing-date-range label :is(input,select){width:100%;max-width:100%;box-sizing:border-box}
+@media(max-width:760px){
+ .forge-postman :is(.rr-page,.pm-page-run,.pm-review-queue){padding:16px 12px!important}
+ .forge-postman :is(.rr-summary,.pq-summary).forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr));--pm-summary-inset:8px}
+ .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-card{grid-column:auto!important;padding:14px 8px!important;min-height:106px;border-right:1px solid var(--pm-border)}
+ .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-card:last-child{border-right:0}
+ .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-heading{display:grid;grid-template-columns:minmax(0,1fr) 18px;gap:2px;align-items:center;min-height:24px}
+ .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-title{font-size:11px;white-space:nowrap}
+ .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-info{width:18px!important;min-width:18px!important;height:24px!important;min-height:24px!important;padding:0!important}
+ .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-value{margin-top:12px}
+ .forge-postman .rr-context>code{max-width:calc(100% - 40px)}
+ .forge-postman .rr-pagination>span:first-child{flex-basis:100%;margin-bottom:4px}
+ .forge-postman .rr-copy{width:32px;height:32px}
+ .forge-postman .pm-dataset-editor-body{padding:16px}
+ .forge-postman .pm-dataset-editor :is(header,footer){padding:12px 16px;gap:8px}
+ .forge-postman .pm-pipeline-edit-fields{grid-template-columns:minmax(0,1fr)}
+ .forge-postman .pm-pipeline-enabled{grid-column:auto}
+ .forge-postman .forge-profile-panel{max-height:calc(100dvh - 24px)!important;max-width:calc(100vw - 24px)!important}
+ .forge-postman .forge-profile-skill-toolbar{gap:8px}
+ .forge-postman .pm-billing-date-range{gap:12px}
+ .forge-postman .pm-billing-date-range label{flex:1 1 160px}
+ .forge-postman :is(.rr-page,.pm-review-queue,.forge-delivery-wizard,.forge-profile-panel,.pm-dataset-editor,.pm-billing-date-range) :is(input:not([type=checkbox],[type=radio],[type=file]),select,textarea){font-size:16px!important}
+ .forge-postman :is(.rr-page,.pm-review-queue,.forge-delivery-wizard,.forge-profile-panel,.pm-dataset-editor,.pm-billing-date-range) :is(select,input:not([type=checkbox],[type=radio],[type=file]),button,summary){min-height:44px}
+ .forge-postman .rr-status-tabs .fg-button{min-height:40px}
+ .forge-postman .rr-page .rr-filter-controls .fg-search{height:44px}
+ .forge-postman .pm-review-queue .pq-filters .pq-search{height:44px}
+ .forge-postman .pm-review-queue .pq-filters input{height:44px}
+ .forge-postman .forge-wizard-footer .forge-delivery-footer-actions button{min-height:44px}
+ .forge-postman .pm-dataset-title,.forge-postman .pm-dataset-item-style{white-space:normal!important;overflow-wrap:anywhere;line-height:1.5}
+ .forge-postman [data-flow-family=datasetItems]>div:last-child>div:last-child{flex-wrap:wrap!important;gap:4px 8px!important}
+ .forge-postman [data-flow-family=datasetItems]>div:last-child>div:last-child>div:first-child{flex-basis:100%;white-space:normal!important;overflow-wrap:anywhere;font-size:11px!important}
+ .forge-postman [data-motion-menu=datasetVersion]{left:0!important;min-width:min(236px,calc(100vw - 120px))!important;max-width:calc(100vw - 120px);white-space:normal}
+ .forge-postman .pm-page-overview [data-flow-family=runs]{display:grid!important;grid-template-columns:28px minmax(0,1fr);gap:6px 10px!important}
+ .forge-postman .pm-page-overview [data-flow-family=runs]>div:last-child{grid-column:2;white-space:normal!important}
+ .forge-postman .pm-page-overview [data-flow-family=runs]>div:nth-last-child(2)>div{white-space:normal!important;overflow-wrap:anywhere;line-height:1.5}
+}
+@media(max-width:540px){.forge-postman .forge-profile-panel{inset:12px!important;width:calc(100vw - 24px)!important;height:calc(100dvh - 24px)!important}}
+@container pm-runs (max-width:280px){.forge-postman .rr-summary .forge-summary-card{padding-inline:6px!important}}
+@container pm-review (max-width:280px){.forge-postman .pq-summary .forge-summary-card{padding-inline:6px!important}}
+/* Landscape phones still need a scrollable preview and reachable detail/actions. */
+@media(max-width:760px) and (max-height:500px){
+ .forge-postman .pm-item-page :is(.forge-sheet-grid,.review-workbench-body){overflow:auto;grid-template-rows:220px max-content auto;align-content:start}
+ .forge-postman .pm-item-page :is(.forge-sheet-scroll,.review-workbench-scroll){height:auto!important;min-height:min-content;overflow:visible!important;flex:none}
+ .forge-postman .pm-item-page .review-workbench-panel{height:auto;min-height:min-content;overflow:visible}
+ .forge-postman .pm-item-page :is(.forge-sheet-actions,.review-workbench-actions){position:sticky;bottom:0;background:var(--pm-canvas)}
+}

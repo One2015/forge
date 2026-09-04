@@ -1,0 +1,66 @@
+/* Native primitives used by the current run records page. Values use the current UI tokens. */
+.fg-theme{font:13px/22px var(--pm-font);color:var(--pm-text);color-scheme:light}
+.fg-theme *{box-sizing:border-box}
+.fg-theme ::selection{background:var(--pm-brand-soft);color:var(--pm-text)}
+.fg-theme :is(button,input,select,textarea,a,summary,[tabindex]):focus-visible{outline:2px solid var(--pm-focus);outline-offset:3px}
+.fg-theme :is(input,textarea,select){accent-color:var(--pm-action);caret-color:var(--pm-text)}
+.fg-theme :is(input,textarea)::placeholder{color:var(--pm-muted);opacity:1}
+.fg-theme .fg-button{transition:none!important;transform:none!important}
+.fg-theme .fg-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:32px;min-height:32px;padding:0 16px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);font:500 13px/20px var(--pm-font);text-decoration:none;white-space:nowrap;cursor:pointer;box-shadow:none}
+.fg-theme .fg-button[data-variant=primary]{background:var(--pm-action);border-color:var(--pm-action);color:var(--pm-on-action)}
+.fg-theme .fg-button[data-variant=tertiary]{background:transparent;border-color:transparent}
+.fg-theme .fg-button[data-variant=danger]{background:var(--pm-danger);border-color:var(--pm-danger);color:var(--pm-on-action)}
+.fg-theme .fg-button[data-size=sm]{height:28px;min-height:28px;padding-inline:12px}
+.fg-theme .fg-button[data-size=lg]{height:40px;min-height:40px;font-size:16px}
+.fg-theme .fg-button[data-icon-only=true]{width:32px;padding:0}
+.fg-theme .fg-button[data-variant=link]{height:auto;min-height:28px;padding:0;background:transparent;border-color:transparent;text-decoration:underline;text-underline-offset:4px}
+@media(hover:hover){
+ .fg-theme .fg-button:not(:disabled,[aria-disabled=true]):hover{background:var(--pm-hover);border-color:var(--pm-hover-border)}
+ .fg-theme .fg-button[data-variant=primary]:not(:disabled,[aria-disabled=true]):hover{background:var(--pm-action-hover);border-color:var(--pm-action-hover);color:var(--pm-on-action)}
+ .fg-theme .fg-button[data-variant=danger]:not(:disabled,[aria-disabled=true]):hover{background:#a51d1d;border-color:#a51d1d;color:var(--pm-on-action)}
+ .fg-theme .fg-button:is([data-variant=tertiary],[data-variant=link]):hover{border-color:transparent}
+}
+.fg-theme .fg-button:not(:disabled,[aria-disabled=true]):active{background:var(--pm-pressed)}
+.fg-theme .fg-button[data-variant=primary]:not(:disabled,[aria-disabled=true]):active{background:var(--pm-action-pressed);color:var(--pm-on-action)}
+.fg-theme .fg-button[data-variant=danger]:not(:disabled,[aria-disabled=true]):active{background:#a51d1d;color:var(--pm-on-action)}
+.fg-theme .fg-button:disabled,.fg-theme .fg-button[aria-disabled=true]:not([aria-busy=true]){background:var(--forge-disabled-bg);border-color:var(--pm-border);color:var(--forge-disabled-text);cursor:not-allowed}
+.fg-theme .fg-button[aria-busy=true]{cursor:progress}
+.fg-button-content{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.fg-button[aria-busy=true] .fg-button-content{opacity:0}
+.fg-button{position:relative}
+.fg-button-busy{display:none;position:absolute;inset:0;align-items:center;justify-content:center;gap:8px}
+.fg-button[aria-busy=true] .fg-button-busy{display:flex}
+.fg-theme .fg-input{width:100%;height:32px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);padding:0 12px;color:var(--pm-text);font:13px/20px var(--pm-font)}
+.fg-theme .fg-input[aria-invalid=true]{border-color:var(--pm-danger)}
+.fg-theme .fg-input:disabled{background:var(--forge-disabled-bg);color:var(--forge-disabled-text);cursor:not-allowed}
+.fg-search{position:relative;min-width:0}
+.fg-search>.forge-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--pm-muted);pointer-events:none}
+.fg-theme .fg-search .fg-input{padding-left:40px}
+.fg-checkbox-label{display:inline-flex;align-items:center;gap:8px;min-height:32px;cursor:pointer;white-space:nowrap}
+.fg-checkbox-label input{width:16px;height:16px;margin:0}
+.fg-empty{display:flex;flex-direction:column;align-items:center;gap:12px;padding:48px 24px;text-align:center}
+.fg-empty h2,.fg-empty p{margin:0;max-width:52ch}
+.fg-empty h2{font-size:16px;font-weight:600}
+.fg-empty p{color:var(--pm-muted)}
+@media(pointer:coarse){.fg-theme .fg-button,.fg-theme .fg-input,.fg-checkbox-label{min-height:44px}.fg-theme .fg-input{font-size:16px}}
+.fg-runs{max-width:1320px;min-height:calc(100vh - 48px);margin-inline:auto;padding:32px 24px 48px}
+.fg-page-header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px}
+.fg-page-header h1{margin:0;font:600 20px/28px var(--pm-font);letter-spacing:-.02em}
+.fg-page-header p{margin:8px 0 0;color:var(--pm-muted);font-size:13px}
+.fg-runs-toolbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.fg-runs-toolbar .fg-search{width:300px}
+.forge-app-shell:has(.fg-runs){background:var(--pm-canvas)}
+.forge-app-shell:has(.fg-runs) :is(.forge-sidebar,.forge-production-tabs){--forge-font:var(--pm-font);--forge-text:var(--pm-text);--forge-muted:var(--pm-muted);--forge-accent:var(--pm-action);--forge-accent-hover:var(--pm-action-hover);--forge-accent-soft:var(--pm-selected);--forge-selected-hover:var(--pm-hover);--forge-nav-active:var(--pm-text);--forge-nav-tint:var(--pm-selected);--forge-border:var(--pm-border);font-family:var(--pm-font)}
+.forge-app-shell:has(.fg-runs) .forge-sidebar{background:var(--pm-subtle)}
+.forge-app-shell:has(.fg-runs) .forge-sidebar-logo{background:var(--pm-action)}
+.forge-app-shell:has(.fg-runs) :is(.forge-sidebar,.forge-production-tabs) :focus-visible{outline-color:var(--pm-focus)}
+@media(max-width:1050px){.fg-runs-toolbar .fg-search{flex:1;min-width:220px}}
+@media(max-width:760px){
+ .fg-runs{padding:24px 16px 40px}
+ .fg-page-header{align-items:flex-start;gap:12px}
+ .fg-page-header h1{font-size:18px}
+ .fg-page-header p{font-size:13px}
+ .fg-page-header .fg-button{padding-inline:12px;flex:none}
+ .fg-runs-toolbar{gap:12px}
+ .fg-runs-toolbar .fg-search{flex-basis:100%;width:100%}
+}

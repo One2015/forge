@@ -1,5 +1,19 @@
 # 本地验证记录 · 2026-09-02
 
+## GitHub main 合并前验证 · 2026-09-04
+
+- `npm run build` 通过，当前入口与生成资源已重新构建；Vinext 的路由静态分类提示仍为非阻塞提示。
+- `npm test` 全部 546 项通过，无跳过。更新了一条查看器旧断言：统一详情页显示空态文字，嵌入式查看器保留屏幕阅读器状态；文件预览、下载和加载恢复检查保留。
+- `git diff --check` 通过。此次验证用于将当前工作区提交并合并到 GitHub main，不代表生产后端或飞书服务已接入。
+
+## 当前入口与旧版清理 · 2026-09-04
+
+- 删除旧版公开 HTML、局部字体迁移脚本、字体、组件展示页及专用文档；当前界面仍使用系统字体和既定 Postman 工作台样式。
+- 业务基础模板移至 `scripts/templates/forge-base.html`，由当前生成器组装 `public/forge-postman.html`。默认 dev/build 与兼容命令统一构建路由、查看器、Tooltip 和当前页面。当前仍使用的运行页原生控件提取为 `public/postman-ui/primitives.css`；加载按钮防重复操作的既有测试随控件保留。
+- 内部模板和生成页面的业务逻辑与清理前逐字一致。应用、脚本、当前资源和设计文档已无已删除资源的引用。`npm run build`、`git diff --check` 通过。
+- `npm test` 清理前 548 项中 547 通过，清理后 543 项中 542 通过：移除 5 项专属于旧迁移/旧样板的测试。唯一失败前后相同，为 `test-artifact-preview.mjs` 的 “empty canvas has no visible placeholder or file heading but retains accessible status and real file actions”；本次未修改该既有断言或查看器业务。
+- 浏览器实测概览、生产运行、审核、交付入口；运行筛选无匹配与重置恢复正常。运行页 23 个关键元素清理前后的几何位置、字体、颜色和间距一致；390px 窄屏文档宽度为 390px。此次是清理回归抽查，不替代全站状态审查。
+
 ## 最新：创建数据单四步向导 · 2026-09-03
 
 - 创建页改为基础信息 / 导入 List / 配置规则 / 确认创建，保留已有编辑弹窗和 Forge 设计系统。创建流程不提供保存草稿或自动保存；已有存储未删除。

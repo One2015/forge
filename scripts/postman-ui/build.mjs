@@ -1,3 +1,10 @@
+import {installPipelineNodeDrawer} from './pipeline-node-drawer.mjs';
+import {installReviewReferenceSkills} from './review-reference-skills.mjs';
+import {installBillingDateRange} from './billing-date-range.mjs';
+import {installProfileSkillEditor} from './profile-skill-editor.mjs';
+import {installDeliveryEditPage} from './delivery-edit-page.mjs';
+import {installTaskTags} from './task-tags.mjs';
+import {installWizardChecklist} from './wizard-checklist.mjs';
 import fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
@@ -8,6 +15,7 @@ import {removeDeliveryDrafts} from './remove-delivery-drafts.mjs';
 import {installPipelineResponsive} from './pipeline-responsive.mjs';
 import {installItemExplorer} from './item-explorer.mjs';
 import {installTabs} from './tabs.mjs';
+import {installGlobalResponsive} from './global-responsive.mjs';
 import {installProgressIndicators} from './progress-indicators.mjs';
 import {installModelStatus} from './model-status.mjs';
 import {installLifecyclePhotos} from './lifecycle-photos.mjs';
@@ -17,17 +25,20 @@ import {installFeedbackRefinements} from './feedback-refinements.mjs';
 import {installLinkedItemToast} from './linked-item-toast.mjs';
 import {installReviewAllocation} from './review-allocation.mjs';
 import {installItemPreviewPage} from './item-preview-page.mjs';
+import {installReviewPreviewPage} from './review-preview-page.mjs';
+import {installSheetReviewHistory} from './sheet-review-history.mjs';
+import {installListAssociation} from './list-association.mjs';
+import {installSheetInlineAssignment} from './sheet-inline-assignment.mjs';
+import {installDatasetPipelineGuide} from './dataset-pipeline-guide.mjs';
+import {installPipelineOwnerEditor} from './pipeline-owner-editor.mjs';
+import {installDatasetEditor} from './dataset-editor.mjs';
+import {installEntryTagStyle} from './entry-tag-style.mjs';
 const root=new URL('../../',import.meta.url);
 export function buildPostman(source){
  const opening='<script type="__bundler/template">', closing='\n</script>\n</body>\n</html>';
  const start=source.indexOf(opening),end=source.lastIndexOf(closing);
  if(start<0||end<0)throw Error('Missing prototype template boundary');
  let t=removeDeliveryDrafts(JSON.parse(source.slice(start+opening.length,end).trim()));
- t=t.replaceAll('font-family:Geist,Arial,sans-serif','font-family:var(--pm-font)')
-   .replaceAll("font-family:'Geist Mono',monospace",'font-family:var(--pm-mono)');
- // The Postman preview uses the system UI/mono stacks from tokens.css. Avoid
- // loading the dormant Geist faces inherited from the preserved source.
- t=t.replace(/@font-face\{font-family:Geist;[^}]+\}\s*@font-face\{font-family:'Geist Mono';[^}]+\}/,'');
  const replace=(a,b)=>{if(!t.includes(a))throw Error('Prototype anchor changed: '+a.slice(0,100));t=t.replace(a,b);};
  replace('<html><head>','<html lang="zh-CN"><head><title>Forge · Postman UI 优化版</title>');
  t=t.replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>');
@@ -43,6 +54,13 @@ export function buildPostman(source){
   ['平均调用成本','总费用 ÷ 调用次数，单位为 USD / 次，包含计费失败请求。没有调用时显示 —；不代表模型的单 Token 价格。'],
  ].map(([label,description])=>`<sc-if value="{{ metric.label === '${label}' }}"><span class="pm-metric-help" data-forge-tooltip="${description}" data-tooltip-label="${label}说明"></span></sc-if>`).join('');
  replace('<dt>{{ metric.label }}</dt>',`<dt class="pm-metric-title"><span>{{ metric.label }}</span>${metricHelp}</dt>`);
+ // Analysis tabs own the dimensions; retain the active date range as context.
+ const billingFiltersStart=t.indexOf('  <div class="forge-billing-filters">');
+ const billingFiltersEnd=t.indexOf('  <sc-if value="{{ billing.error }}">',billingFiltersStart);
+ if(billingFiltersStart<0||billingFiltersEnd<0)throw Error('Billing filters boundary changed');
+ t=t.slice(0,billingFiltersStart)+t.slice(billingFiltersEnd);
+ t=installBillingDateRange(t);
+ replace('<span>USD · 北京时间 UTC+8</span>','<span>{{ billing.period }} · USD · 北京时间 UTC+8</span>');
  const deliveryStart=t.indexOf('<sc-if value="{{ isDelivery }}"');
  const deliveryEnd=t.indexOf('<sc-if value="{{ isSheet }}"',deliveryStart);
  let delivery=t.slice(deliveryStart,deliveryEnd);
@@ -116,13 +134,45 @@ export function buildPostman(source){
  t=installLifecyclePhotos(t);
  t=installLinkedItemToast(t);
  t=installReviewAllocation(t);
+ replace('<p class="forge-delivery-help">请继续填写 List 清单，Tag 和 Skill 为选填。</p>','');
+ replace('<p class="forge-delivery-help forge-delivery-notification-note">{{ deliveryEditor.notificationHint }}</p>','');
+ const editorFooter=t.indexOf('<footer class="forge-delivery-editor-footer">');
+ const footerCopy=t.indexOf('<div class="forge-delivery-footer-copy">',editorFooter);
+ const footerActions=t.indexOf('<div class="forge-delivery-footer-actions">',footerCopy);
+ if(editorFooter<0||footerCopy<0||footerActions<0)throw Error('Delivery editor footer boundary changed');
+ t=t.slice(0,footerCopy)+t.slice(footerActions);
+
+ const savedListStart=t.indexOf('    <div class="forge-delivery-section-heading"><h2>List 清单');
+ const savedListEnd=t.indexOf('    <sc-if value="{{ sheet.extras.hasSkills }}"',savedListStart);
+ if(savedListStart<0||savedListEnd<0)throw Error('Saved delivery list boundary changed');
+ t=t.slice(0,savedListStart)+t.slice(savedListEnd);
+ replace('<sc-if value="{{ sheet.extras.visible }}" hint-placeholder-val="{{ false }}">','<sc-if value="{{ sheet.extras.hasSkills }}" hint-placeholder-val="{{ false }}">');
+ replace('aria-label="交付清单与审核技能"','aria-label="数据单 Skill"');
+ t=installListAssociation(t);
+ t=installEntryTagStyle(t);
+
+ t=installSheetInlineAssignment(t);
+ t=installDatasetPipelineGuide(t);
+ t=installDatasetEditor(t);
+ t=installPipelineOwnerEditor(t);
+ t=installWizardChecklist(t);
+ t=installTaskTags(t);
+ t=installDeliveryEditPage(t);
+ t=installProfileSkillEditor(t);
+ t=installPipelineNodeDrawer(t);
+ replace('<label for="forge-branch-note">本次迭代说明 ', '<label for="forge-branch-note">返工说明 ');
  t=installAnt200Mock(t);
  t=installItemPreviewPage(t);
+ t=installSheetReviewHistory(t);
  t=installProgressIndicators(t);
  replace('<p>仅用于案例沉淀，不影响审核结论。</p>','');
+ replace('<button type="button" class="forge-delivery-secondary" disabled="{{ deliveryEditor.workspace.locked }}" sc-camel-on-click="{{ deliveryEditor.workspace.back }}">返回列表</button>','');
+ replace('返回列表会保留未完成内容；创建成功的 Skill 不随数据单取消而删除。','创建成功的 Skill 不随数据单取消而删除。');
  replace('<span class="review-workbench-ref-count" data-available="{{ it.hasReferences }}">{{ it.referenceCount }}</span>','');
  const skillDownloadIcon=fs.readFileSync(new URL('assets/phosphor/regular/download-simple.svg',root),'utf8').replace('<svg ','<svg width="18" height="18" aria-hidden="true" focusable="false" ');
  t=t.replaceAll('aria-label="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">下载 .md</button>', 'aria-label="{{ relatedSkill.downloadLabel }}" title="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">'+skillDownloadIcon+'</button>');
+ t=installReviewReferenceSkills(t);
+ t=installReviewPreviewPage(t);
  replace('<div class="forge-wizard-progress-heading"><span>{{ deliveryEditor.wizard.progressLabel }}</span><span>{{ deliveryEditor.wizard.progress }}%</span></div>','');
  const wizardHeading='<div class="forge-wizard-task-heading"><h2 id="forge-wizard-step-title" tabindex="-1" aria-label="{{ deliveryEditor.wizard.title }}">{{ deliveryEditor.wizard.title }}</h2><p class="forge-delivery-help">{{ deliveryEditor.wizard.help }}</p></div>';
  replace(wizardHeading,'');
@@ -179,17 +229,18 @@ export function buildPostman(source){
   t=t.replace("title + ' | Forge'", "title + ' | Forge · Postman UI 优化版'");
  }
  t=installTabs(t);
- const css=['tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8');
+ t=installGlobalResponsive(t);
+ const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
  replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n</style>');
  replace('</head>','<script type="module" src="/postman-ui/behavior.mjs"></script>\n</head>');
  const logic=t.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)?.[1];new Function(logic);
  return source.slice(0,start+opening.length).replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>')+'\n'+JSON.stringify(t).replaceAll('</script>','<\\u002Fscript>')+closing;
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)){
- const src=fs.readFileSync(new URL('public/forge.html',root),'utf8');
+ const src=fs.readFileSync(new URL('scripts/templates/forge-base.html',root),'utf8');
  const output=buildPostman(src);
  fs.writeFileSync(new URL('public/forge-postman.html',root),output);
  const sha=value=>createHash('sha256').update(value).digest('hex');
- fs.writeFileSync(new URL('public/postman-ui/build-info.json',root),JSON.stringify({name:'Postman UI 优化版',source:'public/forge.html',sourceSha256:sha(src),output:'public/forge-postman.html',outputSha256:sha(output)},null,2)+'\n');
- console.log('Postman UI 优化版 → /forge-postman.html. Original prototype preserved.');
+ fs.writeFileSync(new URL('public/postman-ui/build-info.json',root),JSON.stringify({name:'Postman UI 优化版',source:'scripts/templates/forge-base.html',sourceSha256:sha(src),output:'public/forge-postman.html',outputSha256:sha(output)},null,2)+'\n');
+ console.log('Postman UI 优化版 → /forge-postman.html. Built from the internal Forge base template.');
 }

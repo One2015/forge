@@ -1,3 +1,18 @@
+import {sheetReviewHistoryCopy} from './postman-ui/sheet-review-history.mjs';
+import {itemPreviewLinkCopy} from './postman-ui/item-preview-page.mjs';
+import {reviewReferenceSkillCopy} from './postman-ui/review-reference-skills.mjs';
+import {pipelineNodeDrawerCopy} from './postman-ui/pipeline-node-drawer.mjs';
+import {billingDateRangeCopy} from './postman-ui/billing-date-range.mjs';
+import {profileSkillEditorCopy} from './postman-ui/profile-skill-editor.mjs';
+import {deliveryEditPageCopy} from './postman-ui/delivery-edit-page.mjs';
+import {taskTagCopy} from './postman-ui/task-tags.mjs';
+import {wizardChecklistCopy} from './postman-ui/wizard-checklist.mjs';
+import {pipelineOwnerCopy} from './postman-ui/pipeline-owner-editor.mjs';
+import {datasetEditorCopy} from './postman-ui/dataset-editor.mjs';
+import {datasetPipelineCopy} from './postman-ui/dataset-pipeline-guide.mjs';
+import {sheetInlineCopy} from './postman-ui/sheet-inline-assignment.mjs';
+import {listAssociationCopy} from './postman-ui/list-association.mjs';
+import {entryTagStyleCopy} from './postman-ui/entry-tag-style.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -11,7 +26,7 @@ import {linkedItemToastCopy} from './postman-ui/linked-item-toast.mjs';
 import {removeDeliveryDrafts} from './postman-ui/remove-delivery-drafts.mjs';
 import {buildPostman} from './postman-ui/build.mjs';
 import {confirmDelivery} from './test-support/delivery-wizard.mjs';
-const url=new URL('../public/forge.html',import.meta.url);
+const url=new URL('./templates/forge-base.html',import.meta.url);
 const source=fs.readFileSync(url,'utf8');
 const decode=s=>JSON.parse(s.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const original=decode(source), built=decode(buildPostman(source));
@@ -20,9 +35,9 @@ const ctx=vm.createContext({URL,URLSearchParams,TextDecoder,TextEncoder,Blob,set
 vm.runInContext(logic(built)+';globalThis.codec=ForgeRoutes;globalThis.c=new Component();',ctx);
 test('independent generator is deterministic and preserves the source bytes',()=>{assert.equal(buildPostman(source),buildPostman(source));assert.equal(fs.readFileSync(url,'utf8'),source);assert.match(built,/Postman UI 优化版/);});
 test('UI transformation preserves all business methods outside route adaptation',()=>{
- const strip=s=>s.slice(s.indexOf('class Component')).replace(/  \/\/ pm-delivery-preview-mock:start[\s\S]*?  \/\/ pm-delivery-preview-mock:end\n\n/,'').replace(' || this.pmDeliveryArtifactMock(itemId, runId); // pm-delivery-preview-fallback',';').replace(/  \/\/ pm-item-explorer-demo:start[\s\S]*?  \/\/ pm-item-explorer:end\n\n/,'').replace(/^.*\/\/ pm-item-explorer-values\n/gm,'').replace(/^.*\/\/ pm-node-config-values\n/gm,'').replace(/^.*\/\/ pm-pipeline-access-values\n/gm,'').replace(/  \/\/ forge-routing-methods:start[\s\S]*?\/\/ forge-routing-methods:end/,'').replace(/\n  \/\/ pm-review-queue-methods:start[\s\S]*?\/\/ pm-review-queue-methods:end\n/,'').replace(/\n      \/\/ pm-review-queue-values:start[\s\S]*?\/\/ pm-review-queue-values:end\n/,'').replace(/\n  \/\/ pm-run-records-methods:start[\s\S]*?\/\/ pm-run-records-methods:end\n/,'').replace(/    \/\/ pm-run-records-values:start[\s\S]*?\/\/ pm-run-records-values:end\n\n/,'RUN_RECORDS_VIEW_MODEL').replace(/    const runPal =[\s\S]*?(?=    const delMap =)/,'RUN_RECORDS_VIEW_MODEL').replace('const mineRows = rows.filter(r => (this.reviewQueueClaim(r) || r.assignee).toLowerCase() === me.toLowerCase()); // pm-review-queue-owner','const mineRows = rows.filter(r => r.assignee === me);');
+ const strip=source=>{source=sheetReviewHistoryCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source).replace(/  \/\/ pm-sheet-review-history:start[\s\S]*?  \/\/ pm-sheet-review-history:end\n/,'');source=itemPreviewLinkCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source);source=reviewReferenceSkillCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source);const s=pipelineNodeDrawerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source);return s.slice(s.indexOf('class Component')).replace(/^.*\/\/ pm-run-model-summary-values\n/gm,'').replace(/  \/\/ pm-delivery-preview-mock:start[\s\S]*?  \/\/ pm-delivery-preview-mock:end\n\n/,'').replace(' || this.pmDeliveryArtifactMock(itemId, runId); // pm-delivery-preview-fallback',';').replace(/  \/\/ pm-item-explorer-demo:start[\s\S]*?  \/\/ pm-item-explorer:end\n\n/,'').replace(/^.*\/\/ pm-item-explorer-values\n/gm,'').replace(/^.*\/\/ pm-node-config-values\n/gm,'').replace(/^.*\/\/ pm-pipeline-access-values\n/gm,'').replace(/  \/\/ forge-routing-methods:start[\s\S]*?\/\/ forge-routing-methods:end/,'').replace(/\n  \/\/ pm-review-queue-methods:start[\s\S]*?\/\/ pm-review-queue-methods:end\n/,'').replace(/\n      \/\/ pm-review-queue-values:start[\s\S]*?\/\/ pm-review-queue-values:end\n/,'').replace(/\n  \/\/ pm-run-records-methods:start[\s\S]*?\/\/ pm-run-records-methods:end\n/,'').replace(/    \/\/ pm-run-records-values:start[\s\S]*?\/\/ pm-run-records-values:end\n\n/,'RUN_RECORDS_VIEW_MODEL').replace(/    const runPal =[\s\S]*?(?=    const delMap =)/,'RUN_RECORDS_VIEW_MODEL').replace('const mineRows = rows.filter(r => (this.reviewQueueClaim(r) || r.assignee).toLowerCase() === me.toLowerCase()); // pm-review-queue-owner','const mineRows = rows.filter(r => r.assignee === me);')};
  const normalizeModels=s=>modelStatusCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),s);
- const normalizeCopy=s=>linkedItemToastCopy.reduce((text,[from,to])=>text.replace(to,()=>from),overviewSummaryCopy.reduce((text,[from,to])=>text.replace(from,()=>to),reviewAllocationCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),ant200MockCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),lifecyclePhotoCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),s))))).replace(/\n  \/\/ pm-branch-search:start[\s\S]*?  \/\/ pm-branch-search:end\n/,'').replace('branch: this.pmBranchValues(),','branch: this.branchFormValues(),').replace(/^.*\/\/ pm-photo-slots\n/gm,'').replace(/\n\n  \/\/ pm-lifecycle-photos:start[\s\S]*?  \/\/ pm-lifecycle-photos:end\n/,'');
+ const normalizeCopy=beforeDrawer=>{const beforeDates=pipelineNodeDrawerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeDrawer).replace(/  \/\/ pm-pipeline-node-drawer:start[\s\S]*?  \/\/ pm-pipeline-node-drawer:end\n/,'');const beforeProfile=billingDateRangeCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeDates).replace(/  \/\/ pm-billing-date-range:start[\s\S]*?  \/\/ pm-billing-date-range:end\n/,'');const beforeEditPage=profileSkillEditorCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeProfile).replace(/  \/\/ pm-profile-skill-editor:start[\s\S]*?  \/\/ pm-profile-skill-editor:end\n/,'');const beforeTaskTags=beforeEditPage.includes('const page = true;')?deliveryEditPageCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeEditPage):beforeEditPage;const beforeChecklist=taskTagCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeTaskTags).replace(/  \/\/ pm-task-tags:start[\s\S]*?  \/\/ pm-task-tags:end\n/,'');const beforeOwner=wizardChecklistCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeChecklist).replace(/  \/\/ pm-wizard-checklist:start[\s\S]*?  \/\/ pm-wizard-checklist:end\n/,'');const beforeEditor=pipelineOwnerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeOwner).replace(/  \/\/ pm-pipeline-owner:start[\s\S]*?  \/\/ pm-pipeline-owner:end\n/,''); const sourceInput=datasetEditorCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeEditor).replace(/  \/\/ pm-dataset-editor:start[\s\S]*?  \/\/ pm-dataset-editor:end\n/,''); const originalInput=datasetPipelineCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),sourceInput).replace(/  \/\/ pm-dataset-pipeline-guide:start[\s\S]*?  \/\/ pm-dataset-pipeline-guide:end\n/,''); const raw=sheetInlineCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),originalInput).replace(/  \/\/ pm-sheet-inline:start[\s\S]*?  \/\/ pm-sheet-inline:end\n/,''); const input=listAssociationCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),raw).replace(/  \/\/ pm-list-association:start[\s\S]*?  \/\/ pm-list-association:end\n/,''); const s=entryTagStyleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),input).replace(/  \/\/ pm-entry-tag-style:start[\s\S]*?  \/\/ pm-entry-tag-style:end\n/,'');return linkedItemToastCopy.reduce((text,[from,to])=>text.replace(to,()=>from),overviewSummaryCopy.reduce((text,[from,to])=>text.replace(from,()=>to),reviewAllocationCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),ant200MockCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),lifecyclePhotoCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),s))))).replace(/\n  \/\/ pm-branch-search:start[\s\S]*?  \/\/ pm-branch-search:end\n/,'').replace('branch: this.pmBranchValues(),','branch: this.branchFormValues(),').replace(/^.*\/\/ pm-photo-slots\n/gm,'').replace(/\n\n  \/\/ pm-lifecycle-photos:start[\s\S]*?  \/\/ pm-lifecycle-photos:end\n/,'');};
  assert.equal(normalizeCopy(normalizeModels(strip(logic(built)))),normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
 });
 test('representative sheet keeps the five metrics and accessible disabled export',()=>{for(const n of ['pm-sheet-heading','pm-sheet-progress','pm-sheet-metrics','pm-sheet-list'])assert.match(built,new RegExp(n));assert.match(built,/<button[^>]*disabled="disabled"[^>]*title="当前原型尚未接入统一导出服务"/);});
@@ -46,15 +61,17 @@ test('pending case actions make rework primary, approval secondary and selected 
  assert.match(built,/data-case=good\]\{--case-color:var\(--pm-success\);--case-soft:var\(--pm-success-soft\)/);
  assert.match(built,/data-case=bad\]\{--case-color:var\(--pm-danger\);--case-soft:var\(--pm-danger-soft\)/);
 });
-test('billing follows the compact hierarchy, orange data scale and neutral selection',()=>{
+test('billing uses a gray cost chart with dimensions controlled by tabs',()=>{
  assert.match(built,/\.forge-postman \.forge-billing-metrics>div\{border:0;border-radius:0;padding:0 20px;background:transparent\}/);
- assert.match(built,/\.forge-postman \.forge-billing-cost-bar\{background:var\(--pm-brand\)\}/);
- assert.match(built,/\.forge-postman \.forge-billing-filters\{display:grid;grid-template-columns:minmax\(190px,1\.08fr\).* auto;/);
+ assert.match(built,/\.forge-postman \.forge-billing-cost-bar\{background:var\(--pm-focus\)\}/);
+ assert.doesNotMatch(built,/<div class="forge-billing-filters">/);
+ assert.doesNotMatch(built,/id="forge-billing-calendar"/);
+ assert.match(built,/{{ billing.period }} · USD · 北京时间 UTC\+8/);
  assert.match(built,/\.forge-postman \.forge-billing-segment button\[aria-pressed=true\]\{background:var\(--pm-selected\)!important;color:var\(--pm-text\)!important/);
 });
 test('every major legacy surface has a stable Postman page hook',()=>{
  for(const hook of ['pm-page-overview','pm-page-pipelines','pm-page-pipeedit','pm-page-datasets','pm-page-resources','pm-page-itemlife','pm-page-review','pm-page-submitted','pm-page-run','pm-page-error'])assert.match(built,new RegExp(hook));
- assert.match(built,/class="pm-pipeline-node" data-node-kind="\{\{ n\.kind \}\}"/);
+ assert.match(built,/class="pm-pipeline-node"[^>]*data-node-kind="\{\{ n\.kind \}\}"/);
  assert.match(built,/\.forge-model-badge\[data-tone=warning\]/);
 });
 test('resources keeps its page-level create action in the shared primary tier',()=>{
@@ -75,19 +92,15 @@ test('Item review allocation saves distinct reviewers and reopens in Item mode',
  c.patchDeliveryEditor({name:'逐条分配验证',customer:'验证客户',target:'2'});
  c.setDeliveryList('天坛\n长城');
  confirmDelivery(c);
- c.deliveryDatasetReviewValues().byItem();
  let view=c.deliveryDatasetReviewValues();
  assert.equal(view.count,2);
- assert(view.isItem);
+ assert.equal(c.state.deliveryEditor.reviewScope,'item');
  const people=view.rows[0].options;
  assert(people.length>1);
  view.rows[0].onReviewer({target:{value:people[0].accountName}});
  view=c.deliveryDatasetReviewValues();
  view.rows[1].onReviewer({target:{value:people[1].accountName}});
  const expected=c.deliveryEditorReviewDatasets().map(r=>[r.key,r.reviewer]);
- c.deliveryDatasetReviewValues().byDataset();
- assert(c.deliveryDatasetReviewValues().isDataset);
- c.deliveryDatasetReviewValues().byItem();
  assert.deepEqual(c.deliveryEditorReviewDatasets().map(r=>[r.key,r.reviewer]),expected);
  c.deliveryDatasetReviewValues().onQuery({target:{value:'天坛'}});
  assert.equal(c.deliveryDatasetReviewValues().rows.length,1);
@@ -101,27 +114,58 @@ test('Item review allocation saves distinct reviewers and reopens in Item mode',
  assert.equal(saved.reviewScope,'item');
  assert.deepEqual(Object.keys(saved.datasetReviews),Array.from(expected,r=>r[0]));
  c.openDeliveryEditor(key);
- assert(c.deliveryDatasetReviewValues().isItem);
+ assert.equal(c.state.deliveryEditor.reviewScope,'item');
  assert.deepEqual(c.deliveryEditorReviewDatasets().map(r=>[r.key,r.reviewer]),expected);
 });
 
-test('Item assignment paginates, deduplicates and preserves edit permission checks',()=>{
+test('Item assignment filters all rows, deduplicates and preserves edit permission checks',()=>{
  const c=vm.runInContext('new Component()',ctx);
  c.openDeliveryEditor();
  const entries=Array.from({length:25},(_,i)=>({key:'row'+i,itemId:'id'+i,name:'任务'+i,source:'任务'+i}));
- c.patchDeliveryEditor({entries:[...entries,entries[0]],reviewScope:'item'});
+ c.patchDeliveryEditor({entries:[...entries,entries[0]],reviewScope:'item',importMode:'zip'});
  let view=c.deliveryDatasetReviewValues();
- assert.equal(view.count,25);assert.equal(view.rows.length,20);
- view.next();view=c.deliveryDatasetReviewValues();assert.equal(view.rows.length,5);
+ assert.equal(view.count,25);assert.equal(view.rows.length,25);
+ const reviewer=view.rows[0].options[1].accountName;
+ view.rows[24].onReviewer({target:{value:reviewer}});
+ c.patchDeliveryEditor({tags:[{id:'reviewing',name:'running',color:'#397448'},{id:'paused',name:'paused',color:'#64748b'}]});
+ c.pmToggleTaskTag(c.state.deliveryEditor.id,'row24','reviewing',true,c.profileIdentity().accountName);
+ view=c.deliveryDatasetReviewValues();
+ view.onPersonFilter({target:{value:reviewer}});
+ view=c.deliveryDatasetReviewValues();assert.equal(view.rows.length,1);
+ view.onStatusFilter({target:{value:'paused'}});
+ view=c.deliveryDatasetReviewValues();assert.equal(view.rows.length,0);assert(view.noMatches);
+ view.onStatusFilter({target:{value:'reviewing'}});
+ view=c.deliveryDatasetReviewValues();assert.equal(view.rows.length,1);
  view.onQuery({target:{value:'id24'}});view=c.deliveryDatasetReviewValues();assert.equal(view.rows.length,1);
  assert.equal(view.rows[0].name,'任务24');
  c.patchDeliveryEditor({listLoading:true});
- c.deliveryDatasetReviewValues().byDataset();assert.equal(c.state.deliveryEditor.reviewScope,'item');
  const before=JSON.stringify(c.state.deliveryEditor.datasetReviews);
  c.deliveryDatasetReviewValues().rows[0].onReviewer({target:{value:''}});
  assert.equal(JSON.stringify(c.state.deliveryEditor.datasetReviews),before);
 });
 
+
+test('legacy reviewer assignments migrate to Items without duplicate notifications',()=>{
+ const c=vm.runInContext('new Component()',ctx);
+ const keyA='production:'+JSON.stringify(['pipeline','A']), keyB='production:'+JSON.stringify(['pipeline','B']);
+ const review={reviewer:'allen',status:'reviewing',updatedBy:'owner',updatedAt:123};
+ const entries=[{itemId:'id1',name:'长城',sourceType:'production',sourcePipeline:'pipeline',sourceDataset:'A'},
+   {itemId:'id2',name:'天坛',sourceType:'production',sourceRefs:[{pipeline:'pipeline',dataset:'A'},{pipeline:'pipeline',dataset:'B'}]}];
+ const previous={entries,datasetReviews:{[keyA]:review,[keyB]:{...review,reviewer:'other'}}};
+ let rows=c.deliveryReviewDatasets(previous);
+ assert.equal(rows[0].reviewer,'allen');assert.equal(rows[0].source,'id1');
+ assert.equal(rows[1].reviewer,'');
+ previous.datasetReviews['item:id2']={...review,reviewer:'explicit'};
+ rows=c.deliveryReviewDatasets(previous);assert.equal(rows[1].reviewer,'explicit');
+ const plan=c.deliveryDatasetReviewPlan({...previous,key:'existing',members:[]},previous);
+ assert.equal(plan.changes.length,0);
+ assert.equal(plan.datasetReviews['item:id1'].updatedAt,123);
+ previous.datasetReviews['item:id2'].reviewer='';
+ assert.equal(c.deliveryReviewDatasets(previous)[1].reviewer,'');
+ assert.doesNotMatch(built,/编辑审核分配|>按数据集<|>按 Item</);
+ assert.match(built,/placeholder="搜索名称或 Item ID"/);
+ assert.doesNotMatch(built,/dataset.source }} · {{ dataset.count }} 项/);
+});
 
 test('ant200 mock has 200 distinct entries with matching allocation and live totals',()=>{
  const c=vm.runInContext('new Component()',ctx);
@@ -155,9 +199,27 @@ test('lifecycle photos fill eight slots from paste and upload, with six-slot for
  let view=c.pmLifeFeedback(key.slice(5));assert.equal(view.images.length,8);assert.equal(view.emptySlots.length,0);assert(view.full);assert.match(view.error,/8 张/);
  assert(view.images.every(x=>x.ready&&x.url.startsWith('data:image/png')));
  view.images[3].remove();view=c.pmLifeFeedback(key.slice(5));assert.equal(view.images.length,7);assert.equal(view.emptySlots[0].position,8);
- await c.addFeedbackImages('sheet:other',Array.from({length:8},(_,i)=>file(i)));
- assert.equal(c.feedbackImages('sheet:other').length,6);
+ await c.addFeedbackImages('review-run:other',Array.from({length:8},(_,i)=>file(i)));
+ assert.equal(c.feedbackImages('review-run:other').length,6);
  c.renderVals().life.cancelAppend();assert.equal(c.feedbackImages(key).length,0);
+});
+
+test('sheet rework accepts eight reference images across upload and paste, then allows replacing one',async()=>{
+ ctx.FileReader=class{readAsDataURL(file){queueMicrotask(()=>{this.result='data:'+file.type+';base64,aQ==';this.onload();});}};
+ ctx.Image=class{naturalWidth=1;set src(value){queueMicrotask(()=>this.onload());}};
+ const c=vm.runInContext('new Component()',ctx),item='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f',key='sheet:'+item;
+ c.setState({view:'sheet',sheetKey:'ant200',sheetRow:item,sheetReworkAsk:item});
+ const file=i=>({name:'photo-'+i+'.png',type:'image/png',size:128});
+ let view=c.feedbackView(key);assert.equal(view.emptySlots.length,8);assert.equal(view.remaining,8);
+ await view.upload({target:{files:Array.from({length:7},(_,i)=>file(i)),value:'selected'}});
+ let prevented=false;
+ await c.handleFeedbackPaste({clipboardData:{items:[7,8].map(i=>({kind:'file',getAsFile:()=>file(i)}))},preventDefault(){prevented=true;}});
+ view=c.feedbackView(key);assert(prevented);assert.equal(view.images.length,8);assert(view.full);assert.equal(view.emptySlots.length,0);
+ assert.equal(view.countLabel,'已上传 8/8 张');assert.equal(view.remaining,0);assert.equal(view.uploadLabel,'已达 8 张上限');assert.match(view.error,/最多添加 8 张/);
+ assert(view.images.every(image=>image.ready));
+ view.images[3].remove();view=c.feedbackView(key);assert.equal(view.images.length,7);assert(!view.full);assert.equal(view.error,'');assert.equal(view.emptySlots[0].position,8);
+ await view.upload({target:{files:[file('replacement')],value:'selected'}});
+ view=c.feedbackView(key);assert.equal(view.images.length,8);assert.equal(view.images[7].name,'photo-replacement.png');assert.equal(view.remaining,0);
 });
 
 test('model summary and pending shortcut preserve complete results without hidden impact filters',()=>{
@@ -231,35 +293,23 @@ test('Item view links retain the selected tab and scope after reload',()=>{
  assert.equal(ctx.codec.read('/items/b3d81c4e77af4a5c9e2f1a6b8c0d3e5f?tab=invalid').patch.pmItemTab,'history');
 });
 
-test('Pipeline viewer routes persist and role guards apply even on direct editor links',()=>{
- const c=vm.runInContext('new Component()',ctx), name='web3d-gen-build-eval-v3';
- const viewer=ctx.codec.read('/production/pipelines/'+name+'/view?node=build');
- assert.equal(viewer.error,'');assert(viewer.patch.pmPipelineView);
- const restored=ctx.codec.read(ctx.codec.write(viewer.patch));
- assert(restored.patch.pmPipelineView);assert.equal(restored.patch.editSel,'build');
- for(const role of ['member','outsourcing','unknown','lead','project-owner']) {
-  c.props.currentRole=role;
-  Object.assign(c.state,ctx.codec.read('/production/pipelines/'+name+'/edit').patch,{editSaved:false,editNodes:null,peDelete:false});
-  const pe=c.renderVals().pe, allowed=['lead','project-owner'].includes(role);
-  assert.equal(pe.canEdit,allowed);assert.equal(pe.readOnly,!allowed);
-  pe.save();assert.equal(c.state.editSaved,allowed);
-  pe.askDelete();pe.nodes[0].toggle({stopPropagation(){}});
-  assert.equal(c.state.peDelete,allowed);assert.equal(!!c.state.editNodes,allowed);
+test('Pipeline owner guards apply on direct editor links, viewer routes and stale callbacks',()=>{
+ const c=vm.runInContext('new Component()',ctx),key='web3d-gen-build-eval-v3';
+ for(const user of ['一万','yokiguan'])for(const role of ['member','lead','project-owner']){
+  c.props.currentUser=user;c.props.currentRole=role;
+  Object.assign(c.state,ctx.codec.read('/production/pipelines/'+key+'/edit').patch,{editSaved:false,editNodes:null,peDelete:false});
+  const pe=c.renderVals().pe,allowed=user==='一万';assert.equal(pe.canEdit,allowed);
+  pe.save();assert.equal(c.state.editSaved,allowed);pe.askDelete();assert.equal(c.state.peDelete,allowed);
+  pe.nodes[0].toggle({stopPropagation(){}});assert.equal(!!c.state.editNodes,allowed);
   if(!allowed){const before=JSON.stringify(c.state);pe.doDelete();pe.run();pe.runAnyway();pe.toggleDs();pe.dsOptions[0].pick();assert.equal(JSON.stringify(c.state),before);}
-  pe.nodes[0].select();assert.equal(c.state.editSel,'task');
  }
- c.props.currentRole='lead';Object.assign(c.state,viewer.patch,{editSaved:false});
- let pe=c.renderVals().pe;assert(pe.readOnly);pe.save();assert(!c.state.editSaved);
- Object.assign(c.state,ctx.codec.read('/production/pipelines/'+name+'/edit').patch,{editSaved:false});
- pe=c.renderVals().pe;c.props.currentRole='member';pe.save();assert(!c.state.editSaved);
- const item={id:'b3d81c4e77af4a5c9e2f1a6b8c0d3e5f'};
- Object.assign(c.state,{lifeItem:item.id,lifeRun:'20260825-034505-c19f2a',pmItemTab:'pipeline'});
- for(const role of ['lead','project-owner','member','outsourcing']){
-  c.props.currentRole=role;const e=c.pmItemExplorerValues(item);
-  assert.equal(e.canEditPipeline,['lead','project-owner'].includes(role));assert(!e.showContext);
-  assert(ctx.codec.read(e.pipelineHref).patch.pmPipelineView);
-  assert(!ctx.codec.read(e.pipelineEditHref).patch.pmPipelineView);
- }
+ c.props.currentUser='一万';Object.assign(c.state,ctx.codec.read('/production/pipelines/'+key+'/view').patch,{editSaved:false});
+ assert(c.renderVals().pe.readOnly);c.renderVals().pe.save();assert(!c.state.editSaved);
+ Object.assign(c.state,ctx.codec.read('/production/pipelines/'+key+'/edit').patch);
+ const pe=c.renderVals().pe;c.props.currentUser='yokiguan';pe.save();pe.askDelete();assert(!c.state.editSaved);
+ c.pmOpenPipelineEditor(key);assert(!c.state.pmPipelineEditor);
+ c.props.currentUser='一万';c.pmOpenPipelineEditor(key);const draft=c.pmPipelineEditorValues();c.props.currentUser='yokiguan';
+ const before=JSON.stringify(c.state);draft.onName({target:{value:'forbidden'}});draft.save();draft.askDelete();draft.delete();assert.equal(JSON.stringify(c.state),before);
 });
 
 
@@ -271,4 +321,534 @@ test('Delivery preview mock is scoped to the requested Item and Run, and real ma
  assert.equal(read('another-item',run).files.length,0);assert.equal(read(id,'another-run').files.length,0);
  c.props.artifacts={[id]:{[run]:{files:[]}}};assert.equal(read(id,run).files.length,0);
  c.props.artifacts[id][run].files=[{name:'real.html',url:'/real.html'}];assert.equal(read(id,run).files[0].name,'real.html');
+});
+
+ test('entry Tag styling follows assignment, palette updates and explicit no Tag',()=>{
+ const c=vm.runInContext('new Component()',ctx);
+ c.openDeliveryEditor('ant200');
+ c.patchDeliveryEditor({tags:[{id:'green',name:'repair',color:'#39804a'}]});
+ let v=c.deliveryEditorValues();v.entries[0].onTag({target:{value:'green'}});
+ v=c.deliveryEditorValues();assert.equal(v.entries[0].tagBackground,'#39804a');assert(v.entries[0].hasTagStyle);
+ assert.equal(v.entries[0].tagForeground,v.tags[0].fg);
+ c.patchDeliveryEditor({tags:[{id:'green',name:'repair',color:'#ffe099'}]});
+ assert.equal(c.deliveryEditorValues().entries[0].tagBackground,'#ffe099');
+ c.deliveryEditorValues().entries[0].onTag({target:{value:''}});
+ assert.equal(c.deliveryEditorValues().entries[0].hasTagStyle,false);
+ c.patchDeliveryEditor({defaultTagId:'green'});
+ assert.equal(c.pmEntryTagStyle({tagId:''},c.state.deliveryEditor,true).tagBackground,'#ffe099');
+ assert.equal(c.pmEntryTagStyle({tagId:'__none__'},c.state.deliveryEditor,true).hasTagStyle,false);
+ c.patchDeliveryEditor({tags:[]});
+ assert.equal(c.pmEntryTagStyle({tagId:'green'},c.state.deliveryEditor).hasTagStyle,false);
+ });
+
+test('editing links production runs, preserves tags through dedup and saves source identities',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor('ant200');
+ const before=JSON.stringify(c.state.deliveryEditor.entries);
+ c.deliveryEditorValues();assert.equal(JSON.stringify(c.state.deliveryEditor.entries),before);
+ const tasks=c.deliveryProductionTasks().filter(t=>!t.disabled),task=tasks.find(t=>t.id==='20260825-034505-c19f2a');
+ c.syncDeliveryProductionTasks([task.id]);
+ assert.equal(c.state.deliveryEditor.entries.length,task.entries.length);
+ assert.equal(c.state.deliveryEditor.importMode,'production');
+ c.patchDeliveryEditor({tags:[{id:'green',name:'重点',color:'#39804a'}]});
+ const item=c.state.deliveryEditor.entries[0].itemId;
+ c.deliveryEditorValues().entries[0].onTag({target:{value:'green'}});
+ const other=tasks.find(t=>t.id!==task.id&&t.entries.some(e=>e.itemId===item));
+ c.pmListAssociation().pick({target:{value:other.id}});
+ assert.equal(new Set(c.state.deliveryEditor.entries.map(e=>e.itemId)).size,c.state.deliveryEditor.entries.length);
+ assert.equal(c.state.deliveryEditor.entries.find(e=>e.itemId===item).tagId,'green');
+ c.pmListAssociation().selected.find(t=>t.id===other.id).remove();
+ // Assign required reviewers before saving, as in the normal editor flow.
+ c.patchDeliveryEditor({datasetReviews:Object.fromEntries(c.deliveryEditorReviewDatasets(c.state.deliveryEditor).map(g=>[g.key,{reviewer:'一万',status:'pending'}]))});
+ assert.equal(c.deliveryEditorIssue(),'');c.saveDeliveryEditor();c.openDeliveryEditor('ant200');
+ assert.deepEqual(Array.from(c.state.deliveryEditor.productionTaskIds),[task.id]);
+ assert.equal(c.state.deliveryEditor.entries.find(e=>e.itemId===item).tagId,'green');
+});
+
+test('Item runtime labels track source execution and leave unknown or unmatched Items honest',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor('ant200');
+ c.pmListAssociation().pick({target:{value:'20260825-034505-c19f2a'}});
+ const editor=c.state.deliveryEditor,entry=editor.entries[0],run=c.runsData().find(r=>r.id===entry.sourceRunId);
+ const index=Array.from({length:run.n},(_,i)=>i).find(i=>c.taskRunItem(run,i).itemId===entry.itemId);
+ for(const [state,label] of [['success','ready'],['failed','fail'],['running','running'],['queued','queued']]) {
+  c.setState({runItemTech:{[run.id+':'+index]:{status:state}}});
+  assert.equal(c.pmListEntries(editor).find(e=>e.itemId===entry.itemId).runLabel,label);
+ }
+ assert.equal(c.pmListEntries({...editor,entries:[{name:'未匹配'}]})[0].runLabel,'未关联');
+ assert.equal(c.pmListEntries({...editor,entries:[{itemId:'unknown-id'}]})[0].runLabel,'暂无运行');
+});
+
+test('ZIP replacement clears production association only after successful parsing',async()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor('ant200');
+ c.pmListAssociation().pick({target:{value:'20260825-034505-c19f2a'}});
+ const before=JSON.stringify(c.state.deliveryEditor.entries);
+ await c.uploadDeliveryList({name:'invalid.zip',size:20,arrayBuffer:async()=>new ArrayBuffer(0)});
+ assert.equal(c.state.deliveryEditor.importMode,'production');assert.equal(JSON.stringify(c.state.deliveryEditor.entries),before);
+ c.zipDirectory=()=>[{path:'天坛.glb'},{path:'new-upload.glb'}];
+ await c.uploadDeliveryList({name:'items.zip',size:20,arrayBuffer:async()=>new ArrayBuffer(0)});
+ assert.equal(c.state.deliveryEditor.importMode,'zip');assert.equal(c.state.deliveryEditor.productionTaskIds.length,0);
+ const rows=c.deliveryEditorValues().entries;assert.equal(rows.length,2);assert(rows[0].itemId);assert.equal(rows[1].runLabel,'未关联');
+});
+
+test('sheet rows assign an owner and task tag without opening preview or changing execution',()=>{
+ const c=vm.runInContext('new Component()',ctx),key='ant200';
+ const sheet=c.deliverySheet(key),id=c.deliveryEntries(sheet)[0].itemId;
+ const before=JSON.stringify(c.sheetRows(sheet)),actor=c.profileIdentity().accountName;
+ const values=c.pmSheetAssignments(sheet).get(id);
+ assert.equal(values.assignmentReadonly,false);
+ values.assignOwner({target:{value:'allen'}});
+ let saved=c.deliverySheet(key);
+ assert.equal(saved.datasetReviews['item:'+id].reviewer,'allen');
+ assert(saved.members.some(m=>m.accountName==='allen'));
+ assert.equal(c.state.sheetRow,null);
+ c.pmSheetAssignments(saved).get(id).assignTag({target:{value:'__task_repair'}});
+ saved=c.deliverySheet(key);
+ assert.equal(saved.tags.find(t=>t.id===saved.entryTags[id]).name,'repair');
+ assert.equal(c.pmSheetAssignments(saved).get(id).hasTagStyle,true);
+ assert.equal(JSON.stringify(c.sheetRows(saved)),before);
+ c.openDeliveryEditor(key);
+ assert.equal(c.deliveryEditorValues().entries.find(e=>e.itemId===id).tagId,saved.entryTags[id]);
+ assert.equal(c.deliveryEditorReviewDatasets().find(g=>g.key==='item:'+id).reviewer,'allen');
+ assert.equal(c.deliveryEditorIssue(),'');
+ c.saveDeliveryEditor();
+ assert.equal(c.pmSheetAssignments(c.deliverySheet(key)).get(id).owner,'allen');
+ c.pmAssignSheetItem(key,id,'tag','',actor);
+ c.pmAssignSheetItem(key,id,'owner','',actor);
+ assert.equal(c.pmSheetAssignments(c.deliverySheet(key)).get(id).taskTag,'');
+ assert.equal(c.pmSheetAssignments(c.deliverySheet(key)).get(id).owner,'');
+});
+
+test('inline assignment enforces permissions, valid choices, exact sheet scope and latest state',()=>{
+ const c=vm.runInContext('new Component()',ctx),sheet=c.deliverySheet('ant200'),id=c.deliveryEntries(sheet)[0].itemId,actor=c.profileIdentity().accountName;
+ const other=JSON.stringify(c.deliverySheet('step300'));
+ c.pmAssignSheetItem('ant200',id,'tag','missing',actor);
+ c.pmAssignSheetItem('ant200',id,'owner','not-a-person',actor);
+ assert.equal(JSON.stringify(c.deliverySheet('ant200')),JSON.stringify(sheet));
+ const captured=c.pmSheetAssignments(sheet).get(id);
+ c.profileIdentity=()=>({accountName:'viewer',key:'member',name:'viewer'});
+ captured.assignOwner({target:{value:'allen'}});
+ assert.equal(JSON.stringify(c.deliverySheet('ant200')),JSON.stringify(sheet));
+ assert.equal(c.pmSheetAssignments(sheet).get(id).assignmentReadonly,true);
+ assert.equal(JSON.stringify(c.deliverySheet('step300')),other);
+});
+
+test('direct dataset entry guides to Pipeline and retains compatible Item selection without submitting',()=>{
+ const c=vm.runInContext('new Component()',ctx),name='group01-science-mechanism-query-v1';
+ c.setState({view:'datasets',selDs:name,dsVersion:'v1',runPipeline:null});
+ let ds=c.renderVals().ds;
+ assert(ds.needsPipeline);assert(!ds.canRun);assert(!ds.cannotRun);assert.match(ds.runHint,/先选择 Pipeline/);
+ ds.items[0].toggle();const item=c.renderVals().ds.items[0].id;
+ c.renderVals().ds.submit();assert.equal(c.state.view,'datasets');
+ c.renderVals().ds.choosePipeline();assert.equal(c.state.view,'pipelines');
+ assert.equal((c.state.submittedRuns || []).length,0);
+ const pipe=c.pipeData().find(p=>p.datasets.some(d=>d[0]===name));
+ c.selectRunPipeline(pipe);
+ assert.equal(c.state.selDs,name);assert.equal(c.state.dsVersion,'v1');assert.equal(c.state.picked[item],true);
+ assert(c.renderVals().ds.canRun);assert(!c.renderVals().ds.needsPipeline);
+ assert.equal((c.state.submittedRuns || []).length,0);
+ c.renderVals().ds.submit();assert.equal(c.state.submittedRuns.length,1);
+ assert.equal(c.state.submittedRuns[0].pipe,pipe.name);
+});
+
+test('Pipeline guidance does not carry Items into an unrelated dataset',()=>{
+ const c=vm.runInContext('new Component()',ctx),name='group01-science-mechanism-query-v1';
+ c.setState({view:'datasets',selDs:name,runPipeline:null});c.renderVals().ds.items[0].toggle();c.renderVals().ds.choosePipeline();
+ const pipe=c.pipeData().find(p=>!p.datasets.some(d=>d[0]===name));c.selectRunPipeline(pipe);
+ assert.equal(c.state.selDs,null);assert.equal(Object.keys(c.state.picked).length,0);assert.equal(c.state.pmDatasetRunContext,null);
+});
+
+test('dataset edits update display metadata and Item fields while preserving identity and historical run Items',()=>{
+ const c=vm.runInContext('new Component()',ctx),name='group01-science-mechanism-query-v1',original=c.dsData().find(d=>d.name===name);
+ const run=c.runsData().find(r=>r.dsName===name),history=Array.from({length:run.n},(_,i)=>c.taskRunItem(run,i));
+ c.pmOpenDatasetEditor(name);let editor=c.pmDatasetEditorValues();
+ editor.onName({target:{value:'Science 更新'}});editor.onDescription({target:{value:'新的数据集说明'}});
+ editor.items[0].onContent({target:{value:'Updated item content'}});editor.items[0].onStyle({target:{value:'updated-style'}});editor.items[1].remove();
+ c.pmSaveDatasetEditor();const saved=c.dsData().find(d=>d.name===name);
+ assert.equal(saved.displayName,'Science 更新');assert.equal(saved.description,'新的数据集说明');assert.equal(saved.items[0][4],'Updated item content');assert.equal(saved.items[0][3],'updated-style');assert.equal(saved.items[0][0],original.items[0][0]);assert.equal(saved.n,original.n-1);
+ const savedRun=c.runsData().find(r=>r.id===run.id);assert.deepEqual(Array.from({length:run.n},(_,i)=>c.taskRunItem(savedRun,i)),history);
+ c.pmOpenDatasetEditor(name);assert.equal(c.pmDatasetEditorValues().name,'Science 更新');c.pmDatasetEditorValues().onName({target:{value:'discard'}});c.pmCloseDatasetEditor();assert.equal(c.dsData().find(d=>d.name===name).displayName,'Science 更新');
+});
+
+test('dataset deletion requires confirmation, preserves run evidence and supports undo',()=>{
+ const c=vm.runInContext('new Component()',ctx),name='group01-science-mechanism-query-v1',run=c.runsData().find(r=>r.dsName===name),first=c.taskRunItem(run,0);
+ c.setState({view:'datasets',selDs:name,picked:{[first.itemId]:true}});c.pmOpenDatasetEditor(name);c.pmDeleteDataset();assert(c.dsData().some(d=>d.name===name));
+ c.pmDatasetEditorValues().askDelete();c.pmDatasetEditorValues().delete();
+ assert(!c.dsData().some(d=>d.name===name));assert.equal(c.state.selDs,null);assert.equal(Object.keys(c.state.picked).length,0);assert.deepEqual(c.taskRunItem(c.runsData().find(r=>r.id===run.id),0),first);
+ c.pmDatasetUndoValues().restore();assert(c.dsData().some(d=>d.name===name));assert.equal(c.pmDatasetUndoValues().visible,false);
+});
+
+test('dataset validation rejects duplicate names and blank Item content without applying changes',()=>{
+ const c=vm.runInContext('new Component()',ctx),[first,other]=c.dsData();c.pmOpenDatasetEditor(first.name);
+ c.pmDatasetEditorValues().onName({target:{value:other.name}});c.pmSaveDatasetEditor();assert.match(c.pmDatasetEditorValues().error,/名称已存在/);
+ c.pmDatasetEditorValues().onName({target:{value:first.name}});c.pmDatasetEditorValues().items[0].onContent({target:{value:' '}});c.pmSaveDatasetEditor();assert.match(c.pmDatasetEditorValues().error,/Item/);assert.equal(c.dsData()[0].items[0][4],first.items[0][4]);
+});
+
+test('Pipeline configuration saves a new version and cancellation leaves the definition intact',()=>{
+ const c=vm.runInContext('new Component()',ctx),key='web3d-gen-build-eval-v3',original=c.pipeData().find(p=>p.name===key),runs=JSON.stringify(c.runsData());
+ c.pmOpenPipelineEditor(key);let v=c.pmPipelineEditorValues();v.onName({target:{value:'Web3D 编辑验证'}});v.onDescription({target:{value:'更新生成配置'}});
+ v.nodes[1].onConfig({target:{value:'{"model":"example","max_iterations":12}'}});v.nodes[2].onEnabled({target:{checked:false}});
+ v=c.pmPipelineEditorValues();v.nodes[1].down();v.save();
+ const updated=c.pipeData().find(p=>p.name===key);assert.equal(updated.displayName,'Web3D 编辑验证');assert.equal(updated.version,'v8');assert.equal(updated.nodeConfigs.build.max_iterations,12);assert.equal(updated.enabledNodes.human_review_initial,false);assert.equal(updated.dag[2],'build/AGENT');assert.equal(updated.owner,'一万');
+ assert.equal(JSON.stringify(c.state.pmPipelineVersions[key].v7),JSON.stringify(original));assert.equal(JSON.stringify(c.runsData()),runs);
+ c.pmOpenPipelineEditor(key);c.pmPipelineEditorValues().nodes[0].remove();c.pmClosePipelineEditor();assert.equal(c.pipeData().find(p=>p.name===key).dag.length,original.dag.length);
+});
+test('Pipeline validates configuration and deletion requires current ownership plus confirmation',()=>{
+ const c=vm.runInContext('new Component()',ctx),key='web3d-gen-build-eval-v3',runs=JSON.stringify(c.runsData());
+ c.pmOpenPipelineEditor(key);let v=c.pmPipelineEditorValues();v.nodes[0].onConfig({target:{value:'invalid'}});v.save();assert.match(c.state.pmPipelineEditor.error,/JSON/);assert.equal(c.pipeData().find(p=>p.name===key).version,'v7');
+ v=c.pmPipelineEditorValues();v.nodes[0].onConfig({target:{value:'{}'}});v.nodes[0].onName({target:{value:'build'}});v.save();assert.match(c.state.pmPipelineEditor.error,/唯一/);
+ v.delete();assert(c.pipeData().some(p=>p.name===key));v.askDelete();c.pmPipelineEditorValues().delete();assert(!c.pipeData().some(p=>p.name===key));assert.equal(JSON.stringify(c.runsData()),runs);assert(c.state.pmPipelineVersions[key].v7);
+ const before=JSON.stringify(c.state);c.selectRunPipeline({name:key});assert.equal(JSON.stringify(c.state),before);
+});
+
+test('expanded Pipeline history includes every version and preserves available changelogs',()=>{
+ const c=vm.runInContext('new Component()',ctx),key='web3d-gen-build-eval-v3',pipe=c.pipeData().find(p=>p.name===key);
+ const history=c.pmPipelineHistory(pipe);assert.equal(history.length,7);assert.equal(history.map(h=>h[0]).join(','),'v7,v6,v5,v4,v3,v2,v1');
+ assert.equal(history[0][1],pipe.history[0][1]);assert.equal(history[3][1],'暂无更新说明');assert.equal(history[3][2],'—');
+ Object.assign(c.state,ctx.codec.read('/production/pipelines/'+key+'?status=all').patch);
+ assert.equal(c.renderVals().pipelines.find(p=>p.name===key).versions.length,7);
+ c.pmOpenPipelineEditor(key);c.pmPipelineEditorValues().save();const saved=c.pmPipelineHistory(c.pipeData().find(p=>p.name===key));
+ assert.equal(saved.length,8);assert.equal(saved[0][0],'v8');assert.equal(saved.filter(h=>h[0]==='v7').length,1);
+});
+
+test('Pipeline YAML upload previews nodes and saves only to a new owned version',async()=>{
+ const c=vm.runInContext('new Component()',ctx),key='web3d-gen-build-eval-v3',before=JSON.stringify(c.pipeData().find(p=>p.name===key)),runs=JSON.stringify(c.runsData());
+ c.pmOpenPipelineEditor(key);
+ const yaml='name: ignored-file-name\nowner: someone-else\nversion: v99\ndescription: Uploaded configuration\ntimeout: 120\nnodes:\n  - name: prepare\n    type: function\n    config:\n      fn: prep_task\n  - name: generate\n    type: AGENT\n    model: example-model\n    config:\n      prompt: |\n        Build an example.\n        Preserve line breaks.\n      max_iterations: 8\n';
+ const file={name:'updated.yaml',size:yaml.length,text:async()=>yaml};
+ await c.pmPipelineEditorValues().onFile({target:{files:[file],value:'fakepath'}});
+ assert.equal(JSON.stringify(c.pipeData().find(p=>p.name===key)),before);assert.equal(c.pmPipelineEditorValues().nodes.length,2);
+ assert.match(c.pmPipelineEditorValues().uploadStatus,/updated.yaml.*2 个节点.*待保存/);
+ c.pmPipelineEditorValues().nodes[1].onConfig({target:{value:'{"model":"edited-model","max_iterations":9}'}});c.pmPipelineEditorValues().save();
+ const saved=c.pipeData().find(p=>p.name===key);assert.equal(saved.name,key);assert.equal(saved.owner,'一万');assert.equal(saved.version,'v8');assert.equal(saved.pipelineOptions.timeout,120);
+ assert.equal(saved.dag.join(','),'prepare/FUNCTION,generate/AGENT');assert.equal(saved.nodeConfigs.generate.model,'edited-model');assert.equal(saved.nodeConfigs.generate.max_iterations,9);
+ assert.equal(JSON.stringify(c.state.pmPipelineVersions[key].v7),before);assert.equal(JSON.stringify(c.runsData()),runs);
+ c.pmOpenPipelineEditor(key);assert.equal(c.pmPipelineEditorValues().nodes[1].name,'generate');c.pmClosePipelineEditor();
+});
+
+test('Pipeline upload accepts JSON, keyed YAML, legacy dag and rejects malformed definitions without losing edits',async()=>{
+ const c=vm.runInContext('new Component()',ctx),key='web3d-gen-build-eval-v3';c.pmOpenPipelineEditor(key);
+ for(const [name,text] of [
+  ['config.json','{"nodes":[{"name":"prepare","type":"FUNCTION","enabled":false},{"name":"build","type":"AGENT","config":{"temperature":0.4}}]}'],
+  ['config.yml','nodes:\n  prepare:\n    type: FUNCTION\n    config: {fn: prep_task}\n'],
+  ['dag.json','{"dag":["prep/FUNCTION"],"nodeConfigs":{"prep":{"fn":"prep_task"}},"enabledNodes":{"prep":true}}']
+ ]) {await c.pmPipelineEditorValues().onFile({target:{files:[{name,size:text.length,text:async()=>text}],value:''}});assert.equal(c.pmPipelineEditorValues().error,'');}
+ const before=JSON.stringify(c.state.pmPipelineEditor.nodes);
+ for(const [name,text] of [
+  ['broken.yml','nodes: ['],['empty.yml','nodes: []'],['duplicate.yml','nodes: []\nnodes: []'],
+  ['unknown.json','{"nodes":[{"name":"a","type":"UNKNOWN"}]}'],
+  ['disabled.json','{"nodes":[{"name":"a","type":"AGENT","enabled":false}]}'],
+  ['duplicate.json','{"nodes":[{"name":"a","type":"AGENT"},{"name":"a","type":"LLM"}]}'],
+  ['cycle.yml','nodes: &loop\n  a: *loop'],['text.txt','anything']
+ ]) {await c.pmPipelineEditorValues().onFile({target:{files:[{name,size:text.length,text:async()=>text}],value:''}});assert(c.pmPipelineEditorValues().error,name);assert.equal(JSON.stringify(c.state.pmPipelineEditor.nodes),before,name);}
+ await c.pmPipelineEditorValues().onFile({target:{files:[{name:'big.yml',size:6*1024*1024,text:async()=>{throw Error('must not read');}}],value:''}});assert.match(c.pmPipelineEditorValues().error,/5 MiB/);
+ c.pmClosePipelineEditor();assert.equal(c.pipeData().find(p=>p.name===key).version,'v7');
+});
+
+test('Pipeline asynchronous upload cannot overwrite a newer upload, closed draft or changed actor',async()=>{
+ const c=vm.runInContext('new Component()',ctx),key='web3d-gen-build-eval-v3',text='nodes: [{name: uploaded, type: FUNCTION}]';
+ c.pmOpenPipelineEditor(key);let resolve;
+ const pending=c.pmPipelineEditorValues().onFile({target:{files:[{name:'old.yml',size:100,text:()=>new Promise(r=>resolve=r)}],value:''}});
+ c.pmPipelineEditorValues().save();assert.equal(c.pipeData().find(p=>p.name===key).version,'v7');
+ await c.pmPipelineEditorValues().onFile({target:{files:[{name:'new.yml',size:text.length,text:async()=>text}],value:''}});
+ resolve('nodes: [{name: outdated, type: AGENT}]');await pending;assert.equal(c.pmPipelineEditorValues().nodes[0].name,'uploaded');
+ const closed=c.pmPipelineEditorValues().onFile({target:{files:[{name:'closed.yml',size:100,text:()=>new Promise(r=>resolve=r)}],value:''}});
+ c.pmClosePipelineEditor();c.pmOpenPipelineEditor(key);resolve(text);await closed;assert.notEqual(c.pmPipelineEditorValues().nodes[0].name,'uploaded');
+ const changed=c.pmPipelineEditorValues().onFile({target:{files:[{name:'actor.yml',size:100,text:()=>new Promise(r=>resolve=r)}],value:''}});
+ c.profileIdentity=()=>({accountName:'allen',key:'member'});resolve(text);await changed;assert.equal(c.pipeData().find(p=>p.name===key).version,'v7');assert.notEqual(c.state.pmPipelineEditor.nodes[0].name,'uploaded');
+});
+
+
+test('Run model summary is scoped, deduplicated and explicit empty telemetry suppresses fixtures',()=>{
+ const c=vm.runInContext('new Component()',ctx),rec=c.runsData().find(r=>r.id==='20260825-093412-a4f7c1');
+ assert(c.runModelSummary(rec).mock);assert(c.runModelSummary({id:'other'}).empty);
+ c.props.runTelemetry=[{runId:rec.id,modelName:'Model A',calls:1},{runId:rec.id,modelName:'Model A',calls:2},{runId:rec.id,modelName:'Model B',calls:1},{runId:rec.id,modelName:'Unused',calls:0},{runId:'other',modelName:'Other',calls:10}];
+ const summary=c.runModelSummary(rec);assert.equal(summary.names.map(m=>m.name).join(','),'Model A,Model B');assert(!summary.mock);
+ c.props.runTelemetry=[];assert(c.runModelSummary(rec).empty);assert(!c.runModelSummary(rec).mock);
+ assert.equal(c.runModelSummary({...rec,modelsUsed:['Model C']}).names[0].name,'Model C');
+});
+
+test('Wizard checklist retains deselected candidates and only includes checked entries',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({name:'Checklist',customer:'测试',target:'7'});
+ const id=c.state.deliveryEditor.id,run='20260825-093412-a4f7c1';c.syncDeliveryProductionTasks([run],id);
+ const first=c.state.deliveryEditor.entries[0],count=c.state.deliveryEditor.entries.length;
+ c.pmSelectWizardEntry(first.key,false,id);assert.equal(c.state.deliveryEditor.entries.length,count-1);assert.equal(c.pmWizardCandidates().length,count);assert(c.state.deliveryEditor.productionExcluded.includes(first.itemId));
+ c.syncDeliveryProductionTasks([run],id);assert(!c.state.deliveryEditor.entries.some(r=>r.key===first.key));assert.equal(c.pmWizardCandidates().length,count);
+ c.pmSelectWizardEntry(first.key,true,id);assert.equal(c.state.deliveryEditor.entries.length,count);assert.equal(c.state.deliveryEditor.entries[0].key,first.key);
+ c.pmSelectWizardEntry(first.key,false,id);c.patchDeliveryEditor({target:String(count-1)});confirmDelivery(c);c.saveDeliveryEditor();const sheet=c.deliverySheet(c.state.sheetKey);assert(sheet);assert(!sheet.entries.some(r=>r.itemId===first.itemId));
+});
+
+test('delivery preview ignores the removed exception filter and retains production Run associations',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();
+ c.patchDeliveryEditor({name:'关联预览',customer:'测试',target:'5',onlyExceptions:true});
+ const task=c.deliveryProductionTasks().find(task=>task.pipeline==='web3d-gen-build-eval-v3' && task.count===5);
+ c.syncDeliveryProductionTasks([task.id],c.state.deliveryEditor.id);
+ const view=c.deliveryWizardValues();assert.equal(view.rows.length,5);assert.equal(view.noRows,false);assert.equal(view.onExceptions,undefined);
+ assert(view.rows.every(row=>row.sourceRefs.some(ref=>ref.runId===task.id && ref.pipeline===task.pipeline && ref.dataset===task.dataset)));
+ view.rows[0].onSelect({target:{checked:false}});assert.equal(c.deliveryWizardValues().rows.length,5);assert.equal(c.deliveryWizardValues().stats.valid,4);
+ assert.doesNotMatch(built,/只看异常|关闭异常筛选/);
+});
+test('Wizard ZIP checklist preserves tags, recomputes duplicates and resets with a new import',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({importMode:'zip'});c.setDeliveryList('天坛\n天坛\n长城');
+ const id=c.state.deliveryEditor.id,[first,second]=c.state.deliveryEditor.entries;
+ c.pmSelectWizardEntry(first.key,false,id);assert.equal(c.state.deliveryEditor.entries[0].key,second.key);assert.equal(c.state.deliveryEditor.entries[0].parseStatus,'matched');
+ c.pmWizardEntryTag(first.key,'tag-green',id);c.pmSelectWizardEntry(first.key,true,id);assert.equal(c.state.deliveryEditor.entries[0].tagId,'tag-green');assert.equal(c.state.deliveryEditor.entries[1].parseStatus,'duplicate');
+ c.pmSelectWizardEntry(first.key,false,id);c.setDeliveryList('长城');assert.equal(c.pmWizardCandidates().length,1);
+});
+
+test('Multiple task Tags synchronize rules, confirmation, saved sheet and reviewer assignment',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({name:'Task tags',customer:'蚂蚁',target:'2',importMode:'zip'});c.setDeliveryList('天坛\n长城');
+ for(const tagName of ['repair','reroll']){c.patchDeliveryEditor({tagName,tagColor:'#397448'});c.addDeliveryTag();}
+ const editor=c.state.deliveryEditor,id=editor.id,actor=c.profileIdentity().accountName,[repair,reroll]=editor.tags;
+ assert.equal(c.deliveryWizardValues().taskTags.selected.length,2);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected.length,2);
+ const first=editor.entries[0];c.pmToggleTaskTag(id,first.key,repair.id,false,actor);
+ assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected.map(tag=>tag.name).join(','),'reroll');
+ assert.equal(c.deliveryDatasetReviewValues().rows[1].taskTags.selected.length,2);
+ confirmDelivery(c);assert.equal(c.state.deliveryEditor.step,4);c.saveDeliveryEditor();const key=c.state.sheetKey,sheet=c.deliverySheet(key);
+ assert.equal(sheet.defaultTaskTagIds.length,2);assert.equal(sheet.entries[0].taskTagIds.length,1);assert.equal(sheet.datasetReviews['item:'+first.itemId].taskTagIds.length,1);
+ c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'reroll');
+ const option=c.deliveryDatasetReviewValues().rows[0].taskTags.options.find(tag=>tag.name==='repair');option.toggle({target:{checked:true}});assert.equal(c.state.deliveryEditor.entries[0].taskTagIds.length,2);c.saveDeliveryEditor();
+ assert.equal(c.pmSheetAssignments(c.deliverySheet(key)).get(first.itemId).taskTags.selected.length,2);
+ c.pmToggleSavedTaskTag(key,first.itemId,reroll.id,false,actor);c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected.map(tag=>tag.name).join(','),'repair');
+});
+test('Task Tag explicit clearing, deselection, removed tags and stale actors are safe',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({importMode:'zip'});c.setDeliveryList('天坛');c.patchDeliveryEditor({tagName:'repair',tagColor:'#397448'});c.addDeliveryTag();
+ const {id,entries,tags}=c.state.deliveryEditor,actor=c.profileIdentity().accountName,key=entries[0].key;
+ c.pmToggleTaskTag(id,key,tags[0].id,false,actor);assert(c.deliveryWizardValues().rows[0].taskTags.empty);
+ c.pmSelectWizardEntry(key,false,id);c.pmSelectWizardEntry(key,true,id);assert(c.deliveryWizardValues().rows[0].taskTags.empty);
+ const picker=c.deliveryWizardValues().taskTags;c.props.currentUser='someone-else';const before=JSON.stringify(c.state.deliveryEditor);picker.options[0].toggle({target:{checked:false}});assert.equal(JSON.stringify(c.state.deliveryEditor),before);
+ c.props.currentUser=actor;c.patchDeliveryEditor({tags:[]});assert.equal(c.pmTaskTagIds(c.state.deliveryEditor).length,0);
+});
+
+test('existing delivery opens the prefilled wizard and updates the same sheet',()=>{
+ const c=vm.runInContext('new Component()',ctx),sheet=c.deliverySheet('ant200');
+ c.openDeliveryEditor(sheet.key);
+ assert.equal(c.state.view,'delivery-create');assert.equal(c.deliveryEditorValues().page,true);assert.equal(c.deliveryEditorValues().modal,false);
+ assert.equal(c.state.deliveryEditor.name,sheet.name);assert.equal(c.state.deliveryEditor.entries.length,200);assert.equal(c.deliveryFormDirty(),false);
+ assert.equal(ctx.codec.read('/delivery/ant200/edit#confirm').editor.tab,'confirm');
+ c.goDeliveryWizardStep(2);assert.equal(c.deliveryWizardValues().rows.length,8);
+ const entry=c.deliveryWizardValues().rows[0];entry.onSelect({target:{checked:false}});assert.equal(c.state.deliveryEditor.entries.length,199);c.deliveryWizardValues().rows.find(row=>row.key===entry.key).onSelect({target:{checked:true}});assert.equal(c.state.deliveryEditor.entries.length,200);
+ c.patchDeliveryEditor({name:'已修改的数据单'});c.goDeliveryWizardStep(4);assert.equal(c.deliveryWizardValues().action,'保存更改');
+ assert.equal(c.deliveryWizardValues().title,'确认保存');assert.equal(c.deliveryWizardValues().disabled,false);
+ c.deliveryWizardValues().next();assert.equal(c.state.sheetKey,sheet.key);assert.equal(c.state.view,'sheet');assert.equal(c.deliverySheet(sheet.key).name,'已修改的数据单');assert.equal(c.state.deliverySheets?.length || 0,0);
+ c.openDeliveryEditor(sheet.key);c.deliveryEditorValues().cancel();assert.equal(c.state.view,'sheet');assert.equal(c.state.deliveryEditor,null);
+ c.openDeliveryEditor(sheet.key);c.patchDeliveryEditor({name:'未保存'});c.deliveryEditorValues().cancel();assert(c.state.deliveryLeave);c.discardDeliveryForm(c.state.deliveryEditor.id);assert.equal(c.state.sheetKey,sheet.key);assert.equal(c.deliverySheet(sheet.key).name,'已修改的数据单');
+});
+
+test('legacy delivery restores selected production tasks without replacing its saved Items',()=>{
+ const c=vm.runInContext('new Component()',ctx),sheet=c.deliverySheet('ant200');
+ const savedBefore=JSON.stringify(sheet),expected=['20260825-081120-7b3e9d','20260825-034505-c19f2a','20260821-094005-3f8b2e'];
+ c.openDeliveryEditor(sheet.key);c.goDeliveryWizardStep(2);
+ const editor=c.state.deliveryEditor,entriesBefore=JSON.stringify(editor.entries);
+ assert.equal(editor.importMode,'production');assert.deepEqual(Array.from(editor.productionTaskIds),expected);
+ let wizard=c.deliveryWizardValues();
+ assert.equal(wizard.productionCount,3);assert.equal(wizard.stats.valid,200);assert.equal(wizard.disabled,false);
+ assert(wizard.productionRows.slice(0,3).every(task=>task.selected));
+ assert(wizard.productionRows.slice(3).every(task=>!task.selected));
+ assert(wizard.rows.every(row=>row.selected));assert.equal(c.deliveryFormDirty(),false);
+ c.patchDeliveryEditor({productionQuery:'Science Mechanism'});
+ assert(c.deliveryWizardValues().productionRows.every(task=>!task.selected));
+ c.patchDeliveryEditor({productionQuery:''});
+ c.setDeliveryImportMode('zip',editor.id);assert.equal(c.state.deliveryEditor.productionTaskIds.length,0);
+ c.setDeliveryImportMode('production',editor.id);
+ assert.equal(JSON.stringify(c.state.deliveryEditor.entries),entriesBefore);
+ assert.deepEqual(Array.from(c.state.deliveryEditor.productionTaskIds),expected);
+ assert.equal(c.pmWizardCandidates().length,200);assert(c.deliveryWizardValues().rows.every(row=>row.selected));
+ assert.equal(JSON.stringify(c.deliverySheet(sheet.key)),savedBefore);
+ c.patchDeliveryEditor({name:'回填保存验证'});c.goDeliveryWizardStep(4);c.saveDeliveryEditor();
+ c.openDeliveryEditor(sheet.key);
+ assert.deepEqual(Array.from(c.state.deliveryEditor.productionTaskIds),expected);
+ assert.equal(c.state.deliveryEditor.entries.length,200);assert.equal(c.deliveryFormDirty(),false);
+});
+
+test('saved task choices and selected Item subsets take precedence over legacy inference',()=>{
+ const c=vm.runInContext('new Component()',ctx),runId='20260825-093412-a4f7c1';
+ c.openDeliveryEditor();c.patchDeliveryEditor({name:'部分条目',customer:'验证',target:'7'});
+ c.syncDeliveryProductionTasks([runId]);
+ const removed=c.state.deliveryEditor.entries[0];
+ c.pmSelectWizardEntry(removed.key,false,c.state.deliveryEditor.id);confirmDelivery(c);c.saveDeliveryEditor();
+ const key=c.state.sheetKey,entries=JSON.stringify(c.deliverySheet(key).entries);
+ c.openDeliveryEditor(key);c.goDeliveryWizardStep(2);
+ assert.deepEqual(Array.from(c.state.deliveryEditor.productionTaskIds),[runId]);
+ assert.equal(JSON.stringify(c.state.deliveryEditor.entries),entries);
+ assert.equal(c.state.deliveryEditor.entries.length,7);assert(!c.state.deliveryEditor.entries.some(entry=>entry.itemId===removed.itemId));
+ assert.equal(c.deliveryWizardValues().productionRows.filter(task=>task.selected).length,1);
+ c.state.deliveryEditor.productionTaskIds.push('draft-only');
+ assert.deepEqual(Array.from(c.deliverySheet(key).sourceRunIds),[runId],'Editing does not mutate saved task IDs');
+});
+
+test('ZIP sources stay unselected and switching sources restores the production draft after upload',async()=>{
+ const c=vm.runInContext('new Component()',ctx);
+ c.openDeliveryEditor('ant200');const id=c.state.deliveryEditor.id,ids=Array.from(c.state.deliveryEditor.productionTaskIds);
+ const entries=JSON.stringify(c.state.deliveryEditor.entries);
+ c.setDeliveryImportMode('zip',id);c.zipDirectory=()=>[{path:'天坛.glb'}];
+ await c.uploadDeliveryList({name:'items.zip',size:20,arrayBuffer:async()=>new ArrayBuffer(0)});
+ assert.equal(c.state.deliveryEditor.entries.length,1);assert.equal(c.state.deliveryEditor.productionTaskIds.length,0);
+ c.setDeliveryImportMode('production',id);
+ assert.deepEqual(Array.from(c.state.deliveryEditor.productionTaskIds),ids);
+ assert.equal(JSON.stringify(c.state.deliveryEditor.entries),entries);
+ assert.equal(c.pmWizardCandidates().length,200);
+ c.setDeliveryImportMode('zip',id);c.patchDeliveryEditor({target:'1'});c.goDeliveryWizardStep(4);c.saveDeliveryEditor();
+ c.openDeliveryEditor('ant200');
+ assert.equal(c.state.deliveryEditor.importMode,'zip');assert.equal(c.state.deliveryEditor.entries.length,1);
+ assert.equal(c.state.deliveryEditor.productionTaskIds.length,0);
+ assert.deepEqual(Array.from(c.pmDeliverySourceTaskIds({sourceRunIds:[]},c.state.deliveryEditor.entries)),[]);
+ assert.deepEqual(Array.from(c.pmDeliverySourceTaskIds({archive:{name:'legacy.zip'}},c.state.deliveryEditor.entries)),[]);
+});
+
+test('Profile creates and edits full Skill definitions and exposes them to order creation',async()=>{
+ const c=vm.runInContext('new Component()',ctx);c.setState({profileOpen:true,profileTab:'skills'});c.pmCreateProfileSkill();
+ let fields=c.buildProfileValues().draftSkills[0];fields.onName({target:{value:'个人验收'}});fields.onCommand({target:{value:'personal-check'}});fields.onDescription({target:{value:'交付验收'}});fields.onContent({target:{value:'核对所有文件。'}});
+ assert.equal(c.profileSkillDraftIssue(),'');c.saveProfileSkills();assert.equal(c.personalProfileSkills().length,1);
+ const skill=c.personalProfileSkills()[0];assert.equal(skill.content,'核对所有文件。');assert.equal(c.buildProfileValues().skills[0].action,'编辑 Skill');
+ c.openProfileSkill('personal:'+skill.id);c.buildProfileValues().draftSkills[0].onContent({target:{value:'更新验收指令。'}});c.saveProfileSkills();assert.equal(c.personalProfileSkills().length,1);assert.equal(c.personalProfileSkills()[0].content,'更新验收指令。');
+ c.openDeliveryEditor();assert(c.deliverySkillLibrary().some(row=>row.command==='personal-check' && row.content==='更新验收指令。'));c.closeDeliveryEditor();
+ const content='---\nname: profile-upload\ndescription: Uploaded instructions\n---\nInspect files.';
+ await c.uploadProfileSkills([{name:'profile-upload.md',size:content.length,text:async()=>content}]);c.saveProfileSkills();assert.equal(c.personalProfileSkills().length,2);
+ c.editPersonalSkill(skill.id);c.buildProfileValues().draftSkills[0].onContent({target:{value:''}});assert(c.profileSkillDraftIssue());c.saveProfileSkills();assert.equal(c.personalProfileSkills()[0].content,'更新验收指令。');
+});
+
+test('Skills created or uploaded in orders remain editable in Profile without duplicate personal records',async()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();const id=c.state.deliveryEditor.id;
+ c.patchDeliverySkillDraft({name:'订单验收',command:'order-check',description:'用于验收',content:'检查产物。'},id);c.createDeliverySkill();
+ const md='---\nname: order-upload\ndescription: Imported instructions\n---\nInspect output.';
+ await c.uploadDeliverySkills([{name:'order-upload.md',size:md.length,text:async()=>md}]);c.deliverySkillWorkspaceValues().publishUploads();
+ assert.equal(c.personalProfileSkills().length,2);const created=c.personalProfileSkills().find(s=>s.command==='order-check');c.closeDeliveryEditor();c.setState({profileOpen:true,profileTab:'skills'});
+ c.editPersonalSkill(created.id);c.buildProfileValues().draftSkills[0].onContent({target:{value:'更完整的验收指令。'}});c.saveProfileSkills();
+ assert.equal(c.personalProfileSkills().length,2);assert.equal(c.state.createdPlatformSkills.find(s=>s.id===created.id).content,'更完整的验收指令。');
+ c.openDeliveryEditor();assert(c.deliverySkillLibrary().some(s=>s.command==='order-check' && s.content==='更完整的验收指令。'));
+});
+
+test('custom billing dates preserve Token filters, reset drilldown and adapt chart resolution',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.setState({view:'billing'});c.updateBilling({preset:'yesterday',start:'2026-08-31',end:'2026-08-31',grain:'hour',metric:'tokens',provider:'test-provider',bin:'old',page:3});
+ c.billingValues().onPreset({target:{value:'custom'}});assert.equal(c.billingValues().custom,true);
+ c.billingValues().onStart({target:{value:'2026-08-01'}});assert.equal(c.state.billing.grain,'day');assert.equal(c.state.billing.metric,'tokens');assert.equal(c.state.billing.provider,'test-provider');assert.equal(c.state.billing.bin,null);assert.equal(c.state.billing.page,1);
+ assert.equal(c.billingValues().error,'');assert.equal(c.billingValues().bars.length,31);
+ const restored=ctx.codec.read(ctx.codec.write({view:'billing',billing:c.state.billing})).patch.billing;assert.equal(restored.start,'2026-08-01');assert.equal(restored.preset,'custom');assert.equal(restored.metric,'tokens');
+ c.billingValues().onEnd({target:{value:'2026-07-01'}});assert.match(c.billingValues().error,/结束日期不能早于开始日期/);
+ c.billingValues().onEnd({target:{value:'2026-08-02'}});assert.equal(c.billingValues().error,'');assert.equal(c.billingValues().bars.length,2);
+ c.billingValues().onPreset({target:{value:'week'}});assert.equal(c.billingValues().custom,false);assert.equal(c.state.billing.metric,'tokens');
+});
+
+test('Pipeline node drawer switches nodes, retains exit content and keeps execution untouched',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.setState({view:'pipeedit',editPipe:'web3d-ant-delivery-v1',editSel:null});
+ const before=JSON.stringify(c.state.editNodes);assert.equal(c.renderVals().pe.drawerMounted,false);
+ c.renderVals().pe.nodes.find(node=>node.name==='prep_task').select({detail:1});let pe=c.renderVals().pe;
+ assert.equal(pe.drawerOpen,true);assert.equal(pe.sel.name,'prep_task');assert.equal(pe.drawerMotion,'slide');
+ pe.nodes.find(node=>node.name==='ref_search').select({detail:1});pe=c.renderVals().pe;assert.equal(pe.sel.name,'ref_search');assert(pe.nodeDetail.configFields.length);
+ pe.closeSel({type:'click',detail:1,preventDefault(){}});pe=c.renderVals().pe;assert.equal(c.state.editSel,null);assert.equal(pe.drawerOpen,false);assert.equal(pe.drawerMounted,true);assert.equal(pe.sel.name,'ref_search');
+ const target={};pe.nodes[0].keySelect({key:'Enter',target,currentTarget:target,preventDefault(){}});assert.equal(c.renderVals().pe.drawerMotion,'instant');
+ assert.equal(JSON.stringify(c.state.editNodes),before);
+ c.setState({editPipe:'web3d-car',editSel:null});assert.equal(c.renderVals().pe.drawerMounted,false);
+ c.pmOpenNodeDrawer('unknown-node',{detail:1});assert.equal(c.state.editSel,null);
+});
+
+test('Node editing admits administrators and owners while viewer routes stay read-only',()=>{
+ for(const role of ['member','project-owner','outsourcing','lead','admin'])for(const user of ['一万','yokiguan']){
+  const c=vm.runInContext('new Component()',ctx);c.props.currentUser=user;c.props.currentRole=role;
+  c.setState({view:'pipeedit',editPipe:'web3d-ant-delivery-v1',editSel:'ref_search',pmPipelineView:false});
+  const allowed=user==='yokiguan' || ['lead','admin'].includes(role),pe=c.renderVals().pe;
+  assert.equal(pe.nodeEditor.editable,allowed);assert.equal(pe.canEdit,user==='yokiguan');
+  c.setState({pmPipelineView:true});assert(!c.renderVals().pe.nodeEditor.editable);
+  c.setState({view:'pipelines'});c.renderVals().pipelines.find(p=>p.name==='web3d-ant-delivery-v1').edit({stopPropagation(){}});assert.equal(c.state.pmPipelineView,!allowed);
+ }
+ assert(!built.includes('>连接边</div>'));assert(built.includes('按连线顺序执行'));
+});
+
+test('Saving a node versions its configuration and preserves other nodes plus historical runs',()=>{
+ const c=vm.runInContext('new Component()',ctx),key='web3d-ant-delivery-v1';c.props.currentRole='lead';
+ c.props.pipelineConfigs={[key]:{v16:{task:{fn:'original'},ref_search:{model:'configured-model',max_iterations:8}}}};
+ c.setState({view:'pipeedit',editPipe:key,editSel:'ref_search'});
+ const original=JSON.stringify(c.pipeData().find(p=>p.name===key)),runs=JSON.stringify(c.runsData());
+ let e=c.renderVals().pe.nodeEditor;assert.equal(e.config,'{\n  "model": "configured-model",\n  "max_iterations": 8\n}');assert(!e.demo);
+ e.onName({target:{value:'reference_search'}});e.onKind({target:{value:'LLM'}});e.onEnabled({target:{checked:false}});e.onConfig({target:{value:'{"model":"configured-model","max_iterations":12,"nested":{"enabled":false},"ids":[1,2]}'}});
+ c.renderVals().pe.nodeEditor.save();const next=c.pipeData().find(p=>p.name===key);
+ assert.equal(next.version,'v17');assert.equal(next.owner,'yokiguan');assert.equal(next.dag[2],'reference_search/LLM');assert.equal(next.enabledNodes.reference_search,false);
+ assert.equal(next.nodeConfigs.reference_search.max_iterations,12);assert.equal(next.nodeConfigs.reference_search.nested.enabled,false);assert.deepEqual(Array.from(next.nodeConfigs.reference_search.ids),[1,2]);
+ assert.equal(next.nodeConfigs.task.fn,'original');assert(!next.nodeConfigs.ref_search);
+ assert.equal(c.state.pmPipelineVersions[key].v16.nodeConfigs.ref_search.max_iterations,8);
+ const history={...c.state.pmPipelineVersions[key].v16};delete history.nodeConfigs;assert.equal(JSON.stringify(history),original);
+ assert.equal(JSON.stringify(c.runsData()),runs);assert.equal(c.state.editSel,'reference_search');assert(c.renderVals().pe.nodeEditor.cannotSave);
+ e=c.renderVals().pe.nodeEditor;e.onConfig({target:{value:JSON.stringify(next.nodeConfigs.reference_search)}});c.renderVals().pe.nodeEditor.save();assert.equal(c.pipeData().find(p=>p.name===key).version,'v17');
+});
+
+test('Node drafts survive switching and validate JSON, unique names and concurrent edits',()=>{
+ const c=vm.runInContext('new Component()',ctx),key='web3d-ant-delivery-v1';c.props.currentRole='lead';c.setState({view:'pipeedit',editPipe:key,editSel:'ref_search'});
+ let e=c.renderVals().pe.nodeEditor;e.onConfig({target:{value:'invalid'}});e.save();assert.match(c.renderVals().pe.nodeEditor.error,/JSON/);
+ c.pmOpenNodeDrawer('task',{detail:1});assert(!c.renderVals().pe.nodeEditor.dirty);c.pmOpenNodeDrawer('ref_search',{detail:1});assert.equal(c.renderVals().pe.nodeEditor.config,'invalid');
+ e=c.renderVals().pe.nodeEditor;e.onConfig({target:{value:'[]'}});e.save();assert.match(c.renderVals().pe.nodeEditor.error,/JSON/);
+ e=c.renderVals().pe.nodeEditor;e.onConfig({target:{value:'{}'}});e.onName({target:{value:'task'}});e.save();assert.match(c.renderVals().pe.nodeEditor.error,/已存在/);
+ e=c.renderVals().pe.nodeEditor;e.reset();assert(c.renderVals().pe.nodeEditor.cannotSave);assert.equal(c.pipeData().find(p=>p.name===key).version,'v16');
+ c.renderVals().pe.nodeEditor.onConfig({target:{value:'{"limit":5}'}});
+ const pipe=c.pipeData().find(p=>p.name===key);c.setState({pmPipelineOverrides:{[key]:{...pipe,version:'v17'}}});c.renderVals().pe.nodeEditor.save();
+ assert.match(c.renderVals().pe.nodeEditor.error,/已更新/);assert.equal(c.pipeData().find(p=>p.name===key).version,'v17');
+ c.renderVals().pe.nodeEditor.reset();assert(!c.renderVals().pe.nodeEditor.error);
+});
+
+test('Stale node edit callbacks cannot write after role, account, route or selection changes',()=>{
+ for(const change of ['role','account','viewer','node','pipeline']){
+  const c=vm.runInContext('new Component()',ctx);c.props.currentRole='lead';c.setState({view:'pipeedit',editPipe:'web3d-ant-delivery-v1',editSel:'ref_search'});
+  const e=c.renderVals().pe.nodeEditor;e.onConfig({target:{value:'{"limit":5}'}});
+  if(change==='role')c.props.currentRole='member';if(change==='account')c.props.currentUser='another-admin';
+  if(change==='viewer')c.setState({pmPipelineView:true});if(change==='node')c.setState({editSel:'task'});if(change==='pipeline')c.setState({editPipe:'web3d-car'});
+  const before=JSON.stringify(c.state);e.onConfig({target:{value:'{"limit":9}'}});e.save();e.reset();assert.equal(JSON.stringify(c.state),before);
+ }
+});
+
+test('Node failures are scoped to execution evidence and resolved attempts remove failure markers',()=>{
+ const c=vm.runInContext('new Component()',ctx),pipeline='web3d-ant-delivery-v1';c.setState({view:'pipeedit',editPipe:pipeline,editSel:'prep_task'});
+ let pe=c.renderVals().pe;assert(pe.nodes.find(n=>n.name==='prep_task').failed);assert(pe.failures[0].demo);assert.match(pe.failures[0].statusLabel,/示例/);
+ c.props.pipelineNodeExecutions=[];assert(!c.renderVals().pe.hasFailures);assert(!c.renderVals().pe.nodes.some(n=>n.failed));
+ c.props.pipelineNodeExecutions=[
+  {pipeline,version:'v16',runId:'failed-run',itemId:'item-a',node:'prep_task',status:'failed',occurredAt:'2026-09-04T09:00:00Z',error:{code:'BAD_INPUT',message:'缺少 subject 字段'}},
+  {pipeline:'another-pipeline',version:'v16',runId:'wrong-run',node:'prep_task',status:'failed'},
+  {pipeline,version:'v16',runId:'success-run',node:'task',status:'success',error:'旧错误'}
+ ];
+ pe=c.renderVals().pe;assert.equal(pe.failures.length,1);assert.equal(pe.failures[0].errorCode,'BAD_INPUT');assert.equal(pe.failures[0].runId,'failed-run');assert(!pe.failures[0].demo);assert.equal(pe.nodes.find(n=>n.name==='task').failed,false);
+ c.props.pipelineNodeExecutions.push({...c.props.pipelineNodeExecutions[0],status:'success',occurredAt:'2026-09-04T09:01:00Z'});
+ assert(!c.renderVals().pe.hasFailures);
+ c.props.itemExecution={'item-b':{'from-item':{pipeline:{name:pipeline,version:'v15'},nodes:{prep_task:{status:'failed',error:'读取输入失败'}}}}};
+ pe=c.renderVals().pe;assert.equal(pe.failures[0].version,'v15');assert.equal(pe.failures[0].itemId,'item-b');assert.equal(pe.failures[0].errorMessage,'读取输入失败');
+});
+
+test('Unconnected issue sync names the future group and never claims successful delivery',async()=>{
+ const c=vm.runInContext('new Component()',ctx);c.setState({view:'pipeedit',editPipe:'web3d-ant-delivery-v1',editSel:'prep_task'});
+ let failure=c.renderVals().pe.failures[0];assert.match(failure.syncTarget,/Forge任务报错群 · 待接入/);
+ await failure.sync();failure=c.renderVals().pe.failures[0];assert.equal(failure.syncLabel,'同步问题');assert.match(failure.message,/尚未接入.*暂未发送/);assert(!failure.syncDisabled);
+});
+
+test('Issue sync guards duplicates and stale nodes and only reports confirmed adapter success',async()=>{
+ const c=vm.runInContext('new Component()',ctx);c.setState({view:'pipeedit',editPipe:'web3d-ant-delivery-v1',editSel:'prep_task'});
+ let finish,calls=[];c.props.syncPipelineNodeIssue=payload=>{calls.push(payload);return new Promise(resolve=>{finish=resolve;});};
+ const failure=c.renderVals().pe.failures[0],pending=failure.sync();assert.equal(c.renderVals().pe.failures[0].syncLabel,'同步中…');
+ await failure.sync();assert.equal(calls.length,1);assert.equal(calls[0].groupName,'Forge任务报错群');assert.equal(calls[0].issue.node,'prep_task');assert(calls[0].issue.demo);assert(!('config' in calls[0].issue));
+ finish({ok:true});await pending;assert.equal(c.renderVals().pe.failures[0].syncLabel,'已同步');await failure.sync();assert.equal(calls.length,1);
+ c.setState({pmNodeIssueSync:{},editSel:'task'});await failure.sync();assert.equal(calls.length,1);
+ c.setState({editSel:'prep_task'});c.props.syncPipelineNodeIssue=async()=>({ok:false,message:'群机器人拒绝接收'});await failure.sync();assert.equal(c.renderVals().pe.failures[0].syncLabel,'同步问题');assert.match(c.renderVals().pe.failures[0].message,/拒绝/);
+ c.props.syncPipelineNodeIssue=async()=>{throw Error('timeout');};await failure.sync();assert.equal(c.renderVals().pe.failures[0].syncLabel,'结果待确认');assert(c.renderVals().pe.failures[0].syncDisabled);
+});
+
+test('sheet review references stay on their exact Item, Run and round and preserve full feedback',()=>{
+ const c=vm.runInContext('new Component()',ctx),item='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f',run='20260825-034505-c19f2a';
+ const images=[{name:'屋顶参考',url:'data:image/png;base64,aGVsbG8='},{name:'细节',url:'/reference.png'},{name:'unsafe',url:'javascript:alert(1)'},{url:'/loading.png',loading:true}];
+ c.state.repairRuns={[run+':'+item]:{round:2,note:'第二轮：'+ '请保留此处的完整修改要求。'.repeat(10),attachments:images}};
+ c.setState({view:'sheet',sheetKey:'ant200',sheetRow:item});
+ const rounds=c.renderVals().sheet.pick.rounds;
+ assert.equal(rounds[0].referenceImages.length,0);assert.equal(rounds[1].referenceImages.length,2);assert.equal(rounds[2].referenceImages.length,0);
+ assert(rounds[1].needsMore);assert(!rounds[1].note.startsWith('第二轮'));
+ assert.equal(c.pmSheetReviewImages('other',run,2).length,0);assert.equal(c.pmSheetReviewImages(item,'other',2).length,0);
+ assert.equal(c.pmCleanReviewNote('第三轮：检查屋顶'), '检查屋顶');
+ assert.equal(c.pmCleanReviewNote('这里提到第二轮：请保留'), '这里提到第二轮：请保留');
+ rounds[0].branch({stopPropagation(){}});assert.equal(c.state.branchAsk.round,1);
+});
+
+test('appended review photos remain with their saved feedback after the upload draft is cleared',()=>{
+ const c=vm.runInContext('new Component()',ctx),item='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f',click={stopPropagation(){},preventDefault(){}};
+ c.setState({view:'sheet',sheetKey:'ant200',sheetRow:item});
+ c.renderVals().sheet.pick.appendRework(click);
+ c.renderVals().sheet.pick.onReworkText({target:{value:'第三轮：调整材质'}});
+ c.setFeedbackImages('sheet:'+item,[{id:'photo',name:'材质参考',url:'data:image/png;base64,aGVsbG8=',size:5,loading:false}],'');
+ c.renderVals().sheet.pick.submitRework(click);
+ c.setFeedbackImages('sheet:'+item,[],'');
+ const round=c.renderVals().sheet.pick.appendedRounds.at(-1);
+ assert.equal(round.note,'调整材质');assert.equal(round.referenceImages.length,1);assert.equal(round.referenceImages[0].name,'材质参考');
+ assert.equal(c.state.appendedRework[item].note,'第三轮：调整材质');
 });

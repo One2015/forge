@@ -2,7 +2,7 @@
 // Never linked from the app. Delete generated public/profile-qa-fixture.html after QA.
 import fs from 'node:fs';
 
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const opening = '<script type="__bundler/template">', closing = '\n</script>\n</body>\n</html>';
 const start = source.indexOf(opening), end = source.lastIndexOf(closing);
 let template = JSON.parse(source.slice(start + opening.length, end).trim());

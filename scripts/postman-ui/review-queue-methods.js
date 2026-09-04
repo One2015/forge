@@ -22,15 +22,29 @@
         if (claim) throw Error('该任务已由 ' + claim + ' 领取，正在审核中。');
         if (this.state.reworkDrafts?.[row.key]) throw Error('该任务已有审核草稿，正在审核中。');
         if ((this.state.reviewDecisions || {})[row.key] === 'pass' || this.state.reworkSent?.[row.key]) throw Error('该任务已有审核结果，请刷新后查看。');
-        this.setState({ queueBusy: '', reviewClaims: { ...this.state.reviewClaims, [row.key]: me } });
+        this.setState({ queueBusy: '', queuePreviewOnly: false, reviewClaims: { ...this.state.reviewClaims, [row.key]: me } });
         this.openReviewFocus(row.key);
       } catch (error) {
         this.setState({ queueBusy: '', queueError: error.message || '暂时无法打开任务，请刷新后重试。' });
       }
     };
   }
+  reviewQueuePreview(row) {
+    return event => {
+      event?.stopPropagation();
+      if (this.state.queueBusy) return;
+      this.setState({ queuePreviewOnly: true, queueError: '' });
+      this.openReviewFocus(row.key);
+    };
+  }
   reviewQueueValues({ rows, records, review, recs, runOfItem, me }) {
     const st = this.state;
+    // Previewing a claimed Item must not resume or alter another review session.
+    if (st.queuePreviewOnly) {
+      const noop = event => event?.stopPropagation();
+      review.items = (review.items || []).map(item => ({ ...item, pending: false, needsNote: false, notNeedsNote: true,
+        pass: noop, rework: noop, cancelNote: noop, submitNote: noop }));
+    }
     const now = Date.now();
     const submittedAt = this._queueClock || (this._queueClock = now);
     const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
@@ -78,8 +92,8 @@
         roundLabel: '第 ' + n + ' 轮', timeLabel: time(stamp), timeFull: fullTime(stamp),
         issue: issue ? '上次问题：' + issue : '', hasIssue: !!issue,
         preview, hasPreview: !!preview, noPreview: !preview, imageError:()=>this.taskLinkImageError(preview), is3D: !!r.ds?.web3d, isWeb: !r.ds?.web3d,
-        owned: mine, actionTone: mode, actionLabel: st.queueBusy === r.key ? '打开中…' : ({start:'开始审核', reviewing:'审核中', progress:'查看进度'})[mode],
-        busy: st.queueBusy === r.key, actionDisabled: reviewing || st.queueBusy === r.key, action: this.reviewQueueAction(r, mode), open: this.reviewQueueAction(r, mode),
+        owned: mine, actionTone: mode, actionLabel: st.queueBusy === r.key ? '打开中…' : ({start:'人工审核', reviewing:'审核中', progress:'查看进度'})[mode],
+        busy: st.queueBusy === r.key, actionDisabled: reviewing || st.queueBusy === r.key, action: this.reviewQueueAction(r, mode), open: reviewing ? this.reviewQueuePreview(r) : this.reviewQueueAction(r, mode),
         hasHistory: false, history: details(id, r.rec.id, r.ds?.name), claimLabel: reviewing ? (claim || '当前用户') + ' 正在审核' : blocked ? '产物尚不可审核，可查看运行进度' : '尚未领取' };
     });
     // Reuse completed records and the authored prior-round feedback. Never invent
@@ -122,11 +136,15 @@
     const page = Math.min(pages, Math.max(1, Number(st.queuePage) || 1));
     const hasFilters = !!query || owner !== 'all' || type !== 'all' || round !== 'all' || st.reviewSort === 'oldest' || !!st.queueToday;
     if (!done && review.focused) {
-      const navigable = filtered.filter(r => r.actionTone !== 'progress' && !r.actionDisabled);
+      const navigable = filtered.filter(r => r.actionTone !== 'progress' && (st.queuePreviewOnly || !r.actionDisabled));
       const index = navigable.findIndex(r => r.key === st.reviewOpen);
       review.positionLabel = (index < 0 ? 0 : index + 1) + ' / ' + navigable.length;
       review.cannotSwitch = navigable.length < 2;
-      const move = delta => { if(navigable.length > 1) return navigable[(Math.max(0,index)+delta+navigable.length)%navigable.length].action(); };
+      const move = delta => {
+        if (navigable.length < 2) return;
+        const target = navigable[(Math.max(0,index)+delta+navigable.length)%navigable.length];
+        return st.queuePreviewOnly ? this.reviewQueuePreview(target)() : target.action();
+      };
       review.next = () => move(1); review.previous = () => move(-1);
     }
     return {

@@ -3,14 +3,19 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {buildPostman} from './postman-ui/build.mjs';
-const source=fs.readFileSync(new URL('../public/forge.html',import.meta.url),'utf8');
+const source=fs.readFileSync(new URL('./templates/forge-base.html',import.meta.url),'utf8');
 const built=JSON.parse(buildPostman(source).split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const logic=built.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 function fixture(){const copied=[];const ctx=vm.createContext({URL,URLSearchParams,TextDecoder,TextEncoder,Blob,setTimeout:()=>0,clearTimeout(){},navigator:{clipboard:{writeText:async id=>copied.push(id)}},window:{location:{search:''}},DCLogic:class{props={hasRuns:true,hasResources:true,currentUser:'一万'};setState(p){this.state={...this.state,...p}}}});vm.runInContext(logic+';globalThis.c=new Component();globalThis.api=ForgeRunRecords;globalThis.codec=ForgeRoutes;',ctx);Object.assign(ctx.c.state,ctx.codec.read('/production/runs').patch);return {...ctx,q:()=>ctx.c.renderVals().runs,copied};}
-test('existing records compute summary without confusing item failure with run failure',()=>{const {q}=fixture();assert.equal(q().kpis[0].value,2);assert.equal(q().kpis[1].value,45);assert.equal(q().kpis[2].value,2);assert.equal(q().kpis[4].value,'97.6%');const partial=q().rows.find(r=>r.id==='20260825-034505-c19f2a');assert.equal(partial.statusLabel,'运行完成');assert.equal(partial.progress,'21 待审核 · 3 失败 / 24');});
+test('existing records compute summary without confusing item failure with run failure',()=>{const {q}=fixture();assert.equal(q().kpis[0].value,2);assert.equal(q().kpis[1].value,45);assert.equal(q().kpis[2].value,2);assert.equal(q().kpis.length,3);const partial=q().rows.find(r=>r.id==='20260825-034505-c19f2a');assert.equal(partial.statusLabel,'运行完成');assert.equal(partial.progress,'21 待审核 · 3 失败 / 24');});
 test('calendar-day cost, comparison and weighted model success are calculated independently',()=>{const {api}=fixture(),now=new Date(2026,8,3,12).getTime();const r=(id,at,cost)=>({id,n:1,done:1,running:0,failed:0,status:'success',startedAt:at,cost});const out=api.calculate([r('a',now-1000,'$100'),r('b',now-86400000,'$50')],{now,telemetry:[{runId:'a',calls:100,successes:80},{runId:'b',calls:900,successes:900}]});assert.equal(out.todayCost,100);assert.equal(out.delta,'较昨日 +100.0%');assert.equal(out.modelLabel,'98.0%');assert.equal(api.calculate([],{now}).modelLabel,'—');});
 test('KPI toggle, status, search and owner filters compose and reset',()=>{const {q}=fixture();q().kpis[2].pick();assert.equal(q().total,2);q().onQuery({target:{value:'web3d-car'}});assert.equal(q().total,1);q().toggleMine();assert.equal(q().total,0);q().clear();assert.equal(q().total,9);assert(!q().hasFilters);q().kpis[0].pick();assert.equal(q().total,2);q().kpis[0].pick();assert.equal(q().total,9);q().filters.find(f=>f.label==='运行完成').pick();assert.equal(q().total,5);});
-test('today and model cards apply list predicates, external telemetry overrides fixture',()=>{const {c,q}=fixture();q().kpis[3].pick();assert(q().rows.every(r=>r.today));q().clear();c.props.runTelemetry=[{runId:c.runsData()[0].id,calls:10,successes:9}];assert.equal(q().kpis[4].value,'90.0%');q().kpis[4].pick();assert.equal(q().total,1);});
+test('retired cost and model cards do not filter runs; real model usage overrides the demo',()=>{
+ const {c,q}=fixture();
+ for(const metric of ['cost','models']){c.state.runsMetric=metric;assert.equal(q().total,9);assert(!q().hasMetric);assert(!q().hasFilters);}
+ const run=c.runsData()[0];c.props.runTelemetry=[{runId:run.id,calls:10,successes:9,modelName:'Actual model'}];
+ const models=c.runModelSummary(run);assert.equal(models.names.length,1);assert.equal(models.names[0].name,'Actual model');assert(!models.mock);
+});
 test('one primary action per row opens existing detail, failure item or review flow',()=>{const {c,q}=fixture();const partial=q().rows.find(r=>r.counts.failed&&r.state==='completed');assert.equal(partial.actionLabel,'查看失败项');partial.action();assert.equal(c.state.view,'run');assert.equal(c.state.activeRun,partial.id);assert.equal(c.state.runItem,partial.id+':21');c.state.view='runs';const review=q().rows.find(r=>r.actionLabel==='去审核');review.action();assert.equal(c.state.view,'review');assert.equal(c.state.reviewRun,review.id);});
 test('copy succeeds and errors produce truthful feedback without navigation',async()=>{const {c,q,copied,navigator}=fixture();await c.copyRunRecordId(q().rows[0].id);assert.equal(copied.length,1);assert.match(c.state.runsNotice,/已复制/);assert.equal(c.state.view,'runs');navigator.clipboard.writeText=async()=>{throw Error('denied')};await c.copyRunRecordId('test');assert.match(c.state.runsNotice,/复制失败/);});
 test('pagination and URLs preserve all list filters',()=>{const {c,q,codec}=fixture();const rows=c.runsData();c.runsData=()=>Array.from({length:23},(_,i)=>({...rows[i%rows.length],id:'r'+i}));assert.equal(q().pages,3);q().next();assert.equal(q().page,2);q().setSize({target:{value:'20'}});assert.equal(q().page,1);assert.equal(q().rows.length,20);for(const status of ['queued','cancelled','completed','failed']){const a=codec.read('/production/runs?status='+status+'&metric=cost&page=2&size=20&owner=mine&q=car');const b=codec.read(codec.write(a.patch));for(const key of ['runsFilter','runsMetric','runsPage','runsPageSize','runsMine','runsQuery'])assert.equal(b.patch[key],a.patch[key]);}});
@@ -27,8 +32,12 @@ test('execution duration prefers real timings and explicitly marks legacy snapsh
  assert.equal(api.calculate([{...base,id:'unknown',createdAt:900000}],{now}).rows[0].duration,null);
  assert.equal(api.calculate([{...base,status:'queued'}],{now}).rows[0].duration,0);
 });
-test('row navigation replaces duplicate detail buttons and empty menus are omitted',()=>{
- const {c,q}=fixture();assert(q().rows.every(r=>!r.menu.some(m=>m.label==='查看详情')));assert(q().rows.every(r=>r.hasMenu===(r.menu.length>0)));
- const live=q().rows.find(r=>r.state==='running');assert(!live.hasAction);live.open();assert.equal(c.state.activeRun,live.id);assert.equal(c.state.view,'run');
- const html=fs.readFileSync(new URL('./postman-ui/run-records.html',import.meta.url),'utf8');assert.doesNotMatch(html,/fg-result-count/);assert.match(html,/r.hasAction/);assert.match(html,/r.hasMenu/);
+test('every execution state has one visible operation and no overflow menu',()=>{
+ const {c,q}=fixture();assert(q().rows.every(r=>r.actionLabel && typeof r.action==='function'));
+ const live=q().rows.find(r=>r.state==='running');assert.equal(live.actionLabel,'查看进度');let stopped=false;live.action({stopPropagation(){stopped=true;}});assert(stopped);assert.equal(c.state.activeRun,live.id);assert.equal(c.state.view,'run');
+ const source=c.runsData()[0];
+ c.runsData=()=>['running','queued','cancelled','success','failed'].map(status=>({...source,id:'state-'+status,status,n:1,done:status==='success'?1:0,running:status==='running'?1:0,failed:status==='failed'?1:0,approved:status==='success'?1:0,itemIds:['item-'+status]}));
+ const labels={running:'查看进度',queued:'查看详情',cancelled:'查看详情',completed:'查看结果',failed:'查看原因'};
+ for(const row of q().rows){assert.equal(row.actionLabel,labels[row.state]);row.action();assert.equal(c.state.view,'run');assert.equal(c.state.activeRun,row.id);}
+ const html=fs.readFileSync(new URL('./postman-ui/run-records.html',import.meta.url),'utf8');assert.doesNotMatch(html,/rr-more|rr-menu|r.hasMenu|r.hasAction/);assert.match(html,/<div class="rr-operations" role="cell"><button/);
 });

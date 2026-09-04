@@ -1,7 +1,7 @@
 /* Verified page patterns: overview, resource lists, analysis, forms, and review. */
 .forge-postman .forge-overview-summary{gap:0;border-block:1px solid var(--pm-border);padding-block:0;margin-bottom:24px}
-.forge-postman .forge-summary-card{border:0;border-right:1px solid var(--pm-border);border-radius:0;padding:22px 20px;background:transparent;min-height:146px;box-shadow:none}
-.forge-postman .forge-summary-card:first-child{padding-left:0}.forge-postman .forge-summary-card:last-child{border-right:0}
+.forge-postman .forge-summary-card{border:0;border-right:1px solid var(--pm-border);border-radius:0;padding:22px var(--pm-summary-inset);background:transparent;min-height:146px;box-shadow:none}
+.forge-postman .forge-summary-card:last-child{border-right:0}
 .forge-postman .forge-summary-value strong{font-size:26px;line-height:36px;font-weight:600;letter-spacing:-.5px}
 .forge-postman .forge-summary-title{font-size:12px;color:var(--pm-muted)}
 .forge-postman .forge-summary-note{font-size:12px;line-height:20px}
@@ -65,7 +65,7 @@
 .forge-postman .forge-billing-chart{border:0;border-top:1px solid var(--pm-border);border-bottom:1px solid var(--pm-border);border-radius:0;padding:16px 0 8px}
 .forge-postman .forge-billing-chart header{margin-bottom:16px}
 .forge-postman .forge-billing-bar-space{background-image:linear-gradient(to bottom,transparent calc(50% - 1px),var(--pm-border) 50%,transparent calc(50% + 1px));border-top:1px solid var(--pm-border)}
-.forge-postman .forge-billing-cost-bar{background:var(--pm-brand)}
+.forge-postman .forge-billing-cost-bar{background:var(--pm-focus)}
 .forge-postman .forge-billing-input-bar,.forge-postman .forge-billing-input-key{background:var(--pm-brand-deep)}
 .forge-postman .forge-billing-output-bar,.forge-postman .forge-billing-output-key{background:var(--pm-brand-pale)}
 .forge-postman .forge-billing-x{font-size:11px}.forge-postman .forge-billing-y{font-size:12px}
@@ -117,7 +117,7 @@
 .forge-postman .pm-page-pipelines [data-pm-click=true]>div:first-child{min-width:0}
 .forge-postman .review-queue-card-header{height:auto!important;min-height:88px!important}
 .forge-postman .review-queue-card-header>div:first-child{height:52px!important}
-@media(max-width:1100px){.forge-postman .pm-page-pipelines>div:last-child{overflow-x:auto}.forge-postman .pm-page-pipelines>div:last-child>div{min-width:900px}.forge-postman .pm-dataset-split{flex-direction:column}.forge-postman .pm-dataset-split>div:first-child{width:100%;height:290px!important;min-height:0;flex:none!important;position:relative!important;top:auto!important}.forge-postman .pm-dataset-split>div:last-child{width:100%!important;min-width:0!important;height:600px!important;position:relative!important;top:auto!important}.forge-postman .forge-dataset-resizer{display:none}}
+@media(max-width:1100px){.forge-postman .pm-dataset-split{flex-direction:column}.forge-postman .pm-dataset-split>div:first-child{width:100%;height:290px!important;min-height:0;flex:none!important;position:relative!important;top:auto!important}.forge-postman .pm-dataset-split>div:last-child{width:100%!important;min-width:0!important;height:600px!important;position:relative!important;top:auto!important}.forge-postman .forge-dataset-resizer{display:none}}
 @media(max-width:760px){.forge-postman .review-queue-card-header>div:first-child{display:none}.forge-postman .review-queue-card-header>div:last-child{grid-column:2;grid-row:1}.forge-postman .pm-page-pipelines>div:last-child{max-width:100%}}
 
 .forge-postman .pm-pipeline-editor{height:calc(100dvh - 40px)!important;min-height:440px}
@@ -130,7 +130,7 @@
 .forge-postman [data-pm-primary=true] kbd{color:var(--pm-on-action);border-color:var(--pm-action-border);background:transparent}
 .forge-postman :is(.forge-delivery-validation,.forge-delivery-required,.forge-delivery-field>label>span){color:var(--pm-danger)}
 .forge-postman .forge-delivery-editor [aria-invalid=true]{border-color:var(--pm-danger)}
-.forge-postman .forge-billing-bar-slot[aria-pressed=true] .forge-billing-cost-bar{background:var(--pm-brand);box-shadow:inset 0 0 0 1px var(--pm-nav)}
+.forge-postman .forge-billing-bar-slot[aria-pressed=true] .forge-billing-cost-bar{background:var(--pm-text);box-shadow:inset 0 0 0 1px var(--pm-text)}
 .forge-postman .forge-billing-bar-slot[aria-pressed=true] .forge-billing-bar-space{border-bottom-color:var(--pm-text)}
 .forge-postman .forge-sidebar :is(.forge-sidebar-tool,.forge-sidebar-profile)[aria-expanded=true]{box-shadow:inset 0 0 0 1px var(--pm-control)}
 
@@ -138,7 +138,7 @@
 .forge-postman .forge-billing-metrics{gap:0;padding:13px 0;margin-top:4px}
 /* Static metrics share one surface; total cost is not a selectable card. */
 .forge-postman .forge-billing-metrics>div{border:0;border-radius:0;padding:0 20px;background:transparent}
-.forge-postman .forge-billing-metrics>div:first-child{padding-left:8px}
+
 .forge-postman .pm-metric-title{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px}
 .forge-postman .pm-metric-help{display:inline-flex;flex:none;width:28px;height:28px;margin:-4px -4px -4px 0}
 .forge-postman .pm-metric-help .forge-summary-info{position:relative;min-height:28px;padding:0}
@@ -151,8 +151,8 @@
 .forge-postman .forge-billing-metrics dd{color:var(--pm-text);font-weight:600}
 .forge-postman .forge-billing-insight{background:transparent;border-radius:0}
 .forge-postman .forge-billing-chart{padding:14px 0 8px;border-top:1px solid var(--pm-border);border-bottom:1px solid var(--pm-border)}
-.forge-postman .forge-billing-cost-bar{background:var(--pm-brand)}
-.forge-postman .forge-billing-bar-slot:is(:hover,:focus-visible,[aria-pressed=true]) .forge-billing-cost-bar{background:var(--pm-nav)}
+.forge-postman .forge-billing-cost-bar{background:var(--pm-focus)}
+.forge-postman .forge-billing-bar-slot:is(:hover,:focus-visible,[aria-pressed=true]) .forge-billing-cost-bar{background:var(--pm-text)}
 .forge-postman .forge-billing-bar-slot:is(:hover,:focus-visible){background:var(--pm-canvas)}
 .forge-postman .forge-billing-bar-space{border-top-color:var(--pm-border);background-image:linear-gradient(to bottom,transparent calc(50% - 1px),var(--pm-border) 50%,transparent calc(50% + 1px))}
 .forge-postman .forge-billing-input-key,.forge-postman .forge-billing-output-key{border-radius:50%}
@@ -269,8 +269,7 @@
 /* Same summary layout as overview and production, with six categories. */
 .forge-postman .pm-model-summary.forge-overview-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin:16px 0 0}
 .forge-postman .pm-model-summary .forge-summary-card:last-child{grid-column:auto}
-.forge-postman .pm-model-summary-item[data-selected=true]::after{content:"";position:absolute;bottom:0;left:20px;right:20px;height:2px;background:var(--pm-brand);pointer-events:none}
-.forge-postman .pm-model-summary-item:first-child[data-selected=true]::after{left:0}
+.forge-postman .pm-model-summary-item[data-selected=true]::after{content:"";position:absolute;bottom:0;left:var(--pm-summary-inset);right:var(--pm-summary-inset);height:2px;background:var(--pm-brand);pointer-events:none}
 .forge-postman .forge-model-table{min-width:1140px}
 .forge-postman .forge-model-table-head,.forge-postman .forge-model-table-row{grid-template-columns:88px minmax(80px,.7fr) minmax(136px,1.1fr) 94px minmax(145px,1.2fr) minmax(125px,1fr) 80px minmax(105px,.9fr) minmax(140px,1.15fr)}
 .forge-postman .pm-model-provider,.forge-postman .pm-model-name{color:var(--pm-text);line-height:20px;overflow-wrap:normal}
@@ -278,10 +277,9 @@
 .forge-postman .forge-model-table .forge-model-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
 @media(max-width:1100px){
  .forge-postman .pm-model-summary.forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
- .forge-postman .pm-model-summary .forge-summary-card{padding:22px 20px;border-right:1px solid var(--pm-border)}
+ .forge-postman .pm-model-summary .forge-summary-card{padding:22px 14px;border-right:1px solid var(--pm-border)}
  .forge-postman .pm-model-summary .forge-summary-card:nth-child(3n){border-right:0}
  .forge-postman .pm-model-summary .forge-summary-card:nth-child(-n+3){border-bottom:1px solid var(--pm-border)}
- .forge-postman .pm-model-summary-item:first-child[data-selected=true]::after{left:20px}
 }
 @media(max-width:760px){
  .forge-postman .pm-model-summary.forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -327,6 +325,9 @@
 .forge-postman .pm-photo-slot .pm-photo-remove{position:absolute;top:3px;right:3px;width:24px;height:24px;padding:0;border:1px solid var(--pm-control);border-radius:4px;background:#fff;color:var(--pm-text)}
 .forge-postman .pm-photo-help{margin:2px 0 0;font-size:11px;line-height:18px;color:var(--pm-muted);overflow-wrap:anywhere}
 .forge-postman .pm-photo-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.forge-postman .forge-sheet-feedback .pm-photo-slots{grid-template-columns:repeat(4,minmax(0,1fr));max-width:344px;gap:8px;padding:2px 1px 4px}
+.forge-postman .forge-sheet-feedback .pm-photo-cell{position:relative}
+.forge-postman .forge-sheet-feedback .pm-photo-filled+.pm-photo-number{position:absolute;bottom:4px;left:4px;margin:0;padding:0 4px;border-radius:2px;background:rgba(255,255,255,.92);color:var(--pm-text);pointer-events:none}
 .forge-postman .forge-feedback-submit-context{display:block;background:transparent!important;border:0!important;border-radius:0;padding:0!important;margin-top:18px;color:var(--pm-muted);font-size:12px;line-height:1.65}
 .forge-postman .forge-feedback-submit-context>strong{display:block;font-size:12px;font-weight:400;color:var(--pm-muted);margin:0 0 3px}
 .forge-postman .forge-feedback-submit-context>span{font-size:12px;color:var(--pm-muted)}
@@ -351,3 +352,15 @@
 .forge-postman .pm-life-photos .pm-photo-slots{grid-template-columns:repeat(8,minmax(0,1fr))}
 @container(max-width:760px){.forge-postman .pm-life-photos .pm-photo-slots{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @container(max-width:360px){.forge-postman .pm-life-photos .pm-photo-slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* One symmetric inset for every summary cell, including the first and last. */
+.forge-postman{--pm-summary-inset:20px}
+.forge-postman .forge-summary-card .forge-summary-meta{margin-right:0}
+@media(max-width:1100px){
+ .forge-postman{--pm-summary-inset:14px}
+ .forge-postman .forge-billing-metrics>div{padding-inline:14px}
+}
+@media(max-width:760px){
+ .forge-postman{--pm-summary-inset:12px}
+ .forge-postman .forge-billing-metrics>div{padding-inline:12px}
+}

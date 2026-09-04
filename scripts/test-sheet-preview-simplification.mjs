@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { simplifySheetPreview } from './simplify-sheet-preview.mjs';
 
 const read = name => fs.readFileSync(new URL(name, import.meta.url), 'utf8');
-const raw = read('../public/forge.html');
+const raw = read('./templates/forge-base.html');
 const decode = source => JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const template = decode(raw);
 const heading = template.match(/<!-- sheet-history-heading:start -->[\s\S]*?<!-- sheet-history-heading:end -->/)?.[0];

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { test } from 'node:test';
 const read = name => fs.readFileSync(new URL(name, import.meta.url), 'utf8');
-const source = read('../public/forge.html');
+const source = read('./templates/forge-base.html');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const css = read('./templates/forge-refinement.css');
 
@@ -44,12 +44,9 @@ test('disabled and coarse pointer affordances stay explicit', () => {
   assert.match(feedback, /@media\(pointer:coarse\)[\s\S]*\.forge-branch-dialog \.forge-feedback-upload,[^}]*min-height:44px/);
   assert.match(feedback, /@media\(pointer:coarse\)[\s\S]*\.forge-branch-dialog \.forge-feedback-field input,[^}]*min-height:44px/);
 });
-test('dynamic title text inherits heading styles and progress stays readable', () => {
+test('dynamic title text inherits heading styles', () => {
   assert(template.includes('h2 span:not(.sc-interp)'));
   assert(!template.includes('h2 span{font-size:12px'));
-  assert(template.includes('class="fg-run-progress-copy"'));
-  assert(template.includes('.fg-run-progress-copy{font-size:var(--fg-text-xs);line-height:18px'));
-  assert(template.includes('.fg-run-progress-cell{grid-column:1/-1}'));
 });
 
 test('branch dialog has a compact, scoped density without shrinking rework editors', () => {

@@ -153,8 +153,8 @@ function ArtifactPreview({ config, toolbarHost, linkHost }: { config: Config; to
     {toolbarHost ? createPortal(toolbar, toolbarHost) : toolbar}
     {linkHost && selected?.url && createPortal(<a href={selected.url} target="_blank" rel="noopener noreferrer">打开原始预览 ↗</a>, linkHost)}
     <div className="forge-artifact-content">
-      {mode === 'preview' ? selected?.url ? <Media key={selected.url} file={selected}/> : <span className="forge-artifact-sr-only" role="status">当前版本没有可预览的文件。</span> : toolbarHost && files.length ? <FileWorkspace files={files}/> : <div className="forge-artifact-files">
-        {!files.length ? <span className="forge-artifact-sr-only" role="status">当前版本没有可查看的文件。</span> : <ul aria-label="文件列表">{files.map(file => <li key={file.id}>
+      {mode === 'preview' ? selected?.url ? <Media key={selected.url} file={selected}/> : <p className={toolbarHost ? 'forge-artifact-empty-state' : 'forge-artifact-sr-only'} role="status">当前版本没有可预览的文件。</p> : toolbarHost && files.length ? <FileWorkspace files={files}/> : <div className="forge-artifact-files">
+        {!files.length ? <p className={toolbarHost ? 'forge-artifact-empty-state' : 'forge-artifact-sr-only'} role="status">当前版本没有可查看的文件。</p> : <ul aria-label="文件列表">{files.map(file => <li key={file.id}>
           <Icon svg={file.kind === 'model' ? cube : file.kind === 'image' ? picture : list}/>
           <div className="forge-artifact-file-name"><span title={file.name}>{file.name}</span><small>{fileSize(file.size)}</small></div>
           {file.url && file.kind !== 'file' && <button type="button" aria-label={'预览 ' + file.name} onClick={() => { setSelection(file.id); setMode('preview'); }}>预览</button>}

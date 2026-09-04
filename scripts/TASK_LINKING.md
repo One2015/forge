@@ -9,7 +9,7 @@
 - `templates/task-link-methods.js`：来源解析、关联版本、校验、搜索、历史与通知。
 - `templates/delivery-methods.js`：交付清单／指标增量、稳定 List 身份与绑定 Skill 范围。
 - `templates/feedback-methods.js`：关联候选反馈沿用来源 Item／Run 身份。
-- `implement-task-linking.mjs`：向 `public/forge.html` 注入代码、HTML、CSS、Phosphor Regular SVG，以及候选审核身份修正。
+- `implement-task-linking.mjs`：向 `scripts/templates/forge-base.html` 注入代码、HTML、CSS、Phosphor Regular SVG，以及候选审核身份修正。
 
 入口覆盖交付 Item 详情、生命周期／分支详情、单 Item Run、Run Item 及审核工作台。详情入口统一为 Item ID 旁的 Phosphor `pencil-simple` 图标；原生悬停提示和 accessible name 均为“更换关联任务”，modal 标题同名。不再在标题或行操作中显示大号关联按钮。已可交付的分支主操作仍可进入关联；多 Item Run 不把整次运行当作一个来源。入口会重新检查来源，未完成、失败、排队、已返工或不存在的来源以 warning 阻止打开。
 

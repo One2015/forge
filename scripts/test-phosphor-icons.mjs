@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { test } from 'node:test';
 
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const markup = template.slice(0, template.indexOf('<script type="text/x-dc"'));
@@ -28,7 +28,7 @@ test('every interface SVG uses unmodified official Phosphor Regular geometry', (
   const icons = svgs.filter(([, attrs]) => attrs.includes('data-phosphor'));
   const charts = svgs.filter(([, attrs]) => attrs.includes('data-chart'));
   // Includes branch progress connectors and compact record/remove actions.
-  assert.equal(icons.length, 202); // Creation restores the Skill chooser's caret, pencil and upload icons.
+  assert.equal(icons.length, 198); // The retired runs pilot no longer contributes four icons to the internal base.
   assert.equal(charts.length, 1); assert.match(charts[0][1], /data-chart="model-trend"/);
   const names = new Set();
   for (const [, attrs, geometry] of icons) {
@@ -46,7 +46,7 @@ test('every interface SVG uses unmodified official Phosphor Regular geometry', (
     assert.match(attrs, /focusable="false"/);
     assert(!attrs.includes('stroke-width='));
   }
-  assert.equal(names.size, 38);
+  assert.equal(names.size, 37);
   assert(template.includes('Phosphor Icons license'));
 });
 

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { test } from 'node:test';
 import { updateReviewQueueLayout } from './update-review-queue-layout.mjs';
 
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const open = '<script type="__bundler/template">', close = '\n</script>\n</body>\n</html>';
 const decode = input => JSON.parse(input.slice(input.indexOf(open) + open.length, input.lastIndexOf(close)).trim());
 const template = decode(source);

@@ -71,7 +71,7 @@
 
 新增 CSS 和状态保留逻辑位于 `scripts/templates/surface-motion.css`、`surface-motion-methods.js`；分段控件的 DOM 适配位于 `scripts/surface-motion-runtime.js`。
 
-文字型分段选项使用同一 Grid 单元叠放可见文字与隐藏的粗体宽度占位。同步器会移除旧按钮的内联 Flex／gap／文字对齐属性，避免隐藏占位被当成第二个横向元素而撑宽按钮；Geist 运行页的独立控件不受影响。
+文字型分段选项使用同一 Grid 单元叠放可见文字与隐藏的粗体宽度占位。同步器会移除旧按钮的内联 Flex／gap／文字对齐属性，避免隐藏占位被当成第二个横向元素而撑宽按钮；当前运行页的独立控件不受影响。
 
 依次执行 `node scripts/update-surface-motion.mjs`、`node scripts/update-flow-motion.mjs` 同步到页面。修改其他历史模板后，也应执行此同步；更新器是幂等的。原生弹窗和标签的标记同步保存在对应源模板中。
 

@@ -1,0 +1,66 @@
+  // pm-profile-skill-editor:start
+  pmProfileRelatedTasks(tasks,work) {
+    const identity=this.profileIdentity();
+    return tasks.filter(task=>task.key!=='ant200').flatMap(task=>{
+      const sheet=this.deliverySheet(task.key),member=this.deliverySheetMembers(sheet).find(value=>value.accountName===identity.accountName);
+      const relatedWork=work.filter(value=>value.assignee===identity.accountName && (value.itemIds || []).some(id=>task.itemIds.includes(id)));
+      const ownsProject=identity.key==='project-owner' && ((sheet?.projectIds || []).some(id=>identity.ownedProjects.includes(id)) || work.some(value=>identity.ownedProjects.includes(value.projectId) && (value.itemIds || []).some(id=>task.itemIds.includes(id))));
+      const isOwner=member?.role==='owner' || (!Array.isArray(sheet?.members) && (sheet?.createdBy || sheet?.ownerAccount)===identity.accountName);
+      let roleLabel='';
+      if(isOwner)roleLabel='Project Owner';
+      else if(member)roleLabel=this.deliveryMemberRoles().find(role=>role.key===member.role)?.label || '成员';
+      else if(ownsProject)roleLabel='Project Owner';
+      else if(relatedWork.some(value=>value.kind==='review'))roleLabel=identity.key==='outsourcing'?'Reviewer-Outsourcing':'Reviewer-Forge';
+      else if(relatedWork.length)roleLabel='任务发起人';
+      return roleLabel?[{...task,roleLabel}]:[];
+    });
+  }
+  pmPositionProfileSkillMenu(event) {
+    if(typeof document==='undefined')return;
+    const menu=document.getElementById('pm-profile-skill-create-menu'),trigger=event.currentTarget;
+    if(!menu || !trigger)return;
+    const rect=trigger.getBoundingClientRect(),width=Math.min(280,window.innerWidth-24),height=134;
+    const below=rect.bottom+6,top=below+height<=window.innerHeight-12?below:rect.top-height-6;
+    menu.style.width=width+'px';
+    menu.style.left=Math.max(12,Math.min(rect.right-width,window.innerWidth-width-12))+'px';
+    menu.style.top=Math.max(12,top)+'px';
+  }
+  pmCloseProfileSkillMenu() {
+    if(typeof document==='undefined')return;
+    const menu=document.getElementById('pm-profile-skill-create-menu');
+    if(menu?.matches(':popover-open'))menu.hidePopover();
+  }
+  pmPickProfileSkillFile() {
+    if(this.state.profileSkillDraft?.loading || this.personalProfileSkills().length>=12)return;
+    this.pmCloseProfileSkillMenu();
+    if(typeof document!=='undefined')document.getElementById('pm-profile-skill-file')?.click();
+  }
+  pmCreateProfileSkill() {
+    if(this.state.profileSkillDraft?.loading || this.personalProfileSkills().length>=12)return;
+    this.pmCloseProfileSkillMenu();
+    const owner=this.profileIdentity().accountName,id='profile-skills-'+(this._deliverySequence=(this._deliverySequence || 0)+1);
+    this.setState({profileTab:'skills',profileSkillNotice:'',profileSkillDraft:{id,owner,skills:[{id:'personal-'+Date.now()+'-'+this._deliverySequence,name:'',command:'',description:'',content:'',filename:'SKILL.md'}],loading:false,error:'',targetSheet:''}});
+  }
+  pmProfileSkillFields(skill,draft) {
+    const update=(field,event)=>{
+      const current=this.state.profileSkillDraft;
+      if(!current || current.id!==draft.id || current.owner!==this.profileIdentity().accountName || current.loading)return;
+      this.patchProfileSkillDraft({skills:current.skills.map(row=>row.id===skill.id?{...row,[field]:event.target.value}:row),error:''});
+    };
+    return {descriptionLabel:skill.filename+' 的描述',contentLabel:skill.filename+' 的指令',
+      onDescription:event=>update('description',event),onContent:event=>update('content',event)};
+  }
+  saveProfileSkills() {
+    const draft=this.state.profileSkillDraft;
+    if(!draft || this.profileSkillDraftIssue())return;
+    this.pmLegacySaveProfileSkills();
+    if(this.state.profileSkillDraft)return;
+    // Keep the author's reusable library definition current; existing orders retain their saved snapshots.
+    const mine=this.personalProfileSkills(),changed=new Set(draft.skills.map(skill=>skill.id));
+    const createdPlatformSkills=(this.state.createdPlatformSkills || []).map(skill=>{
+      const updated=mine.find(row=>changed.has(row.id) && row.owner===skill.owner && row.id===skill.id);
+      return updated?{...skill,name:updated.name,command:updated.command,description:updated.description,content:updated.content,size:updated.size}:skill;
+    });
+    this.setState({createdPlatformSkills,profileSkillNotice:draft.editId?'Skill 已更新。':this.state.profileSkillNotice});
+  }
+  // pm-profile-skill-editor:end

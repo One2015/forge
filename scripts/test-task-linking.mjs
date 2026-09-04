@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { test } from 'node:test';
 import { updateTaskLinkSelection } from './update-task-link-selection.mjs';
 
-const raw = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const raw = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const template = JSON.parse(raw.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 function component() {

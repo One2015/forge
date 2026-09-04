@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const file = new URL('../public/forge.html', import.meta.url);
+const file = new URL('./templates/forge-base.html', import.meta.url);
 const source = fs.readFileSync(file, 'utf8');
 const open = '<script type="__bundler/template">';
 const close = '\n</script>\n</body>\n</html>';

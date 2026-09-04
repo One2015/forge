@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { updateDeliveryCustomerHeading } from './update-delivery-customer-heading.mjs';
 
 const read = path => fs.readFileSync(new URL(path, import.meta.url), 'utf8');
-const source = read('../public/forge.html');
+const source = read('./templates/forge-base.html');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const heading = read('./templates/delivery-customer-heading.html').trimEnd();
 const css = read('./templates/delivery-workflows.css').trimEnd();

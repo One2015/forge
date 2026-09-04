@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { updateOverviewSummary } from './update-overview-summary.mjs';
 import { updateReviewQueueLayout } from './update-review-queue-layout.mjs';
 
-const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const decode = input => JSON.parse(input.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const template = decode(source);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];

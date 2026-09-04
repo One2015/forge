@@ -8,7 +8,7 @@
 
 | 入口 | 职责 |
 | --- | --- |
-| `public/forge.html` | 原型来源与比较基线。本变体生成器只读，不回写；制作期间的并行路由更新保留。 |
+| `scripts/templates/forge-base.html` | 内部业务模板与模拟数据，生成器只读；不作为独立页面发布。 |
 | `scripts/postman-ui/build.mjs` | 解析原型内嵌 JSON 模板，通过明确锚点生成变体，追加样式与行为入口，并检查业务脚本语法。 |
 | `scripts/postman-ui/delivery-rows.html` | 交付连续行的替换模板，沿用业务数据与回调。 |
 | `scripts/postman-ui/routes.js` | 包装现有路由读写，将变体地址保留在 `/forge-postman.html?route=…`，保留 hash、原路由 codec、历史行为和归属校验，并适配交付筛选枚举。 |
@@ -19,7 +19,7 @@
 | `public/forge-postman.html` | 生成产物，不直接手工维护。 |
 | `public/postman-ui/guide.html`、`review/index.html` | 可浏览规范与修改前后截图索引。 |
 
-CSS 按 tokens → workspace → pages 的顺序追加到原基础样式之后。新 Postman 规则在本变体内覆盖冲突的 Geist 视觉规则；默认原版开发流程仍使用原基础系统。保留既有表单、预览器、绘图能力和 Phosphor 图标，没有引入完整 Aether 组件库，也没有生成位图设计资产。
+CSS 按 primitives → tokens → workspace → pages 的顺序追加到内部业务模板的基础样式之后。`primitives.css` 仅保留当前运行页实际使用的原生控件与布局，使用当前 UI tokens。默认 dev/build 与 Postman 兼容命令统一生成当前入口。保留既有表单、预览器、绘图能力和 Phosphor 图标。
 
 兼容层含 `!important`、旧类名和少量行内样式匹配。新的结构优先添加 `pm-*` 或明确的 `data-pm-*` 钩子；不要继续扩大脆弱的行内字符串匹配。原模板锚点变化可能使生成器明确报错，需核对上游结构后修正，而非直接编辑产物。`behavior.mjs` 会跳过已有内部控件、SVG、覆盖层及停止传播的点击区域，其增强范围并非整站语义重构。
 
@@ -32,7 +32,7 @@ CSS 按 tokens → workspace → pages 的顺序追加到原基础样式之后�
 | [Postman 新版产品介绍](https://blog.postman.com/new-postman-is-here/) | 采用工作区分区与侧面板关系；结构继续参考产品分区；色彩采用最新 Genova 截图的角色分工。 |
 | [官方设计资源](https://design.learning.postman.com/) / [Aether Icons](https://design.learning.postman.com/icons) | 已核实公共 SVG 图标目录及资源入口。未取得完整组件源码或全量官方 tokens；继续复用已有图标。 |
 
-用户明确锁定 Postman 产品工作台，优先于概念抽签或新营销身份。`PRODUCT.md` 的成本业务约束仍适用；其中旧视觉延续要求在此变体内由用户确认的新规则覆盖，原版仍可比较。
+用户明确锁定 Postman 产品工作台，优先于概念抽签或新营销身份。`PRODUCT.md` 的成本业务约束仍适用，视觉以用户确认的当前工作台规则为准。
 
 ## 页面模式与维护检查
 

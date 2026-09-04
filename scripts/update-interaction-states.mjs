@@ -58,7 +58,7 @@ export function updateInteractionStates(source) {
   return source.slice(0, start + opening.length) + '\n' + JSON.stringify(t).replaceAll('</script>', '<\\u002Fscript>') + closing;
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const file = new URL('../public/forge.html', import.meta.url);
+  const file = new URL('./templates/forge-base.html', import.meta.url);
   const s = fs.readFileSync(file, 'utf8'), next = updateInteractionStates(s);
   if (s !== next) fs.writeFileSync(file, next);
   console.log('Unified interaction states and added reversible sidebar peek');
