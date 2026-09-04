@@ -16,7 +16,7 @@
     return new Map(entries.map(entry => {
       const id = entry.itemId || entry.key, tagId = entry.tagId || sheet.entryTags?.[id] || '';
       return [id, {
-        owner:reviews.get('item:'+id)?.reviewer || '', ownerOptions, assignmentReadonly,
+        owner:reviews.get('item:'+id)?.reviewer || '', ownerName:ownerOptions.find(person=>person.accountName===reviews.get('item:'+id)?.reviewer)?.label || reviews.get('item:'+id)?.reviewer || '未分配', ownerOptions, assignmentReadonly,
         ownerLabel:'分配 '+entry.name+' 的负责人',taskTagLabel:'分配 '+entry.name+' 的 Task Tag',openLabel:'查看 '+entry.name+' 大图',
         taskTag:tagId, taskTagOptions, ...this.pmEntryTagStyle({tagId},{tags}),
         assignOwner:event=>this.pmAssignSheetItem(sheet.key,id,'owner',event.target.value,actor),

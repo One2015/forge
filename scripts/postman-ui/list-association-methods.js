@@ -1,4 +1,18 @@
   // pm-list-association:start
+  pmDeliverySourceTaskIds(sheet, entries) {
+    if (!sheet) return [];
+    // Explicit saved choices, including an empty ZIP selection, take priority.
+    if (Array.isArray(sheet.sourceRunIds)) return [...new Set(sheet.sourceRunIds)];
+    if (sheet.archive) return [];
+    const sourceIds = entries.flatMap(entry => (entry.sourceRefs || []).map(ref => ref.runId).concat(entry.sourceRunId || [])).filter(Boolean);
+    if (sourceIds.length) return [...new Set(sourceIds)];
+    // Older sheets have no source selection field. Recover only recorded Run
+    // links for their existing Items, never every run using the same dataset.
+    const itemIds = new Set(entries.map(entry => entry.itemId).filter(Boolean));
+    const available = new Set(this.deliveryProductionTasks().map(task => task.id));
+    return [...new Set(this.sheetRows(sheet).filter(row => itemIds.has(row[2]) && available.has(row[5])).map(row => row[5]))];
+  }
+
   pmListAssociation() {
     const editor = this.state.deliveryEditor;
     if (!editor) return {};

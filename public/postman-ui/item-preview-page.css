@@ -17,6 +17,27 @@ html:has(.pm-item-page-overlay[data-motion-open=true]),body:has(.pm-item-page-ov
 .forge-postman .pm-item-page .forge-sheet-preview-hint{color:var(--pm-muted);font-size:12px;display:block}
 .forge-postman .pm-item-page .forge-sheet-grid{height:auto;flex:1;min-height:0}
 .forge-postman .pm-item-page .forge-artifact-host{inset:0}
+.forge-postman .pm-item-page .forge-item-id-link{color:var(--pm-link);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.forge-postman .pm-item-page .forge-item-id-link:hover{color:var(--pm-link-hover)}
+/* Each review keeps its action in the heading and evidence below the comment. */
+.pm-review-round{position:relative;border-left:1px solid var(--round-line);padding:0 0 20px 20px}
+.pm-review-round-dot{position:absolute;left:-5px;top:11px;width:9px;height:9px;border-radius:50%;background:var(--round-dot);box-shadow:0 0 0 3px #fff}
+.pm-review-round-heading{display:flex;align-items:center;gap:8px;min-height:32px}
+.pm-review-round-heading strong{font-size:13px;font-weight:600}
+.pm-review-round-badge{font-size:12px;border:1px solid;border-radius:4px;padding:1px 8px;white-space:nowrap}
+.forge-postman .pm-review-round-heading .pm-review-round-branch{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;min-height:32px;margin-left:auto;padding:0;border:0;border-radius:4px;background:transparent;color:var(--pm-muted)}
+.forge-postman .pm-review-round-heading .pm-review-round-branch:hover{background:var(--pm-hover);color:var(--pm-text)}
+.pm-review-round-branch:focus-visible{outline:2px solid var(--pm-focus);outline-offset:2px}
+.pm-review-round-body{display:grid;grid-template-columns:minmax(0,1fr) 80px;gap:12px;margin-top:6px;align-items:start}
+.pm-review-round-copy{min-width:0}
+.pm-review-round-who{margin:0;color:var(--pm-muted);font-size:12px;line-height:20px}
+.pm-review-round-note{margin:6px 0 0;font-size:13px;line-height:1.65;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.forge-postman .pm-review-round .forge-sheet-history-thumb{width:80px;height:56px;border:1px solid var(--pm-border);border-radius:4px;background:var(--pm-subtle)}
+.pm-review-reference-strip{display:flex;gap:8px;overflow-x:auto;max-width:100%;padding:2px;margin-top:10px;scrollbar-width:thin}
+.pm-review-reference-strip a{display:block;flex:0 0 64px;border:1px solid var(--pm-border);border-radius:4px;overflow:hidden}
+.pm-review-reference-strip img{display:block;width:64px;height:48px;object-fit:cover;background:var(--pm-subtle)}
+.pm-review-reference-strip a:focus-visible{outline:2px solid var(--pm-focus);outline-offset:1px}
+@media(pointer:coarse){.forge-postman .pm-review-round-heading .pm-review-round-branch{width:44px;height:44px}.pm-review-round-dot{top:17px}}
 /* Keep the artifact view switch segmented despite the global pill-tab reset. */
 .forge-postman .pm-item-artifact-toolbar .forge-artifact-switch{display:flex;background:var(--pm-hover)!important;border:1px solid var(--pm-border)!important;border-radius:6px!important;padding:3px!important;gap:2px!important;margin:0;min-width:0}
 .forge-postman .pm-item-artifact-toolbar .forge-artifact-switch::before{display:none}

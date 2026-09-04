@@ -7,7 +7,7 @@
    <span class="pm-sheet-item-path" title="{{ r.path }}">{{ r.path }}</span>
    <span><span class="pm-sheet-item-status" data-pm-status="{{ r.state }}" style="color:{{ r.fg }};border-color:{{ r.border }}"><span class="pm-sheet-status-dot" style="background:{{ r.dot }}"></span>{{ r.state }}</span></span>
   </button>
-  <select class="pm-sheet-owner-select" aria-label="{{ r.ownerLabel }}" value="{{ r.owner }}" disabled="{{ r.assignmentReadonly }}" sc-camel-on-change="{{ r.assignOwner }}"><option value="">未分配</option><sc-for list="{{ r.ownerOptions }}" as="person"><option value="{{ person.accountName }}" label="{{ person.label }}">{{ person.label }}</option></sc-for></select>
+  <span class="pm-sheet-owner-display">{{ r.ownerName }}</span>
   <select class="pm-entry-tag-select" aria-label="{{ r.taskTagLabel }}" value="{{ r.taskTag }}" disabled="{{ r.assignmentReadonly }}" data-has-tag="{{ r.hasTagStyle }}" style="--entry-tag-bg:{{ r.tagBackground }};--entry-tag-fg:{{ r.tagForeground }}" sc-camel-on-change="{{ r.assignTag }}"><option value="">无 Tag</option><sc-for list="{{ r.taskTagOptions }}" as="tag"><option value="{{ tag.id }}" label="{{ tag.name }}" disabled="{{ tag.disabled }}">{{ tag.name }}</option></sc-for></select>
  </div>
 </sc-for>

@@ -1,5 +1,13 @@
 import fs from 'node:fs';
+export const itemPreviewLinkCopy = [[
+ "{ k: 'Item ID', v: r[2], link: true, plain: false, go: e => { e.stopPropagation();",
+ "{ k: 'Item ID', v: r[2], link: true, plain: false, href: ForgeRoutes.write(Object.assign({}, this.state, { view: 'itemlife', lifeItem: r[2], lifeRun: r[5], lifeFrom: 'sheet', routeAnchor: '' })), go: e => { e.stopPropagation(); if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e.button != null && e.button !== 0)) return; e.preventDefault?.();"
+]];
 export function installItemPreviewPage(t) {
+ const itemLink=/<button type="button" class="forge-item-id-link" sc-camel-on-click="{{ f.go }}" title="{{ f.v }}">[\s\S]*?<\/button>/;
+ if(!itemLink.test(t))throw Error('Item ID link anchor changed');
+ t=t.replace(itemLink,'<a class="forge-item-id-link" href="{{ f.href }}" sc-camel-on-click="{{ f.go }}" title="{{ f.v }}"><span>{{ f.v }}</span></a>');
+ for(const [from,to] of itemPreviewLinkCopy){if(!t.includes(from))throw Error('Item ID navigation anchor changed');t=t.replace(from,to);}
  const start=t.indexOf('<!-- sheet-preview-navigation:start -->'), end=t.indexOf('<!-- sheet-preview-navigation:end -->',start);
  if(start<0||end<start)throw Error('Preview navigation boundary changed');
  t=t.slice(0,start)+t.slice(end+'<!-- sheet-preview-navigation:end -->'.length);

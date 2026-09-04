@@ -1,3 +1,10 @@
+import {installPipelineNodeDrawer} from './pipeline-node-drawer.mjs';
+import {installReviewReferenceSkills} from './review-reference-skills.mjs';
+import {installBillingDateRange} from './billing-date-range.mjs';
+import {installProfileSkillEditor} from './profile-skill-editor.mjs';
+import {installDeliveryEditPage} from './delivery-edit-page.mjs';
+import {installTaskTags} from './task-tags.mjs';
+import {installWizardChecklist} from './wizard-checklist.mjs';
 import fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
@@ -17,6 +24,7 @@ import {installFeedbackRefinements} from './feedback-refinements.mjs';
 import {installLinkedItemToast} from './linked-item-toast.mjs';
 import {installReviewAllocation} from './review-allocation.mjs';
 import {installItemPreviewPage} from './item-preview-page.mjs';
+import {installSheetReviewHistory} from './sheet-review-history.mjs';
 import {installListAssociation} from './list-association.mjs';
 import {installSheetInlineAssignment} from './sheet-inline-assignment.mjs';
 import {installDatasetPipelineGuide} from './dataset-pipeline-guide.mjs';
@@ -54,6 +62,7 @@ export function buildPostman(source){
  const billingFiltersEnd=t.indexOf('  <sc-if value="{{ billing.error }}">',billingFiltersStart);
  if(billingFiltersStart<0||billingFiltersEnd<0)throw Error('Billing filters boundary changed');
  t=t.slice(0,billingFiltersStart)+t.slice(billingFiltersEnd);
+ t=installBillingDateRange(t);
  replace('<span>USD · 北京时间 UTC+8</span>','<span>{{ billing.period }} · USD · 北京时间 UTC+8</span>');
  const deliveryStart=t.indexOf('<sc-if value="{{ isDelivery }}"');
  const deliveryEnd=t.indexOf('<sc-if value="{{ isSheet }}"',deliveryStart);
@@ -144,12 +153,20 @@ export function buildPostman(source){
  replace('aria-label="交付清单与审核技能"','aria-label="数据单 Skill"');
  t=installListAssociation(t);
  t=installEntryTagStyle(t);
+
  t=installSheetInlineAssignment(t);
  t=installDatasetPipelineGuide(t);
  t=installDatasetEditor(t);
  t=installPipelineOwnerEditor(t);
+ t=installWizardChecklist(t);
+ t=installTaskTags(t);
+ t=installDeliveryEditPage(t);
+ t=installProfileSkillEditor(t);
+ t=installPipelineNodeDrawer(t);
+ replace('<label for="forge-branch-note">本次迭代说明 ', '<label for="forge-branch-note">返工说明 ');
  t=installAnt200Mock(t);
  t=installItemPreviewPage(t);
+ t=installSheetReviewHistory(t);
  t=installProgressIndicators(t);
  replace('<p>仅用于案例沉淀，不影响审核结论。</p>','');
  replace('<button type="button" class="forge-delivery-secondary" disabled="{{ deliveryEditor.workspace.locked }}" sc-camel-on-click="{{ deliveryEditor.workspace.back }}">返回列表</button>','');
@@ -157,6 +174,7 @@ export function buildPostman(source){
  replace('<span class="review-workbench-ref-count" data-available="{{ it.hasReferences }}">{{ it.referenceCount }}</span>','');
  const skillDownloadIcon=fs.readFileSync(new URL('assets/phosphor/regular/download-simple.svg',root),'utf8').replace('<svg ','<svg width="18" height="18" aria-hidden="true" focusable="false" ');
  t=t.replaceAll('aria-label="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">下载 .md</button>', 'aria-label="{{ relatedSkill.downloadLabel }}" title="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">'+skillDownloadIcon+'</button>');
+ t=installReviewReferenceSkills(t);
  replace('<div class="forge-wizard-progress-heading"><span>{{ deliveryEditor.wizard.progressLabel }}</span><span>{{ deliveryEditor.wizard.progress }}%</span></div>','');
  const wizardHeading='<div class="forge-wizard-task-heading"><h2 id="forge-wizard-step-title" tabindex="-1" aria-label="{{ deliveryEditor.wizard.title }}">{{ deliveryEditor.wizard.title }}</h2><p class="forge-delivery-help">{{ deliveryEditor.wizard.help }}</p></div>';
  replace(wizardHeading,'');

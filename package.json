@@ -13,7 +13,7 @@
     "start": "vinext start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "design-system": "node scripts/update-geist-design-system.mjs && node scripts/design-system/gallery.mjs",
-    "postman-ui": "node scripts/postman-ui/build.mjs",
+    "postman-ui": "node scripts/build-turbine-preview.mjs && node scripts/postman-ui/build.mjs",
     "dev:postman": "npm run postman-ui && VINEXT_NO_DEV_LOCK=1 vinext dev --hostname 127.0.0.1 --port 3011",
     "build:postman": "npm run postman-ui && vinext build"
   },

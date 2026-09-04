@@ -10,7 +10,7 @@
       <div class="pm-assignment-row pm-assignment-head" role="row"><span role="columnheader">名称 / Item ID</span><span role="columnheader">审核人</span><span role="columnheader">状态</span></div>
       <sc-for list="{{ deliveryEditor.reviewAssignment.rows }}" as="dataset" hint-placeholder-count="0">
         <div class="pm-assignment-row" role="row">
-          <div class="pm-assignment-identity" role="cell"><strong>{{ dataset.name }}</strong><span class="pm-allocation-item-id">{{ dataset.source }}</span></div>
+          <div class="pm-assignment-identity" role="cell"><strong title="{{ dataset.name }}">{{ dataset.name }}</strong><span class="pm-allocation-item-id" title="{{ dataset.source }}">{{ dataset.source }}</span></div>
           <div role="cell"><select aria-label="{{ dataset.reviewerLabel }}" value="{{ dataset.reviewer }}" disabled="{{ deliveryEditor.reviewAssignment.readonly }}" sc-camel-on-change="{{ dataset.onReviewer }}"><option value="">选择审核人</option><sc-for list="{{ dataset.options }}" as="person"><option value="{{ person.accountName }}" label="{{ person.label }}">{{ person.label }}</option></sc-for></select></div>
           <div role="cell"><select aria-label="{{ dataset.statusAriaLabel }}" value="{{ dataset.status }}" disabled="{{ deliveryEditor.reviewAssignment.readonly }}" sc-camel-on-change="{{ dataset.onStatus }}"><sc-for list="{{ dataset.states }}" as="status"><option value="{{ status.key }}" label="{{ status.label }}">{{ status.label }}</option></sc-for></select></div>
         </div>

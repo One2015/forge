@@ -3,6 +3,13 @@
   <header><h2 id="pm-pipeline-owner-title">编辑 Pipeline</h2><button type="button" aria-label="关闭 Pipeline 编辑" sc-camel-on-click="{{ pipelineEditor.close }}">关闭</button></header>
   <sc-if value="{{ pipelineEditor.editing }}">
    <div class="pm-dataset-editor-body">
+    <section class="pm-pipeline-upload" aria-label="上传新 Pipeline 配置" aria-busy="{{ pipelineEditor.uploading }}">
+     <div class="pm-pipeline-upload-heading"><h3>上传新 Pipeline</h3><div><button type="button" sc-camel-on-click="{{ pipelineEditor.downloadExample }}">下载示例</button><button type="button" sc-camel-on-click="{{ pipelineEditor.pickFile }}">上传文件</button></div></div>
+     <p>支持 YAML / JSON，最大 5 MiB。上传后替换下方节点，检查后保存为新版本。</p>
+     <input id="pm-pipeline-config-file" type="file" accept=".yaml,.yml,.json" hidden aria-label="Pipeline 配置文件" sc-camel-on-change="{{ pipelineEditor.onFile }}" />
+     <sc-if value="{{ pipelineEditor.uploadStatus }}"><p class="pm-pipeline-upload-status" role="status">{{ pipelineEditor.uploadStatus }}</p></sc-if>
+    </section>
+    <fieldset class="pm-pipeline-form" disabled="{{ pipelineEditor.uploading }}">
     <label>Pipeline 名称<input value="{{ pipelineEditor.name }}" maxlength="100" sc-camel-on-input="{{ pipelineEditor.onName }}" /></label>
     <p class="pm-dataset-id">Pipeline ID · {{ pipelineEditor.key }}</p>
     <label>说明<textarea value="{{ pipelineEditor.description }}" rows="2" maxlength="2000" sc-camel-on-input="{{ pipelineEditor.onDescription }}"></textarea></label>
@@ -12,9 +19,10 @@
      <div class="pm-pipeline-edit-fields"><label>名称<input aria-label="{{ node.nameLabel }}" value="{{ node.name }}" maxlength="100" sc-camel-on-input="{{ node.onName }}" /></label><label>类型<select aria-label="{{ node.kindLabel }}" value="{{ node.kind }}" sc-camel-on-change="{{ node.onKind }}"><option value="FUNCTION">Function</option><option value="AGENT">Agent</option><option value="LLM">LLM</option><option value="REVIEW">Review</option></select></label><label class="pm-pipeline-enabled"><input type="checkbox" checked="{{ node.on }}" sc-camel-on-change="{{ node.onEnabled }}" />启用</label></div>
      <label>配置 · JSON<textarea class="pm-pipeline-config-json" aria-label="{{ node.configLabel }}" value="{{ node.config }}" rows="3" sc-camel-on-input="{{ node.onConfig }}"></textarea></label>
     </section></sc-for></div>
+    </fieldset>
    </div>
    <sc-if value="{{ pipelineEditor.error }}"><p class="pm-dataset-edit-error" role="alert">{{ pipelineEditor.error }}</p></sc-if>
-   <footer><button type="button" class="pm-dataset-delete" sc-camel-on-click="{{ pipelineEditor.askDelete }}">删除 Pipeline</button><div><button type="button" sc-camel-on-click="{{ pipelineEditor.close }}">取消</button><button type="button" class="pm-dataset-primary" sc-camel-on-click="{{ pipelineEditor.save }}">保存新版本</button></div></footer>
+   <footer><button type="button" class="pm-dataset-delete" disabled="{{ pipelineEditor.uploading }}" sc-camel-on-click="{{ pipelineEditor.askDelete }}">删除 Pipeline</button><div><button type="button" sc-camel-on-click="{{ pipelineEditor.close }}">取消</button><button type="button" class="pm-dataset-primary" disabled="{{ pipelineEditor.uploading }}" sc-camel-on-click="{{ pipelineEditor.save }}">保存新版本</button></div></footer>
   </sc-if>
   <sc-if value="{{ pipelineEditor.confirmDelete }}"><div class="pm-dataset-editor-body"><h3>删除「{{ pipelineEditor.name }}」？</h3><p>删除后不能再用它新建运行。已有运行记录与产物保留，此操作不可撤销。</p></div><footer><span></span><div><button type="button" sc-camel-on-click="{{ pipelineEditor.cancelDelete }}">返回编辑</button><button type="button" class="pm-dataset-delete-confirm" sc-camel-on-click="{{ pipelineEditor.delete }}">确认删除</button></div></footer></sc-if>
  </dialog>

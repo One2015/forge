@@ -63,3 +63,13 @@
 @media(max-width:760px){.forge-postman .rr-page{padding:16px 12px}.forge-postman .rr-summary-item[data-selected=true]::after{bottom:0;left:12px;right:12px}.rr-scroll{max-height:560px}.rr-pagination{gap:6px;flex-wrap:wrap}.rr-grid{grid-template-columns:240px 94px 190px 106px 70px 92px 144px}.rr-table{min-width:1050px}.rr-context>code{max-width:43%}}
 .rr-person small{white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(min-width:1101px){.rr-scroll{max-height:calc(100dvh - 362px)}}
+
+.forge-postman .rr-summary.forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+.forge-postman .pm-run-model-summary{grid-column:span 2;min-width:0}
+.forge-postman .pm-run-model-heading{display:flex;align-items:center;gap:8px;color:var(--pm-muted);font-size:12px}
+.forge-postman .pm-run-model-heading small{font-size:11px;padding:1px 5px;border:1px solid var(--pm-border);border-radius:3px}
+.forge-postman .pm-run-model-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.forge-postman .pm-run-model-tag{font-size:13px;line-height:1.5;color:var(--pm-text);background:var(--pm-subtle);border:1px solid var(--pm-border);border-radius:4px;padding:2px 7px;overflow-wrap:anywhere;max-width:100%}
+.forge-postman .pm-run-model-empty{font-size:13px;color:var(--pm-muted)}
+@media(max-width:760px){.forge-postman .pm-run-model-summary{grid-column:1/-1}}

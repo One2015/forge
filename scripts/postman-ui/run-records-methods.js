@@ -1,4 +1,13 @@
   // pm-run-records-methods:start
+  runModelSummary(rec) {
+    // Only run-scoped usage is evidence of execution; current Pipeline configuration is not.
+    const telemetry=Array.isArray(this.props.runTelemetry)?this.props.runTelemetry:null;
+    const explicit=Array.isArray(rec.modelsUsed)?rec.modelsUsed:null;
+    const mock=!telemetry && !explicit && rec.id==='20260825-093412-a4f7c1';
+    const source=explicit || (telemetry ? telemetry.filter(row=>row.runId===rec.id && Number(row.calls)>0) : mock ? [{modelName:'Claude Sonnet 4.5'},{modelName:'GPT-4.1'}] : []);
+    const names=[...new Set(source.map(row=>typeof row==='string'?row:row?.modelName || row?.model || row?.modelId).filter(name=>typeof name==='string' && name.trim()).map(name=>name.trim()))];
+    return {names:names.map(name=>({name})),empty:!names.length,mock};
+  }
   runRecordsValues() {
     const st=this.state, now=Date.now(), anchor=this._runRecordsAnchor||(this._runRecordsAnchor=now);
     const raw=this.runsData().map(r=>({...r,itemIds:r.itemIds?.length?r.itemIds:(this.dsData().find(d=>d.name===r.dsName)?.items||[]).slice(0,r.n).map(i=>i[0])}));
@@ -8,9 +17,9 @@
     const patch=p=>this.setState({runsPage:1,runsMenu:'',...p});
     const clear=()=>patch({runsQuery:'',runsFilter:'全部',runsMine:false,runsMetric:''});
     const filter=({'运行中':'running','成功':'completed','运行完成':'completed','失败':'failed','运行失败':'failed','排队中':'queued','已取消':'cancelled'})[st.runsFilter]||'all';
-    const metric=['running','review','failed','cost','models'].includes(st.runsMetric)?st.runsMetric:'';
+    const metric=['running','review','failed'].includes(st.runsMetric)?st.runsMetric:'';
     const query=String(st.runsQuery||'').trim().toLowerCase();
-    const matchMetric=r=>metric==='review'?r.counts.review>0:metric==='cost'?r.today:metric==='models'?r.usage.some(x=>x.calls>0):!metric||r.state===metric;
+    const matchMetric=r=>metric==='review'?r.counts.review>0:!metric||r.state===metric;
     const matches=all.rows.filter(r=>(filter==='all'||r.state===filter)&&matchMetric(r)&&(!st.runsMine||r.owner===(this.props.currentUser||'一万'))&&(!query||[r.strategy,r.name,r.pipe,r.dsName,r.id,r.owner].join(' ').toLowerCase().includes(query))).sort((a,b)=>b.started-a.started);
     const size=[10,20,50].includes(Number(st.runsPageSize))?Number(st.runsPageSize):10, pages=Math.max(1,Math.ceil(matches.length/size)), page=Math.min(pages,Math.max(1,Number(st.runsPage)||1));
     const stop=e=>e?.stopPropagation();
@@ -31,7 +40,7 @@
         menu,
         copy:e=>{stop(e);this.copyRunRecordId(r.id);},copyLabel:st.runsCopied===r.id?'已复制':'复制 Run ID '+r.id};
     });
-    const kpis=[['running','运行中',all.running,'','按运行状态统计'],['review','待审核',all.review,'','所有运行的待审核 Item 总数'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分 Item 失败'],['cost','今日成本',all.costLabel,all.delta,'当前浏览器日期内发起的运行成本；旧示例按相对提交时间计算，点击查看今日运行'],['models','模型状态',all.modelLabel,'调用成功率',(synthetic?'示例调用统计；':'')+all.successes+' / '+all.calls+' 次调用成功；点击显示有调用记录的运行']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title,selected:metric===key,pick:()=>patch({runsMetric:metric===key?'':key})}));
+    const kpis=[['running','运行中',all.running,'','按运行状态统计'],['review','待审核',all.review,'','所有运行的待审核 Item 总数'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分 Item 失败']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title,selected:metric===key,pick:()=>patch({runsMetric:metric===key?'':key})}));
     return {rows,kpis,subtitle:raw.length+' 次运行',count:matches.length+' / '+raw.length,hasAny:!!raw.length,empty:!matches.length,emptyTitle:raw.length?'没有匹配的运行':'还没有运行记录',emptyHint:'调整筛选条件，或从 Pipeline 发起运行。',query:st.runsQuery||'',onQuery:e=>patch({runsQuery:e.target.value}),mineSelected:!!st.runsMine,toggleMine:()=>patch({runsMine:!st.runsMine}),
       filters:[['all','全部'],['running','运行中'],['completed','运行完成'],['failed','运行失败'],['queued','排队中'],['cancelled','已取消']].map(([key,label])=>({label,selected:filter===key,pick:()=>patch({runsFilter:label})})),
       hasFilters:!!query||filter!=='all'||!!st.runsMine||!!metric,clear,metricLabel:metric?kpis.find(k=>k.key===metric).label:'',hasMetric:!!metric,

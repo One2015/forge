@@ -92,7 +92,7 @@
         roundLabel: '第 ' + n + ' 轮', timeLabel: time(stamp), timeFull: fullTime(stamp),
         issue: issue ? '上次问题：' + issue : '', hasIssue: !!issue,
         preview, hasPreview: !!preview, noPreview: !preview, imageError:()=>this.taskLinkImageError(preview), is3D: !!r.ds?.web3d, isWeb: !r.ds?.web3d,
-        owned: mine, actionTone: mode, actionLabel: st.queueBusy === r.key ? '打开中…' : ({start:'开始审核', reviewing:'审核中', progress:'查看进度'})[mode],
+        owned: mine, actionTone: mode, actionLabel: st.queueBusy === r.key ? '打开中…' : ({start:'人工审核', reviewing:'审核中', progress:'查看进度'})[mode],
         busy: st.queueBusy === r.key, actionDisabled: reviewing || st.queueBusy === r.key, action: this.reviewQueueAction(r, mode), open: reviewing ? this.reviewQueuePreview(r) : this.reviewQueueAction(r, mode),
         hasHistory: false, history: details(id, r.rec.id, r.ds?.name), claimLabel: reviewing ? (claim || '当前用户') + ' 正在审核' : blocked ? '产物尚不可审核，可查看运行进度' : '尚未领取' };
     });

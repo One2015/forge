@@ -6,11 +6,21 @@
     const pipe=this.pipeData().find(p=>p.name===key);
     return !!pipe && pipe.owner===this.profileIdentity().accountName;
   }
+  pmPipelineHistory(pipe) {
+    const entries=new Map((pipe.history || []).map(row=>[row[0],row]));
+    const latest=/^v(\d+)$/.exec(pipe.version);
+    if(latest)for(let version=Number(latest[1]);version>=1;version--){
+      const tag='v'+version;
+      if(!entries.has(tag))entries.set(tag,[tag,'暂无更新说明','—']);
+    }
+    return [...entries.values()].sort((a,b)=>(Number(b[0].slice(1)) || 0)-(Number(a[0].slice(1)) || 0));
+  }
   pmOpenPipelineEditor(key) {
     const pipe=this.pipeData().find(p=>p.name===key);
     if(!pipe || !this.pmOwnsPipeline(key))return;
     const configs=this.props.pipelineConfigs?.[key]?.[pipe.version] || pipe.nodeConfigs || {};
-    this.setState({pmPipelineEditor:{key,actor:this.profileIdentity().accountName,baseline:JSON.stringify(pipe),name:pipe.displayName || pipe.name,description:pipe.description || '',error:'',confirmDelete:false,
+    this._pmPipelineEditorSession=(this._pmPipelineEditorSession || 0)+1;
+    this.setState({pmPipelineEditor:{key,actor:this.profileIdentity().accountName,session:this._pmPipelineEditorSession,baseline:JSON.stringify(pipe),name:pipe.displayName || pipe.name,description:pipe.description || '',error:'',confirmDelete:false,uploading:false,uploadName:'',pipelineOptions:pipe.pipelineOptions || {},
       nodes:pipe.dag.map((d,index)=>{const [name,kind]=d.split('/');return {id:index,name,kind,config:JSON.stringify(configs[name] || {},null,2),on:pipe.enabledNodes?.[name]!==false};}),nextId:pipe.dag.length}});
     setTimeout(()=>{if(this.state.pmPipelineEditor?.key!==key || typeof document==='undefined')return;const dialog=document.getElementById('pm-pipeline-owner-editor');if(dialog && !dialog.open)dialog.showModal();},0);
   }
@@ -36,19 +46,20 @@
   pmSavePipelineEditor(key,actor) {
     if(!this.pmPipelineDraftAllowed(key,actor))return;
     const draft=this.state.pmPipelineEditor;
+    if(draft.uploading)return;
     const fail=error=>this.setState({pmPipelineEditor:{...draft,error}});
     const name=draft.name.trim();
     if(!name || name.length>100)return fail('请填写 1–100 字的 Pipeline 名称。');
     if(this.pipeData().some(p=>p.name!==key && (p.displayName || p.name).toLowerCase()===name.toLowerCase()))return fail('名称已存在，请使用其他名称。');
     if(!draft.nodes.length || !draft.nodes.some(n=>n.on))return fail('至少保留并启用一个节点。');
-    const names=new Set(),configs={},enabled={};
+    const names=new Set(),configs=Object.create(null),enabled=Object.create(null);
     for(const node of draft.nodes){
       if(!/^[a-zA-Z_][\w.-]*$/.test(node.name) || names.has(node.name))return fail('节点名称需唯一，使用字母、数字、下划线、点或短横线，并以字母或下划线开头。');
       if(!['FUNCTION','AGENT','LLM','REVIEW'].includes(node.kind))return fail('请选择有效节点类型。');
       names.add(node.name);enabled[node.name]=node.on;
       try{const config=JSON.parse(node.config);if(!config || Array.isArray(config) || typeof config!=='object')throw Error();configs[node.name]=config;}catch{return fail('节点 '+node.name+' 的配置需为有效 JSON 对象。');}
     }
-    if(!this.pmCommitPipeline(key,{displayName:name,description:draft.description.trim(),dag:draft.nodes.map(n=>n.name+'/'+n.kind),nodes:draft.nodes.length,nodeConfigs:configs,enabledNodes:enabled},draft.baseline))return fail('Pipeline 已更新，请关闭后重新编辑。');
+    if(!this.pmCommitPipeline(key,{displayName:name,description:draft.description.trim(),dag:draft.nodes.map(n=>n.name+'/'+n.kind),nodes:draft.nodes.length,nodeConfigs:configs,enabledNodes:enabled,pipelineOptions:draft.pipelineOptions},draft.baseline))return fail('Pipeline 已更新，请关闭后重新编辑。');
     this.setState({editSel:null});this.pmClosePipelineEditor();
   }
   pmDeleteOwnedPipeline(key,actor,confirmed) {
@@ -72,6 +83,10 @@
     const {key,actor}=draft,patch=p=>this.pmPatchPipelineEditor(p,key,actor);
     const update=(id,changes)=>{const current=this.state.pmPipelineEditor;if(this.pmPipelineDraftAllowed(key,actor))patch({nodes:current.nodes.map(n=>n.id===id?{...n,...changes}:n)});};
     return {open:true,name:draft.name,key,description:draft.description,error:draft.error,editing:!draft.confirmDelete,confirmDelete:draft.confirmDelete,
+      uploading:draft.uploading,uploadStatus:draft.uploading?'正在读取配置…':draft.uploadName?'已载入 '+draft.uploadName+' · '+draft.nodes.length+' 个节点 · 待保存':'',
+      pickFile:()=>{if(this.pmPipelineDraftAllowed(key,actor))document.getElementById('pm-pipeline-config-file')?.click();},
+      onFile:e=>{const file=e.target.files?.[0];e.target.value='';if(file)return this.pmUploadPipeline(file,key,actor,draft.session);},
+      downloadExample:()=>this.pmDownloadPipelineExample(),
       onName:e=>patch({name:e.target.value}),onDescription:e=>patch({description:e.target.value}),
       close:()=>this.pmClosePipelineEditor(),cancel:e=>{e.preventDefault();this.pmClosePipelineEditor();},save:()=>this.pmSavePipelineEditor(key,actor),
       askDelete:()=>patch({confirmDelete:true}),cancelDelete:()=>patch({confirmDelete:false}),delete:()=>{if(this.pmPipelineDraftAllowed(key,actor))this.pmDeleteOwnedPipeline(key,actor,this.state.pmPipelineEditor.confirmDelete);},

@@ -9,6 +9,11 @@ export function installRunRecords(t){
  const a=t.indexOf('    const runPal ='),b=t.indexOf('    const delMap =',a);
  if(a<0||b<a)throw Error('Run records values boundary changed');
  t=t.slice(0,a)+'    // pm-run-records-values:start\n    const me = this.props.currentUser || \"一万\";\n    const runs = this.runRecordsValues();\n    // pm-run-records-values:end\n\n'+t.slice(b);
+ const summaryStart=t.indexOf('<sc-for list="{{ run.stats }}"');
+ const summaryEnd=t.indexOf('</sc-for>',summaryStart)+'</sc-for>'.length;
+ if(summaryStart<0 || summaryEnd<12)throw Error('Run summary boundary changed');
+ t=t.slice(0,summaryEnd)+`<div class="pm-run-model-summary" role="group" aria-label="使用模型"><div class="pm-run-model-heading"><span>使用模型</span><sc-if value="{{ run.models.mock }}"><small>示例</small></sc-if></div><div class="pm-run-model-tags"><sc-for list="{{ run.models.names }}" as="model"><span class="pm-run-model-tag">{{ model.name }}</span></sc-for><sc-if value="{{ run.models.empty }}"><span class="pm-run-model-empty">暂无模型调用记录</span></sc-if></div></div>`+t.slice(summaryEnd);
+ t=t.replace("          id: rec.id + ' · ' + rec.n + ' items',", "          id: rec.id + ' · ' + rec.n + ' items',\n          models: this.runModelSummary(rec), // pm-run-model-summary-values");
  t=t.replace('<div sc-camel-on-click="{{ it.open }}" title="{{ it.rowTitle }}"', '<div class="pm-run-item" sc-camel-on-click="{{ it.open }}" title="{{ it.rowTitle }}"');
  return t;
 }
