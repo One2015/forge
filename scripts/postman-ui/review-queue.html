@@ -23,7 +23,8 @@
       <sc-if value="{{ review.queue.hasFilters }}"><button type="button" class="pq-reset" sc-camel-on-click="{{ review.queue.reset }}">重置</button></sc-if>
     </div>
     <sc-if value="{{ review.queue.todayOnly }}"><div class="pq-date-filter">今天完成的审核<button type="button" sc-camel-on-click="{{ review.queue.clearToday }}" aria-label="取消今天筛选">[[icon:x:12]]</button></div></sc-if>
-    <div class="pq-table-scroll" tabindex="0" role="region" aria-label="审核任务表" aria-busy="{{ review.queue.loading }}">
+    <div class="pq-table-scroll" tabindex="{{ review.queue.empty ? -1 : 0 }}" role="region" aria-label="审核任务表" aria-busy="{{ review.queue.loading }}" data-empty="{{ review.queue.empty }}">
+      <sc-if value="{{ !review.queue.empty }}">
       <div class="pq-table" role="table" aria-label="审核任务列表" aria-rowcount="{{ review.queue.total + 1 }}">
         <div class="pq-columns pq-table-head" role="row"><div role="columnheader">任务与预览</div><div role="columnheader">{{ review.queue.statusHeading }}</div><div role="columnheader">轮次</div><div role="columnheader">{{ review.queue.personHeading }}</div><div role="columnheader">{{ review.queue.timeHeading }}</div><div role="columnheader">操作</div></div>
         <div role="rowgroup">
@@ -42,9 +43,17 @@
           </sc-for>
         </div>
       </div>
-      <sc-if value="{{ review.queue.empty }}"><div class="pq-empty" role="status"><h2>{{ review.queue.emptyTitle }}</h2><p>{{ review.queue.emptyHint }}</p><sc-if value="{{ review.queue.hasFilters }}"><button type="button" class="pq-action" sc-camel-on-click="{{ review.queue.reset }}">重置筛选</button></sc-if></div></sc-if>
+      </sc-if>
+      <sc-if value="{{ review.queue.empty }}"><div class="pm-filter-empty" role="status">
+        <sc-if value="{{ review.queue.hasFilters }}"><img class="pm-filter-empty-illustration" src="/postman-ui/illustrations/filter-no-results.svg" width="112" height="80" alt="" aria-hidden="true" /></sc-if>
+        <p class="pm-filter-empty-title">{{ review.queue.emptyTitle }}</p>
+        <p class="pm-filter-empty-hint">{{ review.queue.emptyHint }}</p>
+        <sc-if value="{{ review.queue.hasFilters }}"><button type="button" class="pm-filter-empty-action" sc-camel-on-click="{{ review.queue.reset }}">清除筛选</button></sc-if>
+      </div></sc-if>
     </div>
+    <sc-if value="{{ !review.queue.empty }}">
     <footer class="pq-pagination"><span role="status" aria-live="polite">共 {{ review.queue.total }} 条<span class="pq-range"> · {{ review.queue.range }}</span></span><div class="pq-pagination-controls"><label>每页<select aria-label="每页记录数" value="{{ review.queue.size }}" sc-camel-on-change="{{ review.queue.setSize }}"><option value="10">10 条</option><option value="20">20 条</option><option value="50">50 条</option></select></label><button type="button" disabled="{{ review.queue.first }}" sc-camel-on-click="{{ review.queue.prev }}" aria-label="上一页">[[icon:arrow-left:14]]</button><sc-for list="{{ review.queue.pageNumbers }}" as="p"><button type="button" aria-label="第 {{ p.label }} 页" aria-current="{{ p.selected ? 'page' : 'false' }}" sc-camel-on-click="{{ p.pick }}">{{ p.label }}</button></sc-for><button type="button" disabled="{{ review.queue.last }}" sc-camel-on-click="{{ review.queue.next }}" aria-label="下一页">[[icon:arrow-right:14]]</button></div></footer>
+    </sc-if>
   </div>
   <sc-if value="{{ review.queue.hasError }}"><div class="pq-error" role="alert"><span>{{ review.queue.error }}</span><button type="button" sc-camel-on-click="{{ review.queue.refresh }}">重试</button><button type="button" sc-camel-on-click="{{ review.queue.dismissError }}" aria-label="关闭错误提示">[[icon:x:16]]</button></div></sc-if>
 </section>

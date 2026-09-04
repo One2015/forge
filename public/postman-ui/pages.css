@@ -109,15 +109,16 @@
 @media(max-width:1100px){.pm-delivery-row{grid-template-columns:minmax(180px,1.4fr) minmax(200px,1.2fr) minmax(130px,.9fr);gap:18px}.pm-delivery-open{grid-column:3;grid-row:2;justify-self:end}.pm-delivery-row{padding-block:12px;row-gap:2px}.pm-delivery-progress{grid-column:3;grid-row:1}.pm-delivery-identity,.pm-delivery-counts{grid-row:1/3}.forge-postman .forge-summary-card{padding-inline:14px}.forge-postman .review-workbench-body{grid-template-columns:minmax(0,1fr) 360px}}
 @media(max-width:760px){.pm-delivery-row{grid-template-columns:minmax(0,1fr);gap:12px;padding:14px 4px}.pm-delivery-row>span{grid-column:1;grid-row:auto}.pm-delivery-open{justify-self:start}.pm-delivery-counts{max-width:400px}.forge-postman .forge-delivery-customer-heading{flex-wrap:wrap;gap:4px}.forge-postman .forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}.forge-postman .forge-summary-card{padding:20px 12px!important;min-height:108px}.forge-postman .forge-summary-card:nth-child(even){border-right:0}.forge-postman .fg-runs-toolbar .fg-segmented{width:auto}.forge-postman .fg-runs-toolbar .fg-search{min-width:0;flex-basis:100%}.forge-postman .review-queue-card-header{grid-template-columns:minmax(0,1fr) 76px!important;gap:12px!important}.forge-postman .review-queue-card-header .forge-review-thumb{display:none}.forge-postman .review-queue-card-header>.forge-review-card-actions{grid-column:2;grid-row:1;display:flex!important;flex-direction:column!important;gap:8px}.forge-postman .review-workbench-body{grid-template-columns:1fr;overflow:auto;grid-template-rows:340px auto}.forge-postman .review-workbench-scroll{overflow:visible}.forge-postman .review-workbench-actions{position:sticky;bottom:0;background:#fff}.forge-postman .forge-delivery-create-header{padding:18px 14px!important}.forge-postman .forge-delivery-create-page .forge-delivery-editor-scroll{padding:0 14px 24px!important}.forge-postman .forge-billing-metrics>div+div{padding:0;border:0}.forge-postman .forge-billing-trends{gap:16px}}
 
-.forge-postman .pm-dataset-split{gap:0!important;border-block:1px solid var(--pm-border)}
-.forge-postman .pm-dataset-split>div{top:80px!important;height:calc(100dvh - 180px)!important;min-height:520px;border:0!important;border-radius:0!important}
+.forge-postman .pm-dataset-split{gap:0!important;align-items:stretch!important;border-block:1px solid var(--pm-border)}
+.forge-postman .pm-dataset-split>div{position:relative!important;top:auto!important;height:auto!important;min-height:0;border:0!important;border-radius:0!important}
+.forge-postman .pm-dataset-page-content{flex:0 0 auto!important;overflow:visible!important}
 .forge-postman .pm-dataset-split>div:last-child>div:last-child{border:0!important;border-left:1px solid var(--pm-border)!important;border-radius:0!important}
 .forge-postman [data-flow-family=datasets]{padding:10px 14px!important;min-height:64px}
 .forge-postman [data-flow-family=datasets]>div:first-child>div:first-child{font:500 13px/20px var(--pm-font)!important}
 .forge-postman .pm-page-pipelines [data-pm-click=true]>div:first-child{min-width:0}
 .forge-postman .review-queue-card-header{height:auto!important;min-height:88px!important}
 .forge-postman .review-queue-card-header>div:first-child{height:52px!important}
-@media(max-width:1100px){.forge-postman .pm-dataset-split{flex-direction:column}.forge-postman .pm-dataset-split>div:first-child{width:100%;height:290px!important;min-height:0;flex:none!important;position:relative!important;top:auto!important}.forge-postman .pm-dataset-split>div:last-child{width:100%!important;min-width:0!important;height:600px!important;position:relative!important;top:auto!important}.forge-postman .forge-dataset-resizer{display:none}}
+@media(max-width:1100px){.forge-postman .pm-dataset-split{flex-direction:column}.forge-postman .pm-dataset-split>div:first-child{width:100%;flex:none!important}.forge-postman .pm-dataset-split>div:last-child{width:100%!important;min-width:0!important}.forge-postman .forge-dataset-resizer{display:none}}
 @media(max-width:760px){.forge-postman .review-queue-card-header>div:first-child{display:none}.forge-postman .review-queue-card-header>div:last-child{grid-column:2;grid-row:1}.forge-postman .pm-page-pipelines>div:last-child{max-width:100%}}
 
 .forge-postman .pm-pipeline-editor{height:calc(100dvh - 40px)!important;min-height:440px}
@@ -208,7 +209,7 @@
 @media(hover:hover) and (pointer:fine){
   .forge-postman :is(input:not([type=checkbox],[type=radio],[type=file]),textarea,select):not(:disabled,[readonly],[aria-invalid=true]):hover:not(:focus-visible){border-color:var(--pm-hover-border)!important}
   .forge-postman :is(.forge-delivery-secondary,.forge-feedback-secondary,.forge-task-link-secondary,.forge-profile-secondary,.forge-billing-button,.forge-sheet-close,.forge-branch-close,.forge-profile-close,.forge-detail-download,.forge-branch-footer button:not(.forge-feedback-primary)):not(:disabled,[aria-disabled=true]):hover{background:var(--pm-hover)!important;border-color:var(--pm-hover-border)!important}
-  .forge-postman :is(.pm-delivery-row,.fg-run-row,[data-flow-family=sheetItems],.forge-task-link-item,.forge-delivery-library-option):not(:disabled,[aria-disabled=true]):hover:not(:active){background:var(--pm-hover)!important}
+  .forge-postman :is(.pm-delivery-row,.fg-run-row,.pm-sheet-assignment-row,.forge-task-link-item,.forge-delivery-library-option):not(:disabled,[aria-disabled=true]):hover:not(:active){background:var(--pm-hover)!important}
   .forge-postman .forge-case-options .forge-case-button:not(:disabled):not([aria-pressed=true]):hover{background:var(--pm-hover)!important}
   .forge-postman :is([data-forge-segmented=pill],.fg-segmented) button[aria-pressed=true]:hover{background:var(--pm-selected)!important;box-shadow:inset 0 0 0 1px var(--pm-hover-border)!important}
   .forge-postman :is(.forge-feedback-upload,.forge-feedback-image-box,.forge-delivery-logo-tile,.forge-delivery-file-button,.forge-delivery-skill-upload):not([data-disabled=true]):hover{background:var(--pm-hover);border-color:var(--pm-hover-border)}
@@ -326,6 +327,10 @@
 .forge-postman .pm-photo-help{margin:2px 0 0;font-size:11px;line-height:18px;color:var(--pm-muted);overflow-wrap:anywhere}
 .forge-postman .pm-photo-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .forge-postman :is(.forge-sheet-feedback,.forge-branch-dialog) .pm-photo-slots{grid-template-columns:repeat(4,minmax(0,1fr));max-width:344px;gap:8px;padding:2px 1px 4px}
+.forge-postman .forge-branch-dialog{--pm-branch-inset:28px}
+.forge-postman .forge-branch-dialog :is(.forge-branch-header,.forge-branch-scroll,.forge-branch-footer){padding-inline:var(--pm-branch-inset)}
+.forge-postman .forge-branch-dialog .pm-photo-slots{width:100%;max-width:none;box-sizing:border-box;padding-inline:0}
+@media(max-width:760px){.forge-postman .forge-branch-dialog{--pm-branch-inset:20px}}
 .forge-postman :is(.forge-sheet-feedback,.forge-branch-dialog) .pm-photo-cell{position:relative}
 .forge-postman :is(.forge-sheet-feedback,.forge-branch-dialog) .pm-photo-filled+.pm-photo-number{position:absolute;bottom:4px;left:4px;margin:0;padding:0 4px;border-radius:2px;background:rgba(255,255,255,.92);color:var(--pm-text);pointer-events:none}
 .forge-postman .forge-feedback-submit-context{display:block;background:transparent!important;border:0!important;border-radius:0;padding:0!important;margin-top:18px;color:var(--pm-muted);font-size:12px;line-height:1.65}

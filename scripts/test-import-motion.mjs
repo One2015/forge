@@ -26,8 +26,17 @@ function harness({ reduce = false, keyboard = false } = {}) {
   const mount = () => { target = node(); notify(); flush(); };
   const change = mode => { target.dataset.pmImportBump = String(mode === 'bump'); target.dataset.pmImportDerive = String(mode === 'derive'); notify(); flush(); };
   return { plays, callbacks, doc, reduced, mount, change, destroy, notify, flush,
-    remove: () => { target = null; notify(); flush(); }, get disconnected() { return disconnected; } };
+    remove: () => { target = null; notify(); flush(); }, get target() { return target; }, get disconnected() { return disconnected; } };
 }
+
+test('a mode commit starts its reveal before another animation frame can paint full opacity', () => {
+  const h = harness(); h.mount();
+  h.target.dataset.pmImportDerive = 'true'; h.notify();
+  assert.equal(h.plays.length, 1);
+  assert.equal(h.plays[0].keyframes[0].opacity, .75);
+  h.flush(); assert.equal(h.plays.length, 1);
+  h.destroy();
+});
 
 test('only a subsequent import mode change fades, never initial mount or unrelated input', () => {
   const h = harness(); h.mount(); h.notify(); h.flush();

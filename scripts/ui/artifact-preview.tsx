@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { createPortal } from 'react-dom';
 import type { ModelViewerElement } from '@google/model-viewer';
 import { normalizeArtifacts, fileSize } from './artifact-data.mjs';
+import { checkboxMark } from './checkbox-mark.mjs';
 import cube from '../../assets/phosphor/regular/cube.svg?raw';
 import list from '../../assets/phosphor/regular/list.svg?raw';
 import picture from '../../assets/phosphor/regular/image.svg?raw';
@@ -133,7 +134,7 @@ function FileWorkspace({ files }: { files: Artifact[] }) {
     return Array.from(entries,([name,file])=>file ? <button key={file.name} type="button" className="pm-artifact-file" aria-pressed={selection===file.id} title={file.name} onClick={()=>setSelection(file.id)}><span>{name}</span><small>{fileSize(file.size)}</small></button> : <details key={prefix+name} open><summary>{name}</summary><div>{tree(prefix+name+'/')}</div></details>);
   };
   return <div className="pm-artifact-workspace">
-    <aside><header><strong>WORKSPACE</strong><span>{files.length} 个文件</span></header>{files.some(file=>/(^|\/)(node_modules|\.cache|\.git)(\/|$)/.test(file.name)) && <label className="pm-artifact-dependencies"><input type="checkbox" checked={showDependencies} onChange={event=>setShowDependencies(event.target.checked)}/>显示依赖与缓存目录</label>}<nav aria-label="工作区文件目录">{tree('')}</nav></aside>
+    <aside><header><strong>WORKSPACE</strong><span>{files.length} 个文件</span></header>{files.some(file=>/(^|\/)(node_modules|\.cache|\.git)(\/|$)/.test(file.name)) && <label className="pm-artifact-dependencies"><span className="pm-checkbox"><input type="checkbox" checked={showDependencies} onChange={event=>setShowDependencies(event.target.checked)}/><span className="pm-checkbox-visual" aria-hidden="true" dangerouslySetInnerHTML={{__html:checkboxMark}}/></span>显示依赖与缓存目录</label>}<nav aria-label="工作区文件目录">{tree('')}</nav></aside>
     <article>{selected ? <><header><code title={selected.name}>{selected.name}</code><span>{fileSize(selected.size)}</span>{selected.url && <a href={selected.url} download={selected.name.split('/').pop()} target="_blank" rel="noopener noreferrer">下载</a>}</header><div className="pm-artifact-file-preview"><Media key={selected.id} file={selected}/></div></> : <p className="pm-artifact-file-empty">选择左侧文件查看内容。</p>}</article>
   </div>;
 }

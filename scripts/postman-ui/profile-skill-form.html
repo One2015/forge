@@ -1,0 +1,36 @@
+<div class="forge-profile-skill-editor pm-profile-skill-form" role="group" aria-label="编辑 Skill">
+  <sc-if value="{{ profile.draftLoading }}"><p class="forge-profile-skill-help" role="status">正在读取 Skill…</p></sc-if>
+  <sc-if value="{{ profile.draftError }}"><p class="forge-profile-skill-error" role="alert">{{ profile.draftError }}</p></sc-if>
+  <sc-for list="{{ profile.draftSkills }}" as="draft" hint-placeholder-count="0">
+    <div class="forge-profile-skill-draft">
+      <div class="forge-profile-draft-file"><strong>{{ draft.filename }}</strong><button type="button" class="forge-profile-close" aria-label="移除此 Skill 草稿" disabled="{{ profile.draftLoading }}" sc-camel-on-click="{{ draft.remove }}">[[icon:x:16]]</button></div>
+      <div class="forge-profile-skill-field">
+        <label for="{{ draft.nameId }}">Skill 名称 <span class="pm-profile-required">*</span></label>
+        <input id="{{ draft.nameId }}" aria-label="{{ draft.nameLabel }}" value="{{ draft.name }}" sc-camel-on-input="{{ draft.onName }}" maxlength="80" disabled="{{ profile.draftLoading }}" aria-invalid="{{ draft.nameInvalid }}" aria-describedby="{{ draft.nameDescribedBy }}" required />
+        <sc-if value="{{ draft.nameError }}"><p id="{{ draft.nameErrorId }}" class="forge-profile-skill-error" role="alert">{{ draft.nameError }}</p></sc-if>
+      </div>
+      <div class="forge-profile-skill-field">
+        <div class="pm-profile-field-heading"><label for="{{ draft.commandId }}">调用名 <span class="pm-profile-required">*</span></label><small id="{{ draft.commandHintId }}">输入 /调用名 即可使用</small></div>
+        <div class="forge-profile-command" data-invalid="{{ draft.commandInvalid }}"><span aria-hidden="true">/</span><input id="{{ draft.commandId }}" aria-label="{{ draft.commandLabel }}" value="{{ draft.command }}" sc-camel-on-input="{{ draft.onCommand }}" maxlength="60" disabled="{{ profile.draftLoading }}" aria-invalid="{{ draft.commandInvalid }}" aria-describedby="{{ draft.commandDescribedBy }}" required /></div>
+        <sc-if value="{{ draft.commandError }}"><p id="{{ draft.commandErrorId }}" class="forge-profile-skill-error" role="alert">{{ draft.commandError }}</p></sc-if>
+      </div>
+      <div class="forge-profile-skill-field">
+        <label for="{{ draft.descriptionId }}">描述</label>
+        <input id="{{ draft.descriptionId }}" aria-label="{{ draft.descriptionLabel }}" value="{{ draft.description }}" sc-camel-on-input="{{ draft.onDescription }}" maxlength="300" disabled="{{ profile.draftLoading }}" aria-invalid="{{ draft.descriptionInvalid }}" aria-describedby="{{ draft.descriptionDescribedBy }}" />
+        <sc-if value="{{ draft.descriptionError }}"><p id="{{ draft.descriptionErrorId }}" class="forge-profile-skill-error" role="alert">{{ draft.descriptionError }}</p></sc-if>
+      </div>
+      <div class="forge-profile-skill-field">
+        <label for="{{ draft.contentId }}">指令 <span class="pm-profile-required">*</span></label>
+        <textarea id="{{ draft.contentId }}" aria-label="{{ draft.contentLabel }}" value="{{ draft.content }}" sc-camel-on-input="{{ draft.onContent }}" disabled="{{ profile.draftLoading }}" aria-invalid="{{ draft.contentInvalid }}" aria-describedby="{{ draft.contentDescribedBy }}" required></textarea>
+        <sc-if value="{{ draft.contentError }}"><p id="{{ draft.contentErrorId }}" class="forge-profile-skill-error" role="alert">{{ draft.contentError }}</p></sc-if>
+      </div>
+      <section class="pm-profile-linked-sheets" aria-label="已关联数据单">
+        <h3>已关联数据单</h3>
+        <sc-if value="{{ draft.noLinkedSheets }}"><p>暂无关联数据单</p></sc-if>
+        <sc-if value="{{ draft.hasLinkedSheets }}"><ul><sc-for list="{{ draft.linkedSheets }}" as="sheet" hint-placeholder-count="0"><li>{{ sheet.title }}</li></sc-for></ul></sc-if>
+      </section>
+    </div>
+  </sc-for>
+  <sc-if value="{{ profile.draftIssue }}"><p class="forge-profile-skill-error" role="alert">{{ profile.draftIssue }}</p></sc-if>
+  <div class="forge-profile-editor-actions"><button type="button" sc-camel-on-click="{{ profile.cancelSkills }}">取消</button><button type="button" class="forge-profile-primary" disabled="{{ profile.draftSaveDisabled }}" sc-camel-on-click="{{ profile.saveSkills }}">{{ profile.draftSaveLabel }}</button></div>
+</div>

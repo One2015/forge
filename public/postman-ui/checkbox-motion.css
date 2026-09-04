@@ -1,0 +1,36 @@
+/* Stroke drawing follows Transitions.dev's checkbox-check. State changes and
+   callbacks are immediate; the same path reverses smoothly during rapid input. */
+.forge-postman .pm-checkbox{position:relative;display:inline-block;width:16px;height:16px;min-width:16px;flex:none;vertical-align:-2px;line-height:0;isolation:isolate}
+.forge-postman .pm-checkbox>input[type=checkbox]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;opacity:0;z-index:1;cursor:pointer}
+.forge-postman .pm-checkbox-custom{position:relative;isolation:isolate;background:transparent!important;border:0!important;padding:0!important}
+.forge-postman .pm-checkbox-visual{position:absolute;inset:0;display:block;box-sizing:border-box;border:1px solid var(--pm-hover-border);border-radius:3px;background:var(--pm-canvas);pointer-events:none;--pm-check-ink:var(--pm-on-action)}
+.forge-postman .pm-checkbox-custom>.pm-checkbox-visual{border-width:1.5px;border-radius:6px}
+.forge-postman .pm-checkbox-mark{display:block;width:100%;height:100%;overflow:visible;pointer-events:none}
+.forge-postman .pm-checkbox-mark path{fill:none;stroke:var(--pm-check-ink);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.forge-postman .pm-check-tick{stroke-dasharray:100 115;stroke-dashoffset:110}
+.forge-postman .pm-check-dash{opacity:0}
+.forge-postman :is(.pm-checkbox:has(>input:checked),.pm-checkbox:has(>input:indeterminate),.pm-checkbox-custom[aria-checked=true],.pm-checkbox-custom[aria-checked=mixed])>.pm-checkbox-visual{background:var(--pm-action);border-color:var(--pm-action)}
+.forge-postman :is(.pm-checkbox:has(>input:checked:not(:indeterminate)),.pm-checkbox-custom[aria-checked=true]) .pm-check-tick{stroke-dashoffset:0}
+.forge-postman :is(.pm-checkbox:has(>input:indeterminate),.pm-checkbox-custom[aria-checked=mixed]) .pm-check-dash{opacity:1}
+.forge-postman :is(.pm-checkbox:has(>input:focus-visible),.pm-checkbox-custom:focus-visible){outline:2px solid var(--pm-focus)!important;outline-offset:3px;border-radius:3px}
+.forge-postman .pm-checkbox>input:disabled{cursor:not-allowed}
+.forge-postman :is(.pm-checkbox:has(>input:disabled),.pm-checkbox-custom[aria-disabled=true])>.pm-checkbox-visual{background:var(--forge-disabled-bg);border-color:var(--pm-control);--pm-check-ink:var(--forge-disabled-text)}
+.forge-postman :is(.forge-wizard-task-option,.forge-delivery-library-option)>.pm-checkbox{margin-top:2px}
+@media(hover:hover) and (pointer:fine){
+ .forge-postman :is(.pm-checkbox:has(>input:not(:disabled):hover),.pm-checkbox-custom:not([aria-disabled=true]):hover)>.pm-checkbox-visual{border-color:var(--pm-action)}
+ .forge-postman :is(.pm-checkbox:has(>input:checked:not(:disabled):hover),.pm-checkbox-custom[aria-checked=true]:not([aria-disabled=true]):hover)>.pm-checkbox-visual{background:var(--pm-action-hover)}
+}
+@media(prefers-reduced-motion:no-preference){
+ html:not([data-forge-input=keyboard]) .forge-postman .pm-checkbox-visual{transition:background-color 150ms cubic-bezier(.22,1,.36,1),border-color 150ms cubic-bezier(.22,1,.36,1)}
+ html:not([data-forge-input=keyboard]) .forge-postman .pm-check-tick{transition:stroke-dashoffset 150ms cubic-bezier(.22,1,.36,1)}
+ html:not([data-forge-input=keyboard]) .forge-postman :is(.pm-checkbox:has(>input:checked:not(:indeterminate)),.pm-checkbox-custom[aria-checked=true]) .pm-check-tick{transition-duration:350ms}
+ html:not([data-forge-input=keyboard]) .forge-postman .pm-check-dash{transition:opacity 100ms ease}
+}
+html[data-forge-input=keyboard] .forge-postman :is(.pm-checkbox-visual,.pm-check-tick,.pm-check-dash){transition:none!important}
+@media(prefers-reduced-motion:reduce){.forge-postman :is(.pm-checkbox-visual,.pm-check-tick,.pm-check-dash){transition:none!important}}
+@media(forced-colors:active){
+ .forge-postman .pm-checkbox>input[type=checkbox]{opacity:1;appearance:auto}
+ .forge-postman .pm-checkbox>.pm-checkbox-visual{display:none}
+ .forge-postman .pm-checkbox-custom>.pm-checkbox-visual{forced-color-adjust:none;background:Canvas;border-color:CanvasText;--pm-check-ink:CanvasText}
+ .forge-postman .pm-checkbox-custom:is([aria-checked=true],[aria-checked=mixed])>.pm-checkbox-visual{background:Highlight;--pm-check-ink:HighlightText}
+}

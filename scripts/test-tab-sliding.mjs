@@ -22,10 +22,11 @@ function harness(kind = 'secondary') {
     ResizeObserver: class { constructor(fn) { resize = fn; } observe() {} unobserve() {} disconnect() { disconnected = true; } },
     MutationObserver: class { constructor(fn) { notify = fn; } observe(_node, options) { observedOptions = options; } disconnect() { disconnected = true; } },
   });
-  const flush = () => { while (frames.size) { const current = [...frames]; frames.clear(); current.forEach(([,fn])=>fn()); } };
+  const flushFrame = () => { const current = [...frames]; frames.clear(); current.forEach(([,fn])=>fn()); };
+  const flush = () => { while (frames.size) flushFrame(); };
   const pick = index => { controls.forEach((c, i) => { c.selected = index === i; }); notify(); flush(); };
   flush();
-  return { group, controls, values, events, pick, flush, notify, resize: () => resize([{ target: group }]),
+  return { group, controls, values, events, pick, flush, flushFrame, notify, resize: () => resize([{ target: group }]),
     get options() { return observedOptions; }, get disconnected() { return disconnected; } };
 }
 
@@ -58,11 +59,40 @@ test('rapid changes use the latest actual selection; losing selection hides the 
   h.pick(-1); assert.equal(h.group.dataset.motionReady, 'false');
   h.pick(2); assert.equal(h.group.dataset.motionReady, 'true');
 });
-test('container resize suspends interpolation until new geometry is placed', () => {
-  const h = harness(); h.pick(1); h.resize();
-  assert.equal(h.group.dataset.motionReady, 'false');
-  h.controls[1].offsetLeft = 60; h.flush();
+test('container resize updates geometry before paint without hiding the indicator', () => {
+  const h = harness(); h.pick(1); h.group.clientWidth = 200;
+  h.controls[1].offsetLeft = 60; h.resize();
+  assert.equal(h.group.dataset.motionReady, 'true');
+  assert.equal(h.group.dataset.motionInstant, 'true');
   assert.equal(h.values.get('--forge-segment-left'), '60px');
+  h.flushFrame();
+  assert.equal(h.group.dataset.motionReady, 'true');
+  assert.equal(h.group.dataset.motionInstant, 'false');
+});
+test('selection and indicator update in the same mutation batch, including rapid reversals', () => {
+  const h = harness();
+  for (const index of [2, 0, 1]) {
+    h.controls.forEach((c, i) => { c.selected = i === index; });
+    h.notify();
+    // No animation frame has run yet: the renderer and indicator must agree.
+    assert.equal(h.values.get('--forge-segment-left'), h.controls[index].offsetLeft + 'px');
+    assert.equal(h.group.dataset.motionReady, 'true');
+    assert.equal(h.group.dataset.motionInstant, 'false');
+  }
+});
+test('window resize retains selection and a stale placement cannot revive an empty group', () => {
+  const h = harness(); h.pick(1);
+  h.events.get('window:resize')();
+  assert.equal(h.group.dataset.motionReady, 'true');
+  h.flushFrame();
+  h.controls.forEach(c => { c.selected = false; }); h.notify(); h.flush();
+  assert.equal(h.group.dataset.motionReady, 'false');
+});
+test('intrinsic width changes caused by selection do not interrupt the slide', () => {
+  const h = harness();
+  h.controls.forEach((c,i)=>c.selected=i===1); h.group.clientWidth=284; h.resize();
+  assert.equal(h.group.dataset.motionReady, 'true');
+  h.flush(); h.resize();
   assert.equal(h.group.dataset.motionReady, 'true');
 });
 test('all existing selection contracts and text/count updates trigger measurement; teardown disconnects', () => {

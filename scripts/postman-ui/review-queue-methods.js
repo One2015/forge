@@ -162,7 +162,7 @@
       sort:st.reviewSort || 'newest', setSort:e=>patch({reviewSort:e.target.value}), hasFilters, reset,
       rows:filtered.slice((page-1)*size,page*size), total:filtered.length, empty:!filtered.length,
       emptyTitle:hasFilters ? '没有符合条件的任务' : done ? '还没有审核记录' : '当前任务已处理完',
-      emptyHint:hasFilters ? '调整搜索或筛选条件，或重置后查看全部任务。' : done ? '完成审核后，结果与轮次会记录在这里。' : '新的产物提交后会出现在这里。',
+      emptyHint:hasFilters ? '试试减少筛选条件，或换个关键词。' : done ? '完成审核后，结果与轮次会记录在这里。' : '新的产物提交后会出现在这里。',
       statusHeading:done?'审核结果':'审核类型', personHeading:done?'审核人':'提交人', timeHeading:done?'审核时间':'提交时间',
       page, pages, size, range:filtered.length ? ((page-1)*size+1)+'–'+Math.min(page*size,filtered.length) : '0',
       pageNumbers:Array.from({length:pages},(_,i)=>({label:i+1,selected:page===i+1,pick:()=>this.setState({queuePage:i+1})})),

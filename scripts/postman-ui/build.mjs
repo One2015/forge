@@ -35,6 +35,7 @@ import {installPipelineOwnerEditor} from './pipeline-owner-editor.mjs';
 import {installDatasetEditor} from './dataset-editor.mjs';
 import {installEntryTagStyle} from './entry-tag-style.mjs';
 import {installLoadingStates} from './loading-states.mjs';
+import {installCheckboxMotion} from './checkbox-motion.mjs';
 const root=new URL('../../',import.meta.url);
 export function buildPostman(source){
  const opening='<script type="__bundler/template">', closing='\n</script>\n</body>\n</html>';
@@ -127,6 +128,13 @@ export function buildPostman(source){
  const dsStart=t.indexOf('<sc-if value="{{ isDatasets }}"');
  const dsEnd=t.indexOf('<sc-if value="{{ isResources }}"',dsStart);
  let ds=t.slice(dsStart,dsEnd).replace('<div style="display:flex;align-items:flex-start;gap:14px">','<div class="pm-dataset-split" style="display:flex;align-items:flex-start;gap:14px">');
+ // Dataset rows and item details share the document's vertical scroll. Menus
+ // and import previews retain their own bounded scrolling.
+ for(const style of ['flex:1;min-height:0;overflow-y:auto','flex:1 1 0;min-height:200px;overflow-y:auto']){
+  const anchor='<div style="'+style+'">';
+  if(!ds.includes(anchor))throw Error('Dataset page scroll anchor changed: '+style);
+  ds=ds.replace(anchor,'<div class="pm-dataset-page-content" style="'+style+'">');
+ }
  t=t.slice(0,dsStart)+ds+t.slice(dsEnd);
  t=installReviewQueue(t);
  t=installRunRecords(t);
@@ -234,7 +242,8 @@ export function buildPostman(source){
  t=installImportMotion(t);
  t=installGlobalResponsive(t);
  t=installLoadingStates(t);
- const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css','loading.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
+ t=installCheckboxMotion(t);
+ const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css','loading.css','checkbox-motion.css','empty-states.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
  replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n</style>');
  replace('</head>','<script type="module" src="/postman-ui/behavior.mjs"></script>\n</head>');
  const logic=t.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)?.[1];new Function(logic);

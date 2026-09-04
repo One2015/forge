@@ -70,7 +70,13 @@ export function mountFlowMotion(doc) {
     rows = byKey; signature = nextSignature;
   }
   const schedule = () => { if (!frame) frame = win.requestAnimationFrame(sync); };
-  const observer = new win.MutationObserver(schedule);
+  // Apply a reveal in the same mutation batch as the new rows/view. Deferring
+  // a React commit inside rAF until the next frame exposes the final content
+  // first, then visibly dims it when the animation finally starts.
+  const observer = new win.MutationObserver(() => {
+    win.cancelAnimationFrame(frame);
+    sync();
+  });
   observer.observe(doc.documentElement,{ subtree: true, childList: true, attributes: true, attributeFilter: ['data-flow-view','data-flow-row','data-review-workbench'] });
   const onKey = event => { if (!['Shift','Control','Alt','Meta'].includes(event.key)) stop(); };
   const onResize = () => { stop(); rows = new Map(); signature = ''; schedule(); };

@@ -50,6 +50,7 @@ html:not([data-forge-input="keyboard"]) .forge-motion-menu[data-motion-open="tru
 [data-forge-segmented="underline"][data-motion-ready="true"] :is(button,[data-motion-selected]){border-bottom-color:transparent!important}
 .forge-artifact-switch[data-forge-segmented]{--forge-segment-fill:#eef0ea;--forge-segment-radius:5px}
 @media(prefers-reduced-motion:no-preference){html:not([data-forge-input="keyboard"]) [data-forge-segmented][data-motion-ready="true"]::before{transition:clip-path 160ms cubic-bezier(.25,1,.5,1)}}
+[data-forge-segmented][data-motion-instant="true"]::before{transition:none!important}
 /* Small press and hover feedback uses the existing state colors. */
 html:not([data-forge-input="keyboard"]) .forge-app-shell button{transition:background-color 120ms ease,border-color 120ms ease,color 120ms ease}
 @media(prefers-reduced-motion:no-preference){

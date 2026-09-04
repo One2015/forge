@@ -9,7 +9,7 @@ export const reviewReferenceSkillCopy = [[
 ]];
 
 export function installReviewReferenceSkills(template) {
-  let t = template;
+  let t = template.replaceAll('来自关联交付单 · 下载为 .md 文件</p>', '来自关联交付单 · 下载为 .md 文件，可导入支持 Skill 的 AI 平台直接使用。</p>');
   const marker = '<!-- review-skill-session:start -->';
   const start = t.indexOf('<section class="forge-review-related-skills"', t.indexOf(marker));
   const end = t.indexOf('</section>', start) + '</section>'.length;

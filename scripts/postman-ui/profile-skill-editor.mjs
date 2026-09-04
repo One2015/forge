@@ -10,7 +10,9 @@ export const profileSkillEditorCopy=[
  ["action: skill.personal ? '命名 / 关联' : '查看数据单'", "action: skill.personal ? '编辑 Skill' : '查看数据单'"],
  ["(skill.personal ? '命名或关联 · ' : '查看数据单 · ')", "(skill.personal ? '编辑 Skill · ' : '查看数据单 · ')"],
  ["      uploadDisabled: !!draft?.loading || this.personalProfileSkills().length >= 12,", "      createSkill:()=>this.pmCreateProfileSkill(), positionSkillMenu:event=>this.pmPositionProfileSkillMenu(event), pickSkillFile:()=>this.pmPickProfileSkillFile(), uploadDisabled: !!draft?.loading || this.personalProfileSkills().length >= 12,"],
- ["draftSkills: (draft?.skills || []).map(skill => Object.assign({}, skill, {", "draftSkills: (draft?.skills || []).map(skill => Object.assign({}, skill, { ...this.pmProfileSkillFields(skill,draft),"]
+ ["draftError: draft?.error || '', draftIssue: issue,", "draftError: draft?.error || '', draftIssue: this.pmProfileSkillFormIssue(draft,issue),"],
+ ["draftSaveDisabled: !!issue,", "draftSaveDisabled: !draft || !!draft.loading || !draft.skills.length,"],
+ ["remove: () => this.patchProfileSkillDraft({ skills: this.state.profileSkillDraft.skills.filter(value => value.id !== skill.id) })", "remove: () => this.patchProfileSkillDraft({ skills: this.state.profileSkillDraft.skills.filter(value => value.id !== skill.id) }), ...this.pmProfileSkillFields(skill,draft)"]
 ];
 export function installProfileSkillEditor(t){
  for(const [a,b] of profileSkillEditorCopy){if(!t.includes(a))throw Error('Profile Skill anchor changed: '+a);t=t.replace(a,()=>b);}
@@ -26,12 +28,10 @@ export function installProfileSkillEditor(t){
  const menu=fs.readFileSync(new URL('profile-skill-create-menu.html',import.meta.url),'utf8').replace(/\[\[icon:([\w-]+):(\d+)\]\]/g,(_,name,size)=>fs.readFileSync(new URL('../../assets/phosphor/regular/'+name+'.svg',import.meta.url),'utf8').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="'+size+'" height="'+size+'" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
  t=t.replace(toolbar,()=>menu);
  t=t.replace('<div class="forge-profile-empty"><h3>还没有 Skill</h3><p>点击「上传 Skill」添加并命名，无需先关联任务。</p></div>','<div class="forge-profile-empty pm-profile-skill-empty"><img src="/postman-ui/illustrations/skill-library-empty.png" width="156" height="156" alt="" /><h3>还没有 Skill</h3><p>点击「创建 Skill」，填写指令或上传文件。</p></div>');
- t=t.replace('aria-label="命名和关联 Skill"','aria-label="编辑 Skill"');
- const field='<label class="forge-profile-skill-field"><span>关联到数据单';
- const index=t.indexOf(field),end=t.lastIndexOf('</div>\n            </sc-for>',index);
- if(end<0)throw Error('Profile draft form boundary changed');
- t=t.slice(0,end)+`<label class="forge-profile-skill-field"><span>描述</span><input aria-label="{{ draft.descriptionLabel }}" value="{{ draft.description }}" sc-camel-on-change="{{ draft.onDescription }}" maxlength="300" disabled="{{ profile.draftLoading }}" /></label>
-                <label class="forge-profile-skill-field"><span>指令 *</span><textarea aria-label="{{ draft.contentLabel }}" value="{{ draft.content }}" sc-camel-on-input="{{ draft.onContent }}" disabled="{{ profile.draftLoading }}" required></textarea></label>
-              `+t.slice(end);
+ const start=t.indexOf('<div class="forge-profile-skill-editor" role="group" aria-label="命名和关联 Skill">');
+ const end=t.indexOf('\n        </sc-if>\n        <sc-if value="{{ profile.noSkills }}"',start);
+ if(start<0 || end<0)throw Error('Profile draft form boundary changed');
+ const form=fs.readFileSync(new URL('profile-skill-form.html',import.meta.url),'utf8').replace(/\[\[icon:([\w-]+):(\d+)\]\]/g,(_,name,size)=>fs.readFileSync(new URL('../../assets/phosphor/regular/'+name+'.svg',import.meta.url),'utf8').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="'+size+'" height="'+size+'" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
+ t=t.slice(0,start)+form+t.slice(end);
  return t.replace('  tagForeground(hex) {',fs.readFileSync(new URL('profile-skill-editor-methods.js',import.meta.url),'utf8')+'  tagForeground(hex) {');
 }

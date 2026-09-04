@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { test } from 'node:test';
-import { planListMotion } from './flow-motion-runtime.mjs';
+import { planListMotion, mountFlowMotion } from './flow-motion-runtime.mjs';
 import { updateFlowMotion } from './update-flow-motion.mjs';
 const row = (key,y,visible=true) => ({key,x:0,y,visible});
 test('sorting follows record identities instead of reused row positions', () => {
@@ -30,6 +30,25 @@ test('large removals fade survivors locally; offscreen and unchanged rows do not
 });
 test('large lists keep simultaneous animations bounded', () => {
   assert.equal(planListMotion(new Map(),Array.from({length:100},(_,i)=>row(String(i),i))).length,24);
+});
+test('tab content commits start a single reveal before the next paint', () => {
+  let notify, pending = null;
+  const plays = [];
+  const events = { addEventListener() {}, removeEventListener() {} };
+  const main = { dataset: { flowView: 'first' }, querySelectorAll: () => [],
+    getBoundingClientRect: () => ({ left: 0, top: 0 }),
+    animate: (frames, options) => { plays.push({ frames, options }); return { cancel() {} }; } };
+  const doc = { ...events, documentElement: { dataset: {} }, querySelector: () => main,
+    defaultView: { ...events, matchMedia: () => ({ ...events, matches: false }),
+      requestAnimationFrame: fn => { pending = fn; return 1; }, cancelAnimationFrame: () => { pending = null; },
+      MutationObserver: class { constructor(fn) { notify = fn; } observe() {} disconnect() {} } } };
+  const destroy = mountFlowMotion(doc); pending();
+  assert.equal(plays.length, 0);
+  main.dataset.flowView = 'second'; notify();
+  assert.equal(plays.length, 1, 'the mutation batch applies opacity before paint');
+  assert.equal(pending, null, 'no delayed fade is queued');
+  notify(); assert.equal(plays.length, 1, 'unrelated rerenders do not replay');
+  destroy();
 });
 test('flow migration is idempotent and keeps existing component syntax valid', () => {
   const source=fs.readFileSync(new URL('./templates/forge-base.html',import.meta.url),'utf8');

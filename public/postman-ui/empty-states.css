@@ -1,0 +1,16 @@
+/* Filter results stay within the available width, without an empty table rail. */
+.forge-postman .pm-filter-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:260px;width:100%;box-sizing:border-box;padding:28px 20px;text-align:center}
+.forge-postman .pm-filter-empty-illustration{display:block;flex:none;width:112px;height:80px;margin:0 0 16px;object-fit:contain}
+.forge-postman .pm-filter-empty .pm-filter-empty-title{margin:0;font-size:15px;line-height:22px;font-weight:600;color:var(--pm-text)}
+.forge-postman .pm-filter-empty .pm-filter-empty-hint{max-width:32ch;margin:6px 0 0;font-size:13px;line-height:20px;color:var(--pm-muted);text-wrap:pretty}
+.forge-postman .pm-filter-empty-action{display:inline-flex;align-items:center;justify-content:center;min-height:32px;margin-top:18px;padding:5px 14px;border:1px solid var(--pm-control);border-radius:var(--pm-radius);background:var(--pm-canvas);color:var(--pm-text);font:500 13px/20px var(--pm-font);cursor:pointer}
+.forge-postman .pm-filter-empty-action:focus-visible{outline:2px solid var(--pm-focus);outline-offset:3px}
+@media(hover:hover) and (pointer:fine){.forge-postman .pm-filter-empty-action:hover{background:var(--pm-hover);border-color:var(--pm-hover-border)}}
+.forge-postman .pm-review-queue .pq-table-scroll[data-empty=true],
+.forge-postman .rr-scroll[data-empty=true]{display:grid;align-items:center;min-height:260px;max-height:none!important;overflow:visible}
+.forge-postman .pm-review-queue .pq-table-scroll[data-empty=true]{border-top:1px solid var(--pm-border)}
+@media(max-width:700px){
+ .forge-postman .pm-filter-empty{padding:28px 16px}
+ .forge-postman .pm-filter-empty-illustration{width:98px;height:70px;margin-bottom:14px}
+}
+@media(pointer:coarse){.forge-postman .pm-filter-empty-action{min-height:44px}}

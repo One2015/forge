@@ -158,6 +158,28 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 @media(max-width:760px),(pointer:coarse){.forge-postman .pm-profile-create-skill,.forge-postman .pm-profile-create-menu>button{min-height:44px}}
 .forge-postman .forge-profile-skill-field textarea { box-sizing:border-box; display:block; width:100%; min-height:150px; padding:8px 10px; border:1px solid var(--pm-border); border-radius:6px; background:var(--pm-canvas); color:var(--pm-text); font:13px/20px var(--pm-font); resize:vertical; }
 .forge-postman .forge-profile-skill-toolbar { flex-wrap:wrap; }
+.forge-postman .pm-profile-skill-form .forge-profile-skill-draft{display:grid;gap:16px;padding:8px 0 20px;min-width:0}
+.forge-postman .pm-profile-skill-form .forge-profile-draft-file{margin:0}
+.forge-postman .pm-profile-skill-form .forge-profile-skill-field{display:grid;gap:6px;margin:0;min-width:0}
+.forge-postman .pm-profile-skill-form .forge-profile-skill-field label{font-size:12px;line-height:20px;font-weight:500;color:var(--pm-text)}
+.forge-postman .pm-profile-field-heading{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:10px;row-gap:2px}
+.forge-postman .pm-profile-field-heading label{flex:none;white-space:nowrap}
+.forge-postman .pm-profile-field-heading small{margin:0;font-size:12px;line-height:18px;color:var(--pm-muted);font-weight:400}
+.forge-postman .pm-profile-required{color:var(--pm-danger)}
+.forge-postman .pm-profile-skill-form .forge-profile-command{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:0;min-width:0;border:1px solid var(--pm-control);border-radius:6px;background:var(--pm-canvas)}
+.forge-postman .pm-profile-skill-form .forge-profile-command>span{display:block;flex:none;white-space:nowrap;margin:0;padding-left:10px;color:var(--pm-muted);font:13px/20px var(--pm-font)}
+.forge-postman .pm-profile-skill-form .forge-profile-command>input{flex:1 1 0;min-width:0;width:0;border:0!important;background:transparent!important;outline:none!important;box-shadow:none!important}
+.forge-postman .pm-profile-skill-form .forge-profile-command:focus-within{outline:2px solid var(--pm-focus);outline-offset:2px}
+.forge-postman .pm-profile-skill-form .forge-profile-command:has(input:disabled){background:var(--forge-disabled-bg)}
+.forge-postman .pm-profile-skill-form :is(input,textarea)[aria-invalid=true],.forge-postman .pm-profile-skill-form .forge-profile-command[data-invalid=true]{border-color:var(--pm-danger)}
+.forge-postman .pm-profile-skill-form .forge-profile-skill-error{margin:0;font-size:12px;line-height:18px}
+.forge-postman .pm-profile-skill-form>.forge-profile-skill-error{margin-block:12px}
+.forge-postman .pm-profile-linked-sheets{min-width:0;padding-top:4px}
+.forge-postman .pm-profile-linked-sheets h3{margin:0 0 8px;font-size:12px;line-height:20px;font-weight:500}
+.forge-postman .pm-profile-linked-sheets>p{margin:0;font-size:12px;line-height:20px;color:var(--pm-muted)}
+.forge-postman .pm-profile-linked-sheets ul{list-style:none;margin:0;padding:0}
+.forge-postman .pm-profile-linked-sheets li{padding-block:8px;border-bottom:1px solid var(--pm-border);font-size:13px;line-height:20px;overflow-wrap:anywhere}
+.forge-postman .pm-profile-linked-sheets li:last-child{border-bottom:0;padding-bottom:0}
 @supports(appearance:base-select){.forge-postman .forge-profile-skill-field select{display:flex;align-items:center;white-space:nowrap}}
 .forge-postman .pm-profile-skill-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 12px 28px;text-align:center;min-height:240px;box-sizing:border-box}
 .forge-postman .pm-profile-skill-empty img{display:block;width:156px;height:156px;object-fit:contain;margin-bottom:4px}

@@ -38,5 +38,6 @@
 }
 /* Initial placement, resizing and keyboard navigation always land immediately. */
 .forge-postman .forge-app-shell :is([data-pm-tabs],[data-forge-segmented])[data-motion-ready=false]::before,
+.forge-postman .forge-app-shell :is([data-pm-tabs],[data-forge-segmented])[data-motion-instant=true]::before,
 html[data-forge-input=keyboard] .forge-postman .forge-app-shell :is([data-pm-tabs],[data-forge-segmented])::before{transition:none!important}
 @media(prefers-reduced-motion:reduce){.forge-postman .forge-app-shell :is([data-pm-tabs],[data-forge-segmented])::before{transition:none!important}}

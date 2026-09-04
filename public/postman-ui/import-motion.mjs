@@ -23,7 +23,12 @@ export function mountImportMotion(doc) {
     current.onfinish = () => { if (animation === current) animation = null; };
   }
   const schedule = () => { if (!frame) frame = win.requestAnimationFrame(sync); };
-  const observer = new win.MutationObserver(schedule);
+  // React can commit during an animation frame. Start in the mutation batch,
+  // before paint, so content never appears at full opacity then dims a frame later.
+  const observer = new win.MutationObserver(() => {
+    win.cancelAnimationFrame(frame);
+    sync();
+  });
   observer.observe(doc.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-pm-import-bump', 'data-pm-import-derive'] });
   const onKey = event => { if (!['Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) stop(); };
   doc.addEventListener('keydown', onKey, true);

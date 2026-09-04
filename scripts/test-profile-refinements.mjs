@@ -52,3 +52,66 @@ test('project ownership includes related cases while Lead visibility alone does 
   assert(lead.profileDeliveryTasks().some(task=>task.key==='other-case'));
   assert(!lead.buildProfileValues().tasks.some(task=>task.key==='other-case'));
 });
+
+test('Skill field errors appear after submission and clear as corrected; invalid drafts never save',()=>{
+  const c=component(),change=value=>({target:{value}});
+  c.pmCreateProfileSkill();
+  let profile=c.buildProfileValues(),row=profile.draftSkills[0];
+  assert.equal(profile.draftSaveDisabled,false);
+  assert.equal(profile.draftIssue,'');
+  assert.equal(row.nameError,'');
+  assert.equal(row.nameInvalid,'false');
+  profile.saveSkills();
+  profile=c.buildProfileValues();row=profile.draftSkills[0];
+  assert.equal(c.personalProfileSkills().length,0);
+  assert.equal(row.nameError,'请填写 Skill 名称。');
+  assert.equal(row.nameInvalid,'true');
+  assert.equal(row.nameDescribedBy,row.nameErrorId);
+  assert.equal(profile.draftIssue,'','field errors are not duplicated at the bottom');
+  row.onName(change('结构检查'));
+  assert.equal(c.buildProfileValues().draftSkills[0].nameError,'');
+  row.onCommand(change('structure'));
+  row.onContent(change('检查主体结构是否完整。'));
+  assert.equal(c.profileSkillDraftIssue(),'');
+  c.saveProfileSkills();
+  assert.equal(c.personalProfileSkills()[0].name,'结构检查');
+  assert.equal(c.state.profileSkillDraft,null);
+});
+
+test('linked sheet list uses actual personal Skill bindings and respects task access',()=>{
+  const c=component();
+  const personal={id:'quality',owner:'一万',name:'质量检查',command:'quality',content:'检查质量',filename:'SKILL.md'};
+  c.state.personalSkills=[personal];
+  const bound={id:'bound',personalSkillId:'quality',owner:'一万'};
+  c.state.deliveryOverrides={ant200:{skills:[bound,bound]}};
+  c.state.deliverySheets=[
+    {...fixture('linked','reviewer-forge'),skills:[{id:'copy',libraryKey:'personal:一万:quality'}]},
+    {...fixture('unlinked','owner'),skills:[{...bound,owner:'other'}]},
+    {...fixture('private','owner'),members:[{accountName:'other',role:'owner'}],skills:[bound]}
+  ];
+  c.editPersonalSkill(personal.id);
+  let row=c.buildProfileValues().draftSkills[0];
+  assert.deepEqual(Array.from(row.linkedSheets,s=>s.key).sort(),['ant200','linked']);
+  assert(row.hasLinkedSheets);assert(!row.noLinkedSheets);
+  c.state.deliverySheets.find(s=>s.key==='linked').members=[];
+  assert.deepEqual(Array.from(c.buildProfileValues().draftSkills[0].linkedSheets,s=>s.key),['ant200']);
+  c.pmCreateProfileSkill();
+  row=c.buildProfileValues().draftSkills[0];
+  assert(row.noLinkedSheets);assert.equal(row.linkedSheets.length,0);
+  const form=template.slice(template.indexOf('class="forge-profile-skill-editor pm-profile-skill-form"'),template.indexOf('value="{{ profile.noSkills }}"'));
+  assert(!form.includes('<select'));
+});
+
+test('duplicate commands report at the command field and stale editor callbacks are ignored',()=>{
+  const c=component(),change=value=>({target:{value}});
+  c.state.personalSkills=[{id:'existing',owner:'一万',name:'已有',command:'check',content:'指令'}];
+  c.pmCreateProfileSkill();
+  const row=c.buildProfileValues().draftSkills[0];
+  row.onName(change('新 Skill'));row.onCommand(change('CHECK'));row.onContent(change('新指令'));
+  c.saveProfileSkills();
+  assert.match(c.buildProfileValues().draftSkills[0].commandError,/已存在/);
+  assert.equal(c.personalProfileSkills().length,1);
+  c.pmCreateProfileSkill();
+  row.onName(change('过期修改'));
+  assert.equal(c.buildProfileValues().draftSkills[0].name,'');
+});

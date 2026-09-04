@@ -15,7 +15,7 @@
 .forge-postman .rr-notice{gap:12px;overflow-wrap:anywhere}
 .forge-postman .rr-notice button{flex:none}
 
-@container pm-runs (max-width:1160px){
+@container pm-runs (max-width:980px){
  .forge-postman .rr-scroll{max-height:none;overflow:visible;min-height:0}
  .forge-postman .rr-table{min-width:0}
  .forge-postman .rr-heading{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0;white-space:nowrap}
@@ -69,7 +69,7 @@
  .forge-postman .pm-review-queue .pq-thumb{width:56px;height:44px}
  .forge-postman .pm-review-queue .pq-task-copy>strong{display:block;line-height:1.5;-webkit-line-clamp:unset}
  .forge-postman .pm-review-queue .pq-context{flex-wrap:wrap;gap:3px;line-height:1.5}
- .forge-postman .pm-review-queue .pq-context code{flex-basis:100%;min-width:0;font-size:10px;overflow-wrap:anywhere;white-space:normal}
+ .forge-postman .pm-review-queue .pq-context code{flex-basis:100%;min-width:0;font-size:12px;overflow-wrap:anywhere;white-space:normal}
  .forge-postman .pm-review-queue .pq-context>span[aria-hidden]{display:none}
  .forge-postman .pm-review-queue .pq-context>span:last-child{white-space:normal;overflow-wrap:anywhere}
  .forge-postman .pm-review-queue .pq-issue{white-space:normal;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
