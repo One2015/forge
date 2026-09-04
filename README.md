@@ -1,6 +1,6 @@
-# Forge redesign v1
+# Forge
 
-Forge 重设计第一版。版本标签：`forge-redesign-v1`。包含生产、审核、交付、Item 详情和 Pipeline 查看／编辑界面。
+Forge 生产、审核与交付工作台，包含 Item 详情、Pipeline 查看／编辑和个人 Skill 管理。`main` 包含最新代码；`forge-redesign-v1` 标签保留重设计第一版快照。
 
 ## 启动
 
@@ -39,3 +39,7 @@ npm run build:postman
 公开地址可能落后于本地源码包。部署必须经项目所有者批准，不要覆盖原站点配置或自行发布。
 
 当前界面规范见 [设计说明](docs/postman-ui/DESIGN.md)，实现入口见 [实现说明](docs/postman-ui/IMPLEMENTATION.md)。
+
+## 历史版本
+
+根目录的 `index.html`、`HumanReview.dc.html` 和 `support.js` 保留自原仓库的 2026-08-21 人工审核原型。当前工作台使用上面的 npm 启动方式与 `public/forge-postman.html` 入口。
