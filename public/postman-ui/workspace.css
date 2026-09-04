@@ -17,10 +17,16 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 .forge-postman .forge-sidebar-nav{padding:12px 8px;gap:3px}
 .forge-postman .forge-sidebar-link{min-height:36px;padding:7px 10px;gap:10px;font-size:13px;line-height:22px;border-radius:4px}
 .forge-postman .forge-sidebar-link>.forge-icon{width:18px;height:18px}
-.forge-postman .forge-sidebar-link[aria-current=page]{position:relative;background:var(--pm-nav-soft)!important;color:var(--pm-nav)!important;font-weight:600}
-.forge-postman .forge-sidebar-link[aria-current=page]>.forge-icon{color:var(--pm-brand)}
-.forge-postman .forge-sidebar-link[aria-current=page]::before{content:"";position:absolute;left:-8px;top:6px;bottom:6px;width:3px;border-radius:0 2px 2px 0;background:var(--pm-brand)}
-.forge-postman .forge-sidebar-link:hover{background:var(--pm-hover);color:var(--pm-text)}
+/* Route selection and open utility panels share one whole-item treatment. */
+.forge-postman .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile){position:relative;border:0;border-radius:var(--pm-radius);box-shadow:none!important}
+.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true]){background:var(--pm-nav-soft)!important;color:var(--pm-nav)!important;font-weight:600}
+.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true])>.forge-icon{color:var(--pm-brand)}
+.forge-postman .forge-sidebar-profile[aria-expanded=true] :is(.forge-sidebar-username,.forge-sidebar-avatar){color:var(--pm-nav)}
+.forge-postman .forge-sidebar-profile-label{font-weight:400}
+.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true])::before{content:"";position:absolute;left:-8px;top:6px;bottom:6px;width:3px;border-radius:0 2px 2px 0;background:var(--pm-brand);pointer-events:none}
+@media(hover:hover){.forge-postman .forge-sidebar :is(.forge-sidebar-link:not([aria-current=page]),.forge-sidebar-tool:not([aria-expanded=true]),.forge-sidebar-profile:not([aria-expanded=true])):hover{background:var(--pm-hover)!important;color:var(--pm-text)}}
+.forge-postman .forge-sidebar :is(.forge-sidebar-link:not([aria-current=page]),.forge-sidebar-tool:not([aria-expanded=true]),.forge-sidebar-profile:not([aria-expanded=true])):active{background:var(--pm-pressed)!important}
+.forge-postman .forge-app-shell .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile,.forge-sidebar-collapse):focus-visible{outline:var(--pm-focus-width) solid var(--pm-focus)!important;outline-offset:-1px!important}
 .forge-postman .forge-sidebar-utilities{padding:8px;gap:0}
 .forge-postman .forge-sidebar-tool{min-height:34px;padding:6px 10px;font-size:12px;gap:10px}
 .forge-postman .forge-sidebar-profile{min-height:48px;margin-top:6px}
@@ -118,7 +124,7 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 
 .forge-postman :is(h1,h2,[data-forge-route-section]){scroll-margin-top:96px}
 /* Frequent navigation updates must paint their selected state immediately. */
-.forge-postman .forge-app-shell .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile){transition:none!important}
+.forge-postman .forge-app-shell .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile,.forge-sidebar-collapse){transition:none!important;transform:none!important}
 
 /* One neutral focus treatment for native controls and composite field wrappers. */
 .forge-postman :is(input:not([type=checkbox],[type=radio],[type=file]),textarea,select):focus-visible{border-color:var(--pm-focus)!important;outline-offset:-1px!important;box-shadow:none!important}

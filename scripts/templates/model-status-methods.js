@@ -61,7 +61,7 @@
     const catalogFresh = fresh(input.catalogCheckedAt);
     const complete = input.catalogComplete === true && valid && catalogFresh;
     const protocolNames = { 'anthropic-messages': 'Anthropic Messages', 'openai-chat': 'OpenAI Chat Completions', 'openai-responses': 'OpenAI Responses', 'gemini-content': 'Gemini GenerateContent' };
-    const failures = { model_not_found: '无可用通道', no_available_channel: '无可用通道', timeout: '调用超时', insufficient_balance: '余额不足', arrears: '账户欠费', quota_exhausted: '额度耗尽', rate_limited: '请求限流', authentication_failed: '鉴权失败' };
+    const failures = { model_not_found: '无可用通道', no_available_channel: '无可用通道', timeout: '调用超时', insufficient_balance: '余额不足', arrears: '账户欠费', quota_exhausted: '额度耗尽', rate_limited: '请求限流', authentication_failed: '鉴权失败', key_unavailable: 'Key 暂时不可用', account_shortage: '供应商账号紧缺', downstream_error: '下游供应商报错', upstream_error: '下游供应商报错' };
     const billingNames = { ok: '正常', balance_low: '余额偏低', arrears: '账户欠费', quota_exhausted: '额度耗尽' };
     const billingErrors = { insufficient_balance: '余额不足', arrears: '账户欠费', quota_exhausted: '额度耗尽' };
     const positive = value => Number.isFinite(value) && value > 0;

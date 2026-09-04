@@ -311,6 +311,71 @@ test('combined model filters survive URL round trips, including a selected diagn
   const view = restored.modelStatusValues(); assert.equal(view.rows.length, 1); assert.equal(view.line, target.id); assert.equal(view.provider, target.providerId); assert.equal(view.model, target.modelId); assert.equal(view.filter, 'severe'); assert(view.drawerOpen);
 });
 
+test('alert reasons filter explicit current failures and remain independent of severity', () => {
+  const categories = [
+    ['insufficient_balance', 'supplier_balance', '供应商余额不足'],
+    ['key_unavailable', 'key_unavailable', 'Key 暂时不可用'],
+    ['account_shortage', 'account_shortage', '供应商账号紧缺'],
+    ['downstream_error', 'downstream_error', '下游供应商报错']
+  ];
+  const payload = data(undefined, categories.map(([errorCode], i) => route('r' + i, 'm', 'p', { outcome: 'failed', errorCode })));
+  const { c } = component(payload); c.openModelStatus();
+  for (const [errorCode, filter, label] of categories) {
+    c.modelStatusValues().onFilter({ target: { value: filter } });
+    const view = c.modelStatusValues();
+    assert.equal(view.rows.length, 1); assert.equal(view.rows[0].raw.errorCode, errorCode);
+    assert.equal(view.rows[0].status, '调用失败'); assert.equal(view.rows[0].alertReason, label);
+    view.rows[0].select(); assert.equal(c.modelStatusValues().reason, label);
+  }
+  c.modelStatusValues().reset(); assert.equal(c.modelStatusValues().rows.length, 4);
+});
+
+test('stale, inactive, uncertain and ambiguous failures do not invent supplier causes', () => {
+  const variants = [
+    { checkedAt: NOW - 300001 }, { checkedAt: NOW + 1 }, { enabled: false }, { routable: false },
+    { outcome: 'passed' }, { errorCode: 'timeout' }, { errorCode: 'no_available_channel' },
+    { errorCode: '__proto__' }, { errorCode: 'sk-secret-from-raw-message' }
+  ];
+  for (const extra of variants) {
+    const { c } = component(data(undefined, [route('r', 'm', 'p', { outcome: 'failed', errorCode: 'key_unavailable', ...extra })]));
+    c.openModelStatus(); assert.equal(c.modelStatusValues().allLines[0].alertReasons.length, 0);
+    c.modelStatusValues().onFilter({ target: { value: 'key_unavailable' } }); assert(!c.modelStatusValues().hasRows);
+  }
+  const payload = data(undefined, [route('r', 'm', 'p', { outcome: 'failed', errorCode: 'account_shortage' })]);
+  payload.routes.push(route('r', 'm', 'p', { outcome: 'passed' }));
+  const { c } = component(payload); c.openModelStatus(); assert(c.modelStatusValues().allLines.every(line => !line.alertReasons.length));
+});
+
+test('balance and call reasons can overlap without losing either filter', () => {
+  const payload = data(undefined, [route('r', 'm', 'p', { outcome: 'failed', errorCode: 'key_unavailable' })], [provider('p', { billing: { status: 'balance_low', checkedAt: NOW - 1000 } })]);
+  const { c } = component(payload); c.openModelStatus();
+  for (const filter of ['supplier_balance', 'key_unavailable']) {
+    c.modelStatusValues().onFilter({ target: { value: filter } }); assert.equal(c.modelStatusValues().rows.length, 1);
+  }
+  payload.providers[0].billing.checkedAt = NOW - 300001;
+  c.modelStatusValues().onFilter({ target: { value: 'supplier_balance' } }); assert(!c.modelStatusValues().hasRows);
+});
+
+test('demo alarm reasons support combined filters, search, reset and URL round trips', () => {
+  const core = fs.readFileSync(new URL('./templates/routing-core.js', import.meta.url), 'utf8');
+  const codec = vm.runInNewContext(core + ';ForgeRoutes;', { URL, URLSearchParams });
+  for (const filter of ['supplier_balance', 'key_unavailable', 'account_shortage', 'downstream_error']) {
+    const { c } = component(); c.openModelStatus();
+    c.modelStatusValues().onFilter({ target: { value: filter } });
+    const target = c.modelStatusValues().rows[0]; assert(target, filter);
+    c.modelStatusValues().onProvider({ target: { value: target.providerId } });
+    c.modelStatusValues().onModel({ target: { value: target.modelId } });
+    c.modelStatusValues().onLine({ target: { value: target.id } });
+    c.modelStatusValues().onQuery({ target: { value: target.alertReason.split(' · ')[0] } });
+    c.modelStatusValues().rows[0].select();
+    const { c: restored } = component(); restored.setState(codec.read(codec.write(c.state)).patch);
+    const view = restored.modelStatusValues();
+    assert.equal(view.rows.length, 1); assert.equal(view.rows[0].id, target.id); assert.equal(view.filter, filter); assert(view.drawerOpen);
+    view.onProvider({ target: { value: 'missing-provider' } }); assert(!restored.modelStatusValues().hasRows);
+    restored.modelStatusValues().reset(); assert.equal(restored.modelStatusValues().rows.length, 8);
+  }
+});
+
 test('status navigation reflows without an inner scroll area and both variants remove the sort control', () => {
   const postmanSource = fs.readFileSync(new URL('../public/forge-postman.html', import.meta.url), 'utf8');
   const postman = JSON.parse(postmanSource.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);

@@ -10,6 +10,9 @@
     const signed = (value, suffix = '%') => value > 0 ? '+' + num(value) + suffix : value < 0 ? '−' + num(Math.abs(value)) + suffix : '正常';
     const time = at => new Date(at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
     const statusLabels = { severe: '严重', performance: '警告', quality: '质量异常', confirm: '需确认', billing: '余额不足', normal: '正常', failed: '调用失败', unknown: '待确认', inactive: '未纳入生产' };
+    // Use explicit error categories; severity and latency alone cannot identify a supplier cause.
+    const alertReasonLabels = { supplier_balance: '供应商余额不足', key_unavailable: 'Key 暂时不可用', account_shortage: '供应商账号紧缺', downstream_error: '下游供应商报错' };
+    const errorReasons = { insufficient_balance: 'supplier_balance', arrears: 'supplier_balance', key_unavailable: 'key_unavailable', authentication_failed: 'key_unavailable', account_shortage: 'account_shortage', downstream_error: 'downstream_error', upstream_error: 'downstream_error' };
     const toneFor = status => ['severe', 'failed', 'billing'].includes(status) ? 'danger' : ['performance', 'quality', 'confirm'].includes(status) ? 'warning' : status === 'normal' ? 'success' : 'muted';
     const lines = snapshot.rows.map(row => {
       const raw = rawRoutes.get(row.id) || {}, usage = raw.usage || {}, latency = raw.latency || {}, quality = raw.quality || {}, evidence = isDemo ? raw.demoEvidence || {} : {};
@@ -30,6 +33,10 @@
       const qualityKind = evidence.qualityKind || (row.regressed ? 'drift' : qualityKnown ? 'normal' : 'retest');
       const inferredStatus = row.result === 'failed' && row.active ? 'failed' : row.slow ? 'severe' : row.regressed ? 'quality' : row.billingAlert ? 'billing' : row.active && row.result === 'passed' ? 'normal' : row.active || row.uncertain ? 'unknown' : 'inactive';
       const statusKey = evidence.status || inferredStatus;
+      const callReason = row.result === 'failed' && Object.hasOwn(errorReasons, raw.errorCode) ? errorReasons[raw.errorCode] : '';
+      const balanceReason = fresh(billing.checkedAt) && ['balance_low', 'arrears'].includes(billing.status) ? 'supplier_balance' : '';
+      const alertReasons = row.active && !row.uncertain ? [...new Set((isDemo ? evidence.alertReasons || [] : [callReason, balanceReason]).filter(reason => Object.hasOwn(alertReasonLabels, reason)))] : [];
+      const alertReason = alertReasons.map(reason => alertReasonLabels[reason]).join(' · ');
       const impact = evidence.impact || { tasks: 0, project: '业务影响待接入', ddl: 'DDL 待接入', failedCalls: failures || 0 };
       const qualityTitle = qualityKind === 'drift' ? '质量漂移' : qualityKind === 'mismatch' ? '疑似模型不一致' : qualityKind === 'retest' ? '需要复测' : '正常';
       const qualityDetail = qualityKind === 'drift' && qualityKnown ? 'Benchmark ' + quality.baselineScore + ' → ' + quality.score : qualityKind === 'mismatch' ? (evidence.fingerprint ? 'Fingerprint 变化' : '与官方直连差异显著') : qualityKind === 'retest' ? '样本量不足' : '固定测试集稳定';
@@ -39,7 +46,7 @@
       const businessScore = severity * 100 + (impact.tasks || 0) * 18 + (urgentDdl ? 25 : 0);
       const line = {
         ...row, raw, evidence, id: row.id, providerId: row.providerId, modelId: row.modelId, line: evidence.line || row.id, calls, failures, failureRate, usageKnown,
-        statusKey, status: statusLabels[statusKey] || row.availability, tone: toneFor(statusKey), severity, businessScore,
+        statusKey, status: statusLabels[statusKey] || row.availability, tone: toneFor(statusKey), severity, businessScore, alertReasons, alertReason, alertReasonItems: alertReasons.map(id => ({ id, label: alertReasonLabels[id] })),
         latencyMs: latencyKnown ? latency.currentMs : null, baselineMs: latencyKnown ? latency.baselineMs : null, ratio,
         latencyValue: latencyKnown ? (latency.currentMs / 1000).toFixed(2) + 's' : '—', baselineValue: latencyKnown ? (latency.baselineMs / 1000).toFixed(2) + 's' : '—',
         ratioLabel: ratio != null ? num(ratio) + '×' : '待检测', totalMs, totalBaselineMs, totalRatio, throughput, throughputDelta,
@@ -51,7 +58,7 @@
         failure: failureRate == null ? '—' : percent(failureRate), failureDetail: usageKnown ? num(failures, 0) + ' / ' + num(calls, 0) : '调用统计待接入',
         cost: usageKnown ? money(usage.costUsd) : '—', balance: balanceKnown ? money(billing.balanceUsd) : '—', runway: runway == null ? '—' : num(runway) + 'h', hourlySpend: hourlySpendKnown ? money(billing.hourlySpendUsd) + ' / 小时' : '消耗速率待接入',
         billing, impact, impactMain: impact.tasks ? impact.tasks + ' 个运行任务' : impact.project, impactSub: impact.tasks ? impact.project + ' · ' + impact.ddl : impact.ddl,
-        action, reason: evidence.cause || row.reason, explanation: evidence.explanation || row.reason, errors: evidence.errors || '错误分布待接入', tests: evidence.tests || row.qualityEvidence,
+        action, reason: alertReason || evidence.cause || row.reason, explanation: evidence.explanation || (balanceReason && !callReason ? row.billingEvidence : row.reason), errors: evidence.errors || '错误分布待接入', tests: evidence.tests || row.qualityEvidence,
         checked: row.checked, abnormalStartedAt: evidence.abnormalStartedAt || '待确认', selected: false
       };
       return line;
@@ -59,7 +66,7 @@
     const filter = state.modelFilter || 'production', provider = state.modelProvider || '', model = state.modelModel || '', route = state.modelLine || '';
     const query = String(state.modelQuery || '').trim().toLowerCase(), businessOnly = !!state.modelBusinessOnly;
     const matchesStatus = line => filter === 'production' ? line.active || line.uncertain : filter === 'attention' ? ['severe', 'failed', 'billing', 'performance', 'quality', 'confirm'].includes(line.statusKey) : filter === 'severe' ? line.statusKey === 'severe' || line.statusKey === 'failed' || line.statusKey === 'billing' : filter === 'performance' || filter === 'slow' ? line.statusKey === 'performance' || line.statusKey === 'severe' : filter === 'quality' ? ['quality', 'confirm'].includes(line.statusKey) : filter === 'billing' ? line.statusKey === 'billing' : filter === 'normal' ? line.statusKey === 'normal' : filter === 'available' ? line.active && line.result === 'passed' : filter === 'failed' ? line.statusKey === 'failed' : filter === 'unknown' ? ['unknown', 'confirm'].includes(line.statusKey) : filter === 'inactive' ? line.statusKey === 'inactive' : true;
-    let visible = lines.filter(line => (!query || (line.provider + ' ' + line.model + ' ' + line.line + ' ' + line.status).toLowerCase().includes(query)) && (!provider || line.providerId === provider) && (!model || line.modelId === model) && (!route || line.id === route) && (!businessOnly || line.impact.tasks > 0 || /失败|DDL|耗尽/.test(line.impactMain + line.impactSub)) && matchesStatus(line));
+    let visible = lines.filter(line => (!query || (line.provider + ' ' + line.model + ' ' + line.line + ' ' + line.status + ' ' + line.alertReason).toLowerCase().includes(query)) && (!provider || line.providerId === provider) && (!model || line.modelId === model) && (!route || line.id === route) && (!businessOnly || line.impact.tasks > 0 || /失败|DDL|耗尽/.test(line.impactMain + line.impactSub)) && (Object.hasOwn(alertReasonLabels, filter) ? line.alertReasons.includes(filter) : matchesStatus(line)));
     const sort = state.modelSort || 'impact';
     const compare = {
       impact: (a, b) => b.businessScore - a.businessScore,

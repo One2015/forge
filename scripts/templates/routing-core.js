@@ -94,7 +94,7 @@ const ForgeRoutes = (() => {
       } else if (parts[0] === 'models' && parts.length === 1) {
         patch.view = 'models'; patch.modelQuery = query; patch.modelProvider = get('provider');
         patch.modelModel = get('model'); patch.modelLine = get('line');
-        patch.modelFilter = oneOf(get('status'), ['production', 'attention', 'severe', 'performance', 'normal', 'failed', 'slow', 'quality', 'billing', 'unknown', 'available', 'inactive'], 'production');
+        patch.modelFilter = oneOf(get('status'), ['production', 'attention', 'severe', 'performance', 'normal', 'failed', 'slow', 'quality', 'billing', 'unknown', 'available', 'inactive', 'supplier_balance', 'key_unavailable', 'account_shortage', 'downstream_error'], 'production');
         patch.modelDimension = oneOf(get('dimension'), ['providers', 'models'], 'providers');
         patch.modelSelection = get('selection'); patch.modelRoute = get('route'); patch.modelSource = get('source') === 'live' ? 'live' : '';
         patch.modelBusinessOnly = get('impact') === '1'; patch.modelSort = oneOf(get('sort'), ['impact', 'severity', 'latency', 'errors', 'balance', 'updated'], 'impact');
