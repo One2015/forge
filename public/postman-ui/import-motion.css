@@ -1,0 +1,17 @@
+/* Share the tab indicator geometry and timing; import mode content keeps its
+   own short fade without delaying the form's state change. */
+.forge-postman .forge-app-shell .pm-import-modes[data-pm-tabs]{--forge-segment-fill:var(--pm-pressed);--forge-segment-radius:6px}
+.forge-postman .forge-app-shell .pm-import-modes[data-pm-tabs][data-motion-ready=true]::before{display:block!important;border-radius:0}
+.forge-postman .forge-app-shell .pm-import-modes[data-pm-tabs][data-motion-ready=true] button[aria-pressed=true]{background:transparent!important}
+/* Reserve bold-label width; only the background moves, never the labels. */
+.forge-postman .forge-app-shell .pm-import-modes[data-pm-tabs] button[data-motion-label]{display:inline-grid!important;place-items:center;gap:0}
+.forge-postman .forge-app-shell .pm-import-modes[data-pm-tabs] button[data-motion-label]::after{display:block!important}
+.forge-postman .pm-import-config{min-width:0;opacity:1}
+@media(max-width:480px){
+ .forge-postman .forge-app-shell .pm-import-modes[data-pm-tabs]{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));width:100%!important;overflow:visible;align-items:stretch}
+ .forge-postman .forge-app-shell .pm-import-modes[data-pm-tabs] button[data-motion-label]{min-width:0;white-space:normal!important;min-height:44px!important;height:auto!important;padding:6px!important;text-wrap:balance}
+ .forge-postman .pm-import-config [style*="grid-template-columns"]{grid-template-columns:minmax(0,1fr)!important}
+}
+/* The selected fill/text still update in both immediate variants. */
+html[data-forge-input=keyboard] .forge-postman .pm-import-modes::before{transition:none!important}
+@media(prefers-reduced-motion:reduce){.forge-postman .pm-import-modes::before{transition:none!important}}

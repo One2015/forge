@@ -1,6 +1,9 @@
 /* Shared neutral treatments for headers, local tabs and low-emphasis actions.
    Semantic status, case labels, destructive actions and the preview canvas keep
    their own colors. data-pm hooks are added by the isolated preview generator. */
+.forge-postman .forge-task-link-toast-action{color:var(--pm-link-accent);text-decoration-thickness:1px}
+.forge-postman .forge-task-link-toast-action:is(:hover,:focus-visible){color:var(--pm-link-accent-hover)}
+.forge-postman .forge-task-link-toast-action:focus-visible{outline-color:var(--pm-link-accent)!important}
 .forge-postman .forge-sheet-preview-controls .forge-sheet-preview-control{background:transparent!important;border:0!important;box-shadow:none!important;color:rgba(255,255,255,.8)!important}
 .forge-postman .forge-sheet-preview-controls .forge-sheet-preview-control:hover:not(:disabled),.forge-postman .forge-sheet-preview-controls .forge-sheet-preview-control:active:not(:disabled){background:transparent!important;color:#fff!important}
 .forge-postman .forge-sheet-preview-controls .forge-sheet-preview-control:disabled{background:transparent!important;color:rgba(255,255,255,.36)!important;cursor:default!important}

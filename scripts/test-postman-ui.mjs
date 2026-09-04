@@ -204,11 +204,11 @@ test('lifecycle photos fill eight slots from paste and upload, with six-slot for
  c.renderVals().life.cancelAppend();assert.equal(c.feedbackImages(key).length,0);
 });
 
-test('sheet rework accepts eight reference images across upload and paste, then allows replacing one',async()=>{
+for (const scope of ['sheet', 'branch']) test(scope+' accepts eight reference images across upload and paste, then allows replacing one',async()=>{
  ctx.FileReader=class{readAsDataURL(file){queueMicrotask(()=>{this.result='data:'+file.type+';base64,aQ==';this.onload();});}};
  ctx.Image=class{naturalWidth=1;set src(value){queueMicrotask(()=>this.onload());}};
- const c=vm.runInContext('new Component()',ctx),item='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f',key='sheet:'+item;
- c.setState({view:'sheet',sheetKey:'ant200',sheetRow:item,sheetReworkAsk:item});
+ const c=vm.runInContext('new Component()',ctx),item='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f',key=scope+':'+item;
+ c.setState({view:'sheet',sheetKey:'ant200',sheetRow:item,sheetReworkAsk:scope==='sheet'?item:null,branchAsk:scope==='branch'?{attachmentKey:key}:null});
  const file=i=>({name:'photo-'+i+'.png',type:'image/png',size:128});
  let view=c.feedbackView(key);assert.equal(view.emptySlots.length,8);assert.equal(view.remaining,8);
  await view.upload({target:{files:Array.from({length:7},(_,i)=>file(i)),value:'selected'}});

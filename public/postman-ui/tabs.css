@@ -18,3 +18,25 @@
 }
 @media(max-width:760px){.forge-postman .forge-app-shell [data-pm-tabs=primary][data-pm-tabs] button{padding-inline:10px!important}}
 @media(pointer:coarse){.forge-postman .forge-app-shell [data-pm-tabs=secondary][data-pm-tabs] button{height:44px!important;min-height:44px!important}}
+
+/* One indicator follows the selection, using the reference's 250ms soft settle.
+   Clip the background instead of scaling labels or animating layout dimensions. */
+.forge-postman .forge-app-shell :is([data-pm-tabs],[data-forge-segmented])::before{width:var(--forge-segment-width,100%);right:auto;border-radius:0}
+.forge-postman .forge-app-shell [data-pm-tabs=primary]{--forge-segment-fill:var(--pm-brand);--forge-segment-radius:0px}
+.forge-postman .forge-app-shell [data-pm-tabs=secondary]{--forge-segment-fill:var(--pm-pressed);--forge-segment-radius:6px}
+.forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs][data-motion-ready=true]::before{display:block!important}
+.forge-postman .forge-app-shell [data-pm-tabs=primary][data-motion-ready=true][data-pm-tabs] button{border-bottom-color:transparent!important}
+.forge-postman .forge-app-shell [data-pm-tabs=secondary][data-motion-ready=true][data-pm-tabs] button:is([aria-pressed=true],[aria-selected=true],[data-active=true],[data-motion-selected=true]){background:transparent!important}
+.forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs] button[data-motion-label]{display:inline-grid!important;place-items:center;gap:0}
+.forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs] button[data-motion-label]>:is(.sc-interp,.fg-button-content,.fg-button-busy){grid-area:1/1}
+.forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs] button[data-motion-label]::after{display:block!important}
+.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch{--forge-segment-fill:var(--pm-selected);--forge-segment-radius:3px}
+.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch[data-motion-ready=true]::before{display:block}
+.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch[data-motion-ready=true] label[data-checked=true]{background:transparent!important;box-shadow:none!important}
+@media(prefers-reduced-motion:no-preference){
+ html:not([data-forge-input=keyboard]) .forge-postman .forge-app-shell :is([data-pm-tabs],[data-forge-segmented])[data-motion-ready=true]::before{transition:clip-path 250ms cubic-bezier(.22,1,.36,1)}
+}
+/* Initial placement, resizing and keyboard navigation always land immediately. */
+.forge-postman .forge-app-shell :is([data-pm-tabs],[data-forge-segmented])[data-motion-ready=false]::before,
+html[data-forge-input=keyboard] .forge-postman .forge-app-shell :is([data-pm-tabs],[data-forge-segmented])::before{transition:none!important}
+@media(prefers-reduced-motion:reduce){.forge-postman .forge-app-shell :is([data-pm-tabs],[data-forge-segmented])::before{transition:none!important}}

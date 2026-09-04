@@ -1,4 +1,5 @@
 import './button-guards.mjs';
+import './import-motion.mjs';
 // The legacy template has clickable divs. Preserve its click callbacks and add
 // keyboard parity without duplicating any business logic or changing text.
 const processed=new WeakSet();

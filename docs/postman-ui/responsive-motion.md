@@ -57,3 +57,26 @@ and adapter tests passed (78 tests), with browser checks at 1440px and 919px.
   menu/dialog close states remained correct. The fixture was removed afterward.
 - Existing assembly, run-record, review-queue, assignment and motion tests: 116
   passed. No model callbacks changed for this work.
+
+## Loading skeletons
+
+The [Transitions.dev skeleton and reveal](https://transitions.dev/detail.html?t=skeleton-loader-and-reveal)
+informs the shared `loading.css`: a 1000ms soft opacity pulse, followed by a
+240ms crossfade in place when the real load completes. Only the small skeleton
+shapes blur by 2px; images, models and embedded pages fade without a blur.
+Pulsing stops after three cycles if a request remains pending. Completion never
+waits for the animation, and retry restores the loading state immediately.
+
+The outer workbench iframe, billing/model data regions, and image/web/3D previews
+share this treatment. Preview errors, timeouts, actual model progress and retry
+remain driven by their existing lifecycle. Hidden previews cannot receive focus.
+Reduced motion uses static shapes and a 90ms opacity fade.
+
+Validation: production build, focused TypeScript check and all 554 existing
+tests passed. Browser checks covered cold-start completion, ready billing/model
+pages, and an isolated fixture using the production CSS and preview bundle.
+The fixture exercised delayed image loading, failure/retry and 390px layout;
+it measured an intermediate fade opacity and confirmed that ready skeletons
+become hidden. Native media emulation was unavailable, so the fixture activated
+the production reduce CSS branch to verify no pulse/blur and a 90ms reveal.
+The fixture and its local server were removed afterward.

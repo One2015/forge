@@ -7,4 +7,6 @@
 - Groups stay on one line, scroll horizontally if needed, and retain visible keyboard focus. Touch controls have a 44px target.
 - Embedded artifact viewer switches and workflow progress indicators retain their own components.
 
-Selection supports the existing aria-pressed, aria-selected, aria-current, data-active, and data-motion-selected attributes. Decorative legacy moving selection backgrounds are suppressed so they cannot cover labels or override the shared state styling.
+Selection supports the existing aria-pressed, aria-selected, aria-current, data-active, and data-motion-selected attributes. A single clipped background follows the selected tab, inspired by [Transitions.dev Tabs sliding](https://transitions.dev/detail.html?t=tabs-sliding): 250ms with cubic-bezier(.22,1,.36,1). Primary tabs move the orange underline; secondary tabs move the neutral fill. Labels stay above the indicator, and the existing content update remains immediate.
+
+The shared surface runtime also handles the Preview / Files switch. It reads actual control dimensions, including the scrollable strip and changing counts. Initial placement, window/container resizing, keyboard navigation and reduced-motion selection update immediately. CSS transitions retarget from the current visual position during rapid pointer switching; no duplicated interactive tabs, new dependencies or delayed callbacks are added.

@@ -7,7 +7,7 @@ export function installFeedbackRefinements(t){
  t=t.replace(sheetHint,'').replace(' aria-describedby="forge-sheet-rework-hint"','');
  const slots=(view,id)=>{
   const html=read('photo-slots.html').replaceAll('VIEW',view).replaceAll('HELP_ID',id);
-  return icons(view==='sheet.pick.feedback'?html.replaceAll('/6','/8').replace('最多 6 张','最多 8 张'):html);
+  return icons(['sheet.pick.feedback','branch'].includes(view)?html.replaceAll('/6','/8').replace('最多 6 张','最多 8 张'):html);
  };
  for(const [view,id] of [['sheet.pick.feedback','forge-sheet-rework-image-help'],['it.feedback','forge-rework-image-help']]){
   const field=t.indexOf('class="forge-feedback-image-heading"',t.indexOf('<!-- feedback-image-box:start -->'));

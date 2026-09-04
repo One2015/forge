@@ -15,6 +15,7 @@ import {removeDeliveryDrafts} from './remove-delivery-drafts.mjs';
 import {installPipelineResponsive} from './pipeline-responsive.mjs';
 import {installItemExplorer} from './item-explorer.mjs';
 import {installTabs} from './tabs.mjs';
+import {installImportMotion} from './import-motion.mjs';
 import {installGlobalResponsive} from './global-responsive.mjs';
 import {installProgressIndicators} from './progress-indicators.mjs';
 import {installModelStatus} from './model-status.mjs';
@@ -33,6 +34,7 @@ import {installDatasetPipelineGuide} from './dataset-pipeline-guide.mjs';
 import {installPipelineOwnerEditor} from './pipeline-owner-editor.mjs';
 import {installDatasetEditor} from './dataset-editor.mjs';
 import {installEntryTagStyle} from './entry-tag-style.mjs';
+import {installLoadingStates} from './loading-states.mjs';
 const root=new URL('../../',import.meta.url);
 export function buildPostman(source){
  const opening='<script type="__bundler/template">', closing='\n</script>\n</body>\n</html>';
@@ -229,9 +231,11 @@ export function buildPostman(source){
   t=t.replace("title + ' | Forge'", "title + ' | Forge · Postman UI 优化版'");
  }
  t=installTabs(t);
+ t=installImportMotion(t);
  t=installGlobalResponsive(t);
- const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
- replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n</style>');
+ t=installLoadingStates(t);
+ const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css','loading.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
+ replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n</style>');
  replace('</head>','<script type="module" src="/postman-ui/behavior.mjs"></script>\n</head>');
  const logic=t.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)?.[1];new Function(logic);
  return source.slice(0,start+opening.length).replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>')+'\n'+JSON.stringify(t).replaceAll('</script>','<\\u002Fscript>')+closing;

@@ -1,0 +1,52 @@
+/* Pulse, then cross-fade in place. Data readiness owns the timing; loading is
+   never prolonged to finish a pulse. Inspired by Transitions.dev's reveal. */
+.pm-loading{--pm-skeleton-fill:var(--pm-selected,#ededed);--pm-loading-surface:var(--pm-canvas,#fff);--pm-loading-duration:240ms;position:relative;isolation:isolate}
+.pm-loading-skeleton{position:absolute;inset:0;z-index:1;opacity:0;visibility:hidden;pointer-events:none;background:var(--pm-loading-surface);transition:opacity var(--pm-loading-duration) ease-in-out,visibility 0s linear var(--pm-loading-duration)}
+.pm-loading-content{opacity:1;transition:opacity var(--pm-loading-duration) ease-in-out}
+.pm-loading[data-loading=true]>.pm-loading-skeleton{opacity:1;visibility:visible;transition:none}
+.pm-loading[data-loading=true]>.pm-loading-content{opacity:0;pointer-events:none;transition:none}
+.pm-skeleton-block{display:block;height:12px;width:100%;border-radius:4px;background:var(--pm-skeleton-fill);filter:blur(0);transition:filter var(--pm-loading-duration) ease-in-out}
+.pm-loading[data-loading=true] .pm-skeleton-block{animation:pm-skeleton-pulse 1000ms ease-in-out;animation-iteration-count:3;transition:none}
+.pm-loading[data-loading=false]>.pm-loading-skeleton .pm-skeleton-block{filter:blur(2px)}
+.pm-skeleton-short{width:38%}.pm-skeleton-medium{width:64%}
+.pm-skeleton-heading{height:20px;width:180px;max-width:65%}
+.pm-skeleton-copy{display:grid;gap:10px;min-width:0}
+.pm-skeleton-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;margin:30px 0}
+.pm-skeleton-metrics>div{display:grid;gap:16px;min-width:0}
+.pm-skeleton-value{height:28px;width:60px;max-width:100%}
+.pm-skeleton-row{display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr));align-items:center;gap:24px;min-height:66px;border-bottom:1px solid var(--pm-border,#e6e6e6)}
+.pm-skeleton-chart{height:160px;margin:24px 0}
+.pm-loading-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.pm-data-loading{min-height:440px;margin-top:20px}
+.pm-data-loading>.pm-loading-skeleton{padding-top:8px}
+.pm-loading-label{margin:0 0 24px;color:var(--pm-muted,#666);font:13px/20px var(--pm-font,system-ui)}
+
+/* Cold-start placeholder follows the existing 40px bar and 176px rail. */
+.site-shell.pm-loading{position:fixed}
+.pm-shell-skeleton{display:grid;grid-template-columns:176px minmax(0,1fr);grid-template-rows:40px minmax(0,1fr);overflow:hidden}
+.pm-shell-skeleton-header{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:0 16px;border-bottom:1px solid #e6e6e6;background:#fafafa}
+.pm-shell-skeleton-header>.pm-skeleton-block{width:54px;height:14px}
+.pm-shell-skeleton-header>.pm-skeleton-block+span{width:120px;height:10px}
+.pm-shell-skeleton-nav{display:grid;align-content:start;gap:28px;padding:24px 20px;border-right:1px solid #e6e6e6;background:#fcfcfc}
+.pm-shell-skeleton-body{padding:28px 24px;min-width:0}
+.pm-shell-skeleton-body>.pm-skeleton-copy{margin-bottom:28px}
+
+/* Previews keep their canvas size and real model progress while loading. */
+.pm-preview-loading{--pm-skeleton-fill:#343638;--pm-loading-surface:#202123;width:100%;height:100%}
+.pm-preview-loading>.pm-loading-skeleton{display:grid;align-content:center;justify-items:center;gap:20px;padding:24px;box-sizing:border-box}
+.pm-preview-skeleton-shapes{width:min(280px,80%);display:grid;gap:12px}
+.pm-preview-skeleton-image{height:112px;margin-bottom:4px}
+.pm-preview-loading-label{text-align:center;color:#c5cbc0;max-width:340px;font:13px/1.6 var(--pm-font,system-ui)}
+.pm-preview-loading-label p{margin:4px 0 0;font-size:12px}
+.pm-preview-loading-label progress{display:block;margin:12px auto 6px}
+.pm-preview-loading>.pm-loading-content{width:100%;height:100%;filter:none}
+.pm-preview-loading>.forge-artifact-model-canvas{position:absolute;inset:0}
+@keyframes pm-skeleton-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@media(max-width:760px){.pm-shell-skeleton{grid-template-columns:minmax(0,1fr)}.pm-shell-skeleton-nav{display:none}.pm-shell-skeleton-body{padding:24px 16px}.pm-skeleton-metrics{gap:20px}.pm-skeleton-row{gap:16px}.pm-data-loading{min-height:400px}}
+@media(prefers-reduced-motion:reduce){
+ .pm-loading{--pm-loading-duration:90ms}
+ .pm-loading .pm-skeleton-block{animation:none!important;filter:none!important;transition:none!important}
+ .pm-loading>.pm-loading-skeleton{transition:opacity 90ms linear,visibility 0s linear 90ms!important}
+ .pm-loading>.pm-loading-content{transition:opacity 90ms linear!important}
+ .pm-loading[data-loading=true]>.pm-loading-skeleton,.pm-loading[data-loading=true]>.pm-loading-content{transition:none!important}
+}

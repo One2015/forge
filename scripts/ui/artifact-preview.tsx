@@ -29,6 +29,13 @@ function loadViewer() {
   return viewerPromise;
 }
 
+function PreviewSkeleton({ loading, label, children }: { loading: boolean; label: string; children?: React.ReactNode }) {
+  return <div className="pm-loading-skeleton" aria-hidden={!loading}>
+    <div className="pm-preview-skeleton-shapes" aria-hidden="true"><span className="pm-skeleton-block pm-preview-skeleton-image"/><span className="pm-skeleton-block pm-skeleton-medium"/><span className="pm-skeleton-block"/><span className="pm-skeleton-block pm-skeleton-short"/></div>
+    <div className="pm-preview-loading-label" role={loading ? 'status' : undefined}><strong>{label}</strong>{children}</div>
+  </div>;
+}
+
 function Model({ file }: { file: Artifact }) {
   const holder = React.useRef<HTMLDivElement>(null);
   const viewer = React.useRef<ModelViewerElement | null>(null);
@@ -72,9 +79,9 @@ function Model({ file }: { file: Artifact }) {
     model.cameraOrbit = '30deg 75deg 105%'; model.cameraTarget = 'auto auto auto'; model.fieldOfView = 'auto';
     model.jumpCameraToGoal();
   };
-  return <div className="forge-artifact-model" aria-busy={status === 'loading'}>
-    <div className="forge-artifact-model-canvas" ref={holder} />
-    {status === 'loading' && <div className="forge-artifact-message" role="status"><Icon svg={cube}/><strong>正在加载 3D 模型</strong><progress className="forge-artifact-progress" aria-label="模型加载进度" max={100} value={progress || undefined}/><span>{progress >= 100 ? '正在准备画面…' : progress > 0 ? progress + '%' : '正在准备查看器…'}</span><p>仍可切换文件列表；加载失败后可重试。</p></div>}
+  return <div className="forge-artifact-model pm-loading pm-preview-loading" data-loading={status === 'loading'} aria-busy={status === 'loading'}>
+    <div className="forge-artifact-model-canvas pm-loading-content" ref={holder} aria-hidden={status !== 'ready'} inert={status !== 'ready'} />
+    <PreviewSkeleton loading={status === 'loading'} label="正在加载 3D 模型"><progress className="forge-artifact-progress" aria-label="模型加载进度" max={100} value={progress || undefined}/><span>{progress >= 100 ? '正在准备画面…' : progress > 0 ? progress + '%' : '正在准备查看器…'}</span><p>仍可切换文件列表；加载失败后可重试。</p></PreviewSkeleton>
     {status === 'error' && <div className="forge-artifact-message" role="status"><Icon svg={cube}/><strong>模型暂时无法预览</strong><p>请检查文件、网络或浏览器的 WebGL 支持，也可以切换到文件列表下载。</p><button type="button" onClick={() => setAttempt(value => value + 1)}>重新加载</button></div>}
     <div className="forge-artifact-camera" role="group" aria-label="3D 视角控制">
       <button type="button" disabled={status !== 'ready'} title="放大" aria-label="放大模型" onClick={() => viewer.current?.zoom(1)}><Icon svg={plus}/></button>
@@ -105,9 +112,9 @@ function Media({ file }: { file: Artifact }) {
   if (status === 'error') return <div className="forge-artifact-message" role="status"><strong>预览加载失败或超时</strong><p>请检查网络后重试，也可切换文件列表下载。</p><button type="button" onClick={() => { setStatus('loading'); setAttempt(value => value + 1); }}>重新加载</button></div>;
   // Untrusted generated pages get an opaque origin. Never grant same-origin,
   // top navigation, popups, camera or microphone permissions.
-  if (file.kind === 'image' || file.kind === 'web') return <div className="forge-artifact-media" aria-busy={status === 'loading'}>
-    {file.kind === 'image' ? <img key={attempt} className="forge-artifact-image" src={file.url} alt={file.name} onLoad={() => finish('ready')} onError={() => finish('error')}/> : <iframe key={attempt} className="forge-artifact-web" src={file.url} title={file.name} sandbox="allow-scripts" referrerPolicy="no-referrer" onLoad={() => finish('ready')} onError={() => finish('error')}/>}
-    {status === 'loading' && <div className="forge-artifact-message" role="status"><Icon svg={file.kind === 'image' ? picture : list}/><strong>{file.kind === 'image' ? '正在加载图片' : '正在打开页面'}</strong><p>你可以随时切换文件列表。</p></div>}
+  if (file.kind === 'image' || file.kind === 'web') return <div className="forge-artifact-media pm-loading pm-preview-loading" data-loading={status === 'loading'} aria-busy={status === 'loading'}>
+    <div className="pm-loading-content" aria-hidden={status === 'loading'} inert={status === 'loading'}>{file.kind === 'image' ? <img key={attempt} className="forge-artifact-image" src={file.url} alt={file.name} onLoad={() => finish('ready')} onError={() => finish('error')}/> : <iframe key={attempt} className="forge-artifact-web" src={file.url} title={file.name} sandbox="allow-scripts" referrerPolicy="no-referrer" onLoad={() => finish('ready')} onError={() => finish('error')}/>}</div>
+    <PreviewSkeleton loading={status === 'loading'} label={file.kind === 'image' ? '正在加载图片' : '正在打开页面'}><p>你可以随时切换文件列表。</p></PreviewSkeleton>
   </div>;
   return <div className="forge-artifact-message"><Icon svg={list}/><strong>此文件不支持在线预览</strong><p>请从文件列表下载查看。</p></div>;
 }

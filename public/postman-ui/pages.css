@@ -325,9 +325,9 @@
 .forge-postman .pm-photo-slot .pm-photo-remove{position:absolute;top:3px;right:3px;width:24px;height:24px;padding:0;border:1px solid var(--pm-control);border-radius:4px;background:#fff;color:var(--pm-text)}
 .forge-postman .pm-photo-help{margin:2px 0 0;font-size:11px;line-height:18px;color:var(--pm-muted);overflow-wrap:anywhere}
 .forge-postman .pm-photo-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.forge-postman .forge-sheet-feedback .pm-photo-slots{grid-template-columns:repeat(4,minmax(0,1fr));max-width:344px;gap:8px;padding:2px 1px 4px}
-.forge-postman .forge-sheet-feedback .pm-photo-cell{position:relative}
-.forge-postman .forge-sheet-feedback .pm-photo-filled+.pm-photo-number{position:absolute;bottom:4px;left:4px;margin:0;padding:0 4px;border-radius:2px;background:rgba(255,255,255,.92);color:var(--pm-text);pointer-events:none}
+.forge-postman :is(.forge-sheet-feedback,.forge-branch-dialog) .pm-photo-slots{grid-template-columns:repeat(4,minmax(0,1fr));max-width:344px;gap:8px;padding:2px 1px 4px}
+.forge-postman :is(.forge-sheet-feedback,.forge-branch-dialog) .pm-photo-cell{position:relative}
+.forge-postman :is(.forge-sheet-feedback,.forge-branch-dialog) .pm-photo-filled+.pm-photo-number{position:absolute;bottom:4px;left:4px;margin:0;padding:0 4px;border-radius:2px;background:rgba(255,255,255,.92);color:var(--pm-text);pointer-events:none}
 .forge-postman .forge-feedback-submit-context{display:block;background:transparent!important;border:0!important;border-radius:0;padding:0!important;margin-top:18px;color:var(--pm-muted);font-size:12px;line-height:1.65}
 .forge-postman .forge-feedback-submit-context>strong{display:block;font-size:12px;font-weight:400;color:var(--pm-muted);margin:0 0 3px}
 .forge-postman .forge-feedback-submit-context>span{font-size:12px;color:var(--pm-muted)}
