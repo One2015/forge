@@ -1,60 +1,64 @@
-// Keep the existing reviewer validation, membership, save and notification pipeline.
+import fs from 'node:fs';
+const legacy=fs.readFileSync(new URL('../templates/delivery-review-assignments.js',import.meta.url),'utf8');
+const originalGroups=legacy.slice(legacy.indexOf('  deliveryReviewDatasets(value) {'),legacy.indexOf('  deliveryDatasetReviewSignature(sheet) {'));
+// Preserve saved dataset assignments when presenting the Item-only editor.
 export const reviewAllocationCopy = [
- ["    const saved = value.datasetReviews || {};", `    const saved = value.datasetReviews || {};
-    if (value.reviewScope === 'item') {
-      const items = new Map();
-      for (const entry of entries) {
-        const id = this.deliveryEntryId(entry) || entry.key, key = 'item:' + id;
-        if (items.has(key)) continue;
-        items.set(key, { key, name: entry.name || entry.title || entry.source || id,
-          source: (entry.sourceDataset ? entry.sourceDataset + ' · ' : '') + id,
-          itemIds: [id], entries: [entry], count: 1,
-          reviewer: saved[key]?.reviewer ?? '', status: saved[key]?.status || 'pending',
-          updatedBy: saved[key]?.updatedBy || '', updatedAt: saved[key]?.updatedAt || 0 });
-      }
-      return Array.from(items.values());
-    }`],
+ [originalGroups,`  deliveryReviewDatasets(value) {
+    if (!value) return [];
+    const entries = value.entries || this.deliveryEntries(value), saved = value.datasetReviews || {}, items = new Map();
+    for (const entry of entries) {
+      const id = this.deliveryEntryId(entry) || entry.key, key = 'item:' + id;
+      if (items.has(key)) continue;
+      const refs = entry.sourceType === 'production' && entry.sourceRefs?.some(ref => ref.dataset)
+        ? entry.sourceRefs.filter(ref => ref.dataset) : [{pipeline:entry.sourcePipeline,dataset:entry.sourceDataset}];
+      const inherited = refs.map(ref => saved[entry.sourceType === 'production' && ref.dataset
+        ? 'production:' + JSON.stringify([ref.pipeline || '',ref.dataset]) : value.archive ? 'zip:' + value.archive.name : 'list']).filter(Boolean);
+      const owners = new Set(inherited.map(review => review.reviewer || ''));
+      // Conflicting legacy assignments need an explicit Item reviewer choice.
+      const previous = saved[key] ?? (owners.size === 1 ? inherited[0] : null);
+      items.set(key,{key,name:entry.name || entry.title || id,source:id,itemIds:[id],entries:[entry],count:1,
+        reviewer:previous?.reviewer ?? '',status:previous?.status || 'pending',
+        updatedBy:previous?.updatedBy || '',updatedAt:previous?.updatedAt || 0});
+    }
+    return Array.from(items.values());
+  }
+
+`],
  ["reviews: sheet?.datasetReviews || {}, entries:", "reviews: sheet?.datasetReviews || {}, reviewScope: sheet?.reviewScope || 'dataset', entries:"],
- ["datasetReviews: editor.datasetReviews || {},", "datasetReviews: editor.datasetReviews || {}, reviewScope: editor.reviewScope || 'dataset',"],
- ["      datasetReviews: Object.fromEntries(Object.entries(sheet?.datasetReviews", "      reviewScope: sheet?.reviewScope || 'dataset', reviewQuery: '', reviewPage: 1,\n      datasetReviews: Object.fromEntries(Object.entries(sheet?.datasetReviews"],
- ["sheet.datasetReviews = reviewPlan.datasetReviews;", "sheet.reviewScope = editor.reviewScope || 'dataset'; sheet.datasetReviews = reviewPlan.datasetReviews;"],
+ ["datasetReviews: editor.datasetReviews || {},", "datasetReviews: editor.datasetReviews || {}, reviewScope: 'item',"],
+ ["      datasetReviews: Object.fromEntries(Object.entries(sheet?.datasetReviews", "      reviewScope: 'item', reviewQuery: '', reviewPersonFilter: '', reviewStatusFilter: '',\n      datasetReviews: Object.fromEntries(Object.entries(sheet?.datasetReviews"],
+ ["sheet.datasetReviews = reviewPlan.datasetReviews;", "sheet.reviewScope = 'item'; sheet.datasetReviews = reviewPlan.datasetReviews;"],
+ ["reviewer: Object.hasOwn(editor.datasetReviews || {}, group.key) ? group.reviewer : defaultReviewer", "reviewer: Object.hasOwn(editor.datasetReviews || {}, group.key) ? group.reviewer : group.reviewer || defaultReviewer"],
+ ["    const datasetReviews = Object.fromEntries(this.deliveryEditorReviewDatasets(editor).map(group => {", `    const priorReviews = new Map(this.deliveryReviewDatasets(previous).filter(group=>group.reviewer).map(group=>[group.key,{reviewer:group.reviewer,status:group.status,updatedAt:group.updatedAt,updatedBy:group.updatedBy}]));
+    const datasetReviews = Object.fromEntries(this.deliveryEditorReviewDatasets(editor).map(group => {`],
+ ["      const before = previous?.datasetReviews?.[group.key];", "      const before = priorReviews.get(group.key);"],
  ["    const groups = this.deliveryEditorReviewDatasets(editor), options = this.deliveryReviewerOptions(editor);", `    const groups = this.deliveryEditorReviewDatasets(editor), options = this.deliveryReviewerOptions(editor);
-    const scope = editor.reviewScope || 'dataset', query = editor.reviewQuery || '';
-    const filtered = groups.filter(group => (group.name + ' ' + group.source).toLowerCase().includes(query.trim().toLowerCase()));
-    const pages = Math.max(1, Math.ceil(filtered.length / 20)), page = Math.min(editor.reviewPage || 1, pages);
-    const setScope = next => {
-      if (!editable || next === scope) return;
-      this.patchDeliveryEditor({ reviewScope: next, reviewQuery: '', reviewPage: 1, reviewTouched: true, error: '',
-        reviewNotice: '已切换为按' + (next === 'item' ? ' Item ' : '数据集') + '分配，保存后生效。' }, editor.id);
-    };`],
+    const query = editor.reviewQuery || '';
+    const personFilter = editor.reviewPersonFilter || '', statusFilter = editor.reviewStatusFilter || '';
+    const filtered = groups.filter(group => (group.name + ' ' + group.source).toLowerCase().includes(query.trim().toLowerCase())
+      && (!personFilter || (personFilter === '__unassigned' ? !group.reviewer : group.reviewer === personFilter))
+      && (!statusFilter || group.status === statusFilter));`],
  ["    return { editable, readonly: !editable, hasRows: !!groups.length, empty: !groups.length, count: groups.length,", `    return { editable, readonly: !editable, hasRows: !!groups.length, empty: !groups.length, count: groups.length,
-      isDataset: scope === 'dataset', isItem: scope === 'item', unit: scope === 'item' ? '个 Item' : '份数据集',
-      byDataset: () => setScope('dataset'), byItem: () => setScope('item'), query,
-      onQuery: event => this.patchDeliveryEditor({ reviewQuery: event.target.value, reviewPage: 1 }, editor.id),
-      noMatches: !!groups.length && !filtered.length, pageLabel: '共 ' + filtered.length + ' 条 · ' + page + ' / ' + pages,
-      previousDisabled: page <= 1, nextDisabled: page >= pages,
-      previous: () => this.patchDeliveryEditor({ reviewPage: Math.max(1, page - 1) }, editor.id),
-      next: () => this.patchDeliveryEditor({ reviewPage: Math.min(pages, page + 1) }, editor.id),`],
- ["help: editor.key ? '按数据集重新分配 Reviewer 或调整处理状态，保存后生效。' : '每份数据集需指定一位 Reviewer，默认由所有者本人审核，也可分配给同事或 Lead。',", "help: '可按数据集批量分配，或切换到 Item 逐条分配。两种方式分别保留草稿，保存当前方式；新建时默认由所有者审核。',"],
- ["rows: groups.map(group => ({ ...group, options, states:", "rows: filtered.slice((page - 1) * 20, page * 20).map(group => ({ ...group, options, states:"]
+      query, personFilter, statusFilter, reviewerOptions: options, statusOptions: this.deliveryDatasetReviewStates(),
+      onQuery: event => this.patchDeliveryEditor({ reviewQuery: event.target.value }, editor.id),
+      onPersonFilter: event => this.patchDeliveryEditor({ reviewPersonFilter: event.target.value }, editor.id),
+      onStatusFilter: event => this.patchDeliveryEditor({ reviewStatusFilter: event.target.value }, editor.id),
+      noMatches: !!groups.length && !filtered.length,`],
+ ["help: editor.key ? '按数据集重新分配 Reviewer 或调整处理状态，保存后生效。' : '每份数据集需指定一位 Reviewer，默认由所有者本人审核，也可分配给同事或 Lead。',", "help: '为每个 Item 分配 Reviewer，保存数据单后生效。',"],
+ ["rows: groups.map(group => ({ ...group, options, states:", "rows: filtered.map(group => ({ ...group, options, states:"]
 ];
 export function installReviewAllocation(t) {
  for (const [from,to] of reviewAllocationCopy) {
    if (!t.includes(from)) throw Error('Review allocation anchor changed: '+from.slice(0,70));
    t=t.replace(from,()=>to);
  }
- t=t.replaceAll('<h3>数据集审核 <span', '<h3>审核分配 <span').replaceAll('aria-label="数据集审核安排"','aria-label="审核安排"');
- t=t.replaceAll('aria-label="数据集审核分配"','aria-label="审核分配"').replaceAll('<h3>数据集审核分配</h3>','<h3>审核分配</h3>');
- const help='<p class="forge-delivery-help">{{ deliveryEditor.reviewAssignment.help }}</p>';
- t=t.replaceAll(help,help+`<div class="pm-allocation-toolbar">
- <div class="pm-sheet-filters" data-forge-segmented="pill" role="group" aria-label="审核分配方式">
- <button type="button" aria-pressed="{{ deliveryEditor.reviewAssignment.isDataset }}" disabled="{{ deliveryEditor.reviewAssignment.readonly }}" sc-camel-on-click="{{ deliveryEditor.reviewAssignment.byDataset }}">按数据集</button>
- <button type="button" aria-pressed="{{ deliveryEditor.reviewAssignment.isItem }}" disabled="{{ deliveryEditor.reviewAssignment.readonly }}" sc-camel-on-click="{{ deliveryEditor.reviewAssignment.byItem }}">按 Item</button></div>
- <input type="search" aria-label="搜索审核分配对象" placeholder="搜索名称或 Item ID" value="{{ deliveryEditor.reviewAssignment.query }}" sc-camel-on-input="{{ deliveryEditor.reviewAssignment.onQuery }}" />
- </div>`);
- const empty='<sc-if value="{{ deliveryEditor.reviewAssignment.empty }}">';
- t=t.replaceAll(empty,`<sc-if value="{{ deliveryEditor.reviewAssignment.hasRows }}"><div class="pm-allocation-pagination"><span>{{ deliveryEditor.reviewAssignment.pageLabel }}</span><button type="button" class="forge-delivery-text-button" disabled="{{ deliveryEditor.reviewAssignment.previousDisabled }}" sc-camel-on-click="{{ deliveryEditor.reviewAssignment.previous }}">上一页</button><button type="button" class="forge-delivery-text-button" disabled="{{ deliveryEditor.reviewAssignment.nextDisabled }}" sc-camel-on-click="{{ deliveryEditor.reviewAssignment.next }}">下一页</button></div></sc-if><sc-if value="{{ deliveryEditor.reviewAssignment.noMatches }}"><p class="forge-delivery-help">没有匹配的数据集或 Item，请调整搜索。</p></sc-if>`+empty);
- t=t.replaceAll('关联生产任务或上传 ZIP 后，可为每份数据集分配审核人。','关联生产任务或上传 ZIP 后，可按数据集或 Item 分配审核人。');
- t=t.replaceAll('{{ deliveryEditor.reviewAssignment.count }} 份数据集','{{ deliveryEditor.reviewAssignment.count }} {{ deliveryEditor.reviewAssignment.unit }}');
+ const savedStart=t.indexOf('    <sc-if value="{{ sheet.extras.reviewAssignment.hasRows }}">');
+ const savedEnd=t.indexOf('    <div class="forge-delivery-section-heading"><h2>List 清单',savedStart);
+ if(savedStart<0 || savedEnd<savedStart)throw Error('Saved review section boundaries changed');
+ t=t.slice(0,savedStart)+t.slice(savedEnd);
+ const originalMarkup=fs.readFileSync(new URL('../templates/delivery-review-assignments.html',import.meta.url),'utf8').trim();
+ const replacement=fs.readFileSync(new URL('review-allocation.html',import.meta.url),'utf8').trim();
+ if(!t.includes(originalMarkup))throw Error('Review assignment template changed');
+ t=t.replaceAll(originalMarkup,replacement);
  return t;
 }

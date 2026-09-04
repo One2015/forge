@@ -317,7 +317,12 @@ test('status navigation reflows without an inner scroll area and both variants r
   for (const variant of [template, postman]) {
     const html = variant.match(/<!-- model-status:start -->[\s\S]*?<!-- model-status:end -->/)[0];
     assert(!html.includes('业务影响优先')); assert(!html.includes('forge-model-sort')); assert(!html.includes('modelStatus.onSort'));
-    for (const control of ['onProvider', 'onModel', 'onLine', 'onFilter', 'onQuery', 'onBusiness']) assert(html.includes('modelStatus.' + control));
+    for (const control of ['onProvider', 'onModel', 'onLine', 'onFilter', 'onQuery']) assert(html.includes('modelStatus.' + control));
+    // Postman uses summary cards and intentionally omits the business-impact checkbox.
+    if (variant === postman) {
+      assert(html.includes('pm-model-summary'));
+      assert(!html.includes('modelStatus.onBusiness'));
+    } else assert(html.includes('modelStatus.onBusiness'));
     const css = variant.match(/\/\* model-status:start \*\/[\s\S]*?\/\* model-status:end \*\//)[0];
     const navigation = css.match(/\.forge-model-issue-filters\{([^}]+)\}/)[1];
     assert.match(navigation, /display:grid/); assert.match(navigation, /repeat\(6,minmax\(0,1fr\)\)/); assert.match(navigation, /overflow:visible/);

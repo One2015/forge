@@ -1,0 +1,23 @@
+<section class="forge-delivery-review-assignments pm-assignment" aria-label="审核分配">
+  <div class="forge-delivery-section-heading"><h3>审核分配</h3><span>已分配 {{ deliveryEditor.reviewAssignment.assigned }} / {{ deliveryEditor.reviewAssignment.count }}</span></div>
+  <div class="pm-assignment-toolbar">
+    <input type="search" aria-label="搜索审核分配对象" placeholder="搜索名称或 Item ID" value="{{ deliveryEditor.reviewAssignment.query }}" sc-camel-on-input="{{ deliveryEditor.reviewAssignment.onQuery }}" />
+    <select aria-label="筛选审核人" value="{{ deliveryEditor.reviewAssignment.personFilter }}" sc-camel-on-change="{{ deliveryEditor.reviewAssignment.onPersonFilter }}"><option value="">全部审核人</option><option value="__unassigned">未分配</option><sc-for list="{{ deliveryEditor.reviewAssignment.reviewerOptions }}" as="person"><option value="{{ person.accountName }}" label="{{ person.label }}">{{ person.label }}</option></sc-for></select>
+    <select aria-label="筛选处理状态" value="{{ deliveryEditor.reviewAssignment.statusFilter }}" sc-camel-on-change="{{ deliveryEditor.reviewAssignment.onStatusFilter }}"><option value="">全部状态</option><sc-for list="{{ deliveryEditor.reviewAssignment.statusOptions }}" as="status"><option value="{{ status.key }}" label="{{ status.label }}">{{ status.label }}</option></sc-for></select>
+  </div>
+  <div class="pm-assignment-table-scroll" tabindex="0" aria-label="Item 分配表，可滚动">
+    <div class="pm-assignment-table" role="table" aria-label="Item 审核分配">
+      <div class="pm-assignment-row pm-assignment-head" role="row"><span role="columnheader">名称 / Item ID</span><span role="columnheader">审核人</span><span role="columnheader">状态</span></div>
+      <sc-for list="{{ deliveryEditor.reviewAssignment.rows }}" as="dataset" hint-placeholder-count="0">
+        <div class="pm-assignment-row" role="row">
+          <div class="pm-assignment-identity" role="cell"><strong>{{ dataset.name }}</strong><span class="pm-allocation-item-id">{{ dataset.source }}</span></div>
+          <div role="cell"><select aria-label="{{ dataset.reviewerLabel }}" value="{{ dataset.reviewer }}" disabled="{{ deliveryEditor.reviewAssignment.readonly }}" sc-camel-on-change="{{ dataset.onReviewer }}"><option value="">选择审核人</option><sc-for list="{{ dataset.options }}" as="person"><option value="{{ person.accountName }}" label="{{ person.label }}">{{ person.label }}</option></sc-for></select></div>
+          <div role="cell"><select aria-label="{{ dataset.statusAriaLabel }}" value="{{ dataset.status }}" disabled="{{ deliveryEditor.reviewAssignment.readonly }}" sc-camel-on-change="{{ dataset.onStatus }}"><sc-for list="{{ dataset.states }}" as="status"><option value="{{ status.key }}" label="{{ status.label }}">{{ status.label }}</option></sc-for></select></div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ deliveryEditor.reviewAssignment.empty }}"><p class="pm-assignment-empty">关联 Item 后，可在这里分配审核人。</p></sc-if>
+    <sc-if value="{{ deliveryEditor.reviewAssignment.noMatches }}"><p class="pm-assignment-empty">没有匹配的 Item，请调整搜索或筛选。</p></sc-if>
+  </div>
+  <sc-if value="{{ deliveryEditor.reviewAssignment.readonly }}"><p class="forge-delivery-help">仅所有者、所属项目负责人或 Lead 可修改分配。</p></sc-if>
+</section>

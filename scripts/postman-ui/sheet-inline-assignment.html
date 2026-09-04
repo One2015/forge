@@ -1,0 +1,13 @@
+<div class="pm-sheet-columns pm-sheet-assignment-grid"><span>预览</span><span>子项</span><span>目录</span><span>状态</span><span>负责人</span><span>Task Tag</span></div>
+<sc-for list="{{ sheet.rows }}" as="r" hint-placeholder-count="8">
+ <div class="pm-sheet-assignment-row pm-sheet-assignment-grid">
+  <button type="button" class="pm-sheet-item-open" sc-camel-on-click="{{ r.select }}" aria-label="{{ r.openLabel }}" data-flow-family="sheetItems" data-flow-row="{{ r.id }}">
+   <span class="pm-sheet-item-thumbnail" aria-hidden="true"></span>
+   <span class="pm-sheet-item-identity"><strong>{{ r.name }}</strong><span title="{{ r.id }}">{{ r.id }}</span></span>
+   <span class="pm-sheet-item-path" title="{{ r.path }}">{{ r.path }}</span>
+   <span><span class="pm-sheet-item-status" data-pm-status="{{ r.state }}" style="color:{{ r.fg }};border-color:{{ r.border }}"><span class="pm-sheet-status-dot" style="background:{{ r.dot }}"></span>{{ r.state }}</span></span>
+  </button>
+  <select class="pm-sheet-owner-select" aria-label="{{ r.ownerLabel }}" value="{{ r.owner }}" disabled="{{ r.assignmentReadonly }}" sc-camel-on-change="{{ r.assignOwner }}"><option value="">未分配</option><sc-for list="{{ r.ownerOptions }}" as="person"><option value="{{ person.accountName }}" label="{{ person.label }}">{{ person.label }}</option></sc-for></select>
+  <select class="pm-entry-tag-select" aria-label="{{ r.taskTagLabel }}" value="{{ r.taskTag }}" disabled="{{ r.assignmentReadonly }}" data-has-tag="{{ r.hasTagStyle }}" style="--entry-tag-bg:{{ r.tagBackground }};--entry-tag-fg:{{ r.tagForeground }}" sc-camel-on-change="{{ r.assignTag }}"><option value="">无 Tag</option><sc-for list="{{ r.taskTagOptions }}" as="tag"><option value="{{ tag.id }}" label="{{ tag.name }}" disabled="{{ tag.disabled }}">{{ tag.name }}</option></sc-for></select>
+ </div>
+</sc-for>

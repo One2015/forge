@@ -17,11 +17,14 @@ html:has(.pm-item-page-overlay[data-motion-open=true]),body:has(.pm-item-page-ov
 .forge-postman .pm-item-page .forge-sheet-preview-hint{color:var(--pm-muted);font-size:12px;display:block}
 .forge-postman .pm-item-page .forge-sheet-grid{height:auto;flex:1;min-height:0}
 .forge-postman .pm-item-page .forge-artifact-host{inset:0}
-.pm-item-artifact-toolbar .forge-artifact-switch{background:var(--pm-hover);border:1px solid var(--pm-border);border-radius:4px;padding:2px;gap:2px;margin:0}
-.pm-item-artifact-toolbar .forge-artifact-switch label{width:auto;min-width:50px;min-height:28px;padding:0 10px;font-size:12px;color:var(--pm-muted);border-radius:3px}
-.pm-item-artifact-toolbar .forge-artifact-switch label[data-checked=true]{background:#fff;color:var(--pm-text);box-shadow:inset 0 0 0 1px var(--pm-border);font-weight:600}
-.pm-item-artifact-toolbar .forge-artifact-switch label:not([data-checked=true]):hover{background:var(--pm-pressed);color:var(--pm-text)}
-.pm-item-artifact-toolbar .forge-artifact-switch label:has(input:focus-visible){outline:1px solid var(--pm-focus);outline-offset:2px}
+/* Keep the artifact view switch segmented despite the global pill-tab reset. */
+.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch{display:flex;background:var(--pm-hover)!important;border:1px solid var(--pm-border)!important;border-radius:6px!important;padding:3px!important;gap:2px!important;margin:0;min-width:0}
+.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch::before{display:none}
+.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch label{width:auto;min-width:68px;min-height:30px;padding:0 12px;font-size:13px;color:var(--pm-muted);border-radius:3px;text-align:center}
+.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch label[data-checked=true]{background:var(--pm-selected)!important;color:var(--pm-text);box-shadow:inset 0 0 0 1px var(--pm-border)!important;font-weight:600}
+.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch label:not([data-checked=true]):hover{background:var(--pm-pressed);color:var(--pm-text)}
+.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch label:has(input:focus-visible){outline:2px solid var(--pm-focus);outline-offset:1px}
+@media(pointer:coarse){.forge-postman .pm-item-artifact-toolbar .forge-artifact-switch label{min-height:44px}}
 .pm-item-original:empty{display:none}
 .pm-item-original{grid-column:1/-1;justify-self:end;font-size:12px;margin-top:-4px}
 .pm-item-original a{color:var(--pm-muted);text-decoration:none}

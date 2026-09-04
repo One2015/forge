@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 
-const siteUrl = new URL('https://forge-production-review-focus.chatgpt.site');
+const siteUrl = new URL('https://forge-production-review-focus.yvonne112.chatgpt.site');
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,

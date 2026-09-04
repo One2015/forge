@@ -29,7 +29,7 @@
         <div role="rowgroup">
           <sc-for list="{{ review.queue.rows }}" as="task">
             <div class="pq-columns pq-row" role="row" data-owned="{{ task.owned }}">
-              <div role="cell" class="pq-task-cell"><button type="button" class="pq-task" sc-camel-on-click="{{ task.open }}" aria-label="打开任务 {{ task.title }}" disabled="{{ task.actionDisabled }}">
+              <div role="cell" class="pq-task-cell"><button type="button" class="pq-task" sc-camel-on-click="{{ task.open }}" aria-label="打开任务 {{ task.title }}" disabled="{{ task.busy }}">
                 <span class="pq-thumb"><sc-if value="{{ task.hasPreview }}"><img src="{{ task.preview }}" alt="{{ task.title }}的产物缩略图" loading="lazy" sc-camel-on-error="{{ task.imageError }}" /></sc-if><sc-if value="{{ task.noPreview }}"><span class="pq-placeholder" title="未提供产物缩略图"><sc-if value="{{ task.is3D }}">[[icon:cube:22]]</sc-if><sc-if value="{{ task.isWeb }}">[[icon:image:22]]</sc-if></span></sc-if></span>
                 <span class="pq-task-copy"><strong title="{{ task.title }}">{{ task.title }}</strong><span class="pq-context"><code title="Item ID：{{ task.id }}">{{ task.id }}</code><span aria-hidden="true">·</span><span title="{{ task.dataset }}">{{ task.dataset }}</span></span><sc-if value="{{ task.hasIssue }}"><span class="pq-issue" title="{{ task.issue }}">{{ task.issue }}</span></sc-if></span>
               </button></div>

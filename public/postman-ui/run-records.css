@@ -1,8 +1,7 @@
 /* Run records: a scoped view using the existing Forge controls and neutral tokens. */
 .forge-postman .rr-page{padding:20px 28px 16px;min-width:0;max-width:none}
 .forge-postman .rr-page .fg-page-header{margin-bottom:16px}
-.forge-postman .rr-summary-item[data-selected=true]::after{content:"";position:absolute;bottom:0;left:20px;right:20px;height:2px;background:var(--pm-brand);pointer-events:none}
-.forge-postman .rr-summary-item:first-child[data-selected=true]::after{left:0}
+.forge-postman .rr-summary-item[data-selected=true]::after{content:"";position:absolute;bottom:0;left:var(--pm-summary-inset);right:var(--pm-summary-inset);height:2px;background:var(--pm-brand);pointer-events:none}
 .forge-postman .rr-summary .forge-summary-value strong{color:var(--pm-text);font-variant-numeric:tabular-nums}
 .forge-postman .rr-page .fg-runs-toolbar{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:16px;margin-bottom:16px;min-width:0;overflow-x:auto;scrollbar-width:thin}
 .forge-postman .rr-status-tabs{display:flex;flex:none;gap:4px;align-items:center;padding:3px 2px}

@@ -123,3 +123,18 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 .forge-postman :is(input:not([type=checkbox],[type=radio],[type=file]),textarea,select):focus-visible{border-color:var(--pm-focus)!important;outline-offset:-1px!important;box-shadow:none!important}
 .forge-postman :is(.forge-feedback-upload,.forge-feedback-image-box,.forge-delivery-logo-tile,.forge-delivery-file-button,.forge-delivery-skill-upload,.forge-delivery-custom-color,.forge-profile-upload):focus-within,
 .forge-postman :is(.forge-delivery-person-option,.forge-task-link-item,.forge-artifact-switch label):has(input:focus-visible){outline:var(--pm-focus-width) solid var(--pm-focus)!important;outline-offset:2px}
+
+/* Item inspection and inline assignment are separate interactive targets. */
+.forge-postman .pm-sheet-list { overflow-x:auto; }
+.forge-postman .pm-sheet-assignment-grid { display:grid; grid-template-columns:44px minmax(170px,1.3fr) minmax(140px,1fr) 90px 116px 114px; gap:12px; min-width:860px; padding:10px 16px; align-items:center; border-bottom:1px solid var(--pm-border); }
+.forge-postman .pm-sheet-assignment-row { min-height:70px; }
+.forge-postman .pm-sheet-item-open { grid-column:1/5; display:grid; grid-template-columns:subgrid; gap:12px; align-items:center; min-width:0; padding:0!important; margin:0; border:0!important; background:transparent; text-align:left; color:var(--pm-text); font:inherit; cursor:pointer; }
+.forge-postman .pm-sheet-item-open:hover { background:transparent!important; }
+.forge-postman .pm-sheet-item-thumbnail { display:block; height:34px; border:1px solid var(--pm-border); border-radius:4px; background:var(--pm-subtle); }
+.forge-postman .pm-sheet-item-identity { display:grid; gap:4px; min-width:0; }
+.forge-postman .pm-sheet-item-identity strong { font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.forge-postman .pm-sheet-item-identity>span { font-family:var(--pm-mono); font-size:11px; color:var(--pm-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.forge-postman .pm-sheet-item-path { font-size:12px; color:var(--pm-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.forge-postman .pm-sheet-item-status { display:inline-flex; align-items:center; gap:5px; border:1px solid; border-radius:4px; padding:3px 8px; font-size:12px; white-space:nowrap; }
+.forge-postman .pm-sheet-item-status>.pm-sheet-status-dot { width:5px; height:5px; border-radius:50%; }
+.forge-postman .pm-sheet-assignment-row select { width:100%; min-width:0; height:32px; font-size:12px; margin:0; }

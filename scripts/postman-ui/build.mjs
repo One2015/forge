@@ -17,6 +17,12 @@ import {installFeedbackRefinements} from './feedback-refinements.mjs';
 import {installLinkedItemToast} from './linked-item-toast.mjs';
 import {installReviewAllocation} from './review-allocation.mjs';
 import {installItemPreviewPage} from './item-preview-page.mjs';
+import {installListAssociation} from './list-association.mjs';
+import {installSheetInlineAssignment} from './sheet-inline-assignment.mjs';
+import {installDatasetPipelineGuide} from './dataset-pipeline-guide.mjs';
+import {installPipelineOwnerEditor} from './pipeline-owner-editor.mjs';
+import {installDatasetEditor} from './dataset-editor.mjs';
+import {installEntryTagStyle} from './entry-tag-style.mjs';
 const root=new URL('../../',import.meta.url);
 export function buildPostman(source){
  const opening='<script type="__bundler/template">', closing='\n</script>\n</body>\n</html>';
@@ -43,6 +49,12 @@ export function buildPostman(source){
   ['平均调用成本','总费用 ÷ 调用次数，单位为 USD / 次，包含计费失败请求。没有调用时显示 —；不代表模型的单 Token 价格。'],
  ].map(([label,description])=>`<sc-if value="{{ metric.label === '${label}' }}"><span class="pm-metric-help" data-forge-tooltip="${description}" data-tooltip-label="${label}说明"></span></sc-if>`).join('');
  replace('<dt>{{ metric.label }}</dt>',`<dt class="pm-metric-title"><span>{{ metric.label }}</span>${metricHelp}</dt>`);
+ // Analysis tabs own the dimensions; retain the active date range as context.
+ const billingFiltersStart=t.indexOf('  <div class="forge-billing-filters">');
+ const billingFiltersEnd=t.indexOf('  <sc-if value="{{ billing.error }}">',billingFiltersStart);
+ if(billingFiltersStart<0||billingFiltersEnd<0)throw Error('Billing filters boundary changed');
+ t=t.slice(0,billingFiltersStart)+t.slice(billingFiltersEnd);
+ replace('<span>USD · 北京时间 UTC+8</span>','<span>{{ billing.period }} · USD · 北京时间 UTC+8</span>');
  const deliveryStart=t.indexOf('<sc-if value="{{ isDelivery }}"');
  const deliveryEnd=t.indexOf('<sc-if value="{{ isSheet }}"',deliveryStart);
  let delivery=t.slice(deliveryStart,deliveryEnd);
@@ -116,10 +128,32 @@ export function buildPostman(source){
  t=installLifecyclePhotos(t);
  t=installLinkedItemToast(t);
  t=installReviewAllocation(t);
+ replace('<p class="forge-delivery-help">请继续填写 List 清单，Tag 和 Skill 为选填。</p>','');
+ replace('<p class="forge-delivery-help forge-delivery-notification-note">{{ deliveryEditor.notificationHint }}</p>','');
+ const editorFooter=t.indexOf('<footer class="forge-delivery-editor-footer">');
+ const footerCopy=t.indexOf('<div class="forge-delivery-footer-copy">',editorFooter);
+ const footerActions=t.indexOf('<div class="forge-delivery-footer-actions">',footerCopy);
+ if(editorFooter<0||footerCopy<0||footerActions<0)throw Error('Delivery editor footer boundary changed');
+ t=t.slice(0,footerCopy)+t.slice(footerActions);
+
+ const savedListStart=t.indexOf('    <div class="forge-delivery-section-heading"><h2>List 清单');
+ const savedListEnd=t.indexOf('    <sc-if value="{{ sheet.extras.hasSkills }}"',savedListStart);
+ if(savedListStart<0||savedListEnd<0)throw Error('Saved delivery list boundary changed');
+ t=t.slice(0,savedListStart)+t.slice(savedListEnd);
+ replace('<sc-if value="{{ sheet.extras.visible }}" hint-placeholder-val="{{ false }}">','<sc-if value="{{ sheet.extras.hasSkills }}" hint-placeholder-val="{{ false }}">');
+ replace('aria-label="交付清单与审核技能"','aria-label="数据单 Skill"');
+ t=installListAssociation(t);
+ t=installEntryTagStyle(t);
+ t=installSheetInlineAssignment(t);
+ t=installDatasetPipelineGuide(t);
+ t=installDatasetEditor(t);
+ t=installPipelineOwnerEditor(t);
  t=installAnt200Mock(t);
  t=installItemPreviewPage(t);
  t=installProgressIndicators(t);
  replace('<p>仅用于案例沉淀，不影响审核结论。</p>','');
+ replace('<button type="button" class="forge-delivery-secondary" disabled="{{ deliveryEditor.workspace.locked }}" sc-camel-on-click="{{ deliveryEditor.workspace.back }}">返回列表</button>','');
+ replace('返回列表会保留未完成内容；创建成功的 Skill 不随数据单取消而删除。','创建成功的 Skill 不随数据单取消而删除。');
  replace('<span class="review-workbench-ref-count" data-available="{{ it.hasReferences }}">{{ it.referenceCount }}</span>','');
  const skillDownloadIcon=fs.readFileSync(new URL('assets/phosphor/regular/download-simple.svg',root),'utf8').replace('<svg ','<svg width="18" height="18" aria-hidden="true" focusable="false" ');
  t=t.replaceAll('aria-label="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">下载 .md</button>', 'aria-label="{{ relatedSkill.downloadLabel }}" title="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">'+skillDownloadIcon+'</button>');

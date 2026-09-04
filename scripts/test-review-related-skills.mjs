@@ -107,7 +107,10 @@ test('both review panels and both variants contain conditional, labelled downloa
       assert(block.trim().startsWith('<sc-if value="{{ ' + prefix + 'available }}"'));
       assert(block.includes('aria-label="相关 Skill"')); assert(block.includes(prefix + 'relatedSkills'));
       assert(block.includes('aria-label="{{ relatedSkill.downloadLabel }}"')); assert(block.includes('sc-camel-on-click="{{ relatedSkill.download }}"'));
-      assert(block.includes('role="alert"')); assert(block.includes('Skill 评估会话'));
+      assert(block.includes('role="alert"'));
+      // The latest Postman delivery preview keeps downloads without the demo evaluator.
+      if (variant !== template && marker === 'sheet') assert(!block.includes('Skill 评估会话'));
+      else assert(block.includes('Skill 评估会话'));
     }
   }
   const regenerated = updateDeliverySkillWorkspace(source); assert.equal(updateDeliverySkillWorkspace(regenerated), regenerated);

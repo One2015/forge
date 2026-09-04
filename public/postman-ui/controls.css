@@ -81,3 +81,100 @@
 .forge-postman .forge-production-tabs [data-forge-segmented=underline] button{position:relative;flex:none;height:46px;padding:0 14px!important;border-bottom:2px solid transparent!important;background:transparent!important;font-size:13px!important}
 .forge-postman .forge-production-tabs [data-forge-segmented=underline] button[aria-pressed=true]{border-bottom-color:var(--pm-brand)!important;background:transparent!important;color:var(--pm-text)!important}
 .forge-postman .forge-production-tabs [data-forge-segmented=underline] button:focus-visible{outline:2px solid var(--pm-focus);outline-offset:-4px;border-radius:4px}
+
+/* Item assignments share one filter row and a compact, scrollable table. */
+.forge-postman .pm-assignment-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 144px 128px;gap:8px;margin:16px 0}
+.forge-postman .pm-assignment-toolbar :is(input,select){width:100%;min-width:0;margin:0;height:34px}
+.forge-postman .pm-assignment-table-scroll{max-height: min(440px,52dvh);overflow:auto;border:1px solid var(--pm-border);border-radius:4px;scrollbar-width:thin}
+.forge-postman .pm-assignment-table-scroll:focus-visible{outline:2px solid var(--pm-focus);outline-offset:2px}
+.forge-postman .pm-assignment-table{min-width:560px}
+.forge-postman .pm-assignment-row{display:grid;grid-template-columns:minmax(0,1fr) 144px 128px;gap:12px;align-items:center;padding:12px;border-bottom:1px solid var(--pm-border)}
+.forge-postman .pm-assignment-row:last-child{border-bottom:0}
+.forge-postman .pm-assignment-head{position:sticky;top:0;z-index:1;background:var(--pm-subtle);color:var(--pm-muted);font-size:12px;padding-block:9px}
+.forge-postman .pm-assignment-identity{display:flex;flex-direction:column;gap:4px;min-width:0;overflow-wrap:anywhere}
+.forge-postman .pm-assignment-identity strong{font-size:13px;font-weight:500}
+.forge-postman .pm-allocation-item-id{font-size:11px;line-height:16px;color:var(--pm-muted);font-family:var(--pm-mono)}
+.forge-postman .pm-assignment-row select{width:100%;min-width:0;height:32px;margin:0;font-size:12px}
+.forge-postman .pm-assignment-empty{padding:24px 12px;text-align:center;color:var(--pm-muted)}
+@media(max-width:600px){
+ .forge-postman .pm-assignment-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .forge-postman .pm-assignment-toolbar input{grid-column:1/-1}
+}
+
+/* Assigned Tags retain the palette and contrast of the Tag chips above. */
+.forge-postman .forge-delivery-entry-preview select.pm-entry-tag-select[data-has-tag=true],
+.forge-postman .pm-sheet-assignment-row select.pm-entry-tag-select[data-has-tag=true],
+.forge-postman .forge-wizard-table select.pm-entry-tag-select[data-has-tag=true]{background:var(--entry-tag-bg)!important;color:var(--entry-tag-fg)!important;border-color:var(--entry-tag-bg)!important;border-radius:4px}
+.forge-postman select.pm-entry-tag-select[data-has-tag=true]::picker-icon{color:var(--entry-tag-fg)}
+.forge-postman select.pm-entry-tag-select[data-has-tag=true]:focus-visible{outline:2px solid var(--pm-focus)!important;outline-offset:2px!important}
+
+/* Linked production sources and the Item/Runtime/Tag preview share one grid. */
+.forge-postman .pm-list-source { width:100%; min-width:0; }
+.forge-postman .pm-list-sources { margin-top:12px; }
+.forge-postman .pm-list-source-row { display:flex; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--pm-border); }
+.forge-postman .pm-list-source-row>div { flex:1; min-width:0; display:grid; gap:4px; }
+.forge-postman .pm-list-source-row strong { font-size:13px; font-weight:500; overflow-wrap:anywhere; }
+.forge-postman .pm-list-source-row span { font-size:12px; color:var(--pm-muted); overflow-wrap:anywhere; }
+.forge-postman .pm-list-preview-heading { margin-top:24px; }
+.forge-postman .pm-list-column-head,
+.forge-postman .pm-list-entry { display:grid; grid-template-columns:minmax(0,1fr) 84px 140px; gap:12px; align-items:center; }
+.forge-postman .pm-list-column-head { padding:10px 0; color:var(--pm-muted); font-size:12px; border-bottom:1px solid var(--pm-border); }
+.forge-postman .pm-list-entry-preview { max-height:320px; overflow:auto; scrollbar-gutter:stable; }
+.forge-postman .pm-list-entry { padding:12px 0; }
+.forge-postman .pm-list-entry .pm-list-identity { min-width:0; }
+.forge-postman .pm-list-identity strong { overflow-wrap:anywhere; }
+.forge-postman .pm-list-identity span { font-family:var(--pm-mono,monospace); font-size:11px; overflow-wrap:anywhere; }
+.forge-postman .pm-list-entry select { width:100%; min-width:0; }
+.forge-postman .pm-list-run-state { justify-self:start; font-size:12px; border:1px solid var(--pm-border); border-radius:4px; padding:3px 7px; white-space:nowrap; color:var(--pm-muted); }
+.forge-postman .pm-list-run-state[data-state=ready] { color:#237544; border-color:#a6ccb3; }
+.forge-postman .pm-list-run-state[data-state=fail] { color:#b23b3b; border-color:#e3b5b5; }
+.forge-postman .pm-list-run-state[data-state=running] { color:#8a6500; border-color:#d8c58a; }
+.forge-postman .pm-list-empty { padding:24px 0; }
+@media(max-width:600px) {
+ .forge-postman .pm-list-column-head { display:none; }
+ .forge-postman .pm-list-entry { grid-template-columns:minmax(0,1fr) 140px; }
+ .forge-postman .pm-list-entry .pm-list-identity { grid-column:1 / -1; }
+ .forge-postman .pm-list-editor>.forge-delivery-section-heading { flex-wrap:wrap; gap:8px; }
+}
+
+.forge-postman .forge-delivery-skill-create-menu { width:max-content; min-width:0; }
+.forge-postman .forge-delivery-editor-footer>.forge-delivery-footer-actions:only-child { margin-left:auto; }
+
+.forge-postman button.pm-dataset-choose-pipeline { min-height:36px; padding:6px 16px; border:1px solid var(--pm-text); border-radius:4px; background:var(--pm-text); color:#fff; font:inherit; font-weight:600; cursor:pointer; }
+.forge-postman button.pm-dataset-choose-pipeline:hover { background:var(--pm-focus); }
+
+.forge-postman .pm-dataset-edit-trigger { margin-left:auto; white-space:nowrap; }
+.forge-postman .pm-dataset-editor { width:min(760px,calc(100vw - 32px)); max-height:calc(100dvh - 48px); padding:0; border:1px solid var(--pm-border); border-radius:8px; background:var(--pm-panel,#fff); color:var(--pm-text); }
+.forge-postman .pm-dataset-editor[open] { display:flex; flex-direction:column; }
+.forge-postman .pm-dataset-editor::backdrop { background:rgba(0,0,0,.35); }
+.forge-postman .pm-dataset-editor header,.forge-postman .pm-dataset-editor footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 20px; flex:none; }
+.forge-postman .pm-dataset-editor header { border-bottom:1px solid var(--pm-border); }
+.forge-postman .pm-dataset-editor h2 { font-size:18px; margin:0; }
+.forge-postman .pm-dataset-editor h3 { font-size:14px; margin:0; }
+.forge-postman .pm-dataset-editor button,.forge-postman .pm-dataset-edit-trigger { min-height:32px; padding:6px 12px; border:1px solid var(--pm-control); border-radius:4px; background:white; color:var(--pm-text); font:inherit; font-size:13px; cursor:pointer; }
+.forge-postman .pm-dataset-editor-body { overflow:auto; min-height:0; padding:20px; }
+.forge-postman .pm-dataset-editor label { display:grid; gap:8px; font-size:13px; }
+.forge-postman .pm-dataset-editor :is(input,textarea) { width:100%; min-width:0; box-sizing:border-box; padding:8px 10px; border:1px solid var(--pm-control); border-radius:4px; font:inherit; font-size:13px; color:var(--pm-text); background:white; }
+.forge-postman .pm-dataset-id { font-size:12px; color:var(--pm-muted); overflow-wrap:anywhere; margin:8px 0 20px; }
+.forge-postman .pm-dataset-editor-items-heading { display:flex; align-items:center; justify-content:space-between; margin:24px 0 12px; font-size:12px; color:var(--pm-muted); }
+.forge-postman .pm-dataset-edit-item { border-bottom:1px solid var(--pm-border); padding:16px 0; }
+.forge-postman .pm-dataset-edit-item-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+.forge-postman .pm-dataset-edit-item-heading code { font-size:12px; overflow-wrap:anywhere; }
+.forge-postman .pm-dataset-edit-fields { display:grid; grid-template-columns:90px 90px minmax(0,1fr); gap:12px; margin-top:12px; }
+.forge-postman .pm-dataset-editor footer { border-top:1px solid var(--pm-border); }
+.forge-postman .pm-dataset-editor footer>div { display:flex; gap:8px; }
+.forge-postman .pm-dataset-editor .pm-dataset-primary { background:var(--pm-text); color:white; border-color:var(--pm-text); }
+.forge-postman .pm-dataset-editor .pm-dataset-delete { color:var(--pm-danger); border-color:transparent; }
+.forge-postman .pm-dataset-editor .pm-dataset-delete-confirm { color:white; background:var(--pm-danger); border-color:var(--pm-danger); }
+.forge-postman .pm-dataset-edit-error { color:var(--pm-danger); padding:0 20px; }
+.forge-postman .pm-dataset-undo { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; padding:12px; border:1px solid var(--pm-border); font-size:13px; }
+@media(max-width:600px){.forge-postman .pm-dataset-editor{width:calc(100vw - 24px);max-height:calc(100dvh - 24px)}.forge-postman .pm-dataset-edit-fields{grid-template-columns:1fr 1fr}.forge-postman .pm-dataset-edit-fields>label:last-child{grid-column:1/-1}.forge-postman .pm-dataset-editor :is(input,textarea){font-size:16px}}
+
+.forge-postman .pm-pipeline-edit-fields { display:grid;grid-template-columns:minmax(0,1fr) 140px auto;gap:12px;align-items:end;margin:12px 0; }
+.forge-postman .pm-pipeline-owner-editor select { min-height:36px;border:1px solid var(--pm-control);border-radius:4px;background:white;color:var(--pm-text);padding:6px 10px;font:inherit;width:100%; }
+.forge-postman .pm-pipeline-owner-editor label.pm-pipeline-enabled { display:flex;align-items:center;gap:6px;min-height:36px; }
+.forge-postman .pm-pipeline-enabled input { width:16px;height:16px; }
+.forge-postman .pm-pipeline-node-actions { display:flex;gap:6px; }
+.forge-postman .pm-pipeline-owner-editor .pm-pipeline-config-json { font-family:var(--pm-mono); }
+.forge-postman .pm-pipeline-owner-editor button:disabled { opacity:.45;cursor:default; }
+@media(max-width:600px){.forge-postman .pm-pipeline-edit-fields{grid-template-columns:minmax(0,1fr) 115px}.forge-postman .pm-pipeline-enabled{grid-column:1/-1}.forge-postman .pm-pipeline-owner-editor footer{padding:12px;gap:6px}.forge-postman .pm-pipeline-owner-editor footer button{padding:6px 8px}}

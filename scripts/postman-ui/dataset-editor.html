@@ -1,0 +1,23 @@
+<sc-if value="{{ datasetUndo.visible }}"><div class="pm-dataset-undo" role="status"><span>已删除 {{ datasetUndo.name }}</span><button type="button" sc-camel-on-click="{{ datasetUndo.restore }}">撤销删除</button></div></sc-if>
+<sc-if value="{{ datasetEditor.open }}">
+ <dialog id="pm-dataset-editor" class="pm-dataset-editor" aria-labelledby="pm-dataset-editor-title" sc-camel-on-cancel="{{ datasetEditor.cancel }}">
+  <header><h2 id="pm-dataset-editor-title">编辑数据集</h2><button type="button" aria-label="关闭数据集编辑" sc-camel-on-click="{{ datasetEditor.close }}">×</button></header>
+  <sc-if value="{{ datasetEditor.editing }}">
+   <div class="pm-dataset-editor-body">
+    <label>数据集名称<input value="{{ datasetEditor.name }}" maxlength="100" sc-camel-on-input="{{ datasetEditor.onName }}" /></label>
+    <p class="pm-dataset-id">数据集 ID · {{ datasetEditor.key }}</p>
+    <label>说明<textarea value="{{ datasetEditor.description }}" maxlength="2000" rows="2" sc-camel-on-input="{{ datasetEditor.onDescription }}"></textarea></label>
+    <div class="pm-dataset-editor-items-heading"><h3>Item 内容</h3><span>{{ datasetEditor.count }} 条可编辑记录</span></div>
+    <input type="search" aria-label="搜索要编辑的 Item" placeholder="搜索内容、Item ID、SD / PA" value="{{ datasetEditor.query }}" sc-camel-on-input="{{ datasetEditor.onQuery }}" />
+    <div class="pm-dataset-edit-items"><sc-for list="{{ datasetEditor.items }}" as="item"><section class="pm-dataset-edit-item">
+     <div class="pm-dataset-edit-item-heading"><code>{{ item.id }}</code><button type="button" aria-label="{{ item.removeLabel }}" sc-camel-on-click="{{ item.remove }}">移除</button></div>
+     <textarea aria-label="{{ item.contentLabel }}" value="{{ item.content }}" rows="2" maxlength="10000" sc-camel-on-input="{{ item.onContent }}"></textarea>
+     <div class="pm-dataset-edit-fields"><label>SD<input aria-label="{{ item.subjectLabel }}" value="{{ item.subject }}" maxlength="100" sc-camel-on-input="{{ item.onSubject }}" /></label><label>PA<input aria-label="{{ item.archetypeLabel }}" value="{{ item.archetype }}" maxlength="100" sc-camel-on-input="{{ item.onArchetype }}" /></label><label>风格<input aria-label="{{ item.styleLabel }}" value="{{ item.style }}" maxlength="500" sc-camel-on-input="{{ item.onStyle }}" /></label></div>
+    </section></sc-for><sc-if value="{{ datasetEditor.noItems }}"><p>没有匹配的 Item。</p></sc-if></div>
+   </div>
+   <sc-if value="{{ datasetEditor.error }}"><p class="pm-dataset-edit-error" role="alert">{{ datasetEditor.error }}</p></sc-if>
+   <footer><button type="button" class="pm-dataset-delete" sc-camel-on-click="{{ datasetEditor.askDelete }}">删除数据集</button><div><button type="button" sc-camel-on-click="{{ datasetEditor.close }}">取消</button><button type="button" class="pm-dataset-primary" sc-camel-on-click="{{ datasetEditor.save }}">保存更改</button></div></footer>
+  </sc-if>
+  <sc-if value="{{ datasetEditor.confirmDelete }}"><div class="pm-dataset-editor-body"><h3>删除「{{ datasetEditor.name }}」？</h3><p>删除后将从数据集列表和运行选择中移除，已有运行记录保留。</p></div><footer><span></span><div><button type="button" sc-camel-on-click="{{ datasetEditor.cancelDelete }}">返回编辑</button><button type="button" class="pm-dataset-delete-confirm" sc-camel-on-click="{{ datasetEditor.delete }}">确认删除</button></div></footer></sc-if>
+ </dialog>
+</sc-if>
