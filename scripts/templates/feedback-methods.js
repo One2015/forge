@@ -116,19 +116,23 @@
 
   openBranchForm(source) {
     const rec = this.runsData().find(run => run.id === source.runId);
+    const sourceItem = source.configItem || source.item;
     const ds = this.dsData().find(dataset => dataset.name === rec?.dsName)
-      || this.dsData().find(dataset => dataset.items.some(item => item[0] === source.item));
+      || this.dsData().find(dataset => dataset.items.some(item => item[0] === sourceItem));
+    const sourceRow = ds?.items.find(item => item[0] === sourceItem);
+    const sourceItemName = sourceRow ? this.itemTitle(sourceRow[4] || sourceItem)
+      : sourceItem === source.item ? source.name : source.configItemName || sourceItem;
     const pipe = this.pipeData().find(p => p.name === rec?.pipe);
     const n = this.branchNames(source.item).size + 1;
     const siblings = (this.state.forks?.[source.historyKey] || []).filter(branch => (branch.parent || branch.derivedFrom) === source.parentName).length;
     const suffix = ' · 修改 ' + (siblings + 1);
     this.setState({
       branchAsk: Object.assign({}, source, { attachmentKey: 'branch:' + source.item + ':' + Date.now(), previewImage: rec?.previewImage || '',
-        sourcePipe: rec?.pipe || '', sourceVer: rec?.ver || '', sourceDs: ds?.name || '',
+        sourcePipe: rec?.pipe || '', sourceVer: rec?.ver || '', sourceDs: ds?.name || '', sourceItemName,
         sourceLabel: source.version + ' · 第 ' + source.round + ' 轮' + source.verdict,
         submitted: source.who || (rec ? (rec.owner + ' · ' + this.ago(rec.h)) : '提交信息暂缺') }),
       branchName: source.parentName ? source.parentName.slice(0, 80 - suffix.length) + suffix : source.name.slice(0, 64) + ' · 分支 B-' + String(n).padStart(2, '0'), branchNote: '', branchConfigOpen: false,
-      branchPipe: pipe?.name || '', branchVer: rec?.ver || pipe?.version || '', branchDs: ds?.name || '', branchItem: source.configItem || source.item
+      branchPipe: pipe?.name || '', branchVer: rec?.ver || pipe?.version || '', branchDs: ds?.name || '', branchItem: sourceItem
     });
     setTimeout(() => {
       if (typeof document === 'undefined') return;
@@ -151,7 +155,14 @@
     const pipe = this.pipeData().find(p => p.name === s.branchPipe);
     const datasets = pipe ? this.dsData().filter(ds => (pipe.datasets || []).some(x => x[0] === ds.name)) : [];
     const ds = datasets.find(ds => ds.name === s.branchDs);
-    const selected = ds?.items.find(item => item[0] === s.branchItem);
+    const items = (ds?.items || []).map(item => ({ value: item[0], name: this.itemTitle(item[4] || item[0]) }));
+    const sourceItem = source.configItem || source.item;
+    // The dataset picker is a partial catalog. Retain the exact source-run Item
+    // in its original dataset without adding it to other datasets or the catalog.
+    if (ds && ds.name === source.sourceDs && sourceItem && !items.some(item => item.value === sourceItem)) {
+      items.unshift({ value: sourceItem, name: source.sourceItemName || sourceItem });
+    }
+    const selected = items.find(item => item.value === s.branchItem);
     const feedback = this.feedbackView(source.attachmentKey);
     const valid = !!pipe && !!ds && !!selected;
     const duplicate = this.branchNames(source.item).has(String(s.branchName || '').trim());
@@ -166,17 +177,17 @@
       onName: e => this.setState({ branchName: e.target.value }), onNote: e => this.setState({ branchNote: e.target.value }),
       nameError: duplicate ? '已有同名分支，请修改名称。' : '', duplicate,
       pipe: s.branchPipe || '', ds: s.branchDs || '', item: s.branchItem || '',
-      configuration: 'Pipeline  ' + (s.branchPipe ? s.branchPipe + ' ' + (s.branchVer || '') : '未选择') + '   ·   Dataset  ' + (s.branchDs || '未选择') + '   ·   Item  ' + (s.branchItem || '未选择'),
+      configuration: 'Pipeline  ' + (s.branchPipe ? s.branchPipe + ' ' + (s.branchVer || '') : '未选择') + '   ·   Dataset  ' + (s.branchDs || '未选择') + '   ·   Item  ' + (selected?.name || s.branchItem || '未选择'),
       configOpen: !!s.branchConfigOpen, configLabel: s.branchConfigOpen ? '收起配置' : '更换配置',
       configHeading: s.branchPipe === source.sourcePipe && s.branchVer === source.sourceVer && s.branchDs === source.sourceDs && s.branchItem === (source.configItem || source.item) ? '沿用来源配置' : '本次运行配置',
       configRotation: s.branchConfigOpen ? '180deg' : '0deg',
       toggleConfig: () => this.setState({ branchConfigOpen: !this.state.branchConfigOpen }),
-      pipelines: this.pipeData().map(p => ({ value: p.name, label: p.name + ' ' + (p.name === source.sourcePipe ? source.sourceVer : p.version) })),
-      datasets: datasets.map(d => ({ value: d.name, label: d.name })),
-      items: (ds?.items || []).map(item => ({ value: item[0], label: this.itemTitle(item[4] || item[0]) + ' · ' + item[0] })),
+      pipelines: this.pipeData().map(p => ({ value: p.name, label: p.name + ' ' + (p.name === source.sourcePipe ? source.sourceVer : p.version), selected: p.name === s.branchPipe })),
+      datasets: datasets.map(d => ({ value: d.name, label: d.name, selected: d.name === s.branchDs })),
+      items: items.map(item => ({ value: item.value, label: item.name === item.value ? item.value : item.name + ' · ' + item.value, selected: item.value === s.branchItem })),
       dsDisabled: !pipe, itemDisabled: !ds,
-      onPipe: e => { const p = this.pipeData().find(p => p.name === e.target.value); this.setState({ branchPipe: p?.name || '', branchVer: p?.name === source.sourcePipe ? source.sourceVer : p?.version || '', branchDs: '', branchItem: '' }); },
-      onDs: e => this.setState({ branchDs: e.target.value, branchItem: '' }),
+      onPipe: e => { if (e.target.value === this.state.branchPipe) return; const p = this.pipeData().find(p => p.name === e.target.value); this.setState({ branchPipe: p?.name || '', branchVer: p?.name === source.sourcePipe ? source.sourceVer : p?.version || '', branchDs: '', branchItem: '' }); },
+      onDs: e => { if (e.target.value !== this.state.branchDs) this.setState({ branchDs: e.target.value, branchItem: '' }); },
       onItem: e => this.setState({ branchItem: e.target.value }),
       invalidConfig: !valid || !!sourceError, configError: sourceError || (!pipe ? '请选择 Pipeline。' : !ds ? '请选择此 Pipeline 关联的数据集。' : !selected ? '请选择数据集里的 Item。' : ''),
       disabled, cancel: e => this.cancelBranchForm(e), create: e => { e?.stopPropagation(); this.createBranchRun(); },
@@ -206,6 +217,6 @@
       lifeNodes: Object.assign({}, s.lifeNodes, {[source.historyDisplayKey || historyKey]: true}),
       submittedRuns: (s.submittedRuns || []).concat([run]), reviewToast: '已创建分支「' + record.name + '」，运行已进入队列', reviewToastAt: Date.now() });
     this.cancelBranchForm();
-    this.notifyTaskLink((source.historyKey ? '已追加修改，分支「' : '分支「') + record.name + '」已进入运行队列；原版本保持不变，完成后可手动关联交付 Item。', 'info');
+    this.notifyTaskLink((source.historyKey ? '已追加修改，分支「' : '分支「') + record.name + '」已进入运行队列；原版本保持不变，完成后可手动关联交付 Item。', 'info', { label: '查看分支状态', runId: id });
   }
   // feedback-workflows:end

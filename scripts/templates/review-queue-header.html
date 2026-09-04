@@ -1,20 +1,20 @@
 <div class="review-queue-card-header" sc-camel-on-click="{{ it.toggle }}" style="flex:none;display:grid;grid-template-columns:124px minmax(0,1fr) clamp(190px,20vw,220px);gap:clamp(12px,1.6vw,18px);align-items:center;height:122px;padding:14px 16px;cursor:pointer;background:{{ it.cardBg }}" style-hover="background:#fcfbf9">
   <div style="height:82px;border-radius:10px;border:1px solid #e8e2d9;background-color:#f4f1ec;background-image:repeating-linear-gradient(135deg,#eae5dc 0 6px,#f4f1ec 6px 12px)"></div>
-  <div style="min-width:0;max-height:100%;overflow:hidden;display:flex;flex-direction:column;justify-content:center">
-    <div style="display:flex;align-items:center;gap:7px;flex-wrap:nowrap;min-width:0">
-      <div style="width:19px;height:19px;flex:none;border-radius:50%;background:{{ it.authorBg }};color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ it.authorInitial }}</div>
-      <div style="font-size:12px;color:#8b847c;flex:none;white-space:nowrap">{{ it.round }}</div>
-      <div style="width:1px;height:11px;background:#e2dcd2;flex:none"></div>
-      <div style="font-size:12px;color:#6b645d;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.authorLabel }}</div>
-      <sc-if value="{{ it.mine }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#8f4029;border:1px solid #eabaa8;border-radius:6px;padding:1px 8px;white-space:nowrap">待我审核</div></sc-if>
+  <!-- review-queue-card-copy:start -->
+  <div class="review-queue-card-copy">
+    <h3 class="review-queue-card-title" title="{{ it.domain }}">{{ it.domain }}</h3>
+    <button type="button" class="review-queue-item-id" sc-camel-on-click="{{ it.openLife }}" title="查看这条 Item 的完整记录：{{ it.id }}"><span class="review-queue-item-id-label">Item ID</span><code>{{ it.id }}</code></button>
+    <div class="review-queue-card-meta">
+      <span class="review-queue-card-round">{{ it.round }}</span>
+      <span class="review-queue-card-author" title="{{ it.authorLabel }}"><span class="review-queue-card-avatar" aria-hidden="true" style="background:{{ it.authorBg }}">{{ it.authorInitial }}</span><span class="review-queue-card-author-label">{{ it.authorLabel }}</span></span>
+      <sc-if value="{{ it.mine }}" hint-placeholder-val="{{ false }}"><span class="review-queue-card-status">待我审核</span></sc-if>
     </div>
-    <div style="margin-top:7px;font-size:14px;color:#3a352f;line-height:1.6;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ it.domain }}</div>
-    <div sc-camel-on-click="{{ it.openLife }}" title="查看这条 Item 的完整记录" style="margin-top:7px;display:inline-block;max-width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#9c948b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" style-hover="color:#b1543a">{{ it.id }}</div>
   </div>
+  <!-- review-queue-card-copy:end -->
   <div style="display:flex;flex-direction:column;justify-content:center;gap:7px;align-items:flex-end">
-    <sc-if value="{{ it.pending }}" hint-placeholder-val="{{ true }}"><button sc-camel-on-click="{{ it.start }}" style="height:34px;padding:0 13px;white-space:nowrap;border:1px solid #ddd6cb;background:#fff;border-radius:8px;font-size:13px;font-weight:600;color:#3a352f;cursor:pointer">开始审核 [[icon:arrow-right:16]]</button></sc-if>
-    <sc-if value="{{ it.drafting }}" hint-placeholder-val="{{ false }}"><button sc-camel-on-click="{{ it.start }}" style="height:34px;padding:0 13px;border:1px solid #eabaa8;background:#fff;border-radius:8px;font-size:13px;color:#8f4029;cursor:pointer">继续填写返工说明</button></sc-if>
-    <sc-if value="{{ it.needsReroll }}" hint-placeholder-val="{{ false }}"><button sc-camel-on-click="{{ it.reroll }}" style="height:34px;padding:0 13px;border:1px solid #eabaa8;background:#fff;border-radius:8px;font-size:13px;color:#8f4029;cursor:pointer">Reroll [[icon:arrow-right:16]]</button></sc-if>
+    <sc-if value="{{ it.pending }}" hint-placeholder-val="{{ true }}"><button type="button" class="forge-review-cta cta-repair" aria-haspopup="dialog" sc-camel-on-click="{{ it.start }}">开始审核</button></sc-if>
+    <sc-if value="{{ it.drafting }}" hint-placeholder-val="{{ false }}"><button type="button" class="forge-review-cta cta-repair" aria-haspopup="dialog" sc-camel-on-click="{{ it.start }}">继续填写返工说明</button></sc-if>
+    <sc-if value="{{ it.needsReroll }}" hint-placeholder-val="{{ false }}"><button type="button" class="forge-review-cta cta-reroll" sc-camel-on-click="{{ it.reroll }}">Reroll</button></sc-if>
     <sc-if value="{{ it.rerolled }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#8a5a16">已发起 Reroll</span></sc-if>
     <div style="font-size:12px;color:#9c948b;text-align:right">{{ it.waitLabel }}</div>
   </div>

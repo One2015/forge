@@ -1,0 +1,21 @@
+// Presentation-only copy changes; availability and running counts keep their source calculations.
+export const overviewSummaryCopy = [
+  ["note: source.demo ? '示例账单 · ' + range.start + ' · UTC+8' : source.kind === 'ready' ? range.start + ' · UTC+8' : source.message", "note: source.kind === 'ready' ? '截止至 ' + this.billingDay(start + 86400000) + ' 00:00' : source.message"],
+  ["title: '交付进度', count: flat.length", "title: '相关交付进度', count: flat.length"],
+  ["{ k: '运行中', v: running.length, unit: '个任务'", "{ k: '运行中', v: running.length, unit: '个运行'"],
+  ["note: running.length ? '正在处理 ' + runningItems + ' 项内容' : '暂无运行中的任务'", "note: running.length ? '共 ' + runningItems + ' 个 Item 处理中' : '暂无运行中的任务'"],
+  ["description: '正在生成或修复内容的运行任务（Run）数量。一个任务可以处理多项内容；当前 ' + running.length + ' 个任务正在处理 ' + runningItems + ' 项内容，不含排队和待审核内容。'", "description: 'Run 是一次运行，Item 是运行中的一条内容。一轮运行可以包含多个 Item；当前 ' + running.length + ' 个运行中共有 ' + runningItems + ' 个 Item 正在处理，不含排队和待审核 Item。'"],
+  ["{ k: '模型状态', v: model.rate, unit: model.hasRate ? '% 当前可用' : ''", "{ k: '模型状态', v: model.hasRate ? model.available + ' / ' + model.total : '—', unit: ''"],
+  ["note: (isDemo ? '示例数据 · ' : '') + model.note, detail: modelDetail, checked: model.checked,", "note: model.hasRate ? '模型可用' : model.note, detail: '', checked: '',"],
+  ["'当前可用模型占比 = 已确认可用的模型数 ÷ 生产启用的模型总数，按模型去重，保留 1 位小数。至少一条生产可路由且协议匹配的线路在 ' + model.freshnessLabel + ' 内通过生成验证，模型才计为可用。清单不完整、检测过期或存在未知模型时不显示百分比。100% 可用也可能有线路需处理；延迟、质量和账户状态单独衡量。'", "'显示已确认可用的模型数 / 生产启用的模型总数，按模型去重。至少一条生产可路由且协议匹配的线路在 ' + model.freshnessLabel + ' 内通过生成验证，模型才计为可用。清单不完整、检测过期或存在未知模型时显示说明；线路问题在模型状态页查看。'"]
+];
+export function refineOverviewSummary(t) {
+  const deliveryLink='<div sc-camel-on-click="{{ g.go }}" style="font-size:13px;color:var(--forge-accent);cursor:pointer;white-space:nowrap">{{ g.linkLabel }}</div>';
+  if(!t.includes(deliveryLink))throw Error('Overview delivery link anchor changed');
+  t=t.replace(deliveryLink,'');
+  for (const [from,to] of overviewSummaryCopy) {
+    if(!t.includes(from))throw Error('Overview summary copy anchor changed: '+from.slice(0,60));
+    t=t.replace(from,()=>to);
+  }
+  return t;
+}

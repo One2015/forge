@@ -1,0 +1,9 @@
+<div class="forge-wizard-summary-body">
+  <h3>配置摘要</h3>
+  <dl><div><dt>数据单名称</dt><dd>{{ deliveryEditor.wizard.name }}</dd></div><div><dt>客户 / 供应商</dt><dd>{{ deliveryEditor.wizard.customer }}</dd></div><div><dt>目标数量</dt><dd>{{ deliveryEditor.wizard.target }}</dd></div><div><dt>有效 Item</dt><dd>{{ deliveryEditor.wizard.stats.valid }} 项</dd></div></dl>
+  <p class="forge-wizard-difference" data-mismatch="{{ deliveryEditor.wizard.mismatch }}">{{ deliveryEditor.wizard.differenceLabel }}</p>
+  <dl class="forge-wizard-summary-counts"><div><dt>Tag</dt><dd>{{ deliveryEditor.wizard.tagCount }}</dd></div><div><dt>Skill</dt><dd>{{ deliveryEditor.wizard.skillCount }}</dd></div><div><dt>成员</dt><dd>{{ deliveryEditor.wizard.memberCount }}</dd></div></dl>
+  <sc-if value="{{ deliveryEditor.wizard.hasTagPreview }}"><div class="forge-wizard-summary-tags" aria-label="已配置 Tag"><sc-for list="{{ deliveryEditor.wizard.tagPreview }}" as="tag"><div><span class="forge-wizard-tag-chip" style="--tag-color:{{ tag.color }}"><i aria-hidden="true"></i>{{ tag.name }}</span><span><sc-if value="{{ tag.isDefault }}">默认 · </sc-if>{{ tag.applied }} 项</span></div></sc-for></div></sc-if>
+  <p class="forge-delivery-help">Tag 与 Skill 选填，成员权限仅对本单生效。</p>
+  <sc-if value="{{ deliveryEditor.reviewAssignment.hasRows }}"><p class="forge-delivery-help">Reviewer 已分配 {{ deliveryEditor.reviewAssignment.assigned }} / {{ deliveryEditor.reviewAssignment.count }} 份数据集</p></sc-if>
+</div>

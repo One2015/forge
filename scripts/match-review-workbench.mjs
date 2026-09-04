@@ -101,7 +101,10 @@ if (!template.includes('<!-- review-workbench:start -->')) {
           const sample = (st.sampleLabels || {})[meta[0]];
           const markSample = value => e => {
             e.stopPropagation();
-            this.setState({ sampleLabels: Object.assign({}, this.state.sampleLabels || {}, { [meta[0]]: value }) });
+            const labels = Object.assign({}, this.state.sampleLabels || {});
+            if (labels[meta[0]] === value) delete labels[meta[0]];
+            else labels[meta[0]] = value;
+            this.setState({ sampleLabels: labels });
           };`);
   swap(`            authorInitial: row.author.slice(0, 1).toUpperCase(),`, `            authorInitial: row.author.slice(0, 1).toUpperCase(),
             submitter: row.author,

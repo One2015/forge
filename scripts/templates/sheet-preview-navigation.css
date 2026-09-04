@@ -1,0 +1,13 @@
+/* sheet-preview-navigation:start */
+.forge-sheet-preview-navigation{position:absolute;bottom:14px;left:16px;max-width:calc(100% - 32px);display:flex;align-items:center;gap:10px;cursor:default}
+.forge-sheet-preview-controls{display:flex;align-items:center;gap:2px;padding:3px;flex:none;border:1px solid rgba(255,255,255,.24);border-radius:10px;background:rgba(20,22,20,.9);color:#f5f7f4}
+@supports ((backdrop-filter:blur(12px)) or (-webkit-backdrop-filter:blur(12px))){.forge-sheet-preview-controls{background:rgba(20,22,20,.64);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}}
+.forge-sheet-preview-control{appearance:none;display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;min-height:32px;padding:0;border:0;border-radius:6px;background:transparent;color:inherit;font:inherit;cursor:pointer;transition:none}
+.forge-sheet-preview-control:hover:not(:disabled){background:rgba(255,255,255,.12);color:#fff}
+.forge-sheet-preview-control:active:not(:disabled){background:rgba(255,255,255,.18)}
+.forge-app-shell .forge-sheet-preview-control:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+.forge-sheet-preview-control:disabled{background:transparent;color:rgba(245,247,244,.36);cursor:default}
+.forge-sheet-preview-position{display:flex;align-items:center;justify-content:center;min-width:56px;height:32px;margin-left:3px;padding:0 10px;border-left:1px solid rgba(255,255,255,.2);color:inherit;font-size:13px;font-weight:600;line-height:20px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.forge-sheet-preview-navigation .forge-sheet-preview-hint{color:#d8ddd5;font-size:12px;line-height:20px;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+@media(pointer:coarse){.forge-sheet-preview-control{width:44px;height:44px;min-height:44px}.forge-sheet-preview-position{height:44px}}
+/* sheet-preview-navigation:end */

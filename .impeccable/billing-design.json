@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-03T04:59:15Z",
+  "title": "Design System: Forge usage and cost analysis",
+  "extensions": {
+    "scope": {
+      "documentation": ".impeccable/billing-design.md",
+      "globalDesignSystem": false,
+      "inheritedWorld": ".impeccable/delivery-design.md",
+      "direction": ".impeccable/billing-direction.md",
+      "surfaceBrief": ".impeccable/surfaces/scripts-templates-billing-html.md",
+      "technicalContract": "scripts/BILLING_ANALYTICS.md",
+      "sources": ["scripts/templates/billing.html", "scripts/templates/billing.css", "scripts/templates/billing-methods.js", "scripts/templates/forge-refinement.css", "scripts/templates/interaction-states.css", "scripts/templates/overview-summary-methods.js"]
+    },
+    "breakpoints": [
+      { "name": "billing-stack", "value": "1150px", "query": "(max-width:1150px)", "purpose": "Stack trends, use two filter columns, remove grain auto margin and reduce metrics to 24px." },
+      { "name": "inherited-page-medium", "value": "1000px", "query": "(max-width:1000px)", "purpose": "Shared page padding becomes 20px." },
+      { "name": "inherited-page-narrow", "value": "760px", "query": "(max-width:760px)", "purpose": "Shared page padding becomes 18px 14px; title is 20px, with billing's later 32px line height retained." },
+      { "name": "billing-narrow", "value": "700px", "query": "(max-width:700px)", "purpose": "Stack heading and filters; use two date/metric columns, full-width grain, compact chart padding and 44px minimum heights for named form/navigation/text-action controls." }
+    ],
+    "focus": {
+      "outline": "2px solid var(--forge-accent)",
+      "outlineOffset": "3px",
+      "targets": "Billing buttons, selects, inputs, summary and tabindex=0 scroll regions.",
+      "exception": "The programmatically focused page heading has no outline.",
+      "navigation": "Opening focuses the heading; returning focuses the yesterday-cost entry."
+    },
+    "shadows": [
+      { "name": "selected-grain", "value": "0 1px 2px #272a2514", "purpose": "Lift only the selected button within the grain segment." }
+    ],
+    "verification": {
+      "record": ".impeccable/review/billing/review.md",
+      "disposition": "ship",
+      "scope": "Two-fix verdict only: 12 complete natural-month boundaries and endpoint-label collision resolved. Not a new full-surface audit or computed-contrast/accessibility certification.",
+      "recordedTests": { "passed": 350, "total": 350 },
+      "recordedBuild": "passed",
+      "recordedDiffCheck": "passed",
+      "detector": "No findings in degraded regex mode; not computed-style verification.",
+      "documentationMethod": "Source and supplied screenshot inspection; no new browser audit.",
+      "screenshots": [".impeccable/review/billing/desktop.png", ".impeccable/review/billing/desktop-detail.png", ".impeccable/review/billing/user-919.png", ".impeccable/review/billing/user-919-detail.png", ".impeccable/review/billing/mobile.png", ".impeccable/review/billing/mobile-detail.png"],
+      "captureScope": "Valid paired viewports at 1440px, 919px and 390px; latest state is 12 months/monthly. Mobile detail shows right-scrolled charts. Malformed full-page stitching excluded."
+    },
+    "limitations": ["No new shipping raster or billing animation.", "No synthesized tonal ramps or global replacement rules.", "Component snippets are visual primitives, not working analytics or data bindings.", "Billing data input is not a connected backend; existing app and draft semantics are preserved."]
+  },
+  "components": [
+    {
+      "name": "Clear-filter text action",
+      "kind": "button",
+      "refersTo": "text-action",
+      "description": "Orange text action with neutral hover/press and a distinct disabled state.",
+      "html": "<button type=\"button\" class=\"ds-billing-action\">清除筛选</button>",
+      "css": ".ds-billing-action{font:500 13px/20px var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif);color:var(--forge-accent,#c44318);background:transparent;border:0;border-radius:6px;padding:7px 8px;min-height:34px;white-space:nowrap;cursor:pointer}.ds-billing-action:hover:not(:disabled){background:var(--forge-hover,#f0f1ed)}.ds-billing-action:active:not(:disabled){background:var(--forge-pressed,#e6e8e1)}.ds-billing-action:focus-visible{outline:2px solid var(--forge-accent,#c44318);outline-offset:3px}.ds-billing-action:disabled{color:var(--forge-disabled-text,#81877b);cursor:not-allowed}@media(max-width:700px){.ds-billing-action{min-height:44px}}"
+    },
+    {
+      "name": "Native date field",
+      "kind": "input",
+      "refersTo": "date-field",
+      "description": "Visible label and browser-native calendar affordance; date shown is a specimen, not a live preset.",
+      "html": "<label class=\"ds-billing-date\"><span>开始日期</span><input type=\"date\" aria-label=\"开始日期\" value=\"2025-09-01\"></label>",
+      "css": ".ds-billing-date{display:flex;flex-direction:column;gap:6px;min-width:0;font:13px/20px var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif)}.ds-billing-date>span{font-size:12px;color:var(--forge-muted,#666b61)}.ds-billing-date input{font:inherit;color:var(--forge-text,#272a25);background:var(--forge-panel,#fff);border:1px solid var(--forge-control-border,#c9ccc4);border-radius:6px;padding:6px 10px;min-height:34px;width:154px;min-width:0;caret-color:var(--forge-accent,#c44318);accent-color:var(--forge-accent,#c44318)}.ds-billing-date input:hover{border-color:var(--forge-muted,#666b61)}.ds-billing-date input:focus-visible{outline:2px solid var(--forge-accent,#c44318);outline-offset:3px}@media(max-width:700px){.ds-billing-date input{width:100%;max-width:100%;min-height:44px}}"
+    },
+    {
+      "name": "Analysis dimension navigation",
+      "kind": "nav",
+      "refersTo": "dimension-active",
+      "description": "Native navigation buttons; the specimen displays the overview as current without runtime handlers.",
+      "html": "<nav class=\"ds-billing-tabs\" aria-label=\"费用分析维度\"><button type=\"button\" aria-current=\"page\">总览</button><button type=\"button\">供应商</button><button type=\"button\">模型</button></nav>",
+      "css": ".ds-billing-tabs{display:flex;gap:24px;border-bottom:1px solid var(--forge-border,#e3e5df)}.ds-billing-tabs button{font:500 13px/20px var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif);color:var(--forge-muted,#666b61);background:transparent;border:0;border-bottom:2px solid transparent;padding:10px 2px;cursor:pointer}.ds-billing-tabs button[aria-current=page]{border-bottom-color:var(--forge-accent,#c44318);color:var(--forge-accent,#c44318)}.ds-billing-tabs button:hover{color:var(--forge-accent,#c44318);background:var(--forge-subtle,#f6f6f3)}.ds-billing-tabs button:focus-visible{outline:2px solid var(--forge-accent,#c44318);outline-offset:3px}@media(max-width:700px){.ds-billing-tabs button{min-height:44px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Compact Operate",
+    "overview": "This scoped extension inherits the name and visual language recorded in the adjacent Forge design documents. It preserves compact system typography, light working surfaces, restrained orange selection and flat section boundaries; it does not replace the global identity or introduce a new brand direction.\n\nBilling presents one date-and-filter context across summaries, trends and dimension details. The visible synthetic-data notice is part of this local prototype's hierarchy, not evidence of a connected billing service. Existing application workflows and draft semantics remain outside this extension.",
+    "keyCharacteristics": ["Shared date and filter context.", "Right-aligned, tabular numerical detail.", "Native controls and locally scrollable data regions."],
+    "dos": ["Do preserve the inherited Forge tokens, native controls and visible keyboard focus.", "Do keep the demo label and shared date/filter context visible.", "Do retain local chart/table scrolling and the readable final axis caption."],
+    "donts": ["Don't turn this surface's chart palette or composition into global brand rules.", "Don't describe the synthetic ledger or input seam as real account billing.", "Don't treat the two-fix verdict as a full-surface or computed-contrast certification."]
+  }
+}

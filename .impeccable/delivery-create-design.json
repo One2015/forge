@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-03",
+  "title": "Design System: Forge Delivery Create Page",
+  "extensions": {
+    "breakpoints": [
+      {
+        "name": "delivery-wizard-summary-collapse",
+        "value": "820px"
+      },
+      {
+        "name": "delivery-wizard-mobile",
+        "value": "540px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Creation Page Footer",
+      "kind": "custom",
+      "description": "Final-step ready specimen. Runtime renders Cancel/Next on step one, Previous/Next on intermediate steps, and Previous/Create on confirmation. A blocking reason disables the primary action.",
+      "html": "<footer class=\"ds-delivery-create-footer\"><div class=\"ds-delivery-create-copy\"><span></span></div><div class=\"ds-delivery-create-actions\"><button type=\"button\" class=\"ds-delivery-create-secondary\">上一步</button><button type=\"button\" class=\"ds-delivery-create-primary\">创建数据单</button></div></footer>",
+      "css": ".ds-delivery-create-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;bottom:0;z-index:10;width:100%;margin-top:8px;padding:16px 0 max(16px,env(safe-area-inset-bottom));border-top:1px solid var(--forge-border,#e3e5df);background:var(--forge-bg,#fafaf8);color:var(--forge-text,#272a25);font-family:var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif)}.ds-delivery-create-copy{flex:1;min-width:0}.ds-delivery-create-copy span{font-size:12px;color:var(--forge-muted,#666b61)}.ds-delivery-create-actions{display:flex;gap:8px;flex:none}.ds-delivery-create-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:0 12px;border:1px solid var(--forge-control-border,#c9ccc4);border-radius:6px;background:var(--forge-panel,#fff);color:var(--forge-text,#272a25);font-family:inherit;font-size:13px;font-weight:500;line-height:20px;white-space:nowrap;cursor:pointer}.ds-delivery-create-actions .ds-delivery-create-primary{border-color:var(--forge-accent,#c44318);background:var(--forge-accent,#c44318);color:#fff}.ds-delivery-create-actions button:focus-visible{outline:2px solid var(--forge-text,#272a25);outline-offset:2px}.ds-delivery-create-actions button:disabled{background:var(--forge-disabled-bg,#eeefeb);border-color:var(--forge-disabled-bg,#eeefeb);color:var(--forge-disabled-text,#81877b);cursor:not-allowed}@media(hover:hover){.ds-delivery-create-primary:not(:disabled):hover{background:var(--forge-accent-hover,#a83812);border-color:var(--forge-accent-hover,#a83812)}.ds-delivery-create-secondary:not(:disabled):hover{background:var(--forge-subtle,#f6f6f3)}}@media(max-width:760px){.ds-delivery-create-footer{flex-wrap:wrap;gap:10px}.ds-delivery-create-copy{flex-basis:100%}.ds-delivery-create-actions{width:100%}.ds-delivery-create-actions button{min-height:44px}.ds-delivery-create-actions .ds-delivery-create-primary{flex:1}}@media(pointer:coarse){.ds-delivery-create-actions button{min-height:44px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Compact Operate",
+    "overview": "A validated four-step creation workflow inside the incumbent Forge shell. Keep the sidebar, typography and restrained orange; reduce cognitive load through progressive disclosure, a live configuration summary and explicit completion gates. Existing-sheet editing remains a native three-tab dialog.",
+    "keyCharacteristics": [
+      "Four steps with preserved inputs and validated navigation.",
+      "Mutually exclusive List inputs with visible anomalies and exact target/valid-count checks.",
+      "Optional default Tag and selected-first Skills; sheet-scoped members at confirmation.",
+      "Create Skill opens the shared native form/upload chooser; both subflows retain unpublished inputs and require explicit publication.",
+      "Desktop sticky summary, mobile disclosure and validation beside sticky actions. No draft-saving UI."
+    ],
+    "dos": [
+      "Preserve Forge tokens and existing-sheet editing.",
+      "Keep missing conditions and count differences explicit.",
+      "Retain published Skills when cancelling the sheet."
+    ],
+    "donts": [
+      "Do not allow route anchors to bypass step validation.",
+      "Do not silently drop duplicate or unmatched List entries.",
+      "Do not claim successful browser submission: safety review blocked that final action."
+    ]
+  }
+}

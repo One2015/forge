@@ -9,27 +9,7 @@
 </header>
 <div class="review-workbench-body">
   <section class="review-workbench-preview" aria-label="产物预览">
-    <sc-if value="{{ it.showPreview }}" hint-placeholder-val="{{ true }}">
-      <sc-if value="{{ it.hasPreviewImage }}" hint-placeholder-val="{{ false }}">
-        <img class="review-workbench-render" src="{{ it.previewImage }}" alt="{{ it.shortName }} 产物预览" />
-      </sc-if>
-      <sc-if value="{{ it.noPreviewImage }}" hint-placeholder-val="{{ true }}">
-        <div class="review-workbench-preview-empty">
-          [[icon:image:24]]
-          <strong>{{ it.workbenchPreviewTitle }}</strong>
-          <p>{{ it.workbenchPreviewHint }}</p>
-          <button sc-camel-on-click="{{ it.previewFiles }}">查看产物文件 [[icon:arrow-right:16]]</button>
-        </div>
-      </sc-if>
-    </sc-if>
-    <sc-if value="{{ it.showFiles }}" hint-placeholder-val="{{ false }}">
-      <div class="review-workbench-files">
-        <div class="review-workbench-section-heading"><h2>产物文件</h2><button sc-camel-on-click="{{ it.returnPreview }}">返回预览 [[icon:x:16]]</button></div>
-        <sc-for list="{{ it.files }}" as="f" hint-placeholder-count="3">
-          <div class="review-workbench-file"><span>{{ f.name }}</span><span>{{ f.size }}</span></div>
-        </sc-for>
-      </div>
-    </sc-if>
+    <div class="forge-artifact-host" data-forge-artifact="{{ it.artifactConfig }}"><div class="forge-artifact-fallback"><span>产物查看器加载中…</span><noscript>请启用 JavaScript 查看产物。</noscript></div></div>
   </section>
   <aside class="review-workbench-panel" aria-label="审核信息与操作">
     <div class="review-workbench-scroll">
@@ -42,7 +22,7 @@
           <dt>资产类型</dt><dd>{{ it.assetType }}</dd>
           <dt>文件格式</dt><dd>{{ it.fileFormat }}</dd>
           <dt>生成时间</dt><dd>{{ it.generatedAt }}</dd>
-          <dt>提交人</dt><dd>{{ it.submitter }}</dd>
+          <dt>项目负责人</dt><dd>{{ it.submitter }}</dd>
         </dl>
         <div class="review-workbench-case">
           <span>案例标记</span>
@@ -122,7 +102,7 @@
         <button class="review-workbench-approve" sc-camel-on-click="{{ it.cancelNote }}">取消返工</button>
         <button class="review-workbench-reject" sc-camel-on-click="{{ it.submitNote }}" disabled="{{ it.cannotSubmitNote }}">提交返工</button>
       </sc-if>
-      <sc-if value="{{ it.needsReroll }}" hint-placeholder-val="{{ false }}"><button class="review-workbench-reject review-workbench-action-wide" sc-camel-on-click="{{ it.reroll }}">前往生产配置 Reroll [[icon:arrow-right:20]]</button></sc-if>
+      <sc-if value="{{ it.needsReroll }}" hint-placeholder-val="{{ false }}"><button type="button" class="forge-review-cta cta-reroll review-workbench-action-wide" sc-camel-on-click="{{ it.reroll }}">前往生产配置 Reroll</button></sc-if>
       <sc-if value="{{ it.rerolled }}" hint-placeholder-val="{{ false }}"><p>已发起 Reroll，运行完成后可继续审核。</p></sc-if>
     </footer>
   </aside>

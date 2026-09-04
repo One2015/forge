@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-02T07:26:07Z",
+  "title": "Forge Task Linking Extension",
+  "extensions": {
+    "scope": {
+      "documentation": ".impeccable/task-link-design.md",
+      "technical": "scripts/TASK_LINKING.md",
+      "direction": ".impeccable/task-link-direction.md",
+      "incumbent": ".impeccable/delivery-design.md",
+      "globalDesignSystem": false
+    },
+    "sources": [
+      "scripts/templates/task-link.css",
+      "scripts/templates/task-link-dialog.html",
+      "scripts/templates/task-link-methods.js",
+      "scripts/templates/forge-refinement.css",
+      "scripts/implement-task-linking.mjs"
+    ],
+    "layout": {
+      "desktop": {
+        "width": "min(600px,calc(100vw - 40px))",
+        "maxHeight": "calc(100dvh - 48px)",
+        "headerPadding": "20px 20px 16px",
+        "bodyPadding": "16px 20px 20px",
+        "footerPadding": "12px 20px 16px",
+        "resultsMaxHeight": "260px",
+        "thumbnail": "64px × 48px"
+      },
+      "compact": {
+        "query": "(max-width:600px)",
+        "width": "calc(100vw - 24px)",
+        "maxHeight": "calc(100dvh - 24px)",
+        "headerPadding": "16px",
+        "bodyPadding": "12px 16px 16px",
+        "footerPadding": "12px 16px 16px",
+        "resultsMaxHeight": "240px",
+        "thumbnail": "52px × 44px",
+        "actionMinHeight": "44px"
+      },
+      "scroll": "Body overflow:auto plus results overflow-y:auto; header/footer flex:none. Short viewports may require body scrolling to reach acknowledgement.",
+      "coarsePointer": {
+        "query": "(pointer:coarse)",
+        "fieldMinHeight": "44px",
+        "fieldFontSize": "16px",
+        "iconSize": "44px",
+        "modeMinHeight": "44px"
+      }
+    },
+    "shadows": [
+      {
+        "name": "dialog",
+        "value": "0 16px 48px rgba(24,27,24,.2)",
+        "purpose": "Native modal above the working surface."
+      },
+      {
+        "name": "toast",
+        "value": "0 8px 32px rgba(24,27,24,.18)",
+        "purpose": "Result feedback in a manual top-layer popover."
+      }
+    ],
+    "backdrop": "rgba(24,27,24,.36)",
+    "focus": {
+      "outline": "2px solid var(--forge-accent)",
+      "offset": "2px",
+      "itemOffset": "-3px"
+    },
+    "behavior": {
+      "dialog": "Native showModal; labelled heading/description; select autofocus; Escape, cancel, close and backdrop discard draft; Ctrl/Meta+Enter reuses validation outside IME composition.",
+      "selection": "Sheet-scoped case-insensitive Item name/ID search; selected rows use aria-pressed; explicit consequence and acknowledgement before replacing current or candidate.",
+      "identity": "Stable delivery ID is separate from source Item/Run/version; only explicit branch mode creates a new delivery Item.",
+      "versions": "Approved source becomes current. Pending source remains candidate; exact source decision derives promotion/rework. Prior current survives a rejected candidate.",
+      "guards": "Recheck source identity/readiness, current/candidate duplicate source key, target revision snapshot and acknowledgement at submit.",
+      "toast": {
+        "tones": [
+          "success",
+          "info",
+          "warning"
+        ],
+        "popover": "manual",
+        "liveRegion": "polite, atomic status",
+        "timeoutMs": 7000,
+        "pause": "Hover or focus",
+        "resume": "Restart a full 7000ms timer",
+        "dismissible": true
+      },
+      "previews": "Real accepted preview URLs only; missing, rejected or failed URLs show 暂无预览.",
+      "state": "Page-session memory only; refresh loses associations/new Items/drafts. No automatic Skill invocation."
+    },
+    "icons": {
+      "family": "Phosphor Regular",
+      "source": "assets/phosphor/regular",
+      "newShippingRaster": false
+    },
+    "limitations": [
+      "No server persistence or authorization added.",
+      "Source Skill matching is restricted to current/candidate Item+Run bindings, not history.",
+      "Seed aggregate totals exceed the local sample catalog.",
+      "No new motion, synthesized previews or shipping raster.",
+      "Fresh finish reviewer could not start because of the agent thread limit; ship is a substituted in-thread check.",
+      "Degraded regex detector is not a complete computed-style or accessibility audit."
+    ],
+    "verification": {
+      "disposition": "ship",
+      "reviewKind": "substituted in-thread finish check",
+      "review": ".impeccable/review/task-link-finish-review.md",
+      "tests": {
+        "command": "node --test scripts/test-*.mjs",
+        "passed": 89,
+        "associationTests": 16
+      },
+      "build": {
+        "command": "npm run build",
+        "result": "passed"
+      },
+      "diffCheck": "No output",
+      "integrationIdempotence": "Repeated integration hash matched",
+      "documenterReranChecks": false,
+      "qaFixtureRemoved": true,
+      "viewports": [
+        "1440×1000",
+        "390×844",
+        "816×800"
+      ],
+      "screenshots": [
+        ".impeccable/review/task-link-desktop.png",
+        ".impeccable/review/task-link-mobile.png",
+        ".impeccable/review/task-link-user-816.png",
+        ".impeccable/review/task-link-new-mobile.png",
+        ".impeccable/review/task-link-toast-mobile.png"
+      ],
+      "resolved": [
+        "Rejected candidates without a current final cannot be reused as ready sources.",
+        "Dynamic sheet options expose explicit accessible names."
+      ]
+    }
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Submit the selected final or candidate association.",
+      "html": "<button class=\"ds-control\" type=\"button\">确认关联</button>",
+      "css": ".ds-control{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:6px 12px;border-radius:6px;font:500 13px/20px var(--forge-font);cursor:pointer;white-space:nowrap}.ds-control{border:1px solid var(--forge-accent);background:var(--forge-accent);color:#fff}.ds-control:disabled{border-color:var(--forge-disabled-bg);background:var(--forge-disabled-bg);color:var(--forge-disabled-text);cursor:not-allowed}.ds-control:focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}@media(hover:hover){.ds-control:hover:not(:disabled){background:var(--forge-accent-hover);border-color:var(--forge-accent-hover)}}@media(max-width:600px){.ds-control{min-height:44px}}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Cancel without saving the association draft.",
+      "html": "<button class=\"ds-control\" type=\"button\">取消</button>",
+      "css": ".ds-control{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:6px 12px;border-radius:6px;font:500 13px/20px var(--forge-font);cursor:pointer;white-space:nowrap}.ds-control{border:1px solid var(--forge-control-border);background:var(--forge-panel);color:var(--forge-text)}.ds-control:focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}@media(hover:hover){.ds-control:hover{background:var(--forge-subtle)}}@media(max-width:600px){.ds-control{min-height:44px}}"
+    },
+    {
+      "name": "Item name field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Name an explicitly created branch delivery Item.",
+      "html": "<label class=\"ds-label\" for=\"ds-new-item\">新 Item 名称</label><input class=\"ds-control\" id=\"ds-new-item\" maxlength=\"100\">",
+      "css": ".ds-label{display:flex;gap:12px;margin:16px 0 6px;font:500 13px/1.5 var(--forge-font);color:var(--forge-text)}.ds-control{width:100%;min-width:0;min-height:36px;border:1px solid var(--forge-control-border);border-radius:6px;padding:7px 10px;background:var(--forge-panel);color:var(--forge-text);font:13px/1.5 var(--forge-font);caret-color:var(--forge-accent)}.ds-control:focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}@media(pointer:coarse){.ds-control{min-height:44px;font-size:16px}}"
+    },
+    {
+      "name": "Association mode",
+      "kind": "nav",
+      "description": "Explicit branch-only choice between an existing and a new delivery Item.",
+      "html": "<div class=\"ds-modes\" aria-label=\"关联方式\"><button class=\"ds-control\" type=\"button\" aria-pressed=\"true\">关联已有 Item</button><button class=\"ds-control\" type=\"button\" aria-pressed=\"false\">创建新 Item</button></div>",
+      "css": ".ds-modes{display:flex;gap:4px;border-bottom:1px solid var(--forge-border);margin-top:16px}.ds-control{border:0;border-bottom:2px solid transparent;background:none;padding:8px 10px;font:13px/1.5 var(--forge-font);color:var(--forge-muted);cursor:pointer}.ds-control[aria-pressed=true]{color:var(--forge-accent);border-bottom-color:var(--forge-accent)}.ds-control:focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}@media(pointer:coarse){.ds-control{min-height:44px}}"
+    },
+    {
+      "name": "Association history",
+      "kind": "custom",
+      "description": "Native disclosure for recorded delivery and source versions.",
+      "html": "<details class=\"ds-history\"><summary>关联记录</summary><div class=\"ds-entry\"><strong>当前交付</strong><span>来源 Item / Run / 版本</span></div></details>",
+      "css": ".ds-history{margin:12px 0;font:12px/1.5 var(--forge-font);color:var(--forge-muted)}.ds-history summary{cursor:pointer;color:var(--forge-text);font-size:13px}.ds-entry{display:flex;flex-direction:column;gap:3px;padding:10px 0;border-bottom:1px solid var(--forge-border);overflow-wrap:anywhere}.ds-entry strong{color:var(--forge-text);font-weight:500}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Compact Operate",
+    "overview": "仅固化“关联任务”详情 CTA、交付 Item 选择、版本变更确认和 Toast。沿用 incumbent 的白色工作面、克制橙色、中文友好的 sans 字体和 Phosphor Regular 图标，不建立或替换全局设计系统。",
+    "keyCharacteristics": [
+      "先选择交付位置，再确认来源产物。",
+      "来源身份、稳定交付 ID 与版本结果明确分开。",
+      "缺失预览和本地会话边界如实可见。"
+    ],
+    "dos": [
+      "Do 保持稳定交付 ID、来源 Item／Run 身份和版本记录。",
+      "Do 将候选与已通过版本分开，并明确替换后果。",
+      "Do 保留真实缺图占位、可见验证和刷新丢失提示。"
+    ],
+    "donts": [
+      "Don't 把分支产物自动变成新的交付 Item。",
+      "Don't 将本地状态描述成服务端持久化、授权或真实 Skill 执行。",
+      "Don't 将本地替代收尾检查描述成 fresh 独立评审。"
+    ]
+  }
+}

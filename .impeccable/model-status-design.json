@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-03T08:36:40Z",
+  "title": "Design System: Forge Model Status",
+  "extensions": {
+    "scope": "Surface-local inherited-world extension; primitives belong to model-status-design.md and existing Forge CSS. No global identity changes or synthesized tonal ramps.",
+    "sourceFiles": [
+      "scripts/templates/model-status.html",
+      "scripts/templates/model-status.css",
+      "scripts/templates/model-status-methods.js",
+      "scripts/templates/model-status-dashboard.js",
+      "scripts/templates/model-status-demo.js",
+      "scripts/templates/forge-refinement.css",
+      "scripts/templates/interaction-states.css",
+      "public/forge.html"
+    ],
+    "inheritedTokenBindings": {
+      "colors.accent": "--forge-accent",
+      "colors.accent-hover": "--forge-accent-hover",
+      "colors.accent-soft": "--forge-accent-soft",
+      "colors.page": "--forge-bg",
+      "colors.panel": "--forge-panel",
+      "colors.hover": "--forge-hover",
+      "colors.border": "--forge-border",
+      "colors.control-border": "--forge-control-border",
+      "colors.text": "--forge-text",
+      "colors.muted": "--forge-muted",
+      "typography.body.fontFamily": "--forge-font",
+      "rounded.control": "--forge-radius-sm",
+      "rounded.container": "--forge-radius-md"
+    },
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "Forge orange"
+      },
+      "page": {
+        "role": "neutral",
+        "displayName": "Page"
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel"
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "Hover/selection fill"
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Primary text"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Supporting text"
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [
+      {
+        "name": "compact-table-columns",
+        "value": "1180px"
+      },
+      {
+        "name": "labelled-three-column-rows-and-stacked-investigation",
+        "value": "1000px"
+      },
+      {
+        "name": "inherited-compact-page",
+        "value": "760px"
+      },
+      {
+        "name": "two-column-rows-and-44px-controls",
+        "value": "650px"
+      }
+    ],
+    "snippetBoundary": "Plain HTML/CSS with native browser controls. Example values come from the synthetic source fixture, not real providers. Application callbacks and legacy sc-for/sc-if bindings are deliberately absent; these are presentation specimens, not a second dashboard implementation.",
+    "validation": {
+      "tests": 429,
+      "productionBuild": "passed",
+      "browserViewports": [
+        "1280×900",
+        "390×844"
+      ],
+      "browserAcceptance": [
+        "dimension switching",
+        "filters",
+        "chart hover/focus",
+        "route selection",
+        "simulated retest",
+        "follow-up preparation"
+      ],
+      "reviewDisposition": "Ship at the three listed integrity-fix scopes only; not whole-surface blanket approval.",
+      "resolvedFindings": [
+        "Shared timestamp/freshness validation",
+        "Do not compare mixed TTFT and total P95",
+        "Reconcile supplier runway to all hourly route spend"
+      ],
+      "detector": "Returned [] with degraded parsing; not a clean certification.",
+      "computedContrast": "Not verified",
+      "notImplemented": [
+        "real monitoring",
+        "live trend feed",
+        "external probes",
+        "sending follow-up",
+        "routing mutations",
+        "payment/recharge",
+        "deployment"
+      ]
+    }
+  },
+  "components": [
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Source refresh-example button; a visual/native-control specimen, not a wired data action.",
+      "html": "<button type=\"button\" class=\"ds-refresh\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M240,56v48a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16H211.4L184.81,71.64l-.25-.24a80,80,0,1,0-1.67,114.78,8,8,0,0,1,11,11.63A95.44,95.44,0,0,1,128,224h-1.32A96,96,0,1,1,195.75,60L224,85.8V56a8,8,0,1,1,16,0Z\"></path></svg>刷新示例</button>",
+      "css": ".ds-refresh{min-height:36px;padding:7px 12px;border:1px solid var(--forge-control-border,#c9ccc4);border-radius:var(--forge-radius-sm,6px);background:var(--forge-panel,#fff);color:var(--forge-text,#272a25);font:500 13px/20px var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif);cursor:pointer}.ds-refresh:focus-visible{outline:2px solid var(--forge-accent,#c44318);outline-offset:3px}@media(hover:hover) and (pointer:fine){.ds-refresh:hover{background:var(--forge-hover,#f0f1ed);border-color:var(--forge-muted,#666b61)}}@media(max-width:650px){.ds-refresh{min-height:44px}}.ds-refresh{display:inline-flex;align-items:center;justify-content:center;gap:7px}"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Source-mode text action, retaining native button semantics.",
+      "html": "<button type=\"button\" class=\"ds-source-link\">查看接入状态</button>",
+      "css": ".ds-source-link{display:inline-flex;align-items:center;gap:6px;padding:6px 0;border:0;background:none;color:var(--forge-accent,#c44318);font:13px/1.5 var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif);cursor:pointer}.ds-source-link:focus-visible{outline:2px solid var(--forge-accent,#c44318);outline-offset:3px}@media(hover:hover) and (pointer:fine){.ds-source-link:hover{color:var(--forge-accent-hover,#a83812)}}@media(max-width:650px){.ds-source-link{min-height:44px}}"
+    },
+    {
+      "name": "Search and native filters",
+      "kind": "input",
+      "description": "Real native search/select controls using the source field sizes; filtering is provided by the application runtime.",
+      "html": "<div class=\"ds-filters\"><label class=\"ds-search\"><span class=\"ds-sr\">搜索模型或供应商</span><input type=\"search\" placeholder=\"搜索模型或供应商\"></label><label><span class=\"ds-sr\">供应商</span><select aria-label=\"供应商筛选\"><option>全部供应商</option><option>云桥 API</option><option>北辰 API</option></select></label><label><span class=\"ds-sr\">状态筛选</span><select aria-label=\"状态筛选\"><option>全部生产线路</option><option>调用失败</option><option>延迟倍增</option><option>质量待复测</option><option>账户待处理</option><option>状态待确认</option></select></label></div>",
+      "css": ".ds-filters{color:var(--forge-text,#272a25);font:13px/1.5 var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif)}.ds-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.ds-filters label{min-width:0}.ds-search{width:260px;max-width:100%}.ds-filters input,.ds-filters select{min-width:0;max-width:100%;height:36px;padding:7px 11px;border:1px solid var(--forge-control-border,#c9ccc4);border-radius:var(--forge-radius-sm,6px);background:var(--forge-panel,#fff);color:var(--forge-text,#272a25);font:inherit}.ds-search input{width:100%}.ds-filters select{width:148px}.ds-filters input::placeholder{color:var(--forge-muted,#666b61)}.ds-filters input:focus{border-color:var(--forge-accent,#c44318)}.ds-filters :is(input,select):focus-visible{outline:2px solid var(--forge-accent,#c44318);outline-offset:3px}.ds-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}@media(max-width:650px){.ds-search{width:100%}.ds-filters label:not(.ds-search){flex:1 1 110px}.ds-filters select{width:100%}.ds-filters input,.ds-filters select{height:44px}}"
+    },
+    {
+      "name": "Supplier/model dimension",
+      "kind": "nav",
+      "description": "Underlined native pressed-button group, not ARIA tabs with unimplemented arrow-key behavior.",
+      "html": "<div class=\"ds-dimensions\" role=\"group\" aria-label=\"分析维度\"><button type=\"button\" aria-pressed=\"true\">供应商</button><button type=\"button\" aria-pressed=\"false\">模型评估</button></div>",
+      "css": ".ds-dimensions{display:flex;gap:20px}.ds-dimensions button{border:0;border-bottom:2px solid transparent;background:none;padding:10px 0;color:var(--forge-muted,#666b61);font:500 14px/22px var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif);cursor:pointer}.ds-dimensions button[aria-pressed=\"true\"]{border-bottom-color:var(--forge-accent,#c44318);color:var(--forge-accent,#c44318)}.ds-dimensions button:focus-visible{outline:2px solid var(--forge-accent,#c44318);outline-offset:3px}@media(hover:hover) and (pointer:fine){.ds-dimensions button:hover{color:var(--forge-accent-hover,#a83812)}}@media(max-width:650px){.ds-dimensions button{min-height:44px}}"
+    },
+    {
+      "name": "Selected supplier comparison row",
+      "kind": "custom",
+      "description": "Literal demo row with correct whole-account spend. At narrow widths labelled fields replace the desktop header.",
+      "html": "<section class=\"ds-comparison\"><p>示例数据 · 非真实监控</p><div class=\"ds-table\" role=\"table\" aria-label=\"供应商与模型对比\"><div class=\"ds-table-head\" role=\"row\"><span role=\"columnheader\">供应商</span><span role=\"columnheader\">调用状态</span><span role=\"columnheader\">P95 / 基线</span><span role=\"columnheader\">失败率</span><span role=\"columnheader\">消费</span><span role=\"columnheader\">账户余额</span><span role=\"columnheader\">排查</span></div><div class=\"ds-table-row\" role=\"row\" data-selected=\"true\"><div class=\"ds-group\" role=\"cell\"><button type=\"button\" aria-pressed=\"true\" aria-label=\"选择 云桥 API\">云桥 API</button><small>2 条线路 · 2 个模型</small></div><div role=\"cell\"><span class=\"ds-row-badge\" data-tone=\"warning\">延迟倍增</span><small>2 / 2 条可用</small></div><div class=\"ds-number\" role=\"cell\" data-label=\"P95 / 基线\"><strong>11.91 s</strong><small>首字延迟 · 3.5× 基线</small></div><div class=\"ds-number\" role=\"cell\" data-label=\"失败率\"><strong>6.0%</strong><small>2,750 次调用</small></div><div class=\"ds-number\" role=\"cell\" data-label=\"近 1 小时消费\"><strong>$121.00</strong><small>USD · 近 1 小时</small></div><div class=\"ds-number\" role=\"cell\" data-label=\"账户余额\"><strong>$420.00</strong><small>预计可用 3.5 小时</small></div><div class=\"ds-inspect\" role=\"cell\"><button type=\"button\" aria-label=\"查看 云桥 API 诊断\">排查</button></div></div></div></section>",
+      "css": ".ds-comparison{color:var(--forge-text,#272a25);font:13px/1.5 var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif)}.ds-comparison>p{font-size:12px;color:var(--forge-muted,#666b61)}.ds-table{border:1px solid var(--forge-border,#e3e5df);border-radius:10px;overflow:hidden;background:var(--forge-panel,#fff)}.ds-table-head,.ds-table-row{display:grid;grid-template-columns:minmax(150px,1.3fr) minmax(112px,1fr) minmax(102px,.8fr) minmax(92px,.8fr) minmax(92px,.8fr) minmax(132px,1.2fr) 38px;gap:12px;align-items:center;padding:14px 18px}.ds-table-head{padding-block:10px;background:var(--forge-hover,#f0f1ed);font-size:12px;color:var(--forge-muted,#666b61)}.ds-table-row{min-height:76px;border-top:1px solid var(--forge-border,#e3e5df)}.ds-table-row[data-selected=\"true\"]{background:var(--forge-hover,#f0f1ed)}.ds-table-row>div{min-width:0;overflow-wrap:anywhere}.ds-table-row small{display:block;margin-top:4px;color:var(--forge-muted,#666b61);font-size:11px;line-height:18px}.ds-table-row button{border:0;background:none;padding:0;font:600 13px/20px var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif);color:var(--forge-accent,#c44318);cursor:pointer;text-align:left}.ds-number{text-align:right;font-variant-numeric:tabular-nums}.ds-number strong{font-weight:500}.ds-table-row button:focus-visible{outline:2px solid var(--forge-accent,#c44318);outline-offset:3px}.ds-row-badge{display:inline-flex;padding:2px 6px;border:1px solid var(--forge-border,#e3e5df);border-radius:4px;color:var(--forge-muted,#666b61);font:11px/18px var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif);white-space:nowrap}.ds-row-badge[data-tone=\"success\"]{color:#426c49;background:#f2f7f1;border-color:#cbddcc}.ds-row-badge[data-tone=\"warning\"]{color:#80531a;background:#faf6ed;border-color:#e5d8b9}.ds-row-badge[data-tone=\"danger\"]{color:#a33627;background:#fdf3f0;border-color:#edd0c8}@media(hover:hover) and (pointer:fine){.ds-table-row:hover{background:var(--forge-hover,#f0f1ed)}.ds-table-row button:hover{color:var(--forge-accent-hover,#a83812)}}@media(max-width:1180px){.ds-table-head,.ds-table-row{gap:8px;padding-inline:12px;grid-template-columns:minmax(130px,1.1fr) minmax(100px,1fr) 90px 84px 82px minmax(120px,1fr) 30px}}@media(max-width:1000px){.ds-table-head{display:none}.ds-table-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 18px;padding:16px}.ds-group{grid-column:1/3}.ds-table-row>div:nth-child(2){grid-row:1;grid-column:3}.ds-number{text-align:left}.ds-number:before{content:attr(data-label);display:block;font-size:11px;color:var(--forge-muted,#666b61);margin-bottom:4px}.ds-inspect{grid-column:3}}@media(max-width:650px){.ds-table-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ds-group,.ds-inspect{grid-column:1/-1}.ds-table-row>div:nth-child(2){grid-row:auto;grid-column:1/-1}.ds-inspect button{min-height:44px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Compact Operate",
+    "overview": "A compact, explicitly simulated investigation dashboard within Forge’s established neutral-and-orange workbench. Operators scan exceptions, compare suppliers or models, then inspect the selected route. Availability, latency, quality and account evidence remain separate; there is no composite health score.",
+    "keyCharacteristics": [
+      "Clearly labelled examples, with real-input states kept separate.",
+      "Exception-first comparisons and persistent selected-route diagnostics.",
+      "Native controls, labelled mobile metrics and explicit unknown evidence."
+    ],
+    "dos": [
+      "Do preserve Forge’s inherited tokens, native controls and compact hierarchy.",
+      "Do keep availability, latency, quality and account evidence independent.",
+      "Do label examples and keep unknown, conflicting and invalid-time states explicit.",
+      "Do keep simulated retests local and follow-up information unsent."
+    ],
+    "donts": [
+      "Don't mix demo values into real monitoring or substitute examples for live errors.",
+      "Don't compare different latency metrics or infer account health from missing data.",
+      "Don't turn scores, thresholds, runway estimates or suggested actions into verified claims.",
+      "Don't equate scoped review acceptance with full accessibility, production monitoring or deployment approval."
+    ]
+  }
+}

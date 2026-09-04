@@ -5,18 +5,18 @@ const siteUrl = new URL('https://forge-production-review-focus.chatgpt.site');
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
-  title: 'Forge 生产与审核 · IA 优化版',
-  description: '更聚焦的 Forge 生产、运行、人工审核与交付工作台。',
+  title: 'Forge · Postman UI 优化版',
+  description: '采用 Postman 工作台结构与 Genova 配色的 Forge 生产与交付界面。',
   openGraph: {
-    title: 'Forge 生产与审核 · IA 优化版',
-    description: '更聚焦的 Forge 生产、运行、人工审核与交付工作台。',
+    title: 'Forge · Postman UI 优化版',
+    description: '采用 Postman 工作台结构与 Genova 配色的 Forge 生产与交付界面。',
     type: 'website',
     images: [{ url: new URL('/og.png', siteUrl), width: 1731, height: 909 }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Forge 生产与审核 · IA 优化版',
-    description: '更聚焦的 Forge 生产、运行、人工审核与交付工作台。',
+    title: 'Forge · Postman UI 优化版',
+    description: '采用 Postman 工作台结构与 Genova 配色的 Forge 生产与交付界面。',
     images: [new URL('/og.png', siteUrl)],
   },
 };

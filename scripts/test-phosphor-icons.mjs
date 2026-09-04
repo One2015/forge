@@ -24,9 +24,12 @@ function component(props = {}) {
 }
 
 test('every interface SVG uses unmodified official Phosphor Regular geometry', () => {
-  const icons = [...markup.matchAll(/<svg\b([^>]*)>([\s\S]*?)<\/svg>/g)];
+  const svgs = [...markup.matchAll(/<svg\b([^>]*)>([\s\S]*?)<\/svg>/g)];
+  const icons = svgs.filter(([, attrs]) => attrs.includes('data-phosphor'));
+  const charts = svgs.filter(([, attrs]) => attrs.includes('data-chart'));
   // Includes branch progress connectors and compact record/remove actions.
-  assert.equal(icons.length, 162);
+  assert.equal(icons.length, 202); // Creation restores the Skill chooser's caret, pencil and upload icons.
+  assert.equal(charts.length, 1); assert.match(charts[0][1], /data-chart="model-trend"/);
   const names = new Set();
   for (const [, attrs, geometry] of icons) {
     const name = attrs.match(/data-phosphor="([\w-]+)"/)?.[1];
@@ -43,12 +46,13 @@ test('every interface SVG uses unmodified official Phosphor Regular geometry', (
     assert.match(attrs, /focusable="false"/);
     assert(!attrs.includes('stroke-width='));
   }
-  assert.equal(names.size, 37);
+  assert.equal(names.size, 38);
   assert(template.includes('Phosphor Icons license'));
 });
 
 test('no legacy glyph icons remain in markup, without changing data notation', () => {
-  assert.doesNotMatch(markup, /[↻→←↑↓↗×＋−⑂▴▾▲▼✓⧉]/);
+  // Multiplication and negative signs are data notation, never substitutes for action icons.
+  assert.doesNotMatch(markup.replaceAll('×', '').replaceAll('−', ''), /[↻→←↑↓↗＋⑂▴▾▲▼✓⧉]/);
   assert(template.includes('SD01×12'));
   assert(template.includes('generate → retarget → build'));
   assert(template.includes("sampleTabs: [['good', 'Good Case'], ['bad', 'Bad Case']]"));

@@ -1,0 +1,7 @@
+/* review-sort:start */
+.forge-review-sort{position:relative;flex:none}
+.forge-review-sort-select{appearance:none;display:block;width:auto;min-width:88px;height:38px;padding:0 32px 0 12px;border:1px solid var(--forge-control-border);border-radius:10px;background:var(--forge-panel);color:var(--forge-text);font:inherit;font-size:13px;line-height:20px;cursor:pointer}
+.forge-review-sort>.forge-icon{position:absolute;top:50%;right:12px;transform:translateY(-50%);color:var(--forge-muted);pointer-events:none}
+@media(hover:hover) and (pointer:fine){.forge-review-sort-select:hover{border-color:#c1b8ab}}
+@media(pointer:coarse){.forge-review-sort-select{height:44px;font-size:16px}}
+/* review-sort:end */

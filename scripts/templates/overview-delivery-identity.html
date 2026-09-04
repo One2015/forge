@@ -1,0 +1,6 @@
+<!-- overview-delivery-identity:start -->
+<span class="forge-overview-supplier" title="{{ r.supplier.name }}" aria-hidden="true">
+  <sc-if value="{{ r.supplier.hasLogo }}" hint-placeholder-val="{{ false }}"><img src="{{ r.supplier.logoUrl }}" alt="" width="28" height="28" sc-camel-on-error="{{ r.supplier.onError }}" /></sc-if>
+  <sc-if value="{{ r.supplier.noLogo }}" hint-placeholder-val="{{ true }}"><span>{{ r.supplier.initial }}</span></sc-if>
+</span>
+<!-- overview-delivery-identity:end -->

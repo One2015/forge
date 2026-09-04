@@ -17,4 +17,21 @@
     <button type="button" class="forge-detail-action forge-detail-primary" disabled="{{ sheet.pick.cannotSubmitRework }}" sc-camel-on-click="{{ sheet.pick.submitRework }}">提交返工</button>
   </sc-if>
 </div>
+<sc-if value="{{ sheet.pick.reworkConfirm.motionPresent }}" hint-placeholder-val="{{ false }}">
+  <div class="forge-motion-overlay forge-rework-confirm-overlay" data-motion-key="sheetReworkConfirm" data-motion-open="{{ sheet.pick.reworkConfirm.motionOpen }}" sc-camel-on-click="{{ sheet.pick.reworkConfirm.cancel }}">
+    <section class="forge-motion-dialog forge-rework-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="forge-rework-confirm-title" aria-describedby="forge-rework-confirm-description" sc-camel-on-click="{{ sheet.pick.reworkConfirm.stop }}">
+      <h2 id="forge-rework-confirm-title">确认要求返工？</h2>
+      <p id="forge-rework-confirm-description">提交后，当前候选版本将被标记为“要求返工”，并创建下一轮修复任务。审核结论提交后不可撤销。</p>
+      <dl>
+        <sc-for list="{{ sheet.pick.reworkConfirm.fields }}" as="f" hint-placeholder-count="0">
+          <dt>{{ f.k }}</dt><dd>{{ f.v }}</dd>
+        </sc-for>
+      </dl>
+      <div class="forge-rework-confirm-actions">
+        <button type="button" class="forge-rework-confirm-button" sc-camel-on-click="{{ sheet.pick.reworkConfirm.cancel }}">返回修改</button>
+        <button type="button" class="forge-rework-confirm-button forge-rework-confirm-primary" disabled="{{ sheet.pick.reworkConfirm.cannotConfirm }}" sc-camel-on-click="{{ sheet.pick.reworkConfirm.confirm }}">确认要求返工</button>
+      </div>
+    </section>
+  </div>
+</sc-if>
 <!-- detail-footer:end -->

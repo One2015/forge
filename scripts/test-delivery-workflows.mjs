@@ -1,3 +1,4 @@
+import { confirmDelivery } from './test-support/delivery-wizard.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -14,13 +15,20 @@ function component() {
     window: { location: { search: '' } }, setTimeout: () => 0, clearTimeout() {},
     FileReader: class { readAsDataURL(file) { queueMicrotask(() => { this.result = 'data:' + file.type + ';base64,' + (file.invalid ? 'bad' : 'image'); this.onload(); }); } },
     Image: class { naturalWidth = 10; naturalHeight = 10; set src(value) { queueMicrotask(() => value.endsWith('bad') ? this.onerror() : this.onload()); } },
-    DCLogic: class { props = { panelWidth: 460, hasRuns: true, hasResources: true }; setState(patch) { this.state = { ...this.state, ...patch }; } }
+    DCLogic: class { props = { panelWidth: 460, hasRuns: true, hasResources: true, platformSkills: [] }; setState(patch) { this.state = { ...this.state, ...patch }; } }
   });
   vm.runInContext(code + ';globalThis.instance = new Component();', context);
   return context.instance;
 }
-function begin(c) { c.openDeliveryEditor(); c.patchDeliveryEditor({ name: '建筑测试交付', customer: '测试客户', target: '3' }); }
-function save(c) { c.saveDeliveryEditor(); return c.deliverySheet(c.state.sheetKey); }
+function begin(c) { c.openDeliveryEditor(); c.patchDeliveryEditor({ name: '建筑测试交付', customer: '测试客户', target: '1' }); c.setDeliveryList('天坛'); }
+function save(c) { if (!c.state.deliveryEditor.key) c.patchDeliveryEditor({ target: String(c.deliveryWizardStats().valid) }); confirmDelivery(c); c.saveDeliveryEditor(); return c.deliverySheet(c.state.sheetKey); }
+function publishAndSelect(c) {
+  assert.equal(c.deliveryEditorValues().workspace.uploadIssue, '');
+  const commands = c.state.deliveryEditor.skillUploads.map(skill => '/' + skill.command);
+  c.deliveryEditorValues().workspace.publishUploads();
+  c.patchDeliveryEditor({ tab: 'skills' });
+  c.deliveryEditorValues().library.rows.filter(row => commands.includes(row.command) && !row.selected).forEach(row => row.toggle());
+}
 const skillText = '---\nname: 3d trajectory\ndescription: 检查模型轨迹\n---\n# 轨迹检查\n核对相机和模型朝向。';
 const md = (name = 'trajectory.md', text = skillText) => ({ name, size: Buffer.byteLength(text), text: async () => text });
 function zip(items) {
@@ -54,8 +62,9 @@ test('required fields and loading gate creation; created sheet appears under its
   assert(c.deliveryEditorValues().disabled); c.saveDeliveryEditor(); assert(!c.state.deliverySheets?.length);
   c.patchDeliveryEditor({ name: '测试数据单', customer: '客户', target: '2.5' }); assert(c.deliveryEditorValues().disabled);
   c.patchDeliveryEditor({ target: '2', listLoading: true }); assert(c.deliveryEditorValues().disabled);
-  c.patchDeliveryEditor({ listLoading: false }); assert(!c.deliveryEditorValues().disabled);
-  const sheet = save(c); assert.equal(sheet.target, 2); assert.equal(sheet.passed, 0); assert.equal(c.state.view, 'sheet');
+  c.patchDeliveryEditor({ listLoading: false }); assert(c.deliveryEditorValues().disabled);
+  assert.match(c.deliveryEditorIssue(), /生产任务|ZIP/); c.setDeliveryList('布达拉宫\n天坛'); assert(!c.deliveryEditorValues().disabled);
+  const sheet = save(c); assert.equal(sheet.target, 2); assert.equal(sheet.passed, 1); assert.equal(c.state.view, 'sheet');
   assert(c.deliveryData().some(group => group.customer === '客户' && group.sheets.some(item => item.key === sheet.key)));
   assert.equal(c.deliveryEditorValues().open, false);
 });
@@ -63,8 +72,9 @@ test('required fields and loading gate creation; created sheet appears under its
 test('text list deduplicates lines, matches real fixtures, retains unknown entries and handles invalid lengths', () => {
   const c = component(); begin(c);
   c.setDeliveryList('- 布达拉宫\n天坛\n天坛\n客户新模型\n');
-  assert.equal(c.state.deliveryEditor.entries.length, 3);
-  assert.equal(c.state.deliveryEditor.entries.filter(entry => entry.itemId).length, 2);
+  assert.equal(c.state.deliveryEditor.entries.length, 4);
+  assert.equal(c.deliveryWizardStats().valid, 2); assert.equal(c.deliveryWizardStats().duplicate, 1); assert.equal(c.deliveryWizardStats().unmatched, 1);
+  assert.match(c.deliveryEditorIssue(), /异常|多出|还差/); c.setDeliveryList('布达拉宫\n天坛');
   const sheet = save(c); assert.equal(sheet.linked, 2); assert.equal(sheet.passed, 1); assert.equal(sheet.review, 1);
   c.openDeliveryEditor(sheet.key); c.setDeliveryList('x'.repeat(301)); assert(c.deliveryEditorValues().disabled);
   c.setDeliveryList(Array.from({ length: 501 }, (_, i) => 'item' + i).join('\n')); assert.match(c.deliveryEditorIssue(), /500/);
@@ -95,7 +105,7 @@ test('async upload cannot modify a cancelled or replacement editor', async () =>
   let resolve; const file = zipFile([{ path: '天坛.glb' }]), bytes = await file.arrayBuffer();
   const pending = c.uploadDeliveryList({ ...file, arrayBuffer: () => new Promise(done => { resolve = done; }) });
   c.closeDeliveryEditor(); begin(c); resolve(bytes); await pending;
-  assert.equal(c.state.deliveryEditor.entries.length, 0); assert.equal(c.state.deliveryEditor.archive, null);
+  assert.equal(c.state.deliveryEditor.entries.length, 1); assert.equal(c.state.deliveryEditor.entries[0].name, '天坛'); assert.equal(c.state.deliveryEditor.archive, null);
   let resolveSkill; const skill = c.uploadDeliverySkills([{ ...md(), text: () => new Promise(done => { resolveSkill = done; }) }]);
   c.closeDeliveryEditor(); begin(c); resolveSkill(skillText); await skill;
   assert.equal(c.state.deliveryEditor.skills.length, 0);
@@ -110,17 +120,19 @@ test('logo reads validated image data, supports removal, and rejects invalid typ
   await c.uploadDeliveryLogo({ ...file, invalid: true }); assert.match(c.state.deliveryEditor.logoError, /有效图片/);
 });
 
-test('multiple MD and ZIP Skills retain actual instructions and reject duplicates or unsafe names', async () => {
+test('multiple MD and ZIP Skills retain instructions, stage for creation and validate editable names', async () => {
   const c = component(); begin(c);
   await c.uploadDeliverySkills([md(), zipFile([{ path: 'material/SKILL.md', text: '---\nname: material\n---\n检查材质。', method: 8 }], 'skills.zip')]);
-  assert.equal(c.state.deliveryEditor.skills.length, 2);
-  assert.equal(c.state.deliveryEditor.skills[0].content, skillText);
-  assert.equal(c.state.deliveryEditor.skills[1].command, 'material');
-  await c.uploadDeliverySkills([md()]); assert.equal(c.state.deliveryEditor.skills.length, 2); assert.match(c.state.deliveryEditor.skillError, /重复/);
-  c.deliveryEditorValues().skills[1].onCommand(change('3d trajectory')); assert.match(c.deliveryEditorIssue(), /重复/);
-  assert(c.deliveryEditorValues().skills.every(skill => skill.commandInvalid));
-  assert(c.deliveryEditorValues().skills.every(skill => skill.commandErrorId && /重复/.test(skill.commandIssue)));
-  c.deliveryEditorValues().skills[1].onCommand(change('quality check')); assert(!c.deliveryEditorIssue());
+  assert.equal(c.state.deliveryEditor.skillUploads.length, 2);
+  assert.equal(c.state.deliveryEditor.skillUploads[0].content, skillText);
+  assert.equal(c.state.deliveryEditor.skillUploads[1].command, 'material');
+  await c.uploadDeliverySkills([md()]); assert.equal(c.state.deliveryEditor.skillUploads.length, 2); assert.match(c.state.deliveryEditor.skillError, /重复/);
+  c.deliveryEditorValues().workspace.uploads[1].onCommand(change('3d trajectory')); assert.match(c.deliveryEditorValues().workspace.uploadIssue, /内容不同/);
+  c.deliveryEditorValues().workspace.uploads[1].onCommand(change('quality check')); publishAndSelect(c); assert(!c.deliveryEditorIssue());
+  c.deliveryEditorValues().library.rows[1].onCommand(change('3d trajectory'));
+  assert.match(c.deliveryEditorIssue(), /重复/);
+  assert(c.deliveryEditorValues().library.rows.every(skill => skill.commandInvalid && skill.commandErrorId));
+  c.deliveryEditorValues().library.rows[1].onCommand(change('quality check')); assert(!c.deliveryEditorIssue());
   assert.throws(() => c.parseUploadedSkill('---\nname: <script>\n---\nHi', 'bad.md', 'bad.md'), /名称/);
   await c.uploadDeliverySkills([{ ...md(), size: 513 * 1024 }]); assert.match(c.state.deliveryEditor.skillError, /512 KB/);
 });
@@ -128,8 +140,10 @@ test('multiple MD and ZIP Skills retain actual instructions and reject duplicate
 test('Skill capacity is bounded; uploaded HTML is inert text, not evaluated markup', async () => {
   const c = component(); begin(c);
   await c.uploadDeliverySkills(Array.from({ length: 13 }, (_, i) => md('skill' + i + '.md', '# Skill\n<script>alert(1)</script>')));
-  assert.equal(c.state.deliveryEditor.skills.length, 12); assert(c.deliveryEditorValues().skillsFull);
-  assert(c.state.deliveryEditor.skills[0].content.includes('<script>'));
+  assert.equal(c.state.deliveryEditor.skillUploads.length, 12); assert(c.deliveryEditorValues().workspace.uploadDisabled);
+  assert.equal(c.state.deliveryEditor.skills.length, 0);
+  assert(c.state.deliveryEditor.skillUploads[0].content.includes('<script>'));
+  publishAndSelect(c); assert.equal(c.state.deliveryEditor.skills.length, 12); assert(c.deliveryEditorValues().skillsFull);
   assert(template.includes('<pre>{{ skill.content }}</pre>')); assert(!template.includes('innerHTML: skill.content'));
 });
 
@@ -155,6 +169,7 @@ test('tags persist and filter custom entries; tag-only seed edits preserve aggre
 
 test('slash invocation loads bound Skill and current Item/Run without fake score or review mutation', async () => {
   const c = component(); begin(c); c.setDeliveryList('布达拉宫'); await c.uploadDeliverySkills([md()]);
+  publishAndSelect(c);
   const sheet = save(c), ctx = contextFor(c, sheet), before = JSON.stringify(c.state.reviewDecisions);
   let view = c.reviewSkillValues(ctx); assert.equal(view.count, 1); assert(view.disabled);
   view.onText(change('/3d trajectory 检查正面')); c.reviewSkillValues(ctx).invoke(); view = c.reviewSkillValues(ctx);
@@ -167,8 +182,8 @@ test('slash invocation loads bound Skill and current Item/Run without fake score
 });
 
 test('same-named bindings require explicit selection in cross-sheet review', async () => {
-  const c = component(); begin(c); c.setDeliveryList('布达拉宫'); await c.uploadDeliverySkills([md()]); const one = save(c);
-  begin(c); c.patchDeliveryEditor({ name: '第二张数据单' }); c.setDeliveryList('布达拉宫'); await c.uploadDeliverySkills([md()]); save(c);
+  const c = component(); begin(c); c.setDeliveryList('布达拉宫'); await c.uploadDeliverySkills([md()]); publishAndSelect(c); const one = save(c);
+  begin(c); c.patchDeliveryEditor({ name: '第二张数据单' }); c.setDeliveryList('布达拉宫'); await c.uploadDeliverySkills([md()]); publishAndSelect(c); save(c);
   const ctx = { ...contextFor(c, one), sheetKey: null, scope: 'review' };
   c.reviewSkillValues(ctx).onText(change('/3d trajectory')); c.invokeReviewSkill(ctx); assert.match(c.reviewSkillValues(ctx).error, /同名/);
   c.reviewSkillValues(ctx).skills[1].pick(); c.invokeReviewSkill(ctx);
@@ -183,7 +198,7 @@ test('editing cancellation preserves saved data and native dialog semantics rema
   assert(template.includes('<option value="{{ tag.id }}" label="{{ tag.name }}">'), 'Native options need an explicit label because template interpolation inserts spans');
   assert(template.includes('.forge-delivery-editor .forge-delivery-primary'), 'Scope primary color above the legacy feedback reset');
   assert(template.includes('id="forge-delivery-validation"'), 'Save validation must be visible, not tooltip-only');
-  assert(template.includes('aria-describedby="{{ skill.commandErrorId }}"'));
+  assert(template.includes('aria-describedby="forge-skill-detail-command-error"'));
   assert(template.includes('.forge-review-skill-composer>.forge-delivery-primary:disabled{opacity:1}'));
   for (const view of ['delivery', 'sheet', 'review']) { c.state.view = view; assert.equal(typeof c.renderVals(), 'object'); }
 });

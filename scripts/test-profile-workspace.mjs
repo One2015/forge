@@ -1,3 +1,4 @@
+import { confirmDelivery } from './test-support/delivery-wizard.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -137,9 +138,9 @@ test('sheet scopes aggregate assigned Items, explicit projects and creator-owned
   assert.equal(component({currentRole:'admin'}).profileDeliveryTasks().length, 0);
 });
 
-test('creating a delivery sheet assigns its creator without requiring any Items', () => {
+test('creating a delivery sheet assigns its creator with a validated matching List', () => {
   const c = component({hasRuns:false}); c.openDeliveryEditor();
-  c.patchDeliveryEditor({name:'新的交付单', customer:'客户', target:'2'}); c.saveDeliveryEditor();
+  c.patchDeliveryEditor({name:'新的交付单', customer:'客户', target:'1'}); c.setDeliveryList('天坛'); confirmDelivery(c); c.saveDeliveryEditor();
   const sheet = c.deliverySheet(c.state.sheetKey);
   assert.equal(sheet.createdBy, '一万'); assert(c.profileDeliveryTasks().some(task => task.key === sheet.key));
 });
@@ -208,7 +209,7 @@ test('personal Skills optionally bind independent snapshots and reveal the revie
   assert.equal(c.reviewSkillValues(context).available, false);
   await c.uploadProfileSkills([md()]); c.profileValues().onTargetSheet(change('personal-sheet')); c.saveProfileSkills();
   assert.equal(c.reviewSkillValues(context).available, true);
-  assert.equal(c.profileValues().skills.length, 2); assert.equal(c.state.skillSessions, undefined);
+  assert.equal(c.profileValues().skills.length, 1); assert.match(c.profileValues().skills[0].sheetName, /已关联 1 张数据单/); assert.equal(c.state.skillSessions, undefined);
   const personal = c.personalProfileSkills()[0]; c.openProfileSkill('personal:' + personal.id);
   c.profileValues().draftSkills[0].onName(change('个人新名称')); c.saveProfileSkills();
   assert.equal(c.personalProfileSkills()[0].name, '个人新名称');

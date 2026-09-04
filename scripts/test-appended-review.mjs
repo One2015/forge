@@ -58,6 +58,7 @@ test('requiring rework on Run 3 queues Run 4 without revoking the approved Run 2
   const c=component(),first=append(c);complete(c,first);
   current(c).rework(click);assert(current(c).reworkFormOpen);
   current(c).onReworkText({target:{value:'台阶仍需修改'}});current(c).submitRework(click);
+  assert(current(c).reworkConfirm.open);current(c).reworkConfirm.confirm(click);
   const next=c.state.appendedRework[id];assert.equal(next.version,'Run 4');assert.equal(next.sourceRun,first.runId);
   assert.equal(c.state.reviewDecisions[first.runId+':'+id],'rework');
   assert.equal(c.itemStateOf(id).currentDeliverableVersion.label,'Run 2');
@@ -113,6 +114,7 @@ test('another association supersedes appended draft state without losing the old
 test('stale confirmation never approves a replacement candidate',()=>{
   const c=component(),first=append(c);complete(c,first);current(c).pass(click);const stale=current(c).confirmPass;
   current(c).rework(click);current(c).onReworkText({target:{value:'再修改'}});current(c).submitRework(click);
+  current(c).reworkConfirm.confirm(click);
   const second=c.state.appendedRework[id];complete(c,second);stale(click);
   assert(!c.state.reviewDecisions[second.runId+':'+id]);assert.equal(c.state.reviewDecisions[first.runId+':'+id],'rework');
 });

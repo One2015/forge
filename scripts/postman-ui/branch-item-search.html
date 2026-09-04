@@ -1,0 +1,11 @@
+<div class="pm-item-search">
+  <div class="pm-item-search-control">[[icon:magnifying-glass:16]]<input id="forge-branch-item" type="text" role="combobox" autocomplete="off" aria-autocomplete="list" aria-expanded="{{ branch.searchOpen }}" aria-controls="forge-branch-item-results" aria-activedescendant="{{ branch.activeOption }}" placeholder="搜索 Item 名称或 ID" value="{{ branch.searchText }}" disabled="{{ branch.itemDisabled }}" sc-camel-on-input="{{ branch.searchInput }}" sc-camel-on-focus="{{ branch.searchFocus }}" sc-camel-on-blur="{{ branch.searchBlur }}" sc-camel-on-key-down="{{ branch.searchKey }}" /></div>
+  <sc-if value="{{ branch.searchOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="pm-item-search-results">
+      <div id="forge-branch-item-results" role="listbox" aria-label="匹配的 Item">
+        <sc-for list="{{ branch.searchResults }}" as="result" hint-placeholder-count="0"><button type="button" role="option" tabindex="-1" id="{{ result.id }}" aria-selected="{{ result.selected }}" data-active="{{ result.active }}" sc-camel-on-mouse-down="{{ result.keepFocus }}" sc-camel-on-click="{{ result.pick }}"><strong>{{ result.name }}</strong><span>{{ result.value }}</span></button></sc-for>
+      </div>
+      <p class="pm-item-search-meta" role="status">{{ branch.searchHint }}</p>
+    </div>
+  </sc-if>
+</div>

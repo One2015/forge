@@ -139,7 +139,7 @@
     this.setState({appendedRework: {...this.state.appendedRework, [itemId]: record}, submittedRuns: [...(this.state.submittedRuns || []), run],
       repairRuns: {...this.state.repairRuns, [repairKey]: {runId, itemId, sourceRun, status: 'queued', createdAt: record.createdAt, note, attachments}},
       ...(mode === 'review' ? {reviewDecisions: decisions} : {}),
-      sheetReworkAsk: null, sheetReworkText: '', sheetReworkMode: null, sheetReworkVersionKey: null, sheetPassAsk: null,
+      sheetReworkAsk: null, sheetReworkText: '', sheetReworkMode: null, sheetReworkVersionKey: null, sheetReworkConfirmAsk: null, sheetPassAsk: null,
       reviewToast: '已创建 ' + version + ' 返工任务；原审核结论保留，产物就绪后可审核', reviewToastAt: Date.now()});
   }
   // appended-review:end

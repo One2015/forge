@@ -59,6 +59,7 @@ if (!template.includes('class="forge-delivery-customer-logo"')) {
   swap('<div style="font-size:15px;font-weight:600">{{ c.name }}</div>', '<sc-if value="{{ c.hasLogo }}" hint-placeholder-val="{{ false }}"><img class="forge-delivery-customer-logo" src="{{ c.logo }}" alt="{{ c.logoAlt }}" /></sc-if>\n              <div style="font-size:15px;font-weight:600">{{ c.name }}</div>');
   swap('<h1 style="margin:0;font-size:25px;font-weight:600;letter-spacing:-0.02em">{{ sheet.name }}</h1>', '<sc-if value="{{ sheet.extras.hasLogo }}" hint-placeholder-val="{{ false }}"><img class="forge-delivery-sheet-logo" src="{{ sheet.extras.logo }}" alt="{{ sheet.extras.logoAlt }}" /></sc-if>\n            <h1 style="margin:0;font-size:25px;font-weight:600;letter-spacing:-0.02em">{{ sheet.name }}</h1>');
 }
+template = template.replace("<div style=\"display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap\">\n              <sc-if value=\"{{ c.hasLogo }}\"", "<div style=\"display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap\">\n              <sc-if value=\"{{ c.hasLogo }}\"");
 if (template.includes('<!-- delivery-sheet-extras:start -->')) template = template.replace(/<!-- delivery-sheet-extras:start -->[\s\S]*?<!-- delivery-sheet-extras:end -->/, markup('delivery-sheet-extras.html'));
 else {
   const marker = '      <div style="background:#fff;border:1px solid var(--forge-border);border-radius:12px;padding:16px 18px;margin-bottom:14px">';

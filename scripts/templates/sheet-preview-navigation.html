@@ -1,0 +1,10 @@
+<!-- sheet-preview-navigation:start -->
+<div class="forge-sheet-preview-navigation">
+  <div class="forge-sheet-preview-controls" role="group" aria-label="切换交付子项">
+    <button type="button" class="forge-sheet-preview-control" sc-camel-on-click="{{ sheet.prev }}" disabled="{{ sheet.cannotPrev }}" aria-label="上一项" aria-keyshortcuts="ArrowUp" title="上一项（上方向键）">[[icon:arrow-up:16]]</button>
+    <button type="button" class="forge-sheet-preview-control" sc-camel-on-click="{{ sheet.next }}" disabled="{{ sheet.cannotNext }}" aria-label="下一项" aria-keyshortcuts="ArrowDown" title="下一项（下方向键）">[[icon:arrow-down:16]]</button>
+    <span class="forge-sheet-preview-position" role="status" aria-live="polite" aria-atomic="true">{{ sheet.posLabel }}</span>
+  </div>
+  <span class="forge-sheet-preview-hint">Esc 关闭</span>
+</div>
+<!-- sheet-preview-navigation:end -->

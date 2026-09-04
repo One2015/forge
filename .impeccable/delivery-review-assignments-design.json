@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-03T00:00:00Z",
+  "title": "Design System: Forge Delivery Dataset Review Assignments",
+  "extensions": {
+    "breakpoints": [
+      { "name": "dataset-row-container", "value": "520px", "type": "container", "purpose": "Dataset information spans the first row; Reviewer and state share the second." },
+      { "name": "assignment-heading-and-tabs", "value": "480px", "type": "viewport", "purpose": "Wrapping assignment heading and horizontally scrollable editor tabs." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Dataset Assignment Row",
+      "kind": "custom",
+      "refersTo": "dataset-review-select",
+      "description": "Static specimen of the shared confirmation/edit row. Native selects remain editable; saving, membership changes and validation require the application runtime. Host theme variables stay live-bound; base Forge fallbacks are not a Postman-variant preview.",
+      "html": "<section class=\"ds-assignment\" aria-label=\"数据集审核分配\"><div class=\"ds-assignment-row\"><div class=\"ds-assignment-name\"><strong>示例数据集</strong><span>生产任务 · 12 项</span></div><label><span>Reviewer <span class=\"ds-required\">*</span></span><select aria-label=\"分配「示例数据集」的 Reviewer\"><option>所有者（我）</option><option>同事</option><option>负责人 · Lead</option></select></label><label><span>处理状态</span><select aria-label=\"设置「示例数据集」的处理状态\"><option>待审核</option><option>审核中</option><option>待返工 · Repair</option><option>已暂停</option></select></label></div><p class=\"ds-assignment-help\">处理状态仅用于本交付单的工作安排；Repair 不会自动运行返工，状态调整不会更改 Item 审核结论。</p></section>",
+      "css": ".ds-assignment{container-type:inline-size;min-width:0;color:var(--forge-text,#272a25);font-family:var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif)}.ds-assignment-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,160px) minmax(0,140px);gap:16px;align-items:center;padding:0 0 14px}.ds-assignment-name{min-width:0;overflow-wrap:anywhere}.ds-assignment-name strong{display:block;font-size:13px;line-height:20px;font-weight:500}.ds-assignment-name>span{display:block;margin-top:4px;font-size:12px;line-height:18px;color:var(--forge-muted,#666b61)}.ds-assignment-row>label{min-width:0;font-size:12px;color:var(--forge-muted,#666b61)}.ds-assignment-row>label>span{display:block;margin-bottom:6px}.ds-required{color:var(--forge-accent,#c44318)}.ds-assignment select{min-width:0;width:100%;max-width:100%;height:36px;border:1px solid var(--forge-control-border,#c9ccc4);border-radius:6px;background:var(--forge-panel,#fff);color:var(--forge-text,#272a25);font-family:inherit;font-size:13px;line-height:20px;padding:7px 10px;text-overflow:ellipsis}.ds-assignment select:focus-visible{outline:2px solid var(--forge-accent,#c44318);outline-offset:2px}.ds-assignment select:disabled{color:var(--forge-muted,#666b61);cursor:not-allowed;background:var(--forge-subtle,#f6f6f3)}.ds-assignment-help{font-size:12px;line-height:18px;color:var(--forge-muted,#666b61);margin:6px 0;overflow-wrap:anywhere}@container(max-width:520px){.ds-assignment-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.ds-assignment-name{grid-column:1/-1}}@media(max-width:600px),(pointer:coarse){.ds-assignment select{height:44px}}@media(pointer:coarse){.ds-assignment select{font-size:16px;min-height:44px}}"
+    },
+    {
+      "name": "Saved Dataset Review State",
+      "kind": "chip",
+      "refersTo": "dataset-state",
+      "description": "Non-interactive saved workflow labels. Pending and Repair are warning, reviewing is normal text, paused and unassigned are muted. Labels do not assert Item approval or launch production work.",
+      "html": "<div class=\"ds-states\"><span class=\"ds-state\" data-tone=\"warning\">待审核</span><span class=\"ds-state\" data-tone=\"neutral\">审核中</span><span class=\"ds-state\" data-tone=\"warning\">待返工 · Repair</span><span class=\"ds-state\">已暂停</span><span class=\"ds-state\">待分配</span></div>",
+      "css": ".ds-states{display:flex;flex-wrap:wrap;gap:12px;font-family:var(--forge-font,\"Helvetica Neue\",Helvetica,\"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\",sans-serif)}.ds-state{padding:2px 7px;border-radius:4px;background:var(--forge-subtle,#f6f6f3);color:var(--forge-muted,#666b61);font-size:12px;line-height:20px}.ds-state[data-tone=warning]{background:var(--forge-warning-bg,#faf4e8);color:var(--forge-warning,#94641b)}.ds-state[data-tone=neutral]{color:var(--forge-text,#272a25)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Compact Operate",
+    "overview": "Extend the incumbent delivery workflow with one responsible Reviewer per dataset. Responsibility belongs to this sheet; it is separate from member roles, Item review conclusions and production execution. This feature-scoped source record does not replace the global or Postman-variant design system.",
+    "keyCharacteristics": [
+      "One dataset row, one Reviewer and one processing state.",
+      "Shared assignment controls in confirmation and existing-sheet editing.",
+      "Explicit save, permission, provenance and local-demo boundaries."
+    ],
+    "rules": [],
+    "dos": [
+      "Do keep dataset responsibility separate from sheet/global roles and Item conclusions.",
+      "Do preserve source identity, visible assignment coverage and explicit commit behavior.",
+      "Do retain the current local-demo and permission boundaries."
+    ],
+    "donts": [
+      "Don't imply Repair executes work or approves/rejects Items.",
+      "Don't treat source and automated checks as whole-surface visual or accessibility certification."
+    ]
+  }
+}

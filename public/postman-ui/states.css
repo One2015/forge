@@ -1,0 +1,46 @@
+/* One semantic scale across lists, details, review, forms and utilities.
+   Status = colored ink/edge/marker on white. Interaction = neutral gray.
+   Charts and customer-defined tag palettes are independent data encodings. */
+.forge-postman :is([data-pm-status],[data-pm-tone],.fg-badge,.forge-model-badge,.forge-wizard-status,.review-queue-card-status){--pm-state-ink:var(--pm-muted);--pm-state-edge:var(--pm-control);--pm-state-mark:var(--pm-faint);color:var(--pm-state-ink)!important;border-color:var(--pm-state-edge)!important;background:var(--pm-canvas)!important}
+.forge-postman :is([data-pm-tone=success],.fg-badge[data-tone=success],.forge-model-badge[data-tone=success],.forge-wizard-status[data-status=matched],[data-pm-status="已通过"],[data-pm-status="已通过审核"],[data-pm-status="通过"],[data-pm-status="可交付"],[data-pm-status="当前可交付"],[data-pm-status="已交付"],[data-pm-status="已完成"],[data-pm-status="成功"],[data-pm-status="Good Case"]){--pm-state-ink:var(--pm-success);--pm-state-edge:var(--pm-success-border);--pm-state-mark:var(--pm-success-mark)}
+.forge-postman :is([data-pm-tone=warning],.fg-badge[data-tone=running],.fg-badge[data-tone=partial],.fg-badge[data-tone=warning],.forge-model-badge[data-tone=warning],.review-queue-card-status,.forge-wizard-status:not([data-status=matched],[data-status=invalid],[data-status=duplicate]),[data-pm-status="运行中"],[data-pm-status="生产中"],[data-pm-status="进行中"],[data-pm-status="待审核"],[data-pm-status="待我审核"],[data-pm-status="要求返工"],[data-pm-status="返工中"],[data-pm-status="返工"],[data-pm-status="停止中"],[data-pm-status="部分成功"],[data-pm-status="打包中"],[data-pm-status="下载中"]){--pm-state-ink:var(--pm-warning);--pm-state-edge:var(--pm-warning-border);--pm-state-mark:var(--pm-warning-mark)}
+.forge-postman :is([data-pm-tone=danger],.fg-badge[data-tone=failed],.fg-badge[data-tone=danger],.forge-model-badge[data-tone=danger],.forge-wizard-status[data-status=invalid],.forge-wizard-status[data-status=duplicate],[data-pm-status="失败"],[data-pm-status="超时"],[data-pm-status="已失败"],[data-pm-status="下载失败"],[data-pm-status="Bad Case"]){--pm-state-ink:var(--pm-danger);--pm-state-edge:var(--pm-danger-border);--pm-state-mark:var(--pm-danger-mark)}
+.forge-postman :is(.fg-badge,.forge-model-badge,.forge-wizard-status,.review-queue-card-status){border:1px solid var(--pm-state-edge);border-radius:4px;padding:1px 6px;font-size:11px;line-height:18px;font-weight:500}
+.forge-postman [data-pm-status] :is([data-pm-fill],.fg-badge-dot),.forge-postman .fg-badge-dot{background:var(--pm-state-mark)!important}
+.forge-postman :is([data-pm-status="已达标"],[data-pm-status="下载完成"],[data-pm-status="可下载"],[data-pm-status="已下载"]){--pm-state-ink:var(--pm-success);--pm-state-edge:var(--pm-success-border);--pm-state-mark:var(--pm-success-mark)}
+.forge-postman :is([data-pm-status="部分失败"],[data-pm-status="待审核候选"],[data-pm-status="已提交返工"],[data-pm-status="待判定"],[data-pm-status="待填写返工说明"]){--pm-state-ink:var(--pm-warning);--pm-state-edge:var(--pm-warning-border);--pm-state-mark:var(--pm-warning-mark)}
+.forge-postman :is([data-pm-status="运行失败"],[data-pm-status="打包失败"]){--pm-state-ink:var(--pm-danger);--pm-state-edge:var(--pm-danger-border);--pm-state-mark:var(--pm-danger-mark)}
+
+/* A pending-review metric must not inherit green from a completed run. */
+.forge-postman [data-pm-metric]{--pm-metric-ink:var(--pm-text);--pm-metric-mark:var(--pm-control);color:var(--pm-metric-ink)!important}
+.forge-postman :is([data-pm-metric="可交付"],[data-pm-metric="已通过"],[data-pm-metric="已交付"],[data-pm-metric="成功"],[data-pm-metric="已完成"]){--pm-metric-ink:var(--pm-success);--pm-metric-mark:var(--pm-success-mark)}
+.forge-postman :is([data-pm-metric="待审核"],[data-pm-metric="待处理"],[data-pm-metric="运行中"],[data-pm-metric="进行中"],[data-pm-metric="生产中"],[data-pm-metric="返工中"],[data-pm-metric="待返工"]){--pm-metric-ink:var(--pm-warning);--pm-metric-mark:var(--pm-warning-mark)}
+.forge-postman :is([data-pm-metric="失败"],[data-pm-metric="已失败"],[data-pm-metric="超时"]){--pm-metric-ink:var(--pm-danger);--pm-metric-mark:var(--pm-danger-mark)}
+.forge-postman [data-pm-metric-mark]{background:var(--pm-metric-mark)!important}
+.forge-postman [data-pm-metric="交付缺口"]{--pm-metric-ink:var(--pm-warning);--pm-metric-mark:var(--pm-warning-mark)}
+.forge-postman .fg-run-progress-bar>:is([data-state=review],[data-state=running]){background:var(--pm-warning-mark)}
+.forge-postman .fg-run-progress-bar>[data-state=failed]{background:var(--pm-danger-mark)}
+
+/* Semantic actions never inherit the secondary-button neutral text rule. */
+.forge-postman :is(.forge-case-control[data-case=good],.forge-case-button[data-case=good]){color:var(--pm-success)!important;border-color:var(--pm-success-border)!important}
+.forge-postman :is(.forge-case-control[data-case=bad],.forge-case-button[data-case=bad]){color:var(--pm-danger)!important;border-color:var(--pm-danger-border)!important}
+.forge-postman :is([data-pm-danger=true],.forge-branch-tree-remove,.fg-button[data-variant=danger]):not(:disabled,[aria-disabled=true]){color:var(--pm-danger)!important;background:var(--pm-canvas)!important;border-color:var(--pm-danger-border)!important}
+@media(hover:hover) and (pointer:fine){
+ .forge-postman :is([data-pm-danger=true],.forge-branch-tree-remove,.fg-button[data-variant=danger]):not(:disabled,[aria-disabled=true]):hover{background:var(--pm-hover)!important;border-color:var(--pm-danger)!important}
+}
+.forge-postman :is(.fg-button,[data-pm-primary],[data-pm-secondary],[data-pm-tertiary],.forge-branch-tree-remove):is(:disabled,[aria-disabled=true],[data-disabled=true]){background:var(--forge-disabled-bg)!important;color:var(--forge-disabled-text)!important;border-color:var(--pm-border)!important;box-shadow:none!important;filter:none!important}
+
+/* White selection for nested pickers as well as top-level tabs. */
+.forge-postman :is(.forge-delivery-person-option,.forge-task-link-item,.forge-review-skill-choices button):is([data-selected=true],[aria-pressed=true]){background:var(--pm-selected)!important;border-color:transparent!important;outline:1px solid var(--pm-focus);outline-offset:-1px;box-shadow:none!important;color:var(--pm-text)!important}
+.forge-postman :is(.forge-billing-segment,.forge-wizard-categories) button:not([aria-pressed=true],[data-active=true],:disabled){background:transparent!important;color:var(--pm-muted)!important}
+.forge-postman .forge-delivery-wizard{--wizard-accent:var(--pm-brand)}
+.forge-postman .forge-delivery-library-option{outline:none;background:transparent!important}
+.forge-postman .forge-delivery-library-row:has([data-selected=true]){background:var(--pm-subtle)}
+.forge-postman .forge-delivery-library-row:has(input:focus-visible){outline:2px solid var(--pm-focus);outline-offset:-2px}
+.forge-postman .forge-summary-link{color:var(--pm-muted)}
+@media(hover:hover) and (pointer:fine){
+ .forge-postman :is(.forge-billing-segment,.forge-wizard-categories) button:not([aria-pressed=true],[data-active=true],:disabled):hover{background:var(--pm-hover)!important;color:var(--pm-text)!important}
+ .forge-postman .forge-summary-link:hover{color:var(--pm-text);background:transparent}
+}
+.forge-postman .forge-model-route-issues{color:var(--pm-warning)}
+.forge-postman :is(.forge-feedback-error,.forge-delivery-error,.forge-profile-skill-error,.forge-task-link-error,.forge-billing-error){color:var(--pm-danger)}

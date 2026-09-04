@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 2,
+  "title": "Forge interaction states",
+  "extensions": {
+    "shadows": [{ "name": "sidebar-peek", "value": "6px 0 24px rgba(24,27,24,.12)", "purpose": "Transient navigation overlay only" }],
+    "motion": [{ "name": "navigation-feedback", "value": "none", "purpose": "Immediate hover, pin and keyboard response" }],
+    "breakpoints": [{ "name": "click-only-navigation", "value": "760px" }]
+  },
+  "narrative": {
+    "overview": "A compact Operate refinement. Transient expansion does not reserve layout space or commit a pin preference.",
+    "dos": ["Keep keyboard focus visible", "Report actual loading work", "Keep file-list access during preview loading"],
+    "donts": ["Do not shift content on hover", "Do not animate repeated navigation", "Do not mistake source assertions for browser verification"]
+  }
+}

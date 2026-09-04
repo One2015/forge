@@ -25,6 +25,16 @@ function component(document = { activeElement: null }) {
 const focused = c => c.renderVals().review.items.find(i => i.expanded);
 const open = c => { const row = c.renderVals().review.items.find(i => i.shortName === '布达拉宫'); row.start(click); return focused(c); };
 
+test('开始审核 only opens the workbench and never creates a repair run or verdict', () => {
+  const c = component();
+  const before = JSON.stringify({ repairs: c.state.repairRuns, decisions: c.state.reviewDecisions });
+  const row = c.renderVals().review.items.find(i => i.shortName === '布达拉宫');
+  let stopped = false;
+  row.start({ stopPropagation() { stopped = true; } });
+  assert(stopped); assert.equal(c.state.reviewOpen, row.key); assert.equal(c.state.reviewTab, '预览');
+  assert.equal(JSON.stringify({ repairs: c.state.repairRuns, decisions: c.state.reviewDecisions }), before);
+});
+
 test('opening a review keeps the full queue for position and navigation', () => {
   const c = component();
   const queue = c.renderVals().review.items;
@@ -73,6 +83,42 @@ test('case marks are exclusive and independent of review decisions', () => {
   assert.equal(focused(c).badCase, true);
   assert.equal(c.state.sampleLabels[row.id], 'bad');
   assert.equal(c.state.reviewDecisions?.[row.key], undefined);
+  assert.equal(focused(c).pending, true);
+});
+
+test('both case marks can be cleared by clicking the selected option again, without losing context', () => {
+  const c = component(), row = open(c);
+  c.setState({ sampleLabels: { unrelated: 'good' } });
+  const before = JSON.stringify(c.state.reviewDecisions);
+  for (const action of ['markGood', 'markBad']) {
+    // Reuse the callback to cover rapid repeat clicks before a render completes.
+    const toggle = focused(c)[action];
+    toggle(click);
+    assert.equal(c.state.sampleLabels[row.id], action === 'markGood' ? 'good' : 'bad');
+    toggle(click);
+    assert(!focused(c).goodCase && !focused(c).badCase);
+    assert(!Object.hasOwn(c.state.sampleLabels, row.id));
+    assert.equal(focused(c).key, row.key);
+  }
+  assert.equal(c.state.sampleLabels.unrelated, 'good');
+  assert.equal(JSON.stringify(c.state.reviewDecisions), before);
+  assert.equal(focused(c).pending, true);
+});
+
+test('marking and clearing stay synchronized between review and delivery for the same Item', () => {
+  const c = component(), row = open(c);
+  row.markGood(click);
+  c.setState({ view: 'sheet', sheetKey: 'ant200', sheetRow: row.id });
+  let tabs = c.renderVals().sheet.pick.sampleTabs;
+  assert(tabs[0].selected); tabs[0].pick(click);
+  c.setState({ view: 'review' });
+  assert(!focused(c).goodCase && !focused(c).badCase);
+  focused(c).markBad(click);
+  c.setState({ view: 'sheet' });
+  tabs = c.renderVals().sheet.pick.sampleTabs;
+  assert(tabs[1].selected); tabs[1].pick(click);
+  c.setState({ view: 'review' });
+  assert(!focused(c).goodCase && !focused(c).badCase);
   assert.equal(focused(c).pending, true);
 });
 
@@ -139,6 +185,15 @@ test('metadata comes from the selected Item, with truthful missing-asset states'
   focused(c).openLife(click);
   assert.equal(c.state.view, 'itemlife');
   assert.equal(c.state.lifeItem, row.id);
+});
+
+test('review metadata names the project owner without renaming submission history', () => {
+  const metadata = template.match(/<dl class="review-workbench-metadata">([\s\S]*?)<\/dl>/)[1];
+  assert(metadata.includes('<dt>项目负责人</dt><dd>{{ it.submitter }}</dd>'));
+  assert(!metadata.includes('<dt>提交人</dt>'));
+  assert(template.includes('· 提交了 {{ it.artifactVersion }}'));
+  const sourceTemplate = fs.readFileSync(new URL('./templates/review-workbench.html', import.meta.url), 'utf8');
+  assert(sourceTemplate.includes('<dt>项目负责人</dt><dd>{{ it.submitter }}</dd>'));
 });
 
 test('workbench is outside the hidden queue header with balanced HTML', () => {

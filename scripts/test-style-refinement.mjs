@@ -47,8 +47,9 @@ test('disabled and coarse pointer affordances stay explicit', () => {
 test('dynamic title text inherits heading styles and progress stays readable', () => {
   assert(template.includes('h2 span:not(.sc-interp)'));
   assert(!template.includes('h2 span{font-size:12px'));
-  assert(template.includes('class="forge-run-progress"'));
-  assert(template.includes('clamp(172px,18vw,220px)'));
+  assert(template.includes('class="fg-run-progress-copy"'));
+  assert(template.includes('.fg-run-progress-copy{font-size:var(--fg-text-xs);line-height:18px'));
+  assert(template.includes('.fg-run-progress-cell{grid-column:1/-1}'));
 });
 
 test('branch dialog has a compact, scoped density without shrinking rework editors', () => {

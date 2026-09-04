@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { renderDeliveryEditor } from './render-delivery-editor.mjs';
 
 const read = name => fs.readFileSync(new URL('./templates/' + name, import.meta.url), 'utf8').trimEnd();
-const markup = () => read('delivery-editor.html').replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, (_, name, size) => {
+const markup = () => renderDeliveryEditor(read('delivery-editor.html')).replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, (_, name, size) => {
   const svg = fs.readFileSync(new URL('../assets/phosphor/regular/' + name + '.svg', import.meta.url), 'utf8');
   const geometry = svg.match(/<svg\b[^>]*>([\s\S]*?)<\/svg>/)[1].replace(/<([\w-]+)([^>]*?)\s*\/>/g, '<$1$2></$1>');
   return `<svg class="forge-icon" data-phosphor="${name}" width="${size}" height="${size}" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false">${geometry}</svg>`;

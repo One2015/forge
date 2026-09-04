@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 2,
+  "title": "Design System: Forge Review Related Skills",
+  "narrative": {
+    "overview": "Assigned delivery instructions in the existing review panel; no global design-system changes.",
+    "keyCharacteristics": ["Saved bindings only", "Flat wrapping list with named Markdown downloads", "Existing evaluation remains intact"],
+    "dos": ["Inherit host font and semantic colors", "Keep source sheets visible", "Hide the complete section without assignments"],
+    "donts": ["Do not execute Skill instructions", "Do not claim original ZIP download", "Do not treat automated checks as visual certification"]
+  },
+  "extensions": {
+    "scope": "scripts/templates/review-skills.html",
+    "verification": {"testsPassed": 484, "build": "pass", "browser": "not performed", "independentReview": "unavailable: agent thread limit", "visualDisposition": "recapture", "documentation": "inline fallback"}
+  }
+}

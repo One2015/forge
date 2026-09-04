@@ -1,0 +1,37 @@
+/* flow-motion:start */
+:root{--forge-toast-enter:180ms;--forge-toast-exit:120ms}
+.forge-review-toast[data-motion-open]{opacity:0;pointer-events:none}
+.forge-review-toast[data-motion-open="true"]{opacity:1;pointer-events:auto}
+.forge-task-link-toast:not(:popover-open){pointer-events:none}
+html:not([data-forge-input="keyboard"]) .forge-review-toast{transition:opacity var(--forge-toast-exit) var(--forge-motion-ease),translate var(--forge-toast-exit) var(--forge-motion-ease)}
+html:not([data-forge-input="keyboard"]) .forge-review-toast[data-motion-open="true"]{transition-duration:var(--forge-toast-enter)}
+@supports(transition-behavior:allow-discrete){
+  html:not([data-forge-input="keyboard"]) .forge-task-link-toast{opacity:0;transition:opacity var(--forge-toast-exit) var(--forge-motion-ease),translate var(--forge-toast-exit) var(--forge-motion-ease),display var(--forge-toast-exit) allow-discrete,overlay var(--forge-toast-exit) allow-discrete}
+  html:not([data-forge-input="keyboard"]) .forge-task-link-toast:popover-open{opacity:1;transition-duration:var(--forge-toast-enter)}
+  @starting-style{html:not([data-forge-input="keyboard"]) .forge-task-link-toast:popover-open{opacity:0}}
+}
+@starting-style{html:not([data-forge-input="keyboard"]) .forge-review-toast[data-motion-open="true"]{opacity:0}}
+@media(prefers-reduced-motion:no-preference){
+  html:not([data-forge-input="keyboard"]) .forge-review-toast{translate:0 8px}
+  html:not([data-forge-input="keyboard"]) .forge-review-toast[data-motion-open="true"]{translate:0 0}
+  @starting-style{html:not([data-forge-input="keyboard"]) .forge-review-toast[data-motion-open="true"]{translate:0 8px}}
+  @supports(transition-behavior:allow-discrete){
+    html:not([data-forge-input="keyboard"]) .forge-task-link-toast{translate:0 8px}
+    html:not([data-forge-input="keyboard"]) .forge-task-link-toast:popover-open{translate:0 0}
+    @starting-style{html:not([data-forge-input="keyboard"]) .forge-task-link-toast:popover-open{translate:0 8px}}
+  }
+}
+/* Only the grip changes shape. Panel width always follows the pointer 1:1. */
+.forge-dataset-resizer>div{transform:scale(1);transform-origin:center}
+html:not([data-forge-input="keyboard"]) .forge-dataset-resizer>div{transition:background-color 110ms ease,transform 140ms var(--forge-motion-ease)}
+.forge-dataset-resizer[data-resizing="true"]>div{background:var(--forge-accent)!important}
+@media(hover:hover) and (pointer:fine){.forge-dataset-resizer:hover>div{background:var(--forge-accent)!important}}
+@media(prefers-reduced-motion:no-preference){
+  @media(hover:hover) and (pointer:fine){.forge-dataset-resizer:hover>div{transform:scaleX(1.4) scaleY(1.08)}}
+  .forge-dataset-resizer[data-resizing="true"]>div{transform:scaleX(1.65) scaleY(1.16)}
+  html:not([data-forge-input="keyboard"]) .forge-app-shell button:not([aria-pressed]):not(.forge-profile-task):not(.forge-task-link-item){transition:transform 120ms cubic-bezier(.25,.46,.45,.94),background-color 120ms ease,border-color 120ms ease,color 120ms ease}
+  html:not([data-forge-input="keyboard"]) .forge-app-shell button:not([aria-pressed]):not(.forge-profile-task):not(.forge-task-link-item):active:not(:disabled):not([aria-disabled="true"]){transform:scale(.98)}
+}
+html:not([data-forge-input="keyboard"]) [data-flow-row]{transition:background-color 100ms ease,border-color 100ms ease}
+@media(prefers-reduced-motion:reduce){:root{--forge-toast-enter:90ms;--forge-toast-exit:90ms}}
+/* flow-motion:end */

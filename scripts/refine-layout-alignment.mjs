@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { renderDeliveryEditor } from './render-delivery-editor.mjs';
 
 // Refresh layout only. Preserve business logic and the bundle's normalized palette.
 const file = new URL('../public/forge.html', import.meta.url);
@@ -20,7 +21,7 @@ const markup = value => value.replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, (_, name, 
   return `<svg class="forge-icon" data-phosphor="${name}" width="${size}" height="${size}" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false">${geometry}</svg>`;
 });
 
-replace(/<!-- delivery-editor:start -->[\s\S]*?<!-- delivery-editor:end -->/, () => markup(read('delivery-editor.html')));
+replace(/<!-- delivery-editor:start -->[\s\S]*?<!-- delivery-editor:end -->/, () => markup(renderDeliveryEditor(read('delivery-editor.html'))));
 replace(/<!-- delivery-sheet-extras:start -->[\s\S]*?<!-- delivery-sheet-extras:end -->/, () => markup(read('delivery-sheet-extras.html')));
 for (const [name, marker] of [['delivery-workflows', 'delivery-workflows'], ['forge-profile', 'forge-profile'], ['task-link', 'task-linking']]) {
   replace(new RegExp('/\\* ' + marker + ':start \\*/[\\s\\S]*?/\\* ' + marker + ':end \\*/'), () => read(name + '.css'));

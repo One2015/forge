@@ -1,0 +1,18 @@
+<section class="forge-delivery-review-assignments" aria-label="数据集审核分配">
+  <div class="forge-delivery-section-heading"><h3>数据集审核分配</h3><span>已分配 {{ deliveryEditor.reviewAssignment.assigned }} / {{ deliveryEditor.reviewAssignment.count }}</span></div>
+  <p class="forge-delivery-help">{{ deliveryEditor.reviewAssignment.help }}</p>
+  <div class="forge-delivery-dataset-reviews">
+    <sc-for list="{{ deliveryEditor.reviewAssignment.rows }}" as="dataset" hint-placeholder-count="0">
+      <div class="forge-delivery-dataset-review">
+        <div class="forge-delivery-dataset-name"><strong>{{ dataset.name }}</strong><span>{{ dataset.source }} · {{ dataset.count }} 项</span></div>
+        <label><span>Reviewer <span class="forge-delivery-required">*</span></span><select aria-label="{{ dataset.reviewerLabel }}" value="{{ dataset.reviewer }}" disabled="{{ deliveryEditor.reviewAssignment.readonly }}" sc-camel-on-change="{{ dataset.onReviewer }}"><option value="">选择审核人</option><sc-for list="{{ dataset.options }}" as="person"><option value="{{ person.accountName }}" label="{{ person.label }}">{{ person.label }}</option></sc-for></select></label>
+        <label><span>处理状态</span><select aria-label="{{ dataset.statusAriaLabel }}" value="{{ dataset.status }}" disabled="{{ deliveryEditor.reviewAssignment.readonly }}" sc-camel-on-change="{{ dataset.onStatus }}"><sc-for list="{{ dataset.states }}" as="status"><option value="{{ status.key }}" label="{{ status.label }}">{{ status.label }}</option></sc-for></select></label>
+      </div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ deliveryEditor.reviewAssignment.empty }}"><p class="forge-delivery-help">关联生产任务或上传 ZIP 后，可为每份数据集分配审核人。</p></sc-if>
+  <p class="forge-delivery-help">处理状态仅用于本交付单的工作安排；Repair 不会自动运行返工，状态调整不会更改 Item 审核结论。</p>
+  <sc-if value="{{ deliveryEditor.reviewAssignment.readonly }}"><p class="forge-delivery-help">仅所有者、所属项目负责人或 Lead 可修改分配。</p></sc-if>
+  <p class="forge-delivery-help" role="status">{{ deliveryEditor.reviewAssignment.notice }}</p>
+  <sc-if value="{{ deliveryEditor.reviewAssignment.issue }}"><p class="forge-delivery-validation" role="alert">{{ deliveryEditor.reviewAssignment.issue }}</p></sc-if>
+</section>

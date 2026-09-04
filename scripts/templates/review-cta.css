@@ -1,0 +1,17 @@
+/* review-cta:start */
+/* Entry actions open another task; they do not submit a verdict or run. */
+.forge-app-shell .forge-review-cta{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:80px;min-height:34px;margin:0;padding:6px 14px;border:1px solid transparent;border-radius:var(--forge-radius-sm);background:var(--forge-accent-soft);color:var(--forge-accent);font:500 13px/20px var(--forge-font);letter-spacing:normal;text-align:center;white-space:nowrap;box-shadow:none;cursor:pointer;touch-action:manipulation}
+.forge-app-shell .review-workbench-actions .forge-review-cta{height:40px;min-height:40px;font-size:14px;justify-content:center}
+@media(hover:hover) and (pointer:fine){.forge-app-shell .forge-review-cta:hover:not(:disabled){background:var(--forge-selected-hover);color:var(--forge-accent-hover)}}
+.forge-app-shell .forge-review-cta:active:not(:disabled){background:var(--forge-selected-hover);color:var(--forge-accent-hover);border-color:var(--forge-accent-hover)}
+.forge-app-shell .forge-review-cta:focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}
+.forge-app-shell .forge-review-cta:disabled{background:var(--forge-disabled-bg);color:var(--forge-disabled-text);border-color:transparent;opacity:1;cursor:not-allowed}
+@media(max-width:760px),(pointer:coarse){.forge-app-shell .forge-review-cta{min-height:44px}.forge-app-shell .review-workbench-actions .forge-review-cta{height:44px;min-height:44px}}
+/* Review and Reroll are each their row's primary next action. */
+.forge-app-shell .forge-review-cta:is(.cta-repair,.cta-reroll){min-width:92px;min-height:36px;padding:7px 14px;background:var(--fg-action);border-color:var(--fg-action);color:var(--fg-on-action)}
+@media(hover:hover) and (pointer:fine){.forge-app-shell .forge-review-cta:is(.cta-repair,.cta-reroll):hover:not(:disabled){background:var(--fg-action-hover);border-color:var(--fg-action-hover);color:var(--fg-on-action)}}
+.forge-app-shell .forge-review-cta:is(.cta-repair,.cta-reroll):active:not(:disabled){background:var(--fg-action-pressed);border-color:var(--fg-action-pressed);color:var(--fg-on-action)}
+.forge-app-shell .forge-review-cta:is(.cta-repair,.cta-reroll):disabled{background:var(--forge-disabled-bg);border-color:var(--forge-border);color:var(--forge-disabled-text)}
+@media(max-width:760px),(pointer:coarse){.forge-app-shell .forge-review-cta:is(.cta-repair,.cta-reroll){min-height:44px}}
+@media(max-width:760px){.forge-app-shell .review-queue-card-header>.forge-review-card-actions{justify-content:space-between!important;align-items:center!important}}
+/* review-cta:end */

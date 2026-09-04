@@ -1,0 +1,10 @@
+<div class="pm-delivery-list">
+ <sc-for list="{{ c.sheets }}" as="d" hint-placeholder-count="2">
+  <button type="button" class="pm-delivery-row" sc-camel-on-click="{{ d.open }}" data-flow-family="delivery" data-flow-row="{{ d.motionKey }}" aria-label="打开数据单 {{ d.name }}">
+   <span class="pm-delivery-identity"><strong>{{ d.name }}</strong><span>{{ d.created }}</span><span class="pm-delivery-badge" style="color:{{ d.badgeFg }}">{{ d.badge }}</span></span>
+   <span class="pm-delivery-counts"><sc-for list="{{ d.funnel }}" as="f" hint-placeholder-count="4"><span><span>{{ f.k }}</span><strong style="color:{{ f.fg }}">{{ f.v }}</strong></span></sc-for></span>
+   <span class="pm-delivery-progress"><span class="pm-progress-bar" aria-hidden="true"><span style="width:{{ d.segPass }};background:var(--pm-success-mark)"></span><span style="width:{{ d.segReview }};background:var(--pm-warning-mark)"></span><span style="width:{{ d.segFail }};background:var(--pm-danger-mark)"></span></span><span>{{ d.hint }}</span></span>
+   <span class="pm-delivery-open">查看子项 <svg class="forge-icon" width="16" height="16" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span>
+  </button>
+ </sc-for>
+</div>

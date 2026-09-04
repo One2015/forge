@@ -1,0 +1,23 @@
+/* delivery-drafts:start */
+.forge-delivery-drafts{margin:0 0 20px;padding:12px 0;border-block:1px solid var(--forge-border)}
+.forge-delivery-drafts>header{display:flex;align-items:center;gap:12px}
+.forge-delivery-drafts>header>button{font-size:14px;font-weight:600;gap:8px}
+.forge-delivery-drafts>header>span,.forge-delivery-drafts>header>button>span{color:var(--forge-muted);font-size:12px;font-weight:400}
+.forge-delivery-drafts .forge-delivery-text-button{min-height:32px;padding:4px 6px;border-radius:4px}
+.forge-delivery-draft-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:14px 0;border-top:1px solid var(--forge-border)}
+.forge-delivery-draft-row:first-child{margin-top:8px}
+.forge-delivery-draft-copy{flex:1;min-width:160px;overflow-wrap:anywhere}
+.forge-delivery-draft-copy h3{font-size:14px;line-height:22px;font-weight:500;margin:0}
+.forge-delivery-draft-copy p{font-size:12px;line-height:20px;color:var(--forge-muted);margin:4px 0 0}
+.forge-delivery-draft-actions{display:flex;align-items:center;gap:12px;flex:none}
+.forge-delivery-draft-actions>button:first-child{color:var(--forge-accent)}
+.forge-delivery-draft-delete{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;flex-basis:100%;font-size:12px;color:var(--forge-muted)}
+.forge-delivery-draft-error{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--forge-accent)}
+.forge-delivery-draft-error p{flex:1;margin:8px 0}
+.forge-delivery-draft-status{font-size:12px;line-height:20px;color:var(--forge-text);margin:4px 0}
+.forge-delivery-drafts button:focus-visible{outline:2px solid var(--forge-text);outline-offset:2px}
+@media(hover:hover){.forge-delivery-drafts .forge-delivery-text-button:not(:disabled):hover{background:var(--forge-subtle)}}
+.forge-delivery-drafts .forge-delivery-text-button:not(:disabled):active{background:var(--forge-border)}
+.forge-delivery-drafts button:disabled{cursor:not-allowed;color:var(--forge-muted);opacity:.6}
+@media(max-width:760px){.forge-delivery-drafts button{min-height:44px}.forge-delivery-create-page .forge-delivery-footer-actions{flex-wrap:wrap}.forge-delivery-draft-copy{flex-basis:100%}.forge-delivery-draft-actions{gap:16px}}
+/* delivery-drafts:end */

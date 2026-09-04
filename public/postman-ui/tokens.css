@@ -1,0 +1,45 @@
+/* Forge Postman UI. Product-derived values, not an official Aether token export. */
+:root,body.forge-postman .forge-app-shell,body.forge-postman .fg-theme {
+  --pm-canvas:#ffffff; --pm-sidebar:#fcfcfc; --pm-subtle:#fafafa;
+  --pm-border:#e9e9e9; --pm-control:#cccccc; --pm-hover-border:#999999;
+  --pm-text:#222222; --pm-muted:#696969; --pm-faint:#737373;
+  --pm-hover:#f7f7f7; --pm-selected:#ffffff; --pm-pressed:#ededed;
+  --pm-table-heading:var(--pm-subtle); --pm-tab-indicator:var(--pm-focus);
+  --pm-action:#222222; --pm-action-hover:#383838; --pm-action-pressed:#111111;
+  --pm-on-action:#ffffff; --pm-action-border:#222222; --pm-focus:#525252; --pm-focus-width:1px;
+  --pm-nav:#cd3d10; --pm-nav-soft:#ffffff; --pm-brand-soft:#eeeeee;
+  --pm-link:#404040; --pm-link-hover:#222222; --pm-info:#626262; --pm-info-soft:#ffffff;
+  --pm-action-soft:#ffffff; --pm-brand:#ff4f20;
+  --pm-brand-deep:#c93612; --pm-brand-mid:#df6947; --pm-brand-light:#f0a18a; --pm-brand-pale:#f5a188;
+  --pm-success:#2c7b46; --pm-success-soft:#ffffff; --pm-success-mark:#41b46a;
+  --pm-warning:#8b6511; --pm-warning-soft:#fff9e8; --pm-warning-mark:#eabb45;
+  --pm-danger:#bf3d4b; --pm-danger-soft:#fff0f2; --pm-danger-mark:#f46b77;
+  --pm-success-border:#aed2ba; --pm-warning-border:#e2ca91; --pm-danger-border:#e6b8bf;
+  --pm-data-1:#afd51c; --pm-data-2:#d6ed77; --pm-data-3:#60a63a; --pm-data-4:#a1d783;
+  --pm-data-soft:#f0f0f0; --pm-data-ink:#476e27; --pm-data-line:#578f31; --pm-data-line-alt:#94a93c;
+  --pm-font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --pm-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --pm-control-height:32px; --pm-radius:4px; --pm-overlay-radius:8px;
+  --pm-space-1:4px; --pm-space-2:8px; --pm-space-3:12px; --pm-space-4:16px; --pm-space-6:24px;
+  --forge-font:var(--pm-font); --forge-text:var(--pm-text); --forge-muted:var(--pm-muted);
+  /* Legacy accent also styles links and metadata; keep it quiet. Primary buttons map explicitly below. */
+  --forge-accent:var(--pm-link); --forge-accent-hover:var(--pm-link-hover); --forge-accent-soft:var(--pm-info-soft);
+  --forge-bg:var(--pm-canvas); --forge-subtle:var(--pm-subtle); --forge-panel:var(--pm-canvas);
+  --forge-border:var(--pm-border); --forge-control-border:var(--pm-control);
+  --forge-surface:var(--pm-canvas); --forge-surface-soft:var(--pm-subtle); --forge-soft:var(--pm-hover);
+  --forge-hover:var(--pm-hover); --forge-pressed:var(--pm-pressed); --forge-selected-hover:#ffffff; --forge-dark-hover:var(--pm-action-hover); --forge-dark-pressed:var(--pm-action-pressed);
+  --forge-success:var(--pm-success); --forge-warning:var(--pm-warning); --forge-danger:var(--pm-danger);
+  --forge-disabled-bg:#f2f2f2; --forge-disabled-text:#767676; --forge-radius-sm:4px; --forge-radius-md:6px;
+  --fg-font:var(--pm-font); --fg-font-mono:var(--pm-mono); --fg-text:var(--pm-text); --fg-text-secondary:var(--pm-muted);
+  --fg-background:var(--pm-canvas); --fg-background-subtle:var(--pm-subtle);
+  --fg-hover:var(--pm-hover); --fg-pressed:var(--pm-pressed); --fg-gray-6:var(--pm-hover-border);
+  --fg-disabled-bg:var(--forge-disabled-bg); --fg-disabled-text:var(--forge-disabled-text); --fg-on-action:var(--pm-on-action);
+  --fg-action:var(--pm-action); --fg-action-hover:var(--pm-action-hover); --fg-action-pressed:var(--pm-action-pressed);
+  --fg-focus:var(--pm-focus); --fg-selection:var(--pm-brand-soft); --fg-info-bg:var(--pm-info-soft);
+  --fg-border:var(--pm-border); --fg-control-border:var(--pm-control); --fg-selected:var(--pm-selected);
+  --fg-control-md:32px; --fg-control-sm:28px; --fg-control-lg:40px; --fg-radius-control:4px; --fg-radius-panel:4px;
+  --fg-heading-md:20px; --fg-heading-sm:18px; --fg-text-md:13px; --fg-leading-heading:28px;
+  --fg-success:var(--pm-success); --fg-danger:var(--pm-danger); --fg-warning:var(--pm-warning); --fg-info:var(--pm-info);
+  --fg-success-bg:var(--pm-canvas); --fg-warning-bg:var(--pm-canvas); --fg-danger-bg:var(--pm-canvas);
+  --fg-chart-1:var(--pm-data-1); --fg-chart-2:var(--pm-data-2); --fg-chart-3:var(--pm-data-3); --fg-chart-4:var(--pm-data-4);
+}

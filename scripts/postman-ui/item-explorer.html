@@ -1,0 +1,58 @@
+<nav class="pm-item-tabs" data-pm-tabs="primary" aria-label="Item 详情视图">
+ <sc-for list="{{ explorer.tabs }}" as="tab"><button type="button" aria-pressed="{{ tab.selected }}" sc-camel-on-click="{{ tab.pick }}">{{ tab.label }}</button></sc-for>
+</nav>
+<sc-if value="{{ explorer.showContext }}">
+ <div class="pm-explorer-context"><a href="{{ explorer.pipelineHref }}" data-forge-route>{{ explorer.pipelineLabel }}</a><code>Run · {{ explorer.runId }}</code></div>
+</sc-if>
+<sc-if value="{{ explorer.pipelineTab }}">
+ <section class="pm-item-pipeline" aria-label="Item Pipeline">
+  <header class="pm-pipeline-context"><div><a href="{{ explorer.pipelineHref }}" data-forge-route>{{ explorer.pipelineLabel }}</a><code>Run · {{ explorer.runId }}</code></div><sc-if value="{{ explorer.canEditPipeline }}"><a class="pm-pipeline-edit-link" href="{{ explorer.pipelineEditHref }}" data-forge-route>编辑 Pipeline</a></sc-if></header>
+  <sc-if value="{{ explorer.noPipeline }}"><p class="pm-explorer-empty">未提供该运行版本的 Pipeline 定义。</p></sc-if>
+  <sc-if value="{{ explorer.hasPipeline }}">
+   <div class="pm-item-graph" tabindex="0" role="region" aria-label="Pipeline 节点，可横向滚动">
+    <div class="pm-item-graph-track"><sc-for list="{{ explorer.nodes }}" as="node">
+     <button class="pm-item-graph-node" type="button" aria-pressed="{{ node.selected }}" sc-camel-on-click="{{ node.pick }}"><span class="pm-node-kind" data-kind="{{ node.kind }}">{{ node.kindLabel }}</span><strong>{{ node.name }}</strong><small>{{ node.status }}</small></button>
+     <sc-if value="{{ node.hasEdge }}"><span class="pm-item-edge" aria-hidden="true"></span></sc-if>
+    </sc-for></div>
+   </div>
+   <sc-if value="{{ !explorer.hasNode }}"><p class="pm-explorer-note">点击节点查看配置、执行尝试与结果。</p></sc-if>
+   <sc-if value="{{ explorer.hasNode }}"><section class="pm-node-detail" aria-label="所选节点详情">
+    <header><h2 data-pm-no-permalink>{{ explorer.node.name }}</h2><span class="pm-node-kind" data-kind="{{ explorer.node.kind }}">{{ explorer.node.kindLabel }}</span><button type="button" sc-camel-on-click="{{ explorer.closeNode }}">收起</button></header>
+    <h3>配置</h3>
+    <sc-for list="{{ explorer.node.configFields }}" as="field"><div class="pm-node-field"><span>{{ field.key }}</span><pre>{{ field.value }}</pre></div></sc-for>
+    <sc-if value="{{ explorer.node.noConfig }}"><p class="pm-explorer-note">该版本仅提供节点声明，未提供函数参数、模型或审核规则等详细配置。</p><pre>{{ explorer.node.definition }}</pre></sc-if>
+    <h3>执行尝试</h3>
+    <sc-if value="{{ explorer.node.noAttempts }}"><p class="pm-explorer-note">该节点未提供 Attempt 明细。</p></sc-if>
+    <sc-for list="{{ explorer.node.attempts }}" as="attempt"><details class="pm-attempt"><summary><strong>{{ attempt.label }}</strong><span>{{ attempt.status }}</span><span>{{ attempt.duration }}</span></summary><pre>{{ attempt.detail }}</pre></details></sc-for>
+    <h3>结果</h3><sc-if value="{{ explorer.node.hasResult }}"><pre>{{ explorer.node.result }}</pre></sc-if><sc-if value="{{ !explorer.node.hasResult }}"><p class="pm-explorer-note">该节点未提供执行结果。</p></sc-if>
+   </section></sc-if>
+  </sc-if>
+ </section>
+</sc-if>
+<sc-if value="{{ explorer.filesTab }}">
+ <section class="pm-item-files" aria-label="运行文件">
+  <sc-if value="{{ explorer.noFiles }}"><p class="pm-explorer-empty">本次运行尚未提供此 Item 的文件清单。</p></sc-if>
+  <sc-if value="{{ explorer.hasFiles }}"><div class="pm-file-layout">
+   <aside><header><strong>文件</strong><span>{{ explorer.fileCount }} 项</span></header><input type="search" placeholder="搜索文件路径" aria-label="搜索文件路径" value="{{ explorer.query }}" sc-camel-on-input="{{ explorer.onQuery }}" />
+    <nav aria-label="文件列表"><sc-for list="{{ explorer.files }}" as="file"><button type="button" title="{{ file.name }}" aria-pressed="{{ file.selected }}" sc-camel-on-click="{{ file.pick }}">{{ file.name }}</button></sc-for></nav><sc-if value="{{ explorer.noMatches }}"><p>没有匹配的文件。</p></sc-if>
+   </aside>
+   <sc-if value="{{ explorer.hasFile }}"><article><header><code>{{ explorer.file.name }}</code><sc-if value="{{ explorer.file.hasUrl }}"><a href="{{ explorer.file.url }}" target="_blank" rel="noopener noreferrer">打开文件</a></sc-if></header>
+    <sc-if value="{{ explorer.file.showImage }}"><img src="{{ explorer.file.url }}" alt="{{ explorer.file.name }}" /></sc-if>
+    <sc-if value="{{ explorer.file.hasContent }}"><pre>{{ explorer.file.content }}</pre></sc-if>
+    <sc-if value="{{ explorer.file.unavailable }}"><p class="pm-explorer-empty">此文件未提供内嵌预览内容。</p></sc-if>
+   </article></sc-if>
+  </div></sc-if>
+ </section>
+</sc-if>
+<sc-if value="{{ explorer.promptTab }}">
+ <section class="pm-item-prompts" aria-label="运行 Prompt">
+  <sc-if value="{{ explorer.noPrompts }}"><p class="pm-explorer-empty">本次运行未保存完整 Prompt。</p><sc-if value="{{ explorer.hasInput }}"><h2>数据集原始输入</h2><p class="pm-explorer-note">原始输入不等同于模型最终收到的 Prompt。</p><pre>{{ explorer.input }}</pre></sc-if></sc-if>
+  <sc-for list="{{ explorer.prompts }}" as="prompt"><article><header><h2>{{ prompt.label }}</h2><code>{{ prompt.node }}</code></header><pre>{{ prompt.content }}</pre></article></sc-for>
+ </section>
+</sc-if>
+<sc-if value="{{ explorer.traceTab }}">
+ <section class="pm-item-trace" aria-label="执行轨迹">
+  <sc-if value="{{ explorer.noEvents }}"><p class="pm-explorer-empty">本次运行未提供逐步执行轨迹。运行与审核历史可在「完整记录」中查看。</p></sc-if>
+  <ol><sc-for list="{{ explorer.events }}" as="event"><li><header><time>{{ event.time }}</time><strong>{{ event.label }}</strong><code>{{ event.node }}</code></header><pre>{{ event.detail }}</pre></li></sc-for></ol>
+ </section>
+</sc-if>

@@ -1,0 +1,353 @@
+/* Verified page patterns: overview, resource lists, analysis, forms, and review. */
+.forge-postman .forge-overview-summary{gap:0;border-block:1px solid var(--pm-border);padding-block:0;margin-bottom:24px}
+.forge-postman .forge-summary-card{border:0;border-right:1px solid var(--pm-border);border-radius:0;padding:22px 20px;background:transparent;min-height:146px;box-shadow:none}
+.forge-postman .forge-summary-card:first-child{padding-left:0}.forge-postman .forge-summary-card:last-child{border-right:0}
+.forge-postman .forge-summary-value strong{font-size:26px;line-height:36px;font-weight:600;letter-spacing:-.5px}
+.forge-postman .forge-summary-title{font-size:12px;color:var(--pm-muted)}
+.forge-postman .forge-summary-note{font-size:12px;line-height:20px}
+@media(hover:hover) and (pointer:fine){.forge-postman .forge-summary-card[data-actionable=true]:hover{background:var(--pm-hover);border-color:var(--pm-border)}}
+.forge-postman .forge-summary-card>.forge-summary-link{border-radius:0;background:transparent!important}
+.forge-postman .forge-delivery-create{margin-left:auto}
+.forge-postman .forge-delivery-customer-heading{padding:10px 12px;margin:0;background:var(--pm-subtle);border-bottom:1px solid var(--pm-border);gap:10px}
+.forge-postman .forge-delivery-customer-name{font-size:13px}
+.forge-postman .forge-delivery-customer-logo{width:22px;height:22px}
+.forge-postman .pm-delivery-page>div:last-child{gap:18px!important}
+.pm-delivery-list{border-bottom:1px solid var(--pm-border)}
+.pm-delivery-row{width:100%;border:0;border-bottom:1px solid var(--pm-border);background:var(--pm-canvas);padding:16px 12px;display:grid;grid-template-columns:minmax(230px,1.5fr) minmax(220px,1.25fr) minmax(170px,1fr) 82px;gap:24px;text-align:left;align-items:center;color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer;transform:none!important}
+.pm-delivery-row:last-child{border-bottom:0}
+.pm-delivery-row:hover{background:var(--pm-subtle)}.pm-delivery-row:active{background:var(--pm-hover)}
+.pm-delivery-identity{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px}
+.pm-delivery-identity>strong{grid-column:1/-1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-delivery-identity>span{font-size:12px;color:var(--pm-muted)}
+.pm-delivery-badge{font-size:11px!important}
+.forge-postman .pm-delivery-row .pm-delivery-badge{background:transparent!important}
+.pm-delivery-counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.pm-delivery-counts>span{display:flex;flex-direction:column;gap:4px}
+.pm-delivery-counts>span>span{color:var(--pm-muted);font-size:12px}
+.pm-delivery-counts strong{font-size:16px;line-height:22px;font-weight:500;font-variant-numeric:tabular-nums}
+.pm-delivery-progress{display:flex;flex-direction:column;gap:8px;color:var(--pm-muted);font-size:12px}
+.pm-progress-bar{display:flex;height:4px;background:var(--pm-border);border-radius:2px;overflow:hidden}
+.pm-delivery-open{font-size:12px;white-space:nowrap;color:var(--pm-link);display:flex;align-items:center;gap:4px}
+.forge-postman .fg-runs{min-height:calc(100vh - 80px)}
+.forge-postman .fg-page-header{margin-bottom:20px}.forge-postman .fg-page-header p{margin-top:4px;font-size:13px}
+.forge-postman .fg-theme .fg-run-row{min-height:76px;padding:10px 16px}
+.forge-postman .fg-run-group>header{padding:7px 16px;background:var(--pm-table-heading)}
+.forge-postman .fg-run-identity{gap:2px}.forge-postman .fg-run-identity>strong{font-size:13px}
+.forge-postman .fg-run-progress-bar{height:4px}.forge-postman .fg-run-progress-copy{font-size:12px;line-height:18px}
+.forge-postman .fg-run-heading{padding-block:9px}.forge-postman .fg-badge{font-size:11px;padding:1px 6px;line-height:19px}
+.forge-postman .fg-runs-toolbar{gap:12px;margin-bottom:12px}
+.forge-postman .forge-app-shell:has(.fg-runs) :is(.forge-sidebar,.forge-production-tabs){--forge-nav-active:var(--pm-nav);--forge-nav-tint:var(--pm-nav-soft);--forge-accent:var(--pm-link);--forge-font:var(--pm-font)}
+.forge-postman .review-queue-card-header{min-height:88px!important;padding:12px 16px!important;grid-template-columns:72px minmax(0,1fr) 116px!important;gap:16px!important}
+.forge-postman .review-queue-card-header .forge-review-thumb{width:72px!important;height:52px!important;background:var(--pm-hover)!important;border-radius:4px!important}
+.forge-postman .review-queue-card-copy .review-queue-card-title{font-size:13px;line-height:20px;font-weight:500}
+.forge-postman .review-queue-card-copy{gap:2px}.forge-postman .review-queue-card-meta{margin-top:0}
+.forge-postman [data-review-workbench=false]{border:0!important;border-bottom:1px solid var(--pm-border)!important;border-radius:0!important;box-shadow:none!important}
+.forge-postman .forge-review-cta{background:var(--pm-canvas);border:1px solid var(--pm-control);color:var(--pm-text);min-height:30px;min-width:76px;padding:4px 10px}
+.forge-postman .review-queue-card-status{border:0;background:var(--pm-info-soft);color:var(--pm-info);font-size:11px;padding:1px 6px}
+.forge-postman [data-review-workbench=true]{font-size:13px}
+.forge-postman .review-workbench-toolbar{height:44px;padding-inline:16px;border-bottom:1px solid var(--pm-border)}
+.forge-postman .review-workbench-body{padding:0;gap:0;grid-template-columns:minmax(0,1fr) 392px}
+.forge-postman .review-workbench-preview{border:0;border-right:1px solid var(--pm-border);border-radius:0}
+.forge-postman .review-workbench-panel{border:0;border-radius:0}
+.forge-postman .review-workbench-scroll{padding:18px 20px}
+.forge-postman .review-workbench-panel h2{font-size:14px}
+.forge-postman .review-workbench-actions{padding:12px 16px;gap:8px;border-top:1px solid var(--pm-border)}
+.forge-postman .review-workbench-actions .review-workbench-approve{background:var(--pm-action);border:1px solid var(--pm-action-border);color:var(--pm-on-action);height:34px;border-radius:4px}
+.forge-postman .review-workbench-actions .review-workbench-reject{background:var(--pm-canvas);border:1px solid var(--pm-control);color:var(--pm-text);height:34px;border-radius:4px}
+.forge-postman .review-workbench-actions button:hover:not(:disabled){filter:brightness(.96)}
+.forge-postman .forge-sheet-actions .forge-detail-primary:not(.forge-detail-approve){background:var(--pm-action);color:var(--pm-on-action);border-color:var(--pm-action-border)}
+.forge-postman .forge-billing,.forge-postman .forge-model-status{max-width:none}
+.forge-postman .forge-billing-heading,.forge-postman .forge-model-heading{margin:10px 0 20px}
+.forge-postman .forge-billing-metrics{padding:13px 0;gap:0;margin-bottom:10px}
+.forge-postman .forge-billing-metrics dd{font-size:24px;line-height:32px;font-weight:500}
+.forge-postman .forge-billing-metrics>div+div{padding-left:20px;border-left:1px solid var(--pm-border)}
+.forge-postman .forge-billing-trends{gap:24px}
+.forge-postman .forge-billing-chart{border:0;border-top:1px solid var(--pm-border);border-bottom:1px solid var(--pm-border);border-radius:0;padding:16px 0 8px}
+.forge-postman .forge-billing-chart header{margin-bottom:16px}
+.forge-postman .forge-billing-bar-space{background-image:linear-gradient(to bottom,transparent calc(50% - 1px),var(--pm-border) 50%,transparent calc(50% + 1px));border-top:1px solid var(--pm-border)}
+.forge-postman .forge-billing-cost-bar{background:var(--pm-brand)}
+.forge-postman .forge-billing-input-bar,.forge-postman .forge-billing-input-key{background:var(--pm-brand-deep)}
+.forge-postman .forge-billing-output-bar,.forge-postman .forge-billing-output-key{background:var(--pm-brand-pale)}
+.forge-postman .forge-billing-x{font-size:11px}.forge-postman .forge-billing-y{font-size:12px}
+.forge-postman .forge-billing-chart-readout{font-variant-numeric:tabular-nums;border-top:1px solid var(--pm-border);padding-top:8px;min-height:30px}
+.forge-postman .forge-billing-tabs button[aria-current=page]{border-bottom-color:var(--pm-link);color:var(--pm-text)}
+.forge-postman .forge-billing-table-scroll{border-radius:4px}
+.forge-postman .forge-billing-table :is([role=cell],[role=rowheader]){padding-block:10px;font-variant-numeric:tabular-nums}
+.forge-postman .forge-model-empty{padding-block:40px}
+.forge-postman .forge-delivery-create-page{max-width:1120px!important;width:calc(100% - 48px)!important;margin-inline:auto;background:#fff}
+.forge-postman .forge-delivery-create-header{padding:20px 24px 16px!important;border-bottom:1px solid var(--pm-border)}
+.forge-postman .forge-delivery-create-header h1{font-size:20px;line-height:28px;margin:10px 0 6px}
+.forge-postman .forge-delivery-create-section{padding:24px 0!important;border:0;border-bottom:1px solid var(--pm-border);border-radius:0;background:transparent}
+.forge-postman .forge-delivery-create-page .forge-delivery-editor-scroll{padding:0 24px 32px!important}
+.forge-postman .forge-delivery-create-section>h2{font-size:15px;margin-bottom:18px}
+.forge-postman .forge-delivery-wizard .forge-wizard-card{border:0;border-bottom:1px solid var(--pm-border);border-radius:0;background:transparent;padding:0 0 22px;margin-bottom:22px}
+.forge-postman .forge-delivery-wizard .forge-wizard-summary-desktop,.forge-postman .forge-delivery-wizard .forge-wizard-summary-mobile{border-color:var(--pm-border);border-radius:4px;background:var(--pm-canvas);box-shadow:none}
+.forge-postman .forge-delivery-wizard .forge-delivery-create-header{padding:0!important;border:0}
+.forge-postman .forge-delivery-wizard .forge-wizard-card{border:1px solid var(--pm-border);border-radius:6px;padding:18px;margin-bottom:20px}
+.forge-postman .forge-delivery-wizard .forge-wizard-footer{padding-inline:0;background:var(--pm-canvas)}
+.forge-postman .pm-wizard-aligned{align-items:stretch;margin-bottom:24px}
+.forge-postman .pm-wizard-aligned .forge-wizard-main{display:flex;flex-direction:column;padding-bottom:0}
+.forge-postman .pm-wizard-aligned .forge-wizard-main>.forge-wizard-card:last-child{flex:1;margin-bottom:0}
+.forge-postman .pm-wizard-aligned .forge-wizard-summary{position:static;display:flex;flex-direction:column;align-self:stretch}
+.forge-postman .pm-wizard-aligned .forge-wizard-summary-desktop{flex:1}
+@media(max-width:540px){.forge-postman .forge-delivery-create-page{width:calc(100% - 24px)!important}.forge-postman .forge-delivery-wizard .forge-wizard-card{padding:12px}.forge-postman .forge-delivery-wizard .forge-delivery-field-grid{gap:10px}.forge-postman .forge-delivery-wizard :is(input:not([type=file],[type=checkbox],[type=radio]),select){height:40px}}
+.forge-postman .forge-delivery-editor :is(input:not([type=file],[type=checkbox],[type=radio]),select){min-height:34px;height:34px;border-radius:4px}
+.forge-postman .forge-delivery-editor textarea{border-radius:4px;font-size:13px;line-height:21px}
+.forge-postman .forge-delivery-wizard label[for=forge-delivery-desc]{display:flex;align-items:baseline;gap:8px}
+.forge-postman .forge-delivery-wizard label[for=forge-delivery-desc] .forge-wizard-optional{display:inline;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:var(--pm-muted);font-size:12px;line-height:inherit;font-weight:400}
+.forge-postman .forge-delivery-wizard #forge-delivery-desc{min-height:160px;resize:vertical}
+.forge-postman .forge-delivery-field-grid{gap:16px}
+.forge-postman .forge-delivery-field>label{font-size:12px;font-weight:500}
+.forge-postman .forge-delivery-editor-footer{padding:12px 20px;background:var(--pm-subtle);border-top:1px solid var(--pm-border)}
+.forge-postman .forge-delivery-member-row{min-height:44px}
+.forge-postman .forge-delivery-library-row{border-bottom:1px solid var(--pm-border);border-radius:0}
+.forge-postman .forge-delivery-editor-tabs{gap:16px}
+.forge-postman .forge-delivery-editor-tabs button[aria-pressed=true]{background:transparent;color:var(--pm-text);border-bottom-color:var(--pm-link)}
+.forge-postman .forge-profile{border-radius:6px;box-shadow:0 8px 30px #0002}
+.forge-postman .forge-profile-task{border-radius:0;box-shadow:none}
+@media(min-width:1151px){.forge-postman .forge-billing-trends{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1100px){.pm-delivery-row{grid-template-columns:minmax(180px,1.4fr) minmax(200px,1.2fr) minmax(130px,.9fr);gap:18px}.pm-delivery-open{grid-column:3;grid-row:2;justify-self:end}.pm-delivery-row{padding-block:12px;row-gap:2px}.pm-delivery-progress{grid-column:3;grid-row:1}.pm-delivery-identity,.pm-delivery-counts{grid-row:1/3}.forge-postman .forge-summary-card{padding-inline:14px}.forge-postman .review-workbench-body{grid-template-columns:minmax(0,1fr) 360px}}
+@media(max-width:760px){.pm-delivery-row{grid-template-columns:minmax(0,1fr);gap:12px;padding:14px 4px}.pm-delivery-row>span{grid-column:1;grid-row:auto}.pm-delivery-open{justify-self:start}.pm-delivery-counts{max-width:400px}.forge-postman .forge-delivery-customer-heading{flex-wrap:wrap;gap:4px}.forge-postman .forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}.forge-postman .forge-summary-card{padding:20px 12px!important;min-height:108px}.forge-postman .forge-summary-card:nth-child(even){border-right:0}.forge-postman .fg-runs-toolbar .fg-segmented{width:auto}.forge-postman .fg-runs-toolbar .fg-search{min-width:0;flex-basis:100%}.forge-postman .review-queue-card-header{grid-template-columns:minmax(0,1fr) 76px!important;gap:12px!important}.forge-postman .review-queue-card-header .forge-review-thumb{display:none}.forge-postman .review-queue-card-header>.forge-review-card-actions{grid-column:2;grid-row:1;display:flex!important;flex-direction:column!important;gap:8px}.forge-postman .review-workbench-body{grid-template-columns:1fr;overflow:auto;grid-template-rows:340px auto}.forge-postman .review-workbench-scroll{overflow:visible}.forge-postman .review-workbench-actions{position:sticky;bottom:0;background:#fff}.forge-postman .forge-delivery-create-header{padding:18px 14px!important}.forge-postman .forge-delivery-create-page .forge-delivery-editor-scroll{padding:0 14px 24px!important}.forge-postman .forge-billing-metrics>div+div{padding:0;border:0}.forge-postman .forge-billing-trends{gap:16px}}
+
+.forge-postman .pm-dataset-split{gap:0!important;border-block:1px solid var(--pm-border)}
+.forge-postman .pm-dataset-split>div{top:80px!important;height:calc(100dvh - 180px)!important;min-height:520px;border:0!important;border-radius:0!important}
+.forge-postman .pm-dataset-split>div:last-child>div:last-child{border:0!important;border-left:1px solid var(--pm-border)!important;border-radius:0!important}
+.forge-postman [data-flow-family=datasets]{padding:10px 14px!important;min-height:64px}
+.forge-postman [data-flow-family=datasets]>div:first-child>div:first-child{font:500 13px/20px var(--pm-font)!important}
+.forge-postman .pm-page-pipelines [data-pm-click=true]>div:first-child{min-width:0}
+.forge-postman .review-queue-card-header{height:auto!important;min-height:88px!important}
+.forge-postman .review-queue-card-header>div:first-child{height:52px!important}
+@media(max-width:1100px){.forge-postman .pm-page-pipelines>div:last-child{overflow-x:auto}.forge-postman .pm-page-pipelines>div:last-child>div{min-width:900px}.forge-postman .pm-dataset-split{flex-direction:column}.forge-postman .pm-dataset-split>div:first-child{width:100%;height:290px!important;min-height:0;flex:none!important;position:relative!important;top:auto!important}.forge-postman .pm-dataset-split>div:last-child{width:100%!important;min-width:0!important;height:600px!important;position:relative!important;top:auto!important}.forge-postman .forge-dataset-resizer{display:none}}
+@media(max-width:760px){.forge-postman .review-queue-card-header>div:first-child{display:none}.forge-postman .review-queue-card-header>div:last-child{grid-column:2;grid-row:1}.forge-postman .pm-page-pipelines>div:last-child{max-width:100%}}
+
+.forge-postman .pm-pipeline-editor{height:calc(100dvh - 40px)!important;min-height:440px}
+.forge-postman .pm-page-pipelines [data-flow-family=pipelines]>div:first-child>div:first-child>div:first-child{font:500 13px/20px var(--pm-font)!important}
+
+/* Genova reference: orange wayfinding, black task actions, bright green data. */
+.forge-postman :is([data-pm-primary=true],.forge-delivery-primary,.forge-feedback-primary,.forge-profile-primary,.forge-task-link-primary,.fg-button[data-variant=primary]):not(:disabled,[aria-disabled=true],[data-pm-secondary=true]){background:var(--pm-action)!important;border-color:var(--pm-action-border)!important;color:var(--pm-on-action)!important;filter:none}
+@media(hover:hover){.forge-postman :is([data-pm-primary=true],.forge-delivery-primary,.forge-feedback-primary,.forge-profile-primary,.forge-task-link-primary,.fg-button[data-variant=primary]):not(:disabled,[aria-disabled=true],[data-pm-secondary=true]):hover{background:var(--pm-action-hover)!important;border-color:var(--pm-action-border)!important;color:var(--pm-on-action)!important}}
+.forge-postman :is([data-pm-primary=true],.forge-delivery-primary,.forge-feedback-primary,.forge-profile-primary,.forge-task-link-primary,.fg-button[data-variant=primary]):not(:disabled,[aria-disabled=true],[data-pm-secondary=true]):active{background:var(--pm-action-pressed)!important;color:var(--pm-on-action)!important}
+.forge-postman [data-pm-primary=true] kbd{color:var(--pm-on-action);border-color:var(--pm-action-border);background:transparent}
+.forge-postman :is(.forge-delivery-validation,.forge-delivery-required,.forge-delivery-field>label>span){color:var(--pm-danger)}
+.forge-postman .forge-delivery-editor [aria-invalid=true]{border-color:var(--pm-danger)}
+.forge-postman .forge-billing-bar-slot[aria-pressed=true] .forge-billing-cost-bar{background:var(--pm-brand);box-shadow:inset 0 0 0 1px var(--pm-nav)}
+.forge-postman .forge-billing-bar-slot[aria-pressed=true] .forge-billing-bar-space{border-bottom-color:var(--pm-text)}
+.forge-postman .forge-sidebar :is(.forge-sidebar-tool,.forge-sidebar-profile)[aria-expanded=true]{box-shadow:inset 0 0 0 1px var(--pm-control)}
+
+/* Analysis: white plotting surface, neutral summary, distinct live series. */
+.forge-postman .forge-billing-metrics{gap:0;padding:13px 0;margin-top:4px}
+/* Static metrics share one surface; total cost is not a selectable card. */
+.forge-postman .forge-billing-metrics>div{border:0;border-radius:0;padding:0 20px;background:transparent}
+.forge-postman .forge-billing-metrics>div:first-child{padding-left:8px}
+.forge-postman .pm-metric-title{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px}
+.forge-postman .pm-metric-help{display:inline-flex;flex:none;width:28px;height:28px;margin:-4px -4px -4px 0}
+.forge-postman .pm-metric-help .forge-summary-info{position:relative;min-height:28px;padding:0}
+.forge-postman .pm-metric-help .forge-summary-info>span{display:flex;align-items:center}
+.forge-postman .pm-metric-help .forge-summary-info::after{content:"";position:absolute;inset:6px;background:url('/postman-ui/info-filled.svg') center/16px 16px no-repeat;opacity:0;pointer-events:none}
+.forge-postman .pm-metric-help .forge-summary-info:is(:hover,:focus-visible,[data-state=delayed-open],[data-state=instant-open])::after{opacity:1}
+.forge-postman .pm-metric-help .forge-summary-info:is(:hover,:focus-visible,[data-state=delayed-open],[data-state=instant-open]) svg{visibility:hidden}
+@media(pointer:coarse){.forge-postman .pm-metric-help{width:44px;height:44px;margin-block:-4px}.forge-postman .pm-metric-help .forge-summary-info::after{inset:14px}}
+.forge-postman .forge-billing-metrics>div+div{border-left:1px solid var(--pm-border)}
+.forge-postman .forge-billing-metrics dd{color:var(--pm-text);font-weight:600}
+.forge-postman .forge-billing-insight{background:transparent;border-radius:0}
+.forge-postman .forge-billing-chart{padding:14px 0 8px;border-top:1px solid var(--pm-border);border-bottom:1px solid var(--pm-border)}
+.forge-postman .forge-billing-cost-bar{background:var(--pm-brand)}
+.forge-postman .forge-billing-bar-slot:is(:hover,:focus-visible,[aria-pressed=true]) .forge-billing-cost-bar{background:var(--pm-nav)}
+.forge-postman .forge-billing-bar-slot:is(:hover,:focus-visible){background:var(--pm-canvas)}
+.forge-postman .forge-billing-bar-space{border-top-color:var(--pm-border);background-image:linear-gradient(to bottom,transparent calc(50% - 1px),var(--pm-border) 50%,transparent calc(50% + 1px))}
+.forge-postman .forge-billing-input-key,.forge-postman .forge-billing-output-key{border-radius:50%}
+.forge-postman .forge-billing-contributor-bar,.forge-postman .forge-billing-share{background:var(--pm-data-soft)}
+.forge-postman .forge-billing-contributor-bar i,.forge-postman .forge-billing-share i{background:var(--pm-brand)}
+.forge-postman .forge-billing-contributor:nth-child(2n) .forge-billing-contributor-bar i{background:var(--pm-brand-mid)}
+.forge-postman .forge-billing-contributor:nth-child(3n) .forge-billing-contributor-bar i{background:var(--pm-brand-light)}
+.forge-postman .forge-billing-thead{background:var(--pm-subtle)}
+.forge-postman .forge-billing-table [role=cell],.forge-postman .forge-billing-table [role=rowheader]{border-bottom-color:var(--pm-data-soft)}
+.forge-postman .forge-billing-chip{background:var(--pm-info-soft);border-color:var(--pm-control);color:var(--pm-link)}
+.forge-postman .forge-model-notice{color:var(--pm-warning);background:var(--pm-warning-soft)}
+.forge-postman .forge-model-evidence-grid{background:var(--pm-subtle)}
+.forge-postman .forge-model-metrics [data-tone=success]{color:var(--pm-success)}
+.forge-postman .forge-model-metrics [data-tone=danger]{color:var(--pm-danger)}
+.forge-postman .forge-model-metrics :is([data-tone=warning],[data-alert=true]){color:var(--pm-warning)}
+.forge-postman .forge-model-chart-legend [data-tone=normal] i,.forge-postman .forge-model-bar-slot button{background:var(--pm-data-2);border-color:transparent}
+.forge-postman .forge-model-chart-legend [data-tone=slow] i,.forge-postman .forge-model-bar-slot button[data-slow=true]{background:var(--pm-brand);border-color:transparent}
+.forge-postman .forge-model-plot{background-image:linear-gradient(to bottom,var(--pm-border) 1px,transparent 1px)}
+.forge-postman .forge-model-baseline{border-top-color:var(--pm-muted)}
+.forge-postman .forge-model-baseline>span{background:var(--pm-canvas);color:var(--pm-muted)}
+@media(hover:hover) and (pointer:fine){.forge-postman .forge-model-bar-slot button:hover{background:var(--pm-data-1);border-color:transparent;box-shadow:none;filter:none;transform:none}.forge-postman .forge-model-bar-slot button[data-slow=true]:hover{background:var(--pm-nav);border-color:transparent}}
+@media(max-width:760px){.forge-postman .forge-billing-metrics>div{padding:10px 12px}.forge-postman .forge-billing-metrics{gap:0}}
+
+/* Billing filters form a deliberate row/grid, never an accidental 3 + 1 wrap. */
+.forge-postman .forge-billing-filters{display:grid;grid-template-columns:minmax(190px,1.08fr) repeat(2,minmax(150px,1fr)) minmax(170px,1fr) auto;align-items:end;gap:12px}
+.forge-postman .forge-billing-filters>:is(label,.forge-billing-date-filter){width:100%;max-width:100%;min-width:0;grid-column:auto}
+.forge-postman .forge-billing-filters :is(select,.forge-billing-date-trigger){width:100%;box-sizing:border-box}
+.forge-postman .forge-billing-date-trigger{justify-content:space-between;height:32px!important;min-height:32px!important;padding:4px 10px}
+.forge-postman .forge-billing-filters>.forge-billing-link{grid-column:auto;justify-self:start;min-height:32px;margin:0}
+@supports(appearance:base-select){.forge-postman .forge-billing-filters select::picker(select){inline-size:anchor-size(width);max-inline-size:calc(100vw - 24px);box-sizing:border-box}}
+@media(max-width:1100px){.forge-postman .forge-billing-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.forge-postman .forge-billing-filters>.forge-billing-link{grid-column:1/-1}}
+@media(max-width:520px){.forge-postman .forge-billing-filters{grid-template-columns:minmax(0,1fr)}}
+@media(pointer:coarse){.forge-postman .forge-billing-date-trigger{height:44px!important;min-height:44px!important}}
+
+/* Segmented choices use the same neutral selection language as tabs and filters. */
+.forge-postman .forge-billing-segment button[aria-pressed=true]{background:var(--pm-selected)!important;color:var(--pm-text)!important;box-shadow:inset 0 0 0 1px var(--pm-focus)!important}
+
+/* Case quality and review decisions are independent semantic roles. */
+.forge-postman .forge-case-options .forge-case-button[data-case=good]{--case-color:var(--pm-success);--case-soft:var(--pm-success-soft);--case-edge:var(--pm-success-border)}
+.forge-postman .forge-case-options .forge-case-button[data-case=bad]{--case-color:var(--pm-danger);--case-soft:var(--pm-danger-soft);--case-edge:var(--pm-danger-border)}
+.forge-postman .forge-case-options .forge-case-button:not(:disabled){background:var(--pm-canvas)!important;color:var(--case-color)!important;border-color:var(--case-edge)!important;box-shadow:none;font-weight:400}
+.forge-postman .forge-case-options .forge-case-button:not(:disabled)[aria-pressed=true]{background:var(--case-color)!important;color:var(--pm-on-action)!important;border-color:var(--case-color)!important;box-shadow:none;font-weight:600}
+.forge-postman .forge-case-options .forge-case-icon{background:transparent;color:var(--case-color);border:1px solid currentColor}
+.forge-postman .forge-case-options .forge-case-button[aria-pressed=true] .forge-case-icon{background:var(--pm-on-action);color:var(--case-color);border-color:var(--pm-on-action)}
+.forge-postman .forge-case-options .forge-case-button:not(:disabled):not([aria-pressed=true]):hover{background:var(--pm-hover)!important;border-color:var(--case-color)!important;box-shadow:none}
+.forge-postman .forge-case-options .forge-case-button:not(:disabled)[aria-pressed=true]:hover{background:var(--case-color)!important}
+.forge-postman [data-pm-secondary=true]:not(:disabled,[aria-disabled=true]){background:var(--pm-canvas)!important;border-color:var(--pm-control)!important;color:var(--pm-text)!important;filter:none}
+.forge-postman [data-pm-secondary=true]:not(:disabled,[aria-disabled=true]):hover{background:var(--pm-hover)!important;border-color:var(--pm-hover-border)!important}
+.forge-postman [data-pm-secondary=true]:not(:disabled,[aria-disabled=true]):active{background:var(--pm-pressed)!important}
+.forge-postman [data-pm-secondary=true] kbd{color:inherit;border-color:var(--pm-control);background:transparent}
+
+/* Restrained hover: neutral wash for targets, darker 1px edges for controls. */
+@media(hover:hover) and (pointer:fine){
+  .forge-postman :is(input:not([type=checkbox],[type=radio],[type=file]),textarea,select):not(:disabled,[readonly],[aria-invalid=true]):hover:not(:focus-visible){border-color:var(--pm-hover-border)!important}
+  .forge-postman :is(.forge-delivery-secondary,.forge-feedback-secondary,.forge-task-link-secondary,.forge-profile-secondary,.forge-billing-button,.forge-sheet-close,.forge-branch-close,.forge-profile-close,.forge-detail-download,.forge-branch-footer button:not(.forge-feedback-primary)):not(:disabled,[aria-disabled=true]):hover{background:var(--pm-hover)!important;border-color:var(--pm-hover-border)!important}
+  .forge-postman :is(.pm-delivery-row,.fg-run-row,[data-flow-family=sheetItems],.forge-task-link-item,.forge-delivery-library-option):not(:disabled,[aria-disabled=true]):hover:not(:active){background:var(--pm-hover)!important}
+  .forge-postman .forge-case-options .forge-case-button:not(:disabled):not([aria-pressed=true]):hover{background:var(--pm-hover)!important}
+  .forge-postman :is([data-forge-segmented=pill],.fg-segmented) button[aria-pressed=true]:hover{background:var(--pm-selected)!important;box-shadow:inset 0 0 0 1px var(--pm-hover-border)!important}
+  .forge-postman :is(.forge-feedback-upload,.forge-feedback-image-box,.forge-delivery-logo-tile,.forge-delivery-file-button,.forge-delivery-skill-upload):not([data-disabled=true]):hover{background:var(--pm-hover);border-color:var(--pm-hover-border)}
+}
+
+/* Route-level completion pass: every major surface uses the same density and hierarchy. */
+.forge-postman .pm-page-overview>div:last-child{gap:18px!important}
+.forge-postman .pm-page-overview>div:last-child>div{border-radius:4px!important}
+.forge-postman .pm-page-overview>div:last-child>div>div:first-child{background:var(--pm-table-heading);padding:9px 12px!important}
+.forge-postman .pm-page-overview [data-flow-family=runs]{padding:10px 12px!important;background:var(--pm-canvas)}
+.forge-postman .pm-page-overview [data-flow-family=runs]:hover{background:var(--pm-hover)!important}
+
+.forge-postman .pm-page-resources>div:last-child{padding:42px 24px!important;border-radius:4px!important;background:var(--pm-canvas)!important}
+.forge-postman .pm-page-resources>div:last-child>div:first-child{border-radius:4px!important;background:var(--pm-subtle)!important;color:var(--pm-muted)!important}
+.forge-postman .pm-page-resources>div:first-child button{min-height:32px!important;height:32px!important;background:var(--pm-action)!important;border-color:var(--pm-action-border)!important;color:var(--pm-on-action)!important;border-radius:4px!important}
+
+.forge-postman .pm-page-run>div:nth-of-type(3){display:grid!important;gap:0!important;border-block:1px solid var(--pm-border);margin-bottom:18px!important}
+.forge-postman .pm-page-run>div:nth-of-type(3)>div{border:0!important;border-right:1px solid var(--pm-border)!important;border-radius:0!important;padding:10px 14px!important;background:transparent!important}
+.forge-postman .pm-page-run>div:nth-of-type(3)>div:last-child{border-right:0!important}
+.forge-postman .pm-page-run>div:nth-of-type(4){border-radius:4px!important}
+.forge-postman .pm-page-run>div:nth-of-type(4)>div:first-child{background:var(--pm-table-heading);padding:9px 14px!important}
+.forge-postman .pm-page-run>div:nth-of-type(4)>[data-pm-click=true]{padding:10px 14px!important;background:var(--pm-canvas)}
+
+.forge-postman .pm-page-review [data-flow-family=reviewDone]{border:0!important;border-bottom:1px solid var(--pm-border)!important;border-radius:0!important;background:var(--pm-canvas)!important}
+.forge-postman .pm-page-review [data-flow-family=reviewDone]>div{min-height:82px!important;height:auto!important;padding:10px 14px!important;grid-template-columns:72px minmax(0,1fr) 150px!important}
+.forge-postman .pm-page-review [data-flow-family=reviewDone]>div>div:first-child{height:52px!important;border-radius:4px!important}
+.forge-postman .pm-page-review [data-flow-family=reviewDone]:hover{background:var(--pm-hover)!important}
+
+.forge-postman .pm-page-itemlife>div:nth-of-type(1){margin-bottom:18px!important}
+.forge-postman .pm-page-itemlife>div:nth-of-type(1)>div:last-child{border:0!important;border-left:1px solid var(--pm-border)!important;border-radius:0!important;background:transparent!important;padding:6px 0 6px 18px!important}
+.forge-postman .pm-page-itemlife .forge-life-history{border-radius:4px!important;padding:18px 20px!important}
+.forge-postman .pm-page-itemlife .forge-life-node-body{border-radius:4px!important;background:var(--pm-subtle)!important}
+.forge-postman .pm-page-itemlife .forge-life-append:not(:disabled):hover{background:var(--pm-hover)!important;color:var(--pm-text)!important}
+
+.forge-postman .pm-page-submitted{padding-top:48px!important}
+.forge-postman .pm-page-submitted>div{border-radius:4px!important;padding:28px 30px!important}
+.forge-postman .pm-page-submitted>div>div:nth-of-type(2){border-radius:4px!important;background:var(--pm-subtle)!important}
+.forge-postman .pm-page-submitted>div>div:last-child button{border-radius:4px!important}
+
+.forge-postman .pm-page-error{max-width:720px;padding-top:56px}
+.forge-postman .pm-page-error{border-top:1px solid var(--pm-border)}
+.forge-postman .pm-page-error a{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border:1px solid var(--pm-control);border-radius:4px;color:var(--pm-text);text-decoration:none;background:var(--pm-canvas);margin-right:8px}
+.forge-postman .pm-page-error a:first-of-type{background:var(--pm-action);border-color:var(--pm-action-border);color:var(--pm-on-action)}
+
+/* Pipeline canvas keeps category color in data marks, never in interaction chrome. */
+.forge-postman .pm-pipeline-canvas{background-color:var(--pm-subtle)!important;background-image:radial-gradient(var(--pm-border) .75px,transparent .75px)!important;background-size:22px 22px!important}
+.forge-postman .pm-pipeline-node{border:1px solid var(--pm-control)!important;border-left-width:1px!important;border-radius:4px!important;box-shadow:none!important;background:var(--pm-canvas)!important}
+.forge-postman .pm-pipeline-node:hover{border-color:var(--pm-hover-border)!important;background:var(--pm-canvas)!important}
+.forge-postman .pm-pipeline-node-kind{color:var(--pm-muted)!important;background:var(--pm-data-soft)!important;border-radius:4px!important}
+.forge-postman .pm-pipeline-node[data-node-kind=AGENT] :is(.pm-pipeline-node-mark,.pm-pipeline-node-progress){background:var(--pm-data-1)!important}
+.forge-postman .pm-pipeline-node[data-node-kind=REVIEW] :is(.pm-pipeline-node-mark,.pm-pipeline-node-progress){background:var(--pm-brand)!important}
+.forge-postman .pm-pipeline-node[data-node-kind=FUNCTION] :is(.pm-pipeline-node-mark,.pm-pipeline-node-progress){background:var(--pm-data-3)!important}
+
+/* Model status: status color is semantic; selection and hover stay neutral. */
+.forge-postman .forge-model-table{border-radius:4px}
+.forge-postman .forge-model-table-head{background:var(--pm-table-heading)}
+.forge-postman .forge-model-table-row[data-selected=true]{background:var(--pm-selected)!important;box-shadow:inset 1px 0 var(--pm-focus)}
+/* Same summary layout as overview and production, with six categories. */
+.forge-postman .pm-model-summary.forge-overview-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin:16px 0 0}
+.forge-postman .pm-model-summary .forge-summary-card:last-child{grid-column:auto}
+.forge-postman .pm-model-summary-item[data-selected=true]::after{content:"";position:absolute;bottom:0;left:20px;right:20px;height:2px;background:var(--pm-brand);pointer-events:none}
+.forge-postman .pm-model-summary-item:first-child[data-selected=true]::after{left:0}
+.forge-postman .forge-model-table{min-width:1140px}
+.forge-postman .forge-model-table-head,.forge-postman .forge-model-table-row{grid-template-columns:88px minmax(80px,.7fr) minmax(136px,1.1fr) 94px minmax(145px,1.2fr) minmax(125px,1fr) 80px minmax(105px,.9fr) minmax(140px,1.15fr)}
+.forge-postman .pm-model-provider,.forge-postman .pm-model-name{color:var(--pm-text);line-height:20px;overflow-wrap:normal}
+.forge-postman .forge-model-table .forge-model-badge{gap:6px}
+.forge-postman .forge-model-table .forge-model-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+@media(max-width:1100px){
+ .forge-postman .pm-model-summary.forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .forge-postman .pm-model-summary .forge-summary-card{padding:22px 20px;border-right:1px solid var(--pm-border)}
+ .forge-postman .pm-model-summary .forge-summary-card:nth-child(3n){border-right:0}
+ .forge-postman .pm-model-summary .forge-summary-card:nth-child(-n+3){border-bottom:1px solid var(--pm-border)}
+ .forge-postman .pm-model-summary-item:first-child[data-selected=true]::after{left:20px}
+}
+@media(max-width:760px){
+ .forge-postman .pm-model-summary.forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .forge-postman .pm-model-summary .forge-summary-card:nth-child(odd){border-right:1px solid var(--pm-border)}
+ .forge-postman .pm-model-summary .forge-summary-card:nth-child(even){border-right:0}
+ .forge-postman .pm-model-summary .forge-summary-card:nth-child(-n+4){border-bottom:1px solid var(--pm-border)}
+ .forge-postman .pm-model-summary-item[data-selected=true]::after,.forge-postman .pm-model-summary-item:first-child[data-selected=true]::after{left:12px;right:12px}
+}
+.forge-postman .forge-model-tabs button[aria-pressed=true]{border-bottom-color:var(--pm-tab-indicator);color:var(--pm-text)}
+.forge-postman .forge-model-diagnostic{border-radius:4px}
+.forge-postman .forge-model-bar-slot button:focus{outline:0}
+.forge-postman .forge-model-bar-slot button:focus-visible{outline:1px solid var(--pm-focus);outline-offset:2px}
+
+@media(max-width:760px){
+ .forge-postman .pm-page-run>div:nth-of-type(3)>div{border-right:0!important;border-bottom:1px solid var(--pm-border)!important}
+ .forge-postman .pm-page-run>div:nth-of-type(3)>div:last-child{border-bottom:0!important}
+ .forge-postman .pm-page-review [data-flow-family=reviewDone]>div{grid-template-columns:minmax(0,1fr) 120px!important}
+ .forge-postman .pm-page-review [data-flow-family=reviewDone]>div>div:first-child{display:none}
+}
+
+/* Overview metrics communicate scale, not severity. */
+.forge-postman .pm-page-overview .forge-summary-value strong{color:#222!important;font-variant-numeric:tabular-nums}
+.forge-postman .pm-page-overview .forge-summary-note:empty{display:none}
+
+/* Reference images occupy individual slots; the containing row stays white. */
+.forge-postman .pm-photo-heading{margin:16px 0 8px;font-size:13px;font-weight:500;color:var(--pm-text)}
+.forge-postman .pm-photo-optional{font-size:12px;font-weight:400;color:var(--pm-muted);background:none;border:0;padding:0}
+.forge-postman :is(.forge-branch-scroll,.review-workbench-rework-form){container-type:inline-size}
+.forge-postman .pm-photo-slots{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px 8px;max-width:100%;padding:2px 1px 6px;background:transparent}
+.forge-postman .pm-photo-cell{min-width:0;text-align:center}
+@container(max-width:480px){.forge-postman .pm-photo-slots{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@container(max-width:240px){.forge-postman .pm-photo-slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.forge-postman .pm-photo-slot{display:block;position:relative;width:100%;aspect-ratio:1;height:auto;box-sizing:border-box;border:1px dashed var(--pm-control);border-radius:4px;background:#fff;overflow:hidden}
+.forge-postman .pm-photo-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--pm-muted);font-size:11px;line-height:16px}
+.forge-postman .pm-photo-add>span{width:100%;text-align:center;white-space:nowrap;font-size:10px}
+.forge-postman .pm-photo-number{display:block;margin-top:5px;color:var(--pm-muted);font-size:11px;line-height:16px;font-variant-numeric:tabular-nums}
+.forge-postman .pm-photo-add>.pm-photo-number{margin-top:0;font-size:11px}
+.forge-postman .pm-photo-add input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.forge-postman .pm-photo-add:focus-within{outline:1px solid var(--pm-focus);outline-offset:-1px;border-color:var(--pm-focus)}
+.forge-postman .pm-photo-filled{border-style:solid}
+.forge-postman .pm-photo-filled>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.forge-postman .pm-photo-loading{display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:var(--pm-muted)}
+.forge-postman .pm-photo-slot .pm-photo-remove{position:absolute;top:3px;right:3px;width:24px;height:24px;padding:0;border:1px solid var(--pm-control);border-radius:4px;background:#fff;color:var(--pm-text)}
+.forge-postman .pm-photo-help{margin:2px 0 0;font-size:11px;line-height:18px;color:var(--pm-muted);overflow-wrap:anywhere}
+.forge-postman .pm-photo-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.forge-postman .forge-feedback-submit-context{display:block;background:transparent!important;border:0!important;border-radius:0;padding:0!important;margin-top:18px;color:var(--pm-muted);font-size:12px;line-height:1.65}
+.forge-postman .forge-feedback-submit-context>strong{display:block;font-size:12px;font-weight:400;color:var(--pm-muted);margin:0 0 3px}
+.forge-postman .forge-feedback-submit-context>span{font-size:12px;color:var(--pm-muted)}
+.forge-postman .pm-item-search{position:relative;min-width:0}
+.forge-postman .pm-item-search-control{position:relative}
+.forge-postman .pm-item-search-control>.forge-icon{position:absolute;left:10px;top:11px;color:var(--pm-muted)}
+.forge-postman .pm-item-search-control input{width:100%;height:38px;padding:8px 10px 8px 34px;border:1px solid var(--pm-control);border-radius:5px;background:#fff;box-sizing:border-box}
+.forge-postman .pm-item-search-results{margin-top:4px;border:1px solid var(--pm-border);border-radius:5px;background:#fff;overflow:hidden}
+.forge-postman .pm-item-search-results [role=listbox]{max-height:180px;overflow-y:auto;scrollbar-width:thin}
+.forge-postman .pm-item-search-results [role=option]{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:8px 10px;border:0;border-radius:0;background:#fff;text-align:left}
+.forge-postman .pm-item-search-results [role=option] strong{font-size:13px;font-weight:500}
+.forge-postman .pm-item-search-results [role=option]>span{font-family:var(--pm-mono);font-size:11px;color:var(--pm-muted);overflow-wrap:anywhere}
+.forge-postman .pm-item-search-results [role=option][data-active=true]{background:var(--pm-hover);outline:1px solid var(--pm-focus);outline-offset:-1px}
+.forge-postman .pm-item-search-meta{font-size:11px!important;line-height:18px!important;color:var(--pm-muted);margin:0!important;padding:7px 10px;border-top:1px solid var(--pm-border)}
+@media(hover:hover) and (pointer:fine){
+ .forge-postman .pm-photo-add:hover{background:var(--pm-hover);border-color:var(--pm-hover-border);color:var(--pm-text)}
+ .forge-postman .pm-photo-remove:hover,.forge-postman .pm-item-search-results [role=option]:hover{background:var(--pm-hover)}
+}
+
+/* The lifecycle repair form has eight reference slots. */
+.forge-postman .pm-life-photos{container-type:inline-size;margin-top:16px}
+.forge-postman .pm-life-photos .pm-photo-slots{grid-template-columns:repeat(8,minmax(0,1fr))}
+@container(max-width:760px){.forge-postman .pm-life-photos .pm-photo-slots{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@container(max-width:360px){.forge-postman .pm-life-photos .pm-photo-slots{grid-template-columns:repeat(2,minmax(0,1fr))}}

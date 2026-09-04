@@ -4,12 +4,10 @@
     [[icon:download-simple:20]]<span class="forge-sidebar-tool-label">下载</span>
     <sc-if value="{{ dl.hasActive }}" hint-placeholder-val="{{ true }}"><span class="forge-sidebar-tool-count" aria-hidden="true">{{ dl.active }}</span></sc-if>
   </button>
-  [[download-panel]]
   <button type="button" class="forge-sidebar-tool" data-utility="notif" sc-camel-on-click="{{ sidebar.toggleMessages }}" aria-label="消息 · {{ notif.tip }}" title="{{ notif.tip }}" aria-expanded="{{ notif.open }}" aria-controls="forge-notification-panel">
     [[icon:bell:20]]<span class="forge-sidebar-tool-label">消息</span>
     <sc-if value="{{ notif.hasUnread }}" hint-placeholder-val="{{ true }}"><span class="forge-sidebar-tool-count forge-sidebar-tool-count-unread" aria-hidden="true">{{ notif.unread }}</span></sc-if>
   </button>
-  [[notification-panel]]
   <button type="button" class="forge-sidebar-profile" popovertarget="forge-profile-panel" aria-label="个人资料 · {{ sidebar.userName }}" title="{{ sidebar.userName }} · {{ profile.roleLabel }}" aria-expanded="{{ profile.open }}" aria-controls="forge-profile-panel">
     <span class="forge-sidebar-avatar" aria-hidden="true">{{ sidebar.userInitial }}</span>
     <span class="forge-sidebar-profile-copy"><span class="forge-sidebar-username">{{ sidebar.userName }}</span><span class="forge-sidebar-profile-label">{{ profile.roleLabel }}</span></span>

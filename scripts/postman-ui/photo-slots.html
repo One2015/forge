@@ -1,0 +1,18 @@
+<div class="pm-photo-heading">参考图片 <span class="pm-photo-optional">（选填）</span></div>
+<div class="pm-photo-slots" role="group" aria-label="参考图片，最多 6 张">
+  <sc-for list="{{ VIEW.images }}" as="img" hint-placeholder-count="0">
+    <div class="pm-photo-cell"><div class="pm-photo-slot pm-photo-filled" title="{{ img.name }}" aria-busy="{{ img.loading }}">
+      <sc-if value="{{ img.ready }}" hint-placeholder-val="{{ false }}"><img src="{{ img.url }}" alt="{{ img.name }}" /></sc-if>
+      <sc-if value="{{ img.loading }}" hint-placeholder-val="{{ false }}"><span class="pm-photo-loading" role="status">读取中…</span></sc-if>
+      <button class="pm-photo-remove" type="button" aria-label="{{ img.removeLabel }}" sc-camel-on-click="{{ img.remove }}">[[icon:x:14]]</button>
+    </div><span class="pm-photo-number">{{ img.position }}/6</span></div>
+  </sc-for>
+  <sc-for list="{{ VIEW.emptySlots }}" as="slot" hint-placeholder-count="0">
+    <div class="pm-photo-cell"><label class="pm-photo-slot pm-photo-add">
+      [[icon:plus:20]]<span>Add Photo</span><span class="pm-photo-number">{{ slot.position }}/6</span>
+      <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple aria-label="{{ slot.label }}" aria-describedby="HELP_ID" sc-camel-on-change="{{ VIEW.upload }}" />
+    </label></div>
+  </sc-for>
+</div>
+<p class="pm-photo-help" id="HELP_ID">PNG、JPG、WebP、GIF · 单张不超过 10 MB · Ctrl/⌘ + V 粘贴图片</p>
+<span class="pm-photo-status" role="status" aria-live="polite">{{ VIEW.countLabel }}，还可上传 {{ VIEW.remaining }} 张</span>

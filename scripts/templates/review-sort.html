@@ -1,0 +1,8 @@
+<!-- review-sort:start -->
+<div class="forge-review-sort">
+  <select class="forge-review-sort-select" aria-label="审核队列排序" value="{{ review.sortValue }}" sc-camel-on-change="{{ review.setSort }}">
+    <sc-for list="{{ review.sorts }}" as="o" hint-placeholder-count="2"><option value="{{ o.key }}" label="{{ o.label }}">{{ o.label }}</option></sc-for>
+  </select>
+  [[icon:caret-down:12]]
+</div>
+<!-- review-sort:end -->

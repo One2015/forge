@@ -1,0 +1,65 @@
+/* surface-motion:start */
+:root{--forge-surface-enter:200ms;--forge-surface-exit:160ms;--forge-menu-enter:160ms;--forge-menu-exit:120ms}
+:is(.forge-motion-overlay,[data-motion-overlay]){opacity:0;pointer-events:none}
+:is(.forge-motion-overlay,[data-motion-overlay])[data-motion-open="true"]{opacity:1;pointer-events:auto}
+:is(.forge-motion-overlay,[data-motion-overlay])>:is(.forge-motion-dialog,[data-motion-dialog]){transform-origin:center}
+[data-motion-native]:not([open]){pointer-events:none}
+.forge-motion-menu{transform-origin:var(--forge-menu-origin,top left)}
+.forge-motion-menu[data-motion-open]{opacity:0;visibility:hidden;pointer-events:none}
+.forge-motion-menu[data-motion-open="true"]{opacity:1;visibility:visible;pointer-events:auto}
+html:not([data-forge-input="keyboard"]) :is(.forge-motion-overlay,[data-motion-overlay]){transition:opacity var(--forge-surface-exit) var(--forge-motion-ease)}
+html:not([data-forge-input="keyboard"]) :is(.forge-motion-overlay,[data-motion-overlay])[data-motion-open="true"]{transition-duration:var(--forge-surface-enter)}
+html:not([data-forge-input="keyboard"]) .forge-motion-menu[data-motion-open]{transition:opacity var(--forge-menu-exit) var(--forge-motion-ease),visibility 0s var(--forge-menu-exit)}
+html:not([data-forge-input="keyboard"]) .forge-motion-menu[data-motion-open="true"]{transition-duration:var(--forge-menu-enter),0s;transition-delay:0s}
+@supports(transition-behavior:allow-discrete){
+  html:not([data-forge-input="keyboard"]) [data-motion-native]{opacity:0;transition:opacity var(--forge-surface-exit) var(--forge-motion-ease),display var(--forge-surface-exit) allow-discrete,overlay var(--forge-surface-exit) allow-discrete}
+  html:not([data-forge-input="keyboard"]) [data-motion-native][open]{opacity:1;transition-duration:var(--forge-surface-enter)}
+  html:not([data-forge-input="keyboard"]) [data-motion-native]::backdrop{opacity:0;transition:opacity var(--forge-surface-exit) var(--forge-motion-ease),display var(--forge-surface-exit) allow-discrete,overlay var(--forge-surface-exit) allow-discrete}
+  html:not([data-forge-input="keyboard"]) [data-motion-native][open]::backdrop{opacity:1;transition-duration:var(--forge-surface-enter)}
+  html:not([data-forge-input="keyboard"]) .forge-delivery-member-results{opacity:0;transition:opacity var(--forge-menu-exit) var(--forge-motion-ease),display var(--forge-menu-exit) allow-discrete,overlay var(--forge-menu-exit) allow-discrete;transform-origin:top left}
+  html:not([data-forge-input="keyboard"]) .forge-delivery-member-results:popover-open{opacity:1;transition-duration:var(--forge-menu-enter)}
+  @starting-style{
+    html:not([data-forge-input="keyboard"]) [data-motion-native][open],html:not([data-forge-input="keyboard"]) [data-motion-native][open]::backdrop,html:not([data-forge-input="keyboard"]) .forge-delivery-member-results:popover-open{opacity:0}
+  }
+}
+@starting-style{html:not([data-forge-input="keyboard"]) :is(.forge-motion-overlay,[data-motion-overlay])[data-motion-open="true"],html:not([data-forge-input="keyboard"]) .forge-motion-menu[data-motion-open="true"]{opacity:0}}
+@media(prefers-reduced-motion:no-preference){
+  html:not([data-forge-input="keyboard"]) :is(.forge-motion-overlay,[data-motion-overlay])>:is(.forge-motion-dialog,[data-motion-dialog]){transform:scale(.97);transition:transform var(--forge-surface-exit) var(--forge-motion-ease)}
+  html:not([data-forge-input="keyboard"]) :is(.forge-motion-overlay,[data-motion-overlay])[data-motion-open="true"]>:is(.forge-motion-dialog,[data-motion-dialog]){transform:scale(1);transition-duration:var(--forge-surface-enter)}
+  html:not([data-forge-input="keyboard"]) .forge-motion-menu[data-motion-open]{transform:translateY(-3px) scale(.97);transition-property:opacity,visibility,transform;transition-duration:var(--forge-menu-exit),0s,var(--forge-menu-exit);transition-delay:0s,var(--forge-menu-exit),0s}
+  html:not([data-forge-input="keyboard"]) .forge-motion-menu[data-motion-open="true"]{transform:translateY(0) scale(1);transition-duration:var(--forge-menu-enter),0s,var(--forge-menu-enter);transition-delay:0s}
+  @supports(transition-behavior:allow-discrete){
+    html:not([data-forge-input="keyboard"]) [data-motion-native]{transform:scale(.97);transition-property:opacity,display,overlay,transform}
+    html:not([data-forge-input="keyboard"]) [data-motion-native][open]{transform:scale(1)}
+    html:not([data-forge-input="keyboard"]) .forge-delivery-member-results{transform:translateY(-3px) scale(.97);transition-property:opacity,display,overlay,transform}
+    html:not([data-forge-input="keyboard"]) .forge-delivery-member-results:popover-open{transform:translateY(0) scale(1)}
+    @starting-style{html:not([data-forge-input="keyboard"]) [data-motion-native][open]{transform:scale(.97)}html:not([data-forge-input="keyboard"]) .forge-delivery-member-results:popover-open{transform:translateY(-3px) scale(.97)}}
+  }
+  @starting-style{html:not([data-forge-input="keyboard"]) :is(.forge-motion-overlay,[data-motion-overlay])[data-motion-open="true"]>:is(.forge-motion-dialog,[data-motion-dialog]){transform:scale(.97)}html:not([data-forge-input="keyboard"]) .forge-motion-menu[data-motion-open="true"]{transform:translateY(-3px) scale(.97)}}
+}
+/* The indicator clips one background; labels and content never travel. */
+[data-forge-segmented]{position:relative;isolation:isolate}
+/* Reserve the selected label's width so a weight change cannot move its neighbors. */
+[data-forge-segmented="pill"] [data-motion-label]{display:inline-grid;place-items:center;text-align:center}
+[data-forge-segmented="pill"] [data-motion-label]>.sc-interp{grid-area:1/1}
+[data-forge-segmented="pill"] [data-motion-label]::after{content:attr(data-motion-label);grid-area:1/1;font-weight:600;visibility:hidden;pointer-events:none}
+[data-forge-segmented]::before{content:"";position:absolute;inset:0;background:var(--forge-segment-fill,#fff);border-radius:inherit;clip-path:inset(var(--forge-segment-top,0px) var(--forge-segment-right,100%) var(--forge-segment-bottom,0px) var(--forge-segment-left,0px) round var(--forge-segment-radius,7px));pointer-events:none;z-index:0}
+[data-forge-segmented] :is(button,[data-motion-selected],label[data-checked]){position:relative;z-index:1}
+[data-forge-segmented][data-motion-ready="true"] :is([data-motion-selected="true"],[aria-pressed="true"],label[data-checked="true"]){background:transparent!important;box-shadow:none!important}
+[data-forge-segmented="underline"]{--forge-segment-fill:var(--forge-accent);--forge-segment-radius:0px}
+[data-forge-segmented="underline"][data-motion-ready="true"] :is(button,[data-motion-selected]){border-bottom-color:transparent!important}
+.forge-artifact-switch[data-forge-segmented]{--forge-segment-fill:#eef0ea;--forge-segment-radius:5px}
+@media(prefers-reduced-motion:no-preference){html:not([data-forge-input="keyboard"]) [data-forge-segmented][data-motion-ready="true"]::before{transition:clip-path 160ms cubic-bezier(.25,1,.5,1)}}
+/* Small press and hover feedback uses the existing state colors. */
+html:not([data-forge-input="keyboard"]) .forge-app-shell button{transition:background-color 120ms ease,border-color 120ms ease,color 120ms ease}
+@media(prefers-reduced-motion:no-preference){
+  html:not([data-forge-input="keyboard"]) .forge-app-shell :is(.forge-delivery-primary,.forge-delivery-secondary,.forge-feedback-primary,.forge-task-link-primary,.forge-profile-close,.forge-branch-close,.forge-sidebar-popover-close){transition:transform 120ms cubic-bezier(.25,.46,.45,.94),background-color 120ms ease,border-color 120ms ease,color 120ms ease}
+  html:not([data-forge-input="keyboard"]) .forge-app-shell :is(.forge-delivery-primary,.forge-delivery-secondary,.forge-feedback-primary,.forge-task-link-primary,.forge-profile-close,.forge-branch-close,.forge-sidebar-popover-close):active:not(:disabled){transform:scale(.98)}
+  @media(hover:hover) and (pointer:fine){
+    .review-queue-card-header .forge-review-thumb,.forge-task-link-thumb img,.review-workbench-thumbnails a img{transition:transform 160ms cubic-bezier(.19,1,.22,1)}
+    .review-queue-card-header:hover .forge-review-thumb,.forge-task-link-item:hover .forge-task-link-thumb img,.review-workbench-thumbnails a:hover img{transform:scale(1.02)}
+  }
+}
+.forge-task-link-thumb,.review-workbench-thumbnails a{overflow:hidden}
+@media(prefers-reduced-motion:reduce){:root{--forge-surface-enter:90ms;--forge-surface-exit:90ms;--forge-menu-enter:90ms;--forge-menu-exit:90ms}}
+/* surface-motion:end */

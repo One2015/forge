@@ -1,0 +1,9 @@
+<!-- delivery-customer-heading:start -->
+<header class="forge-delivery-customer-heading">
+  <div class="forge-delivery-customer-identity">
+    <sc-if value="{{ c.hasLogo }}" hint-placeholder-val="{{ false }}"><img class="forge-delivery-customer-logo" src="{{ c.logo }}" alt="{{ c.logoAlt }}" width="28" height="28" /></sc-if>
+    <h2 class="forge-delivery-customer-name">{{ c.name }}</h2>
+  </div>
+  <p class="forge-delivery-customer-meta">{{ c.meta }}</p>
+</header>
+<!-- delivery-customer-heading:end -->

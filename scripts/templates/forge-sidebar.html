@@ -1,19 +1,23 @@
 <!-- forge-sidebar:start -->
 <aside class="forge-sidebar" aria-label="Forge 导航侧栏">
   <div class="forge-sidebar-header">
+  <button class="forge-sidebar-collapse" sc-camel-on-click="{{ sidebar.toggle }}" aria-label="{{ sidebar.toggleLabel }}" title="{{ sidebar.toggleLabel }}" aria-controls="forge-primary-navigation" aria-expanded="{{ sidebar.expanded }}">[[icon:sidebar-simple:24]]</button>
   <button class="forge-sidebar-brand" sc-camel-on-click="{{ sidebar.goOverview }}" aria-label="Forge 概览" title="Forge 概览">
     <span class="forge-sidebar-logo" aria-hidden="true">F</span>
     <span class="forge-sidebar-wordmark">Forge</span>
   </button>
-  <button class="forge-sidebar-collapse" sc-camel-on-click="{{ sidebar.toggle }}" aria-label="{{ sidebar.toggleLabel }}" title="{{ sidebar.toggleLabel }}" aria-controls="forge-primary-navigation" aria-expanded="{{ sidebar.expanded }}">[[icon:sidebar-simple:24]]</button>
   </div>
   <nav class="forge-sidebar-nav" id="forge-primary-navigation" aria-label="主导航">
     <button class="forge-sidebar-link" sc-camel-on-click="{{ sidebar.goOverview }}" aria-current="{{ sidebar.overviewCurrent }}" aria-label="概览" title="概览">[[icon:house:24]]<span>概览</span></button>
-    <button class="forge-sidebar-link" sc-camel-on-click="{{ sidebar.goRuns }}" aria-current="{{ sidebar.productionCurrent }}" aria-label="生产" title="生产">[[icon:cube:24]]<span>生产</span></button>
+    <button class="forge-sidebar-link" sc-camel-on-click="{{ sidebar.goRuns }}" aria-current="{{ sidebar.productionCurrent }}" aria-label="生产" title="生产">[[icon:tree-structure:20]]<span>生产</span></button>
     <button class="forge-sidebar-link" sc-camel-on-click="{{ sidebar.goReview }}" aria-current="{{ sidebar.reviewCurrent }}" aria-label="审核" title="审核">[[icon:shield-check:24]]<span>审核</span></button>
-    <button class="forge-sidebar-link" sc-camel-on-click="{{ sidebar.goDelivery }}" aria-current="{{ sidebar.deliveryCurrent }}" aria-label="交付" title="交付">[[icon:paper-plane-tilt:24]]<span>交付</span></button>
+    <button class="forge-sidebar-link" sc-camel-on-click="{{ sidebar.goDelivery }}" aria-current="{{ sidebar.deliveryCurrent }}" aria-label="交付" title="交付">[[icon:folder-simple:20]]<span>交付</span></button>
   </nav>
   [[sidebar-utilities]]
 </aside>
+<!-- forge-sidebar-floating-panels:start -->
+[[download-panel]]
+[[notification-panel]]
+<!-- forge-sidebar-floating-panels:end -->
 <button type="button" class="forge-sidebar-backdrop" sc-camel-on-click="{{ sidebar.close }}" aria-label="关闭展开导航" tabindex="-1"></button>
 <!-- forge-sidebar:end -->

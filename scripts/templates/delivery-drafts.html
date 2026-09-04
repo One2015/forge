@@ -1,0 +1,18 @@
+<!-- delivery-drafts:start -->
+<section class="forge-delivery-drafts" aria-label="数据单草稿">
+  <header><button type="button" class="forge-delivery-text-button" aria-expanded="{{ deliveryDrafts.expanded }}" aria-controls="forge-delivery-draft-list" sc-camel-on-click="{{ deliveryDrafts.toggle }}">草稿 <span>{{ deliveryDrafts.count }}</span></button><span>仅当前浏览器</span></header>
+  <sc-if value="{{ deliveryDrafts.error }}" hint-placeholder-val="{{ false }}"><div class="forge-delivery-draft-error"><p role="alert">{{ deliveryDrafts.error }}</p><button type="button" class="forge-delivery-text-button" sc-camel-on-click="{{ deliveryDrafts.reload }}">重新加载</button></div></sc-if>
+  <sc-if value="{{ deliveryDrafts.notice }}" hint-placeholder-val="{{ false }}"><p class="forge-delivery-help" role="status">{{ deliveryDrafts.notice }}</p></sc-if>
+  <div id="forge-delivery-draft-list" hidden="{{ !deliveryDrafts.expanded }}">
+    <sc-if value="{{ deliveryDrafts.loading }}" hint-placeholder-val="{{ false }}"><p class="forge-delivery-help" role="status">正在读取草稿…</p></sc-if>
+    <sc-if value="{{ deliveryDrafts.empty }}" hint-placeholder-val="{{ false }}"><p class="forge-delivery-help">还没有草稿。创建数据单时可先保存草稿，稍后继续填写。</p></sc-if>
+    <sc-for list="{{ deliveryDrafts.rows }}" as="draft" hint-placeholder-count="0">
+      <article class="forge-delivery-draft-row">
+        <div class="forge-delivery-draft-copy"><h3>{{ draft.name }}</h3><p>{{ draft.meta }}</p></div>
+        <div class="forge-delivery-draft-actions"><button type="button" class="forge-delivery-text-button" aria-label="{{ draft.resumeLabel }}" disabled="{{ draft.disabled }}" sc-camel-on-click="{{ draft.resume }}">继续编辑</button><sc-if value="{{ !draft.confirming }}" hint-placeholder-val="{{ true }}"><button type="button" class="forge-delivery-text-button" disabled="{{ draft.disabled }}" sc-camel-on-click="{{ draft.askDelete }}">删除</button></sc-if></div>
+        <sc-if value="{{ draft.confirming }}" hint-placeholder-val="{{ false }}"><div class="forge-delivery-draft-delete" role="group" aria-label="确认删除草稿"><span>删除后无法恢复。</span><button type="button" class="forge-delivery-secondary" disabled="{{ draft.disabled }}" sc-camel-on-click="{{ draft.cancelDelete }}">取消</button><button type="button" class="forge-delivery-secondary" disabled="{{ draft.disabled }}" sc-camel-on-click="{{ draft.delete }}">确认删除</button></div></sc-if>
+      </article>
+    </sc-for>
+  </div>
+</section>
+<!-- delivery-drafts:end -->

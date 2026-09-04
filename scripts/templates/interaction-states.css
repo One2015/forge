@@ -1,0 +1,67 @@
+/* interaction-states:start */
+:root{--forge-hover:#f0f1ed;--forge-pressed:#e6e8e1;--forge-selected-hover:#ffe6da;--forge-dark-hover:#383c35;--forge-dark-pressed:#444a40}
+/* A hover peek overlays content; only a click changes the reserved rail width. */
+.forge-app-shell[data-sidebar-rail="true"]{--forge-sidebar-width:64px}
+.forge-app-shell[data-sidebar-peeking="true"] .forge-sidebar{width:184px;box-shadow:6px 0 24px rgba(24,27,24,.12)}
+.forge-sidebar-header{padding-inline:16px}
+.forge-sidebar-collapse{order:1}
+.forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar-brand{display:flex;flex:none;justify-content:center;width:100%}
+.forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar-collapse{display:none}
+.forge-app-shell[data-sidebar-peeking="true"] :is(.forge-sidebar-popover,.forge-profile-panel){left:192px;width:min(400px,calc(100vw - 208px))}
+.forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile){position:relative;border-radius:6px;transition:none}
+.forge-sidebar .forge-sidebar-profile{border:0;padding:8px 12px;gap:8px}
+.forge-sidebar :is(.forge-sidebar-link[aria-current="page"],.forge-sidebar-tool[aria-expanded="true"],.forge-sidebar-profile[aria-expanded="true"]){background:var(--forge-nav-tint);color:var(--forge-nav-active);font-weight:500}
+.forge-sidebar :is(.forge-sidebar-tool,.forge-sidebar-profile)[aria-expanded="true"]{box-shadow:inset 0 0 0 1px #efbea9}
+.forge-sidebar-profile[aria-expanded="true"] .forge-sidebar-username{color:inherit}
+.forge-sidebar-tool[aria-expanded="true"] .forge-sidebar-tool-count{color:var(--forge-nav-active);background:var(--forge-panel)}
+.forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar-profile{padding-inline:0}
+.forge-app-shell .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile,.forge-sidebar-collapse):focus-visible{outline:2px solid var(--forge-accent);outline-offset:-3px}
+@media(hover:hover) and (pointer:fine){
+  .forge-sidebar :is(.forge-sidebar-link:not([aria-current="page"]),.forge-sidebar-tool:not([aria-expanded="true"]),.forge-sidebar-profile:not([aria-expanded="true"]),.forge-sidebar-collapse,.forge-sidebar-brand):hover{background:var(--forge-hover);color:var(--forge-text)}
+  .forge-sidebar :is(.forge-sidebar-link[aria-current="page"],.forge-sidebar-tool[aria-expanded="true"],.forge-sidebar-profile[aria-expanded="true"]):hover{background:var(--forge-selected-hover);color:var(--forge-nav-active)}
+  .forge-app-shell :is(.forge-delivery-secondary,.forge-delivery-icon-button,.forge-delivery-file-button,.forge-profile-upload,.forge-profile-task,.forge-profile-close,.forge-profile-edit-identity,.forge-task-link-secondary,.forge-task-link-cta,.forge-task-link-icon,.forge-task-link-edit,.forge-branch-close,.forge-sidebar-popover-close,.forge-life-append,.forge-branch-tree-actions button,.forge-feedback-attachment>button):not(:disabled):not([aria-disabled="true"]):not([data-disabled="true"]):hover{background:var(--forge-hover)}
+  .forge-app-shell :is(.forge-delivery-primary,.forge-profile-primary,.forge-task-link-primary,.forge-feedback-primary,.review-workbench-reject):not(:disabled):not([aria-disabled="true"]):hover{background:var(--forge-accent-hover);border-color:var(--forge-accent-hover)}
+  .forge-profile-editor-actions button:not(.forge-profile-primary):not(:disabled):hover,.review-workbench-approve:not(:disabled):hover{background:var(--forge-hover)}
+}
+.forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile,.forge-sidebar-collapse):active:not(:disabled){background:var(--forge-pressed)}
+.forge-app-shell :is(.forge-delivery-secondary,.forge-task-link-secondary):active:not(:disabled){background:var(--forge-pressed)}
+.forge-app-shell :is(button,label)[aria-busy="true"],.forge-app-shell label[data-disabled="true"] input{cursor:wait}
+.forge-app-shell :is(button,input,textarea,select):disabled{cursor:not-allowed}
+.forge-app-shell :is(.forge-delivery-icon-button,.forge-delivery-file-button,.forge-profile-upload)[data-disabled="true"],.forge-app-shell :is(.forge-delivery-icon-button,.forge-task-link-secondary):disabled{background:var(--forge-disabled-bg);color:var(--forge-disabled-text)}
+/* Loading reports actual work, without decorative spinners or invented percentages. */
+.forge-loading-status{font:12px/18px var(--forge-font);color:var(--forge-muted)}
+@media(max-width:760px){.forge-sidebar-header{padding-inline:12px}.forge-app-shell[data-sidebar-peeking="true"] .forge-sidebar{width:64px;box-shadow:none}.forge-app-shell[data-sidebar-peeking="true"] :is(.forge-sidebar-popover,.forge-profile-panel){left:72px;width:calc(100vw - 84px)}}
+/* Keep icon geometry fixed and reveal the panel without reflowing its contents. */
+@media(min-width:761px) and (hover:hover) and (pointer:fine){
+  .forge-app-shell .forge-sidebar{width:184px;clip-path:inset(0 -32px 0 0)}
+  .forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar{clip-path:inset(0 120px 0 0)}
+  .forge-app-shell .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile){clip-path:inset(0 round 6px)}
+  .forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile){clip-path:inset(0 120px 0 0 round 6px)}
+  .forge-sidebar::after{content:"";position:absolute;inset:0 -1px 0 auto;width:1px;background:#e5e5e5;pointer-events:none;transform:translateX(0)}
+  .forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar::after{transform:translateX(-120px)}
+  .forge-app-shell[data-sidebar-collapsed] .forge-sidebar-brand{display:flex;flex:1;justify-content:flex-start;width:auto}
+  .forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar-collapse{display:flex}
+  .forge-app-shell[data-sidebar-collapsed="true"] :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label){display:block}
+  .forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar-profile-copy{display:flex}
+  .forge-app-shell[data-sidebar-collapsed="true"] :is(.forge-sidebar-link,.forge-sidebar-tool){justify-content:flex-start;padding-inline:12px}
+  .forge-app-shell[data-sidebar-collapsed] .forge-sidebar-profile{justify-content:flex-start;padding-inline:8px;gap:12px}
+  .forge-app-shell[data-sidebar-collapsed] .forge-sidebar-tool-count{position:static;top:auto;right:auto;min-width:18px;width:auto;height:18px;padding:0 5px;font-size:12px;line-height:18px;border-radius:5px;background:var(--forge-border)}
+  .forge-app-shell[data-sidebar-collapsed] .forge-sidebar-tool-count-unread{background:var(--forge-accent-soft)}
+  .forge-sidebar :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){opacity:1;translate:0;visibility:visible}
+  .forge-app-shell[data-sidebar-collapsed="true"] :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){opacity:0;translate:-4px;visibility:hidden}
+  .forge-sidebar-tool:has(.forge-sidebar-tool-count)::after{content:"";position:absolute;left:32px;top:6px;width:5px;height:5px;border-radius:50%;background:var(--forge-muted);opacity:0;pointer-events:none}
+  .forge-sidebar-tool:has(.forge-sidebar-tool-count-unread)::after{background:var(--forge-accent)}
+  .forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar-tool::after{opacity:1}
+  @media(prefers-reduced-motion:no-preference){
+    html:not([data-forge-input="keyboard"]) .forge-app-shell .forge-sidebar{transition:clip-path 150ms cubic-bezier(.22,1,.36,1),box-shadow 150ms ease}
+    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar{transition-duration:190ms}
+    html:not([data-forge-input="keyboard"]) .forge-sidebar::after{transition:transform 150ms cubic-bezier(.22,1,.36,1)}
+    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar::after{transition-duration:190ms}
+    html:not([data-forge-input="keyboard"]) .forge-sidebar :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){transition:opacity 120ms ease,translate 150ms cubic-bezier(.22,1,.36,1),visibility 0s 150ms}
+    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){transition-delay:0s}
+    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed] .forge-sidebar :is(button.forge-sidebar-link,button.forge-sidebar-tool,button.forge-sidebar-profile){transition:clip-path 150ms cubic-bezier(.22,1,.36,1),background-color 120ms ease,color 120ms ease,transform 120ms ease}
+    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar :is(button.forge-sidebar-link,button.forge-sidebar-tool,button.forge-sidebar-profile){transition-duration:190ms,120ms,120ms,120ms}
+    html:not([data-forge-input="keyboard"]) .forge-sidebar-tool::after{transition:opacity 100ms ease}
+  }
+}
+/* interaction-states:end */

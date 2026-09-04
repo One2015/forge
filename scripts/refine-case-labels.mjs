@@ -25,13 +25,19 @@ if (template.includes('<!-- case-labels:start -->')) {
 }
 
 const dataStart = template.indexOf('            sampleTabs:');
-const dataEnd = template.indexOf('            canAppendRework:', dataStart);
+const dataEnd = [
+  template.indexOf('            canAppendRework:', dataStart),
+  template.indexOf('            ...this.sheetDetailActionValues', dataStart)
+].filter(index => index >= 0).sort((a, b) => a - b)[0] ?? -1;
 if (dataStart < 0 || dataEnd < 0) throw new Error('Missing sample label data');
 template = template.slice(0, dataStart) + `            sampleTabs: [['good', 'Good Case'], ['bad', 'Bad Case']].map(([kind, label]) => ({
               kind, label, good: kind === 'good', bad: kind === 'bad', selected: (st.sampleLabels || {})[r[2]] === kind,
               pick: e => {
                 e.stopPropagation();
-                this.setState({ sampleLabels: Object.assign({}, this.state.sampleLabels || {}, { [r[2]]: kind }) });
+                const labels = Object.assign({}, this.state.sampleLabels || {});
+                if (labels[r[2]] === kind) delete labels[r[2]];
+                else labels[r[2]] = kind;
+                this.setState({ sampleLabels: labels });
               }
             })),
 ` + template.slice(dataEnd);

@@ -1,0 +1,32 @@
+/* panel-motion:start */
+:root{--forge-motion-ease:cubic-bezier(.16,1,.3,1);--forge-panel-enter:160ms;--forge-panel-exit:125ms;--forge-dialog-duration:200ms}
+/* Utility contents stay mounted so a reversed transition keeps its current position. */
+.forge-sidebar-popover[data-open]{opacity:0;visibility:hidden;pointer-events:none;transform-origin:0 var(--forge-panel-origin-y,100%)}
+.forge-sidebar-popover[data-open="true"]{opacity:1;visibility:visible;pointer-events:auto}
+.forge-profile-panel{transform-origin:0 var(--forge-panel-origin-y,100%)}
+.forge-profile-panel:not(:popover-open),.forge-task-link-dialog:not([open]){pointer-events:none}
+.forge-task-link-dialog{transform-origin:50% 50%}
+/* Reduced motion and keyboard use retain immediate, accessible state changes. */
+@media(prefers-reduced-motion:no-preference){
+  html:not([data-forge-input="keyboard"]) .forge-sidebar-popover[data-open]{transform:scale(.95);transition:transform var(--forge-panel-exit) var(--forge-motion-ease),opacity var(--forge-panel-exit) var(--forge-motion-ease),visibility 0s var(--forge-panel-exit)}
+  html:not([data-forge-input="keyboard"]) .forge-sidebar-popover[data-open="true"]{transform:scale(1);transition-duration:var(--forge-panel-enter),var(--forge-panel-enter),0s;transition-delay:0s}
+  @supports (transition-behavior:allow-discrete){
+    html:not([data-forge-input="keyboard"]) .forge-profile-panel{opacity:0;transform:scale(.95);transition:transform var(--forge-panel-exit) var(--forge-motion-ease),opacity var(--forge-panel-exit) var(--forge-motion-ease),display var(--forge-panel-exit) allow-discrete,overlay var(--forge-panel-exit) allow-discrete}
+    html:not([data-forge-input="keyboard"]) .forge-profile-panel:popover-open{opacity:1;transform:scale(1);transition-duration:var(--forge-panel-enter)}
+    html:not([data-forge-input="keyboard"]) .forge-task-link-dialog{opacity:0;transform:scale(.95);transition:transform var(--forge-dialog-duration) var(--forge-motion-ease),opacity var(--forge-dialog-duration) var(--forge-motion-ease),display var(--forge-dialog-duration) allow-discrete,overlay var(--forge-dialog-duration) allow-discrete}
+    html:not([data-forge-input="keyboard"]) .forge-task-link-dialog[open]{opacity:1;transform:scale(1)}
+    html:not([data-forge-input="keyboard"]) .forge-task-link-dialog::backdrop{opacity:0;transition:opacity var(--forge-dialog-duration) var(--forge-motion-ease),display var(--forge-dialog-duration) allow-discrete,overlay var(--forge-dialog-duration) allow-discrete}
+    html:not([data-forge-input="keyboard"]) .forge-task-link-dialog[open]::backdrop{opacity:1}
+    @starting-style{
+      html:not([data-forge-input="keyboard"]) .forge-profile-panel:popover-open,
+      html:not([data-forge-input="keyboard"]) .forge-task-link-dialog[open]{opacity:0;transform:scale(.95)}
+      html:not([data-forge-input="keyboard"]) .forge-task-link-dialog[open]::backdrop{opacity:0}
+    }
+  }
+}
+/* A resize tracks the pointer directly; it has no release animation or momentum. */
+.forge-dataset-resizer{position:relative;touch-action:none;user-select:none;outline-offset:-2px}
+.forge-dataset-resizer:focus-visible{outline:2px solid var(--forge-accent)}
+.forge-dataset-resizer:focus-visible>div{background:var(--forge-accent)!important}
+@media(pointer:coarse){.forge-dataset-resizer::before{content:"";position:absolute;inset:0 -17.5px}.forge-profile-close{width:44px!important;min-height:44px}}
+/* panel-motion:end */

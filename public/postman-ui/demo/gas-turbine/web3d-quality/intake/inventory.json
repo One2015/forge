@@ -1,0 +1,5 @@
+{
+  "valid": true,
+  "mock": true,
+  "preview": "dist/index.html"
+}

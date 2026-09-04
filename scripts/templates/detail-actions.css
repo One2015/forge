@@ -8,9 +8,11 @@
 .forge-item-id-caption{margin-top:6px;gap:6px;font:12px/20px var(--forge-font);color:var(--forge-muted)}
 .forge-detail-footer.forge-sheet-actions{grid-column:2;grid-row:2;display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid var(--forge-border);background:var(--forge-panel);flex-wrap:wrap}
 .forge-detail-footer .forge-detail-action{flex:1;min-width:0;min-height:36px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;border:1px solid var(--forge-control-border);border-radius:6px;background:var(--forge-panel);color:var(--forge-text);font:500 13px/20px var(--forge-font);cursor:pointer}
-.forge-detail-footer .forge-detail-approve{color:var(--forge-success);border-color:#9ac9a7}
+.forge-detail-footer .forge-detail-approve{background:var(--forge-panel);color:var(--forge-success);border-color:#9ac9a7}
 .forge-detail-footer .forge-detail-primary{background:var(--forge-accent);border-color:var(--forge-accent);color:#fff}
+.forge-detail-footer .forge-detail-secondary{background:var(--forge-accent-soft);color:var(--forge-accent);border-color:var(--forge-accent)}
 .forge-detail-footer .forge-detail-download{flex:0 0 40px;width:40px;padding:0}
+.forge-detail-footer .forge-detail-download{background:var(--forge-subtle);color:var(--forge-muted)}
 .forge-detail-footer .forge-detail-action:disabled{color:var(--forge-disabled-text);background:var(--forge-disabled-bg);border-color:var(--forge-border);cursor:not-allowed}
 .forge-detail-review-status{display:flex;align-items:baseline;gap:8px;flex:0 0 100%;font:12px/18px var(--forge-font);color:var(--forge-muted)}
 .forge-detail-review-status>span{flex:1;min-width:0;overflow-wrap:anywhere}
@@ -25,7 +27,26 @@
 .forge-sheet-appended-round p{margin:6px 0 0;overflow-wrap:anywhere}
 .forge-sheet-appended-who{font-size:12px;color:var(--forge-muted)}
 .forge-task-link-edit:focus-visible,.forge-item-id-link:focus-visible,.forge-detail-action:focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}
-@media(hover:hover){.forge-task-link-edit:hover{background:var(--forge-subtle);color:var(--forge-accent)}.forge-detail-footer .forge-detail-action:hover:not(:disabled){background:var(--forge-subtle)}.forge-detail-footer .forge-detail-primary:hover:not(:disabled){background:var(--forge-accent-hover);border-color:var(--forge-accent-hover)}}
-@media(max-width:760px){.forge-detail-footer.forge-sheet-actions{padding:12px 16px}.forge-detail-footer .forge-detail-download{flex-basis:44px;width:44px}}
+/* Neutral state colors must never match the semantic orange actions. */
+@media(hover:hover) and (pointer:fine){.forge-task-link-edit:hover{background:var(--forge-subtle);color:var(--forge-accent)}.forge-detail-footer .forge-detail-action:not(.forge-detail-primary):not(.forge-detail-secondary):hover:not(:disabled){background:var(--forge-hover)}.forge-detail-footer .forge-detail-secondary:hover:not(:disabled){background:var(--forge-selected-hover);border-color:var(--forge-accent-hover);color:var(--forge-accent-hover)}.forge-detail-footer .forge-detail-download:hover:not(:disabled){color:var(--forge-text)}.forge-detail-footer .forge-detail-primary:hover:not(:disabled){background:var(--forge-accent-hover);border-color:var(--forge-accent-hover);color:#fff}}
+.forge-detail-footer .forge-detail-action:active:not(:disabled){box-shadow:inset 0 2px 3px rgba(24,27,24,.12)}
+.forge-detail-footer .forge-detail-action:not(.forge-detail-primary):not(.forge-detail-secondary):active:not(:disabled){background:var(--forge-pressed)}
+.forge-detail-footer .forge-detail-secondary:active:not(:disabled){background:var(--forge-selected-hover);border-color:var(--forge-accent-hover);color:var(--forge-accent-hover)}
+.forge-detail-footer .forge-detail-primary:active:not(:disabled){background:var(--forge-accent-hover);border-color:var(--forge-accent-hover);color:#fff}
+.forge-rework-confirm-overlay{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(24,27,24,.38)}
+.forge-rework-confirm-dialog{width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:22px 24px;border-radius:10px;background:var(--forge-panel);color:var(--forge-text);box-shadow:0 18px 48px rgba(24,27,24,.2)}
+.forge-rework-confirm-dialog h2{margin:0;font:600 17px/24px var(--forge-font)}
+.forge-rework-confirm-dialog>p{margin:8px 0 0;color:var(--forge-muted);font:400 13px/20px var(--forge-font)}
+.forge-rework-confirm-dialog dl{display:grid;grid-template-columns:88px minmax(0,1fr);gap:7px 12px;margin:18px 0 0;padding:14px 16px;border:1px solid var(--forge-border);border-radius:7px;background:var(--forge-subtle);font:400 13px/20px var(--forge-font)}
+.forge-rework-confirm-dialog dt{color:var(--forge-muted)}
+.forge-rework-confirm-dialog dd{min-width:0;margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.forge-rework-confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.forge-rework-confirm-button{display:inline-flex;align-items:center;justify-content:center;min-width:96px;min-height:38px;padding:8px 14px;border:1px solid var(--forge-control-border);border-radius:6px;background:var(--forge-panel);color:var(--forge-text);font:500 13px/20px var(--forge-font);cursor:pointer}
+.forge-rework-confirm-primary{border-color:var(--forge-accent);background:var(--forge-accent);color:#fff}
+.forge-rework-confirm-button:disabled{border-color:var(--forge-border);background:var(--forge-disabled-bg);color:var(--forge-disabled-text);cursor:not-allowed}
+.forge-rework-confirm-button:focus-visible{outline:2px solid var(--forge-accent);outline-offset:2px}
+@media(hover:hover) and (pointer:fine){.forge-rework-confirm-button:not(.forge-rework-confirm-primary):hover:not(:disabled){background:var(--forge-hover)}.forge-rework-confirm-primary:hover:not(:disabled){border-color:var(--forge-accent-hover);background:var(--forge-accent-hover)}}
+@media(max-width:760px){.forge-detail-footer.forge-sheet-actions{padding:12px 16px}.forge-detail-footer .forge-detail-download{flex-basis:44px;width:44px}.forge-rework-confirm-dialog{padding:20px}.forge-rework-confirm-dialog dl{grid-template-columns:76px minmax(0,1fr)}}
+@media(max-width:380px){.forge-rework-confirm-actions{flex-direction:column-reverse}.forge-rework-confirm-button{width:100%}}
 @media(pointer:coarse){.forge-task-link-edit{flex-basis:44px;width:44px;height:44px}.forge-detail-footer .forge-detail-action{min-height:44px}.forge-detail-footer .forge-detail-download{flex-basis:44px;width:44px}}
 /* detail-actions:end */

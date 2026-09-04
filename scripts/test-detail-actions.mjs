@@ -51,11 +51,33 @@ test('a new candidate never inherits the final version approval or append contro
   const c=component();
   for(const id of [candidateId,pendingId]) {
     const p=pick(c,id); assert(p.needsReview); assert(!p.approvedDetail);
-    assert.equal(p.state,'待审核候选'); assert(p.cannotAppendRework);
+    assert.equal(p.state,'待审核候选'); assert.equal(p.showState, false); assert(p.cannotAppendRework);
     assert.match(p.previewCaption,/待审核候选/);
     p.appendRework(click); assert(!c.state.sheetReworkAsk);
     p.download(click); assert(!c.state.dlQueued);
   }
+});
+
+test('pending details keep rework primary, approval secondary and confirm before mutating review state', () => {
+  const review = footer.match(/<sc-if value="{{ sheet.pick.needsReview }}"[^>]*>([\s\S]*?)<\/sc-if>\s*<\/sc-if>/)?.[1];
+  assert(review); assert(review.indexOf('forge-detail-approve') < review.indexOf('forge-detail-primary'));
+  assert.match(review, /forge-detail-approve[^>]*>通过审核<\/button>/);
+  assert.match(review, /forge-detail-primary[^>]*>要求返工<\/button>/);
+  const c = component(); let p = pick(c, pendingId);
+  p.rework(click); p = c.renderVals().sheet.pick;
+  p.onReworkText({target:{value:'  修复材质并保持现有构图  '}}); p = c.renderVals().sheet.pick;
+  const before = JSON.stringify(c.state.reviewDecisions);
+  p.submitRework(click); p = c.renderVals().sheet.pick;
+  assert(p.reworkConfirm.open); assert.equal(JSON.stringify(c.state.reviewDecisions), before); assert(!c.state.repairRuns);
+  assert(p.reworkConfirm.fields.some(field => field.k === '返工说明' && field.v === '修复材质并保持现有构图'));
+  p.reworkConfirm.cancel(click); p = c.renderVals().sheet.pick;
+  assert(!p.reworkConfirm.open); assert(p.reworkFormOpen); assert.equal(p.reworkText, '  修复材质并保持现有构图  ');
+  p.submitRework(click); p = c.renderVals().sheet.pick;
+  const decisionKey = c.state.sheetReworkConfirmAsk.reviewKey;
+  p.reworkConfirm.confirm(click);
+  const run = Object.values(c.state.repairRuns)[0];
+  assert.equal(run.note, '修复材质并保持现有构图'); assert.equal(c.state.reviewDecisions[decisionKey], 'rework');
+  assert(!c.renderVals().sheet.pick.reworkFormOpen); assert(!c.state.sheetReworkConfirmAsk);
 });
 
 test('append rework stays inline, requires a note and preserves the final and approval', () => {
@@ -129,6 +151,8 @@ test('small actions keep fixed icon targets, truncating IDs, focus and disabled 
   assert(css.includes('text-overflow:ellipsis'));
   assert(css.includes('.forge-task-link-edit:focus-visible'));
   assert(css.includes('.forge-detail-action:disabled'));
+  assert(css.includes('.forge-rework-confirm-dialog'));
+  assert(css.includes('.forge-rework-confirm-primary'));
   assert(css.includes('@media(pointer:coarse)'));
   assert(css.includes('.forge-detail-download{flex:0 0 40px;width:40px;padding:0}'));
   assert(css.includes('@media(max-width:760px)'));

@@ -1,0 +1,69 @@
+.forge-postman .pm-item-tabs{margin:22px 0 0}
+.forge-postman .pm-explorer-context{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:16px 0;color:var(--pm-muted);font-size:12px;overflow-wrap:anywhere}
+.forge-postman .pm-explorer-context code{font-size:11px;min-width:0;overflow-wrap:anywhere}
+html:has(.pm-page-itemlife){scrollbar-gutter:stable}
+.forge-postman .pm-page-itemlife{box-sizing:border-box;min-width:0;width:100%;max-width:100%}
+.forge-postman .pm-item-pipeline{margin-top:16px}
+.forge-postman .pm-pipeline-context{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;border-bottom:1px solid var(--pm-border);flex-wrap:wrap}
+.forge-postman .pm-pipeline-context>div{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;min-width:0}
+.forge-postman :is(.pm-pipeline-context,.pm-explorer-context) a{color:var(--pm-link);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.forge-postman .pm-pipeline-context code{font:11px/1.6 var(--pm-mono);color:var(--pm-muted);overflow-wrap:anywhere}
+.forge-postman .pm-pipeline-context .pm-pipeline-edit-link{font-weight:400;white-space:nowrap}
+.forge-postman .pm-node-kind{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--pm-control);background:var(--pm-subtle);border-radius:4px;padding:3px 7px;font:500 11px/16px var(--pm-font);color:var(--pm-muted)}
+.forge-postman .pm-node-kind::before{content:'ƒ';font:600 12px var(--pm-mono)}
+.forge-postman .pm-node-kind[data-kind=AGENT]::before{content:'✦'}
+.forge-postman .pm-node-kind[data-kind=REVIEW]::before{content:'✓'}
+.forge-postman .pm-node-kind[data-kind=LLM]::before{content:'◇'}
+.forge-postman .pm-pipeline-mode{font-size:12px;color:var(--pm-muted);white-space:nowrap}
+.forge-postman .pm-pipeline-editor[data-pm-readonly=true] [role=checkbox]{display:none!important}
+.forge-postman :is(.pm-item-pipeline,.pm-item-files,.pm-item-prompts,.pm-item-trace){min-width:0;border:1px solid var(--pm-border);border-radius:4px;background:var(--pm-canvas)}
+.forge-postman .pm-item-pipeline>.pm-explorer-note{padding:0 16px}
+.forge-postman .pm-explorer-note{color:var(--pm-muted);font-size:13px;line-height:1.65;margin:12px 0}
+.forge-postman .pm-explorer-empty{margin:0;padding:40px 24px;color:var(--pm-muted);font-size:13px;line-height:1.8}
+.forge-postman .pm-item-graph{min-width:0;max-width:100%;overflow:auto;background:var(--pm-subtle);scrollbar-width:thin}
+.forge-postman .pm-item-graph-track{display:flex;align-items:center;width:max-content;min-width:100%;box-sizing:border-box;padding:36px 24px}
+.forge-postman .pm-item-graph-node{display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:220px;min-height:114px;height:auto!important;flex:none;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);padding:14px!important;text-align:left;color:var(--pm-text)}
+.forge-postman .pm-item-graph-node>span{font-size:11px;color:var(--pm-muted)}
+.forge-postman .pm-item-graph-node strong{font:600 13px/1.5 var(--pm-mono);overflow-wrap:anywhere}
+.forge-postman .pm-item-graph-node small{font-size:12px;color:var(--pm-muted)}
+.forge-postman .pm-item-graph-node[aria-pressed=true]{border-color:var(--pm-brand);background:var(--pm-subtle)}
+.forge-postman .pm-item-edge{width:32px;height:1px;background:var(--pm-control);flex:none}
+.forge-postman :is(.pm-node-detail,.pm-node-config){padding:20px;min-width:0;border-top:1px solid var(--pm-border)}
+.forge-postman .pm-node-config{flex-basis:100%;padding:16px 0 0}
+.forge-postman .pm-node-detail header,.forge-postman .pm-item-prompts header,.forge-postman .pm-file-layout header,.forge-postman .pm-item-trace header{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+.forge-postman .pm-node-detail header button{margin-left:auto}
+.forge-postman :is(.pm-node-detail,.pm-node-config,.pm-item-prompts) :is(h2,h3){font-size:14px;margin:0;font-weight:600}
+.forge-postman .pm-node-detail h3{margin-top:24px;margin-bottom:12px}
+.forge-postman .pm-node-field{margin-top:14px;min-width:0}
+.forge-postman .pm-node-field>span{font:12px/1.5 var(--pm-mono);color:var(--pm-muted)}
+.forge-postman :is(.pm-node-detail,.pm-node-config,.pm-file-layout,.pm-item-prompts,.pm-item-trace) pre{font:12px/1.7 var(--pm-mono);white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0;padding:14px;background:var(--pm-subtle);border:1px solid var(--pm-border);border-radius:4px;min-width:0}
+.forge-postman .pm-attempt{border:1px solid var(--pm-border);padding:12px;margin:8px 0;border-radius:4px}
+.forge-postman .pm-attempt summary{cursor:pointer;font-size:13px}
+.forge-postman .pm-attempt summary span{margin-left:16px;color:var(--pm-muted)}
+.forge-postman .pm-file-layout{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:400px}
+.forge-postman .pm-file-layout aside{border-right:1px solid var(--pm-border);padding:16px;min-width:0}
+.forge-postman .pm-file-layout aside input{width:100%;box-sizing:border-box;margin:14px 0}
+.forge-postman .pm-file-layout nav{display:flex;flex-direction:column;gap:4px;max-height:460px;overflow:auto}
+.forge-postman .pm-file-layout nav button{height:auto!important;min-height:36px;display:block;text-align:left;padding:8px!important;white-space:normal;overflow-wrap:anywhere;background:transparent;border:0;border-radius:4px;font:12px/1.5 var(--pm-mono)}
+.forge-postman .pm-file-layout nav button[aria-pressed=true]{background:var(--pm-selected);color:var(--pm-text)}
+.forge-postman .pm-file-layout article{min-width:0;padding:16px}
+.forge-postman .pm-file-layout article header{justify-content:space-between;font-size:12px;overflow-wrap:anywhere}
+.forge-postman .pm-file-layout article code{min-width:0;overflow-wrap:anywhere}
+.forge-postman .pm-file-layout article img{max-width:100%;display:block;margin:20px auto;max-height:500px;object-fit:contain}
+.forge-postman .pm-item-prompts>article,.forge-postman .pm-item-prompts>h2,.forge-postman .pm-item-prompts>.pm-explorer-note,.forge-postman .pm-item-prompts>pre{margin:20px}
+.forge-postman .pm-item-trace ol{list-style:none;padding:0 20px;margin:0}
+.forge-postman .pm-item-trace li{padding:20px 0;border-bottom:1px solid var(--pm-border)}
+.forge-postman .pm-item-trace li:last-child{border:0}
+.forge-postman .pm-item-trace header{font-size:13px}
+.forge-postman .pm-item-trace :is(time,code){font-size:12px;color:var(--pm-muted)}
+@media(max-width:760px){
+ .forge-postman .pm-file-layout{grid-template-columns:minmax(0,1fr)}
+ .forge-postman .pm-file-layout aside{border-right:0;border-bottom:1px solid var(--pm-border)}
+ .forge-postman .pm-file-layout nav{max-height:180px}
+ .forge-postman .pm-node-detail{padding:16px}
+ .forge-postman .pm-item-graph-track{padding:24px 16px}
+ .forge-postman .pm-item-tabs button{white-space:nowrap}
+}
+.forge-postman .pm-file-layout aside input{height:32px;padding:6px 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);font:13px/20px var(--pm-font)}
+.forge-postman .pm-node-detail header button{height:32px;padding:0 12px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);font:13px var(--pm-font)}
+@media(max-width:760px){.forge-postman .pm-file-layout aside input{height:44px;font-size:16px}.forge-postman .pm-node-detail header button{min-height:44px}}

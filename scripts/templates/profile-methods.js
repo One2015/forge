@@ -74,12 +74,19 @@
   }
 
   profileSkills(tasks = this.profileTasks()) {
-    const result = new Map();
+    const result = new Map(), mine = this.personalProfileSkills(), linked = new Map();
     this.profileDeliveryTasks(tasks).forEach(task => (this.deliverySheet(task.key)?.skills || []).forEach(skill => {
+      const personal = mine.find(value => value.id === skill.personalSkillId && value.owner === skill.owner);
+      if (personal) {
+        const sheets = linked.get(personal.id) || new Map();
+        sheets.set(task.key, task.title); linked.set(personal.id, sheets);
+        return;
+      }
       const bindingId = task.key + ':' + skill.id;
       result.set(bindingId, Object.assign({}, skill, { bindingId, sheetKey: task.key, sheetName: task.title, taskKey: task.key }));
     }));
-    const personal = this.personalProfileSkills().map(skill => Object.assign({}, skill, { personal: true, bindingId: 'personal:' + skill.id, sheetName: '个人 Skill' }));
+    const personal = mine.map(skill => Object.assign({}, skill, { personal: true, bindingId: 'personal:' + skill.id,
+      sheetName: '个人 Skill' + (linked.get(skill.id)?.size ? ' · 已关联 ' + linked.get(skill.id).size + ' 张数据单' : '') }));
     return personal.concat(Array.from(result.values()));
   }
 
@@ -163,7 +170,10 @@
     const patch = { personalSkills: (this.state.personalSkills || []).filter(skill => !(skill.owner === draft.owner && skill.id === draft.editId)).concat(additions),
       profileSkillDraft: null, profileSkillNotice: draft.targetSheet ? 'Skill 已保存并关联到数据单。' : 'Skill 已保存，可稍后关联到数据单。' };
     if (draft.targetSheet) {
-      const sheet = this.deliverySheet(draft.targetSheet), skills = (sheet.skills || []).concat(additions.map(skill => Object.assign({}, skill, { id: 'bound-' + skill.id + '-' + (this._deliverySequence = (this._deliverySequence || 0) + 1) })));
+      const sheet = this.deliverySheet(draft.targetSheet), skills = (sheet.skills || []).concat(additions.map(skill => Object.assign({}, skill, {
+        id: 'bound-' + skill.id + '-' + (this._deliverySequence = (this._deliverySequence || 0) + 1),
+        personalSkillId: skill.id, libraryKey: 'personal:' + skill.owner + ':' + skill.id
+      })));
       const custom = (this.state.deliverySheets || []).slice(), index = custom.findIndex(value => value.key === sheet.key);
       if (index >= 0) { custom[index] = Object.assign({}, custom[index], { skills }); patch.deliverySheets = custom; }
       else patch.deliveryOverrides = Object.assign({}, this.state.deliveryOverrides, { [sheet.key]: Object.assign({}, this.state.deliveryOverrides?.[sheet.key], { skills }) });
@@ -204,7 +214,8 @@
   syncProfilePopover(event) {
     const open = event.newState === 'open';
     const patch = { profileOpen: open };
-    if (!open) patch.profileIdentityDraft = null;
+    if (!open) { this.preserveProfileExit(); patch.profileIdentityDraft = null; }
+    else this.cancelPanelCleanup('profile');
     if (open) {
       patch.dlOpen = false; patch.notifOpen = false;
       if (typeof window !== 'undefined' && window.matchMedia?.('(max-width:760px)').matches) patch.sidebarCollapsed = true;
@@ -213,6 +224,7 @@
   }
 
   closeProfile() {
+    this.preserveProfileExit();
     if (typeof document !== 'undefined') {
       const panel = document.getElementById('forge-profile-panel');
       if (panel?.matches(':popover-open')) panel.hidePopover();
@@ -242,7 +254,7 @@
     else this.openProfileDelivery(skill.sheetKey);
   }
 
-  profileValues() {
+  buildProfileValues() {
     const identity = this.profileIdentity(), work = this.state.profileOpen ? this.profileTasks() : [], tasks = this.state.profileOpen ? this.profileDeliveryTasks(work) : [], skills = this.state.profileOpen ? this.profileSkills(work) : [];
     const draft = this.state.profileSkillDraft?.owner === identity.accountName ? this.state.profileSkillDraft : null;
     const issue = draft ? this.profileSkillDraftIssue() : '';

@@ -41,11 +41,11 @@ const utilityPanel = (name, id, label) => {
   return panel;
 };
 const utilities = fs.readFileSync(new URL('./templates/forge-sidebar-utilities.html', import.meta.url), 'utf8')
-  .replace('[[download-panel]]', utilityPanel('dl', 'forge-download-panel', '下载任务'))
-  .replace('[[notification-panel]]', utilityPanel('notif', 'forge-notification-panel', '消息通知'))
   .replace('[[profile-panel]]', () => fs.readFileSync(new URL('./templates/forge-profile.html', import.meta.url), 'utf8'));
 const sidebar = fs.readFileSync(new URL('./templates/forge-sidebar.html', import.meta.url), 'utf8')
   .replace('[[sidebar-utilities]]', utilities.trim())
+  .replace('[[download-panel]]', utilityPanel('dl', 'forge-download-panel', '下载任务'))
+  .replace('[[notification-panel]]', utilityPanel('notif', 'forge-notification-panel', '消息通知'))
   .replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, icon);
 const css = fs.readFileSync(new URL('./templates/forge-sidebar.css', import.meta.url), 'utf8');
 

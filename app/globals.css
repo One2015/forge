@@ -14,7 +14,7 @@ body {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #fbfaf8;
+  background: #ffffff;
 }
 
 .site-shell,
@@ -31,7 +31,7 @@ body {
 .forge-frame {
   display: block;
   border: 0;
-  background: #fbfaf8;
+  background: #ffffff;
 }
 
 .fallback-link {

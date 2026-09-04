@@ -7,7 +7,7 @@
       { id: 'demo-web-review', name: 'Web 界面检查', command: 'web review', description: '检查页面布局、响应式表现和交互状态。', content: '# Web 界面检查（示例）\n\n检查主要任务能否完成、内容是否溢出、文字是否可读、交互是否有明确状态。分别记录桌面与窄屏的观察证据。未经实际操作的功能标注为未验证，不假设已经通过。' }
     ].map(skill => Object.assign({}, skill, { version: '1.0', example: true }));
     const catalog = Array.isArray(this.props.platformSkills) ? this.props.platformSkills : examples;
-    return catalog.filter(skill => skill && skill.id && skill.available !== false);
+    return catalog.concat(this.state.createdPlatformSkills || []).filter(skill => skill && skill.id && skill.available !== false);
   }
 
   deliverySkillIdentity(skill) {
@@ -26,8 +26,15 @@
         version: String(skill.version || ''), size: new TextEncoder().encode(content).length,
         sourceFile: skill.sourceFile || skill.filename || 'SKILL.md' }));
     };
-    this.platformSkillCatalog().forEach(skill => add(skill, 'platform:' + skill.id, skill.example ? '平台示例' : '平台 Skill'));
-    this.personalProfileSkills().forEach(skill => add(skill, 'personal:' + skill.owner + ':' + skill.id, '我的 Skill'));
+    const mine = this.personalProfileSkills(), platform = this.platformSkillCatalog();
+    platform.forEach(skill => {
+      const personal = mine.find(value => value.content === skill.content && this.skillCommand(value.command).toLowerCase() === this.skillCommand(skill.command).toLowerCase());
+      add(Object.assign({}, skill, personal ? { personalSkillId: personal.id, owner: personal.owner } : {}), 'platform:' + skill.id, skill.example ? '平台示例' : '平台 Skill');
+    });
+    mine.forEach(skill => {
+      if (platform.some(value => value.content === skill.content && this.skillCommand(value.command).toLowerCase() === this.skillCommand(skill.command).toLowerCase())) return;
+      add(Object.assign({}, skill, { personalSkillId: skill.id }), 'personal:' + skill.owner + ':' + skill.id, '我的 Skill');
+    });
     this.profileDeliveryTasks().forEach(task => (this.deliverySheet(task.key)?.skills || []).forEach(skill => {
       add(skill, this.deliverySkillIdentity(skill) || 'sheet:' + task.key + ':' + skill.id, '数据单 · ' + task.title);
     }));
@@ -39,9 +46,9 @@
       (value.content === skill.content && this.skillCommand(value.command).toLowerCase() === skill.command.toLowerCase()));
   }
 
-  toggleDeliveryLibrarySkill(key) {
+  toggleDeliveryLibrarySkill(key, editorId = null) {
     const editor = this.state.deliveryEditor;
-    if (!editor || editor.skillLoading) return;
+    if (!this.deliverySkillActorMatches(editor) || editor.skillLoading || (editorId && editorId !== editor.id)) return;
     const skill = this.deliverySkillLibrary().find(value => value.libraryKey === key);
     if (!skill) { this.patchDeliveryEditor({ skillError: '此 Skill 已不可用，请搜索其他 Skill。' }); return; }
     const selected = this.deliverySkillSelection(skill, editor);
@@ -58,44 +65,61 @@
     });
     this.patchDeliveryEditor({ skills: editor.skills.concat(binding), skillError: '',
       skillNotice: command === skill.command ? '已选择「' + skill.name + '」，保存数据单后生效。' :
-        '已选择「' + skill.name + '」。调用名重复，已使用 /' + command + '，可在下方修改。' });
+        '已选择「' + skill.name + '」。调用名重复，已使用 /' + command + '，可点击「查看」修改。' });
   }
 
   removeDeliverySkill(id) {
     const editor = this.state.deliveryEditor;
-    if (!editor || editor.skillLoading) return;
+    if (!this.deliverySkillActorMatches(editor) || editor.skillLoading) return;
     const skill = editor.skills.find(value => value.id === id);
     if (!skill) return;
     this.patchDeliveryEditor({ skills: editor.skills.filter(value => value.id !== id), skillError: '', skillNotice: '已移除「' + skill.name + '」。' });
   }
 
-  deliverySkillLibraryValues() {
+  deliverySkillLibraryValues(ignoreQuery = false) {
     const editor = this.state.deliveryEditor;
     if (!editor) return { rows: [], query: '', count: 0, empty: true };
     const catalog = this.deliverySkillLibrary();
+    // Existing bindings remain removable even if their original source disappears.
+    editor.skills.forEach(skill => {
+      if (!catalog.some(value => this.deliverySkillSelection(value, editor)?.id === skill.id))
+        catalog.push(Object.assign({}, skill, { libraryKey: 'selected:' + skill.id, snapshot: true, sourceLabel: '已选快照 · 来源不可用' }));
+    });
     const normalize = value => String(value || '').normalize('NFKC').toLowerCase().trim().replace(/^\/+/, '').trim();
-    const words = normalize(editor.skillQuery).split(/\s+/).filter(Boolean);
+    const words = normalize(ignoreQuery ? '' : editor.skillQuery).split(/\s+/).filter(Boolean);
+    const selected = skill => skill.snapshot ? editor.skills.some(value => value.id === skill.id) : !!this.deliverySkillSelection(skill, editor);
+    const category = skill => skill.category || (/3d|模型|轨迹/i.test(skill.name + ' ' + skill.command) ? '3d' : /web|界面/i.test(skill.name + ' ' + skill.command) ? 'web' : /数据|质量|data/i.test(skill.name + ' ' + skill.command) ? 'data' : 'other');
     const matches = catalog.filter(skill => {
       const text = normalize([skill.name, skill.command, skill.description, skill.sourceLabel].join(' '));
-      return words.every(word => text.includes(word));
-    });
+      if (!editor.key && selected(skill)) return true;
+      return words.every(word => text.includes(word)) && (ignoreQuery || editor.key || !editor.skillCategory || editor.skillCategory === 'all' || category(skill) === editor.skillCategory);
+    }).sort((a, b) => !editor.key ? Number(selected(b)) - Number(selected(a)) : 0);
     const full = editor.skills.length >= 12;
     return { query: editor.skillQuery || '', count: matches.length, empty: !matches.length,
       emptyTitle: catalog.length ? '没有找到匹配的 Skill' : '暂无可用 Skill',
-      emptyHelp: catalog.length ? '试试其他名称或调用名，也可以在下方上传文件。' : '可以先上传文件，或在个人资料中保存 Skill 后再来选择。',
-      onSearch: event => this.patchDeliveryEditor({ skillQuery: event.target.value }),
+      emptyHelp: catalog.length ? '试试其他关键词，或点击「创建 Skill」填写表单或上传文件。' : '点击「创建 Skill」，填写表单或上传文件后即可在这里选择。',
+      onSearch: event => { if (this.state.deliveryEditor?.id === editor.id) this.patchDeliveryEditor({ skillQuery: event.target.value }); },
       clear: () => {
         this.patchDeliveryEditor({ skillQuery: '' });
         setTimeout(() => { if (typeof document !== 'undefined' && this.state.deliveryEditor?.id === editor.id) document.getElementById('forge-delivery-skill-search')?.focus({ preventScroll: true }); }, 0);
       }, hasQuery: !!editor.skillQuery,
-      limitNote: full ? '已选满 12 个，移除后可继续添加。' : '',
+      limitNote: full ? '已选满 12 个，取消勾选后可继续选择。' : '',
       rows: matches.map(skill => {
-        const selected = !!this.deliverySkillSelection(skill, editor), meta = skill.sourceLabel + (skill.version ? ' · v' + skill.version : '');
-        return { key: skill.libraryKey, name: skill.name, command: '/' + skill.command, description: skill.description,
-          meta, descriptionId: 'forge-library-description-' + encodeURIComponent(skill.libraryKey), selected, unselected: !selected,
-          disabled: !!editor.skillLoading || (!selected && full), action: selected ? '已选择' : '选择',
+        const binding = skill.snapshot ? editor.skills.find(value => value.id === skill.id) : this.deliverySkillSelection(skill, editor);
+        const selected = !!binding, meta = skill.sourceLabel + (skill.version ? ' · v' + skill.version : '');
+        const command = binding ? String(binding.command || '') : skill.command;
+        const commandIssue = binding && (!this.validSkillCommand(this.skillCommand(command)) ? '请填写有效的调用名。' : editor.skills.some(other => other.id !== binding.id && this.skillCommand(other.command).toLowerCase() === this.skillCommand(command).toLowerCase()) ? '调用名重复，请修改。' : '');
+        return { key: skill.libraryKey, name: skill.name, command: '/' + command, commandDisplay: '/ ' + command, bindingCommand: command, description: binding?.description || skill.description, content: binding?.content || skill.content,
+          meta, viewLabel: '查看 ' + skill.name, view: event => this.openDeliverySkillDetail(skill.libraryKey, editor.id, event),
+          descriptionId: 'forge-library-description-' + encodeURIComponent(skill.libraryKey), selected, unselected: !selected,
+          commandIssue, commandInvalid: !!commandIssue, commandErrorId: commandIssue ? 'forge-library-error-' + encodeURIComponent(skill.libraryKey) : '', commandLabel: skill.name + ' 在本单的调用名',
+          onCommand: event => {
+            if (binding && this.state.deliveryEditor?.id === editor.id && this.deliverySkillActorMatches() && !this.state.deliveryEditor.skillLoading)
+              this.patchDeliveryEditor({ skills: this.state.deliveryEditor.skills.map(value => value.id === binding.id ? Object.assign({}, value, { command: event.target.value.replace(/^\/+/, '') }) : value), error: '' }, editor.id);
+          },
+          disabled: !!editor.skillLoading || !this.deliverySkillActorMatches(editor) || (!selected && full), action: selected ? '已选择' : '选择',
           actionLabel: skill.name + '，/' + skill.command + '，' + meta,
-          toggle: () => this.toggleDeliveryLibrarySkill(skill.libraryKey) };
+          toggle: () => { if (this.state.deliveryEditor?.id !== editor.id) return; if (skill.snapshot) this.removeDeliverySkill(skill.id); else this.toggleDeliveryLibrarySkill(skill.libraryKey, editor.id); } };
       })
     };
   }

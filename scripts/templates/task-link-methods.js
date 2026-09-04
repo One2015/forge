@@ -46,7 +46,7 @@
       const decision = this.state.reviewDecisions?.[run.id + ':' + item.itemId];
       source = Object.assign({}, item, { runId: run.id, name: run.branchSource ? run.subject : item.name,
         version: run.artifactVersion || seed?.[6]?.candidateVersion?.runId === run.id && seed[6].candidateVersion.label || (current?.runId === run.id ? current.label : 'Run 1'),
-        ready: status === 'success', approved: decision === 'pass' || (!decision && current?.runId === run.id), rejected: decision === 'rework',
+        technicalStatus: status, ready: status === 'success', approved: decision === 'pass' || (!decision && current?.runId === run.id), rejected: decision === 'rework',
         branch: !!run.branchSource, previewImage: run.itemPreviews?.[item.itemId] || (run.n === 1 ? run.previewImage : '') || '', identity: 'run:' + run.id + ':' + item.itemId });
     } else {
       const sheet = ref.sheetKey ? this.deliverySheet(ref.sheetKey) : null;
@@ -86,6 +86,12 @@
       }
       return Object.assign({}, stored, { current, candidate });
     }
+    if (entry.sourceType === 'production') {
+      const ref = (entry.sourceRefs || [])[0] || { runId: entry.sourceRunId, itemId: entry.itemId };
+      const source = this.taskLinkSource(ref);
+      const version = source && (source.ready || source.rejected) ? { number: 1, label: source.version, ref, source, rejected: !!source.rejected } : null;
+      return { current: version?.source.approved ? version : null, candidate: version && !version.source.approved ? version : null, history: [], revision: 0 };
+    }
     const row = this.baseSheetRows(null).find(value => value[2] === entry.itemId);
     const seedVersion = (version, approved) => version ? { number: Number(String(version.label).replace(/\D/g, '')) || 1,
       label: version.label, ref: { runId: version.runId, itemId: entry.itemId },
@@ -100,9 +106,20 @@
     const links = this.state.deliveryLinks?.[sheet.key] || {};
     for (const entry of this.deliveryEntries(sheet)) {
       const id = this.deliveryEntryId(entry);
-      if (!links[id] && !this.state.appendedRework?.[id]?.runId) continue;
+      if (!links[id] && !this.state.appendedRework?.[id]?.runId && entry.sourceType !== 'production') continue;
       const link = this.deliveryLinkState(sheet, entry), version = link.current || link.candidate;
-      if (!version) continue;
+      if (!version) {
+        if (entry.sourceType !== 'production') continue;
+        const ref = (entry.sourceRefs || [])[0] || { runId: entry.sourceRunId, itemId: entry.itemId };
+        const source = this.taskLinkSource(ref), technicalStatus = source?.technicalStatus || 'queued';
+        const state = { itemId: id, businessStatus: 'pending_production', technicalStatus,
+          currentDeliverableVersion: null, candidateVersion: null, hasPendingCandidate: false };
+        const row = [entry.name, entry.sourceDataset || '生产任务', id, technicalStatus === 'failed' ? 'failed' : 'pending',
+          source ? technicalStatus === 'failed' ? '生产失败，等待重试' : '等待生产完成' : '来源任务不可用', ref.runId, state];
+        const index = rows.findIndex(value => value[2] === id);
+        if (index >= 0) rows[index] = row; else rows.push(row);
+        continue;
+      }
       const source = version.source, passed = !!link.current;
       const rejected = !!link.candidate?.rejected;
       const state = { itemId: id, businessStatus: passed ? 'deliverable' : rejected ? 'reworking' : 'pending_review', technicalStatus: link.candidate?.technicalStatus || 'success',
@@ -134,19 +151,25 @@
   }
 
   openTaskLink(ref) {
+    this.cancelPanelCleanup('taskLink');
+    this._taskLinkExitValues = null;
     const source = this.taskLinkSource(ref);
     if (!source?.ready) { this.notifyTaskLink(source?.issue || '来源任务已不可用，请重新打开详情。', 'warning'); return; }
     this.dismissTaskLinkToast();
     const sheets = this.deliveryData().flatMap(group => group.sheets);
     const suggested = sheets.find(sheet => sheet.key === ref.sheetKey) || sheets.find(sheet => this.deliveryEntries(sheet).some(entry => entry.itemId === source.itemId));
     this.setState({ taskLink: { ref, sourceKey: source.key, sheetKey: suggested?.key || sheets[0]?.key || '', query: '', selectedId: '', revision: '', mode: 'existing', newName: source.name, acknowledged: false, error: '' } });
-    setTimeout(() => { if (typeof document !== 'undefined' && this.state.taskLink) { const dialog = document.querySelector('.forge-task-link-dialog'); if (dialog && !dialog.open) dialog.showModal(); } }, 0);
+    setTimeout(() => { if (typeof document !== 'undefined' && this.state.taskLink) { const dialog = document.querySelector('.forge-task-link-dialog'); if (dialog && !dialog.open) { dialog.inert = false; dialog.showModal(); } } }, 0);
   }
 
   closeTaskLink(event) {
     event?.preventDefault(); event?.stopPropagation();
-    if (typeof document !== 'undefined') document.querySelector('.forge-task-link-dialog')?.close();
+    const duration = this.panelMotionDuration('dialog');
+    this._taskLinkExitValues = duration && this.state.taskLink ? this.taskLinkValues() : null;
+    const dialog = typeof document !== 'undefined' && document.querySelector('.forge-task-link-dialog');
+    if (dialog) { dialog.close(); dialog.inert = true; }
     this.setState({ taskLink: null });
+    this.deferPanelCleanup('taskLink', dialog, () => { this._taskLinkExitValues = null; if (this._panelMotionMounted && !this.state.taskLink) this.setState({}); }, duration);
   }
 
   patchTaskLink(patch) { if (this.state.taskLink) this.setState({ taskLink: Object.assign({}, this.state.taskLink, patch, { error: '' }) }); }
@@ -155,7 +178,7 @@
 
   taskLinkValues() {
     const form = this.state.taskLink;
-    if (!form) return { open: false, items: [], sheets: [], disabled: true };
+    if (!form) return this._taskLinkExitValues || { open: false, items: [], sheets: [], disabled: true };
     const source = this.taskLinkSource(form.ref), sheets = this.deliveryData().flatMap(group => group.sheets);
     const sheet = sheets.find(value => value.key === form.sheetKey), entries = sheet ? this.deliveryEntries(sheet) : [];
     const selected = entries.find(entry => this.deliveryEntryId(entry) === form.selectedId), link = selected ? this.deliveryLinkState(sheet, selected) : null;
@@ -232,18 +255,44 @@
     this.notifyTaskLink(message, source.approved ? 'success' : 'info');
   }
 
-  notifyTaskLink(text, tone = 'success') {
+  notifyTaskLink(text, tone = 'success', action = null) {
     clearTimeout(this._taskLinkToastTimer);
-    this.setState({ taskLinkToast: { text, tone } });
-    setTimeout(() => { if (typeof document !== 'undefined') { const toast = document.getElementById('forge-task-link-toast'); if (toast && !toast.matches(':popover-open')) toast.showPopover(); } }, 0);
+    const toast = { text, tone, action: action?.runId ? { label: action.label, runId: action.runId } : null };
+    this.setState({ taskLinkToast: toast });
+    setTimeout(() => {
+      if (typeof document !== 'undefined' && this.state.taskLinkToast === toast) {
+        const element = document.getElementById('forge-task-link-toast');
+        if (element && !element.matches(':popover-open')) element.showPopover();
+      }
+    }, 0);
     this.resumeTaskLinkToast();
   }
 
-  resumeTaskLinkToast() { clearTimeout(this._taskLinkToastTimer); this._taskLinkToastTimer = setTimeout(() => this.dismissTaskLinkToast(), 7000); }
+  resumeTaskLinkToast() {
+    clearTimeout(this._taskLinkToastTimer);
+    const toast = this.state.taskLinkToast;
+    if (!toast) return;
+    const element = typeof document !== 'undefined' ? document.getElementById?.('forge-task-link-toast') : null;
+    if (element && (element.matches(':hover') || element.contains(document.activeElement))) return;
+    this._taskLinkToastTimer = setTimeout(() => {
+      if (this.state.taskLinkToast === toast) this.dismissTaskLinkToast();
+    }, toast.action ? 12000 : 7000);
+  }
   dismissTaskLinkToast() { clearTimeout(this._taskLinkToastTimer); if (typeof document !== 'undefined') document.getElementById('forge-task-link-toast')?.hidePopover(); this.setState({ taskLinkToast: null }); }
+  openTaskLinkToastAction(toast, event) {
+    event?.preventDefault(); event?.stopPropagation();
+    if (!toast?.action?.runId || this.state.taskLinkToast !== toast) return;
+    const run = this.runsData().find(value => value.id === toast.action.runId);
+    if (!run) { this.notifyTaskLink('该分支任务已不可用，请在生产的运行记录中查看。', 'warning'); return; }
+    this.dismissTaskLinkToast();
+    this.setState({ view: 'run', activeRun: run.id, runItem: null, sheetRow: null, reviewOpen: null, reviewToast: '' });
+  }
   taskLinkToastValues() {
     const toast = this.state.taskLinkToast;
     return { text: toast?.text || '', tone: toast?.tone || 'success', success: toast?.tone === 'success', warning: toast?.tone === 'warning', info: toast?.tone === 'info',
+      hasAction: !!toast?.action?.runId, actionLabel: toast?.action?.label || '',
+      actionHref: toast?.action?.runId ? '?view=run&activeRun=' + encodeURIComponent(toast.action.runId) : '',
+      openAction: event => this.openTaskLinkToastAction(toast, event),
       dismiss: () => this.dismissTaskLinkToast(), pause: () => clearTimeout(this._taskLinkToastTimer), resume: () => this.resumeTaskLinkToast() };
   }
   // task-linking:end

@@ -1,0 +1,60 @@
+/* Pilot layout; no business-specific values leak into component primitives. */
+/* Rows are navigation targets, so legacy button press scaling is inappropriate. */
+.fg-theme .fg-run-row{transition:none!important;transform:none!important}
+.fg-runs{max-width:var(--fg-content-width);min-height:calc(100vh - 48px);margin-inline:auto;padding:var(--fg-space-8) var(--fg-space-6) var(--fg-space-12)}
+.fg-page-header{display:flex;align-items:center;justify-content:space-between;gap:var(--fg-space-6);margin-bottom:var(--fg-space-6)}
+.fg-page-header h1{margin:0;font:var(--fg-weight-strong) var(--fg-heading-md)/var(--fg-leading-heading) var(--fg-font);letter-spacing:-.02em}
+.fg-page-header p{margin:var(--fg-space-2) 0 0;color:var(--fg-text-secondary);font-size:var(--fg-text-md)}
+.fg-runs-toolbar{display:flex;align-items:center;gap:var(--fg-space-4);flex-wrap:wrap;margin-bottom:var(--fg-space-4)}
+.fg-runs-toolbar .fg-search{width:300px}
+.fg-result-count{margin-left:auto;color:var(--fg-text-secondary);font-size:var(--fg-text-xs);white-space:nowrap}
+.fg-run-columns{display:grid;grid-template-columns:minmax(200px,2.3fr) minmax(88px,.75fr) minmax(180px,1.4fr) minmax(82px,.65fr) minmax(80px,.6fr);gap:var(--fg-space-4)}
+.fg-run-heading{background:var(--fg-background-subtle);border-bottom:1px solid var(--fg-border);padding:var(--fg-space-3) var(--fg-space-4);font-size:var(--fg-text-xs);color:var(--fg-text-secondary)}
+.fg-run-heading>span:last-child{text-align:right}
+.fg-run-group>header{display:flex;align-items:baseline;gap:var(--fg-space-3);padding:var(--fg-space-3) var(--fg-space-4);background:var(--fg-background-subtle);border-block:1px solid var(--fg-border)}
+.fg-run-group:first-child>header{border-top:0}
+.fg-run-group>header h2{font-size:var(--fg-text-sm);line-height:var(--fg-leading-label);font-weight:var(--fg-weight-medium);margin:0}
+.fg-run-group>header>span{font-size:var(--fg-text-xs);color:var(--fg-text-secondary);font-variant-numeric:tabular-nums}
+.fg-run-list{list-style:none;margin:0;padding:0}
+.fg-run-list>li+li{border-top:1px solid var(--fg-border)}
+.fg-theme .fg-run-row{width:100%;padding:var(--fg-space-4);margin:0;min-height:104px;align-items:center;background:var(--fg-background);border:0;border-radius:0;font:inherit;color:var(--fg-text);text-align:left;cursor:pointer}
+.fg-run-row span{min-width:0}
+.fg-run-identity,.fg-run-owner{display:flex;flex-direction:column;gap:var(--fg-space-1)}
+.fg-run-identity>strong{font-size:var(--fg-text-md);font-weight:var(--fg-weight-medium)}
+.fg-pipeline-line{display:flex;align-items:center;gap:var(--fg-space-2);font-size:var(--fg-text-xs)}
+.fg-pipeline-line>.fg-mono:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fg-version{flex:none;border:1px solid var(--fg-border);border-radius:var(--fg-radius-sm);padding:0 var(--fg-space-1);color:var(--fg-text-secondary);line-height:16px}
+.fg-run-id{font-size:var(--fg-text-xs);color:var(--fg-text-secondary);overflow-wrap:anywhere}
+.fg-run-owner{font-size:var(--fg-text-sm)}
+.fg-run-owner>.fg-muted{font-size:var(--fg-text-xs)}
+.fg-run-cost{text-align:right;font-size:var(--fg-text-sm)}
+.fg-run-progress-cell{display:flex;flex-direction:column;gap:var(--fg-space-2)}
+.fg-run-progress-bar{display:flex;height:4px;border-radius:var(--fg-radius-sm);background:var(--fg-hover);overflow:hidden}
+.fg-run-progress-bar>[data-state=review]{background:var(--fg-gray-6)}
+.fg-run-progress-bar>[data-state=running]{background:var(--fg-running-bar)}
+.fg-run-progress-bar>[data-state=failed]{background:var(--fg-danger)}
+.fg-run-progress-copy{font-size:var(--fg-text-xs);line-height:18px;color:var(--fg-text-secondary)}
+@media(hover:hover){.fg-theme .fg-run-row:hover{background:var(--fg-background-subtle)}}
+.fg-theme .fg-run-row:active{background:var(--fg-pressed)}
+.fg-theme .fg-run-row:focus-visible{outline-offset:-3px}
+/* Scope legacy shell aliases to the migrated page, so unfinished flows retain their styles. */
+.forge-app-shell:has(.fg-runs){background:var(--fg-background)}
+.forge-app-shell:has(.fg-runs) :is(.forge-sidebar,.forge-production-tabs){--forge-font:var(--fg-font);--forge-text:var(--fg-text);--forge-muted:var(--fg-text-secondary);--forge-accent:var(--fg-action);--forge-accent-hover:var(--fg-action-hover);--forge-accent-soft:var(--fg-selected);--forge-selected-hover:var(--fg-hover);--forge-nav-active:var(--fg-text);--forge-nav-tint:var(--fg-selected);--forge-border:var(--fg-border);font-family:var(--fg-font)}
+.forge-app-shell:has(.fg-runs) .forge-sidebar{background:var(--fg-background-subtle)}
+.forge-app-shell:has(.fg-runs) .forge-sidebar-logo{background:var(--fg-action)}
+.forge-app-shell:has(.fg-runs) :is(.forge-sidebar,.forge-production-tabs) :focus-visible{outline-color:var(--fg-focus)}
+@media(max-width:1050px){.fg-runs-toolbar .fg-search{flex:1;min-width:220px}.fg-run-columns{grid-template-columns:minmax(170px,1.7fr) 86px minmax(120px,1.2fr) 82px 80px;gap:var(--fg-space-3)}}
+@media(max-width:760px){
+ .fg-runs{padding:var(--fg-space-6) var(--fg-space-4) var(--fg-space-10)}
+ .fg-page-header{align-items:flex-start;gap:var(--fg-space-3)}
+ .fg-page-header h1{font-size:var(--fg-heading-sm)}
+ .fg-page-header p{font-size:var(--fg-text-sm)}
+ .fg-page-header .fg-button{padding-inline:var(--fg-space-3);flex:none}
+ .fg-runs-toolbar{gap:var(--fg-space-3)}
+ .fg-runs-toolbar .fg-search{flex-basis:100%;width:100%}
+ .fg-segmented{width:100%;justify-content:space-between}
+ .fg-run-heading{display:none}
+ .fg-run-group>header{align-items:flex-start;flex-wrap:wrap;gap:var(--fg-space-1) var(--fg-space-3)}
+ .fg-run-columns{grid-template-columns:minmax(0,1fr) auto;gap:var(--fg-space-3)}
+ .fg-run-identity{grid-column:1}.fg-run-status{grid-column:2;align-self:start}.fg-run-progress-cell{grid-column:1/-1}.fg-run-owner{grid-column:1;flex-direction:row;gap:var(--fg-space-2)}.fg-run-cost{grid-column:2}
+}

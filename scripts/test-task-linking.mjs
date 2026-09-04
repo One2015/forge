@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { test } from 'node:test';
+import { updateTaskLinkSelection } from './update-task-link-selection.mjs';
 
 const raw = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
 const template = JSON.parse(raw.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
@@ -21,7 +22,9 @@ function fork(c, state = 'deliverable') {
   c.state.forks = { [ref.forkKey]: [{ name: ref.forkName, state, runId: 'branch-result', previewImage: '/test-preview.png' }] }; return ref;
 }
 function custom(c) {
-  c.openDeliveryEditor(); c.patchDeliveryEditor({ name: '测试数据单', customer: '客户', target: '2' }); c.setDeliveryList('客户模型\n第二个模型'); c.saveDeliveryEditor(); return c.deliverySheet(c.state.sheetKey);
+  // Existing unlinked records remain supported, though the new wizard requires matches.
+  const sheet = { key: 'legacy-unlinked', name: '测试数据单', customer: '客户', target: 2, createdBy: c.profileIdentity().accountName, entries: c.resolveSheetLines(['客户模型', '第二个模型']), tags: [], skills: [] };
+  c.state.deliverySheets = [sheet]; c.state.sheetKey = sheet.key; c.state.view = 'sheet'; return c.deliverySheet(sheet.key);
 }
 
 test('all source detail entry points are wired and use a labelled native dialog', () => {
@@ -43,6 +46,48 @@ test('search covers all sheet IDs including not-started Items and does not escap
   c.taskLinkValues().onQuery(change('莫高窟')); assert(c.taskLinkValues().empty);
   c.taskLinkValues().onSheet(change('step300')); assert.equal(c.taskLinkValues().query, ''); assert.equal(c.taskLinkValues().items.length, 4);
   assert(c.taskLinkValues().disabled);
+});
+
+test('Item choices are native single-select radios placed before the thumbnail and copy', () => {
+  const markup = template.match(/<!-- task-link-dialog:start -->[\s\S]*?<!-- task-link-dialog:end -->/)[0];
+  const row = markup.match(/<label class="forge-task-link-item">[\s\S]*?<\/label>/)[0];
+  assert(markup.includes('role="radiogroup" aria-label="交付 Item 搜索结果"'));
+  assert(row.includes('type="radio" name="forge-task-link-item"'));
+  assert(row.includes('checked="{{ item.selected }}"'));
+  assert(row.includes('aria-label="{{ item.name }} · {{ item.id }}"'));
+  assert(row.includes('sc-camel-on-change="{{ item.choose }}"'));
+  assert(row.indexOf('type="radio"') < row.indexOf('forge-task-link-thumb'));
+  assert(!row.includes('aria-pressed'));
+  assert(!row.includes('data-phosphor="square"'));
+  assert(!row.includes('data-phosphor="check-circle"'));
+  assert(markup.includes('class="forge-task-link-ack"><input type="checkbox"'), 'Version acknowledgement remains a checkbox');
+});
+
+test('single selection replaces the previous Item without saving or preserving its acknowledgement', () => {
+  const c = component(); c.openTaskLink(sourceRef);
+  const ids = c.taskLinkValues().items.slice(0, 2).map(item => item.id);
+  assert.equal(c.taskLinkValues().items.filter(item => item.selected).length, 0);
+  choose(c, ids[0]); c.taskLinkValues().onAck({ target: { checked: true } });
+  choose(c, ids[1]);
+  assert.deepEqual(Array.from(c.taskLinkValues().items.filter(item => item.selected), item => item.id), [ids[1]]);
+  assert.equal(c.state.taskLink.acknowledged, false);
+  choose(c, ids[1]);
+  assert.equal(c.state.taskLink.selectedId, ids[1]);
+  assert(!c.state.deliveryLinks);
+  c.closeTaskLink(); assert(!c.state.deliveryLinks);
+});
+
+test('Item row fill is hover-only, with native radio dimensions and visible keyboard focus', () => {
+  const css = fs.readFileSync(new URL('./templates/task-link.css', import.meta.url), 'utf8');
+  assert.match(css, /\.forge-task-link-item\{[^}]*background:transparent/);
+  assert(!css.includes('.forge-task-link-item[aria-pressed'));
+  assert(!css.includes('forge-task-link-selected'));
+  assert.match(css, /@media\(hover:hover\) and \(pointer:fine\)\{\.forge-task-link-item:hover\{background:var\(--forge-hover/);
+  assert.match(css, /\.forge-task-link-radio\{width:16px;height:16px;min-height:0/);
+  assert(css.includes('input:not([type="checkbox"]):not([type="radio"])'));
+  assert(css.includes('.forge-task-link-item:has(input:focus-visible)'));
+  assert.equal(updateTaskLinkSelection(raw), raw);
+  assert.equal(updateTaskLinkSelection(updateTaskLinkSelection(raw)), raw);
 });
 
 test('updating a delivered slot requires confirmation, retains its ID/history and source decisions', () => {
@@ -159,6 +204,7 @@ test('rejected linked candidates never become deliverable and preserve an existi
   const c = component(), ref = fork(c, 'review'); c.openTaskLink(ref); choose(c); c.submitTaskLink();
   c.state.view = 'sheet'; c.state.sheetKey = 'ant200'; c.state.sheetRow = targetId;
   c.openSheetFeedback(targetId, 'review'); c.state.sheetReworkText = '需要重做材质'; c.renderVals().sheet.pick.submitRework();
+  c.renderVals().sheet.pick.reworkConfirm.confirm();
   const row = c.sheetRows(c.deliverySheet('ant200')).find(value => value[2] === targetId);
   assert.equal(row[6].currentDeliverableVersion.label, 'Run 2'); assert.equal(row[6].candidateVersion.reviewStatus, 'rework'); assert(!row[6].hasPendingCandidate);
   assert(c.taskLinkSource({ sheetKey: 'ant200', itemId: targetId }).approved);

@@ -21,7 +21,7 @@
     return {
       approvedDetail, canAppendRework, cannotAppendRework: !canAppendRework,
       needsReview: !!item?.hasPendingCandidate || activeAppend, canReviewCandidate, cannotReviewCandidate: !canReviewCandidate, reviewKey,
-      state: label, fg: tone.fg, border: tone.border,
+      state: label, showState: label !== '待审核候选', fg: tone.fg, border: tone.border,
       previewCaption: row?.[0] + ' · ' + (activeAppend ? record.version + (canReviewCandidate ? ' · 待审核产物' : ' · 等待新产物') : item?.hasPendingCandidate ? '待审核候选' : approvedDetail ? '最终产物' : '当前产物'),
       hasReviewActionHint: activeAppend, reviewActionHint: hint,
       showAppendRun: !!record && (this.state.submittedRuns || []).some(run => run.id === record.runId),
@@ -60,5 +60,39 @@
         this.notifyTaskLink('已加入下载列表（本地演示，暂不生成下载文件）。', 'info');
       }
     };
+  }
+
+  submitSheetReviewRework(sheetKey, itemId, expectedReviewKey) {
+    const ask = this.state.sheetReworkConfirmAsk;
+    const sheet = this.deliverySheet(sheetKey);
+    const row = sheet && this.sheetRows(sheet).find(value => value[2] === itemId);
+    const item = row && (row[6] || this.itemStateOf(itemId, {legacy: row[3], runId: row[5]}));
+    const actions = row && this.sheetDetailActionValues(sheetKey, itemId);
+    const note = String(this.state.sheetReworkText || '').trim();
+    const feedback = this.feedbackView('sheet:' + itemId);
+    const candidate = item?.candidateVersion;
+    const reviewKey = candidate ? candidate.runId + ':' + (candidate.source?.itemId || itemId) : '';
+    if (!ask || ask.itemId !== itemId || ask.reviewKey !== expectedReviewKey ||
+        this.state.sheetReworkAsk !== itemId || this.state.sheetReworkMode !== 'review' ||
+        !note || feedback.loading || !actions?.canReviewCandidate ||
+        reviewKey !== actions.reviewKey || expectedReviewKey !== actions.reviewKey ||
+        this.state.sheetReworkVersionKey && this.state.sheetReworkVersionKey !== reviewKey) return false;
+    if (this.appendedRecord(itemId, item)) {
+      this.submitSheetAppend(sheetKey, itemId, 'review');
+      return this.state.sheetReworkAsk !== itemId;
+    }
+    const attachments = this.feedbackImages('sheet:' + itemId).map(image => ({...image}));
+    this.setState({
+      sheetReworkAsk: null, sheetReworkText: '', sheetReworkMode: null, sheetReworkVersionKey: null, sheetReworkConfirmAsk: null,
+      reviewDecisions: {...(this.state.reviewDecisions || {}), [reviewKey]: 'rework'},
+      reworkNotes: {...(this.state.reworkNotes || {}), [reviewKey]: note},
+      reworkSent: {...(this.state.reworkSent || {}), [reviewKey]: true},
+      repairRuns: {...(this.state.repairRuns || {}), [reviewKey]: {
+        status: 'queued', createdAt: Date.now(), sourceRun: candidate?.source?.runId || candidate?.runId || row[5] || null, note, attachments
+      }},
+      reviewToast: '已提交返工，已创建修复任务',
+      reviewToastAt: Date.now()
+    });
+    return true;
   }
   // detail-actions:end

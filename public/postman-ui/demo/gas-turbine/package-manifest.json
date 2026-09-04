@@ -1,0 +1,6 @@
+{
+  "name": "ignition-gas-turbine",
+  "version": "mock-v1",
+  "entrypoint": "dist/index.html",
+  "mock": true
+}

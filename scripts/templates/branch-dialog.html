@@ -1,5 +1,5 @@
 <!-- branch-dialog:start -->
-<dialog class="forge-branch-dialog forge-feedback" aria-labelledby="forge-branch-title" aria-describedby="forge-branch-subtitle" sc-camel-on-cancel="{{ branch.cancel }}" sc-camel-on-click="{{ branch.backdrop }}">
+<dialog class="forge-branch-dialog forge-feedback" aria-labelledby="forge-branch-title" aria-describedby="forge-branch-subtitle" sc-camel-on-cancel="{{ branch.cancel }}" sc-camel-on-click="{{ branch.backdrop }}" data-motion-native="true" data-motion-key="branch" data-motion-open="{{ branch.motionOpen }}">
   <sc-if value="{{ branch.open }}" hint-placeholder-val="{{ false }}">
     <header class="forge-branch-header">
       <div><h2 id="forge-branch-title">{{ branch.title }}</h2><p id="forge-branch-subtitle">{{ branch.subtitle }}</p></div>
@@ -45,11 +45,11 @@
         <sc-if value="{{ branch.configOpen }}" hint-placeholder-val="{{ false }}">
           <div id="forge-branch-configuration" class="forge-branch-config-fields">
             <label for="forge-branch-pipeline">Pipeline</label>
-            <select id="forge-branch-pipeline" value="{{ branch.pipe }}" sc-camel-on-change="{{ branch.onPipe }}"><option value="">选择 Pipeline</option><sc-for list="{{ branch.pipelines }}" as="opt" hint-placeholder-count="1"><option value="{{ opt.value }}">{{ opt.label }}</option></sc-for></select>
+            <select id="forge-branch-pipeline" value="{{ branch.pipe }}" sc-camel-on-change="{{ branch.onPipe }}"><option value="">选择 Pipeline</option><sc-for list="{{ branch.pipelines }}" as="opt" hint-placeholder-count="1"><option value="{{ opt.value }}" selected="{{ opt.selected }}">{{ opt.label }}</option></sc-for></select>
             <label for="forge-branch-dataset">数据集</label>
-            <select id="forge-branch-dataset" value="{{ branch.ds }}" sc-camel-on-change="{{ branch.onDs }}" disabled="{{ branch.dsDisabled }}"><option value="">选择关联数据集</option><sc-for list="{{ branch.datasets }}" as="opt" hint-placeholder-count="1"><option value="{{ opt.value }}">{{ opt.label }}</option></sc-for></select>
+            <select id="forge-branch-dataset" value="{{ branch.ds }}" sc-camel-on-change="{{ branch.onDs }}" disabled="{{ branch.dsDisabled }}"><option value="">选择关联数据集</option><sc-for list="{{ branch.datasets }}" as="opt" hint-placeholder-count="1"><option value="{{ opt.value }}" selected="{{ opt.selected }}">{{ opt.label }}</option></sc-for></select>
             <label for="forge-branch-item">Item</label>
-            <select id="forge-branch-item" value="{{ branch.item }}" sc-camel-on-change="{{ branch.onItem }}" disabled="{{ branch.itemDisabled }}"><option value="">选择 Item</option><sc-for list="{{ branch.items }}" as="opt" hint-placeholder-count="1"><option value="{{ opt.value }}">{{ opt.label }}</option></sc-for></select>
+            <select id="forge-branch-item" value="{{ branch.item }}" sc-camel-on-change="{{ branch.onItem }}" disabled="{{ branch.itemDisabled }}"><option value="">选择 Item</option><sc-for list="{{ branch.items }}" as="opt" hint-placeholder-count="1"><option value="{{ opt.value }}" selected="{{ opt.selected }}">{{ opt.label }}</option></sc-for></select>
           </div>
         </sc-if>
         <sc-if value="{{ branch.invalidConfig }}" hint-placeholder-val="{{ false }}"><p class="forge-feedback-error" role="status">{{ branch.configError }}</p></sc-if>

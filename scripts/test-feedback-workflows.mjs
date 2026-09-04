@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { test } from 'node:test';
+import { updateBranchDefaultItem } from './update-branch-default-item.mjs';
 
 const source = fs.readFileSync(new URL('../public/forge.html', import.meta.url), 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
@@ -120,8 +121,70 @@ test('historical branch action opens the new dialog with source context and disa
   assert.equal(c.state.branchAsk.item, row[2]); assert.equal(c.state.branchAsk.runId, row[5]);
   assert.match(form.name, /分支 B-01$/); assert.equal(form.disabled, true);
   assert.equal(form.invalidConfig, false);
+  assert.equal(form.item, row[2]);
+  assert.equal(form.items.filter(item => item.selected).length, 1);
+  assert.equal(form.items.find(item => item.selected).value, row[2]);
   c.createBranchRun(); assert(!c.state.submittedRuns);
   form.onNote({ target: { value: '修复屋顶材质' } }); assert.equal(c.branchFormValues().disabled, false);
+});
+
+test('Mogao branch inherits its source Item even when the dataset picker omits that row', () => {
+  const c = component();
+  const sheet = c.deliveryData().flatMap(customer => customer.sheets).find(sheet => sheet.key === 'step300');
+  const row = c.sheetRows(sheet).find(row => row[0] === '莫高窟');
+  const catalogBefore = JSON.stringify(c.dsData());
+  c.setState({ view: 'sheet', sheetKey: sheet.key, sheetRow: row[2] });
+  c.renderVals().sheet.pick.rounds[1].branch(click);
+  let form = c.branchFormValues();
+  assert.equal(form.item, row[2]);
+  assert.equal(form.items.filter(item => item.selected).length, 1);
+  assert.match(form.items.find(item => item.selected).label, /^莫高窟 · /);
+  assert.match(form.configuration, /Item  莫高窟$/);
+  assert.equal(form.configHeading, '沿用来源配置');
+  assert.equal(form.invalidConfig, false);
+  form.toggleConfig();
+  form = c.branchFormValues();
+  form.onPipe({ target: { value: form.pipe } });
+  form.onDs({ target: { value: form.ds } });
+  assert.equal(c.branchFormValues().item, row[2], 're-emitting the same selection must not clear the Item');
+  const alternative = form.items.find(item => !item.selected);
+  form.onItem({ target: { value: alternative.value } });
+  assert.equal(c.branchFormValues().item, alternative.value);
+  form.onItem({ target: { value: row[2] } });
+  form.onNote({ target: { value: '优化洞窟细节' } });
+  assert.equal(c.branchFormValues().disabled, false);
+  c.createBranchRun();
+  assert.equal(c.state.submittedRuns[0].itemIds[0], row[2]);
+  assert.equal(JSON.stringify(c.dsData()), catalogBefore, 'source fallback must not mutate global datasets');
+});
+
+test('source Item fallback is dataset-scoped and does not admit arbitrary or cleared Items', () => {
+  const c = component(); branch(c);
+  const sourceItem = c.state.branchAsk.item, sourceDs = c.state.branchDs;
+  const form = c.branchFormValues();
+  const alternativeDs = form.datasets.find(ds => ds.value !== sourceDs);
+  assert(alternativeDs);
+  form.onDs({ target: { value: alternativeDs.value } });
+  let changed = c.branchFormValues();
+  assert.equal(changed.item, ''); assert(changed.invalidConfig);
+  assert(!changed.items.some(item => item.value === sourceItem));
+  changed.onItem({ target: { value: sourceItem } });
+  assert(c.branchFormValues().invalidConfig);
+  changed.onDs({ target: { value: sourceDs } });
+  changed = c.branchFormValues();
+  assert.equal(changed.item, '', 'changing datasets is explicit and must not silently select an Item');
+  changed.onItem({ target: { value: 'not-in-this-dataset' } });
+  assert(c.branchFormValues().invalidConfig);
+  c.cancelBranchForm(); branch(c);
+  assert.equal(c.branchFormValues().item, sourceItem, 'reopening starts from the source, not a stale draft');
+});
+
+test('native branch options declare the exact selection and the focused generator is idempotent', () => {
+  for (const name of ['pipeline', 'dataset', 'item']) {
+    const select = template.match(new RegExp('<select id="forge-branch-' + name + '"[\\s\\S]*?</select>'))[0];
+    assert(select.includes('selected="{{ opt.selected }}"'));
+  }
+  assert.equal(updateBranchDefaultItem(source), source);
 });
 
 test('changing Pipeline resets dependent Dataset and Item; incomplete config stays disabled', () => {
@@ -174,7 +237,7 @@ test('markup removes confirmation overlay and uses native dialog with labeled fi
   assert(template.includes('aria-label="上传分支参考图片"'));
 });
 
-test('delivery detail rework stays in its right panel and retains uploaded images in the task', async () => {
+test('delivery detail rework stays in its right panel, confirms and retains uploaded images in the task', async () => {
   const c = component(); branch(c); c.cancelBranchForm();
   c.renderVals().sheet.pick.rework(click);
   let pick = c.renderVals().sheet.pick;
@@ -184,6 +247,9 @@ test('delivery detail rework stays in its right panel and retains uploaded image
   pick = c.renderVals().sheet.pick;
   assert.equal(pick.feedback.images.length, 1); assert.equal(pick.canSubmitRework, true);
   pick.submitRework(click);
+  pick = c.renderVals().sheet.pick;
+  assert.equal(pick.reworkConfirm.open, true); assert.equal(Object.keys(c.state.repairRuns || {}).length, 0);
+  pick.reworkConfirm.confirm(click);
   const run = Object.values(c.state.repairRuns)[0];
   assert.equal(run.note, '修复材质'); assert.equal(run.attachments.length, 1);
   assert.equal(c.renderVals().sheet.pick.reworkFormOpen, false);

@@ -173,7 +173,7 @@ test('sidebar markup is balanced and content/modal positioning is preserved', ()
     }
     assert.equal(stack.length, 0);
   }
-  assert.match(template, /<main class="forge-main">/);
+  assert.match(template, /<main class="forge-main"(?:\s[^>]*)?>/);
   assert.match(template, /<\/main>\s*<\/div>\s*<\/x-dc>/);
   assert(template.includes('[data-review-workbench="true"]{inset:0!important;width:100%;height:100dvh;'));
   assert(template.includes('--forge-sidebar-width:184px'));
@@ -184,11 +184,11 @@ test('sidebar markup is balanced and content/modal positioning is preserved', ()
 });
 
 test('download selection stays obvious in expanded and icon-only rails and clears when closed', () => {
-  const block = template.match(/\/\* download-selected:start \*\/[\s\S]*?\/\* download-selected:end \*\//)?.[0];
+  const block = template.match(/\/\* interaction-states:start \*\/[\s\S]*?\/\* interaction-states:end \*\//)?.[0];
   assert(block);
-  assert.match(block, /data-utility="dl"\]\[aria-expanded="true"\]\{color:#fff;background:var\(--forge-accent\);font-weight:600/);
-  assert.match(block, /\.forge-sidebar-tool-count\{color:var\(--forge-accent\);background:var\(--forge-panel\)/);
-  assert.match(block, /:focus-visible\{outline-color:var\(--forge-panel\)/);
+  assert.match(block, /\.forge-sidebar-tool\[aria-expanded="true"\][^}]+background:var\(--forge-nav-tint\);color:var\(--forge-nav-active\)/);
+  assert.match(block, /\.forge-sidebar-tool-count\{color:var\(--forge-nav-active\);background:var\(--forge-panel\)/);
+  assert.match(block, /:focus-visible\{outline:2px solid var\(--forge-accent\)/);
   for (const collapsed of [false, true]) {
     const c = component(); c.setState({sidebarCollapsed: collapsed});
     c.renderVals().sidebar.toggleDownloads();

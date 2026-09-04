@@ -39,6 +39,20 @@ if (!template.includes('// appended-review:start')) {
   template = template.replace(/\/\/ sheet-review-actions:start[\s\S]*?\/\/ sheet-review-actions:end/, () => '// sheet-review-actions:start\n' + read('sheet-review-actions.js') + '\n// sheet-review-actions:end');
   template = template.replace(/<!-- sheet-appended-rounds:start -->[\s\S]*?<!-- sheet-appended-rounds:end -->/, () => read('sheet-appended-rounds.html'));
 }
+const reworkSubmit = read('sheet-rework-submit.js');
+if (template.includes('// sheet-rework-confirmation:start')) {
+  template = template.replace(/            \/\/ sheet-rework-confirmation:start[\s\S]*?            \/\/ sheet-rework-confirmation:end/, () => reworkSubmit);
+} else {
+  const reworkTitle = template.indexOf('            reworkTitle:');
+  const reworkStart = template.indexOf('            cancelRework:', reworkTitle);
+  const reworkEnd = template.indexOf('\n          };\n        })(),\n        rows:', reworkStart);
+  if (reworkTitle < 0 || reworkStart < 0 || reworkEnd < 0) throw new Error('Missing sheet rework submission block');
+  swap(template.slice(reworkStart, reworkEnd), reworkSubmit);
+}
+template = template.replace(
+  '说明需要保留、修改和验收的内容。填写并提交本身即为确认，不再增加一次通用弹窗。',
+  '说明需要保留、修改和验收的内容。填写完成后将再次确认；确认提交才会创建下一轮修复任务。'
+);
 template = template.replace(/  \/\/ task-linking:start[\s\S]*?  \/\/ task-linking:end/, () => read('task-link-methods.js'));
 if (template.includes('        const src = ds ? ds.items : [];\n        const picked = rec.itemIds')) {
   swap('        const src = ds ? ds.items : [];\n        const picked = rec.itemIds', '        const src = rec.itemMeta || (ds ? ds.items : []);\n        const picked = rec.itemIds');

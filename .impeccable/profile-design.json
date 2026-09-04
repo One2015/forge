@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-02T09:26:50Z",
+  "title": "Forge personal workspace",
+  "extensions": {
+    "scope": {
+      "documentation": ".impeccable/profile-design.md",
+      "contract": ".impeccable/surfaces/scripts-templates-forge-profile-html.md",
+      "sources": ["scripts/templates/forge-profile.css", "scripts/templates/forge-profile.html", "scripts/templates/profile-methods.js", "scripts/templates/forge-refinement.css"],
+      "globalDesignSystem": false
+    },
+    "layout": {
+      "desktop": { "left": "calc(var(--forge-sidebar-width) + 8px)", "bottom": "16px", "width": "min(400px,calc(100vw - var(--forge-sidebar-width) - 24px))", "maxHeight": "calc(100dvh - 32px)", "listMaxHeight": "350px" },
+      "mobile": { "query": "(max-width:760px)", "left": "72px", "bottom": "12px", "width": "calc(100vw - 84px)", "maxHeight": "calc(100dvh - 24px)", "listMaxHeight": "56dvh", "controlMinHeight": "44px" },
+      "editorScrollMaxHeight": "min(520px,calc(100dvh - 200px))",
+      "footerMaxHeight": "38dvh"
+    },
+    "shadows": [{ "name": "profile-panel", "value": "0 10px 32px rgba(28,32,25,.2)", "purpose": "Separate the nonmodal workspace from the application." }],
+    "focus": { "outline": "2px solid var(--forge-accent)", "outlineOffset": "-2px" },
+    "behavior": {
+      "identity": { "currentUser": "一万", "currentRole": "Member", "editableRoles": ["lead", "project-owner"], "ownerCanPromoteToLead": false, "stableAccountSeparateFromDisplayName": true },
+      "roleScope": {
+        "lead": "All delivery sheets.",
+        "project-owner": "Delivery sheets containing work in ownedProjectIds, or explicitly matching sheet.projectIds.",
+        "member": "Sheets containing Items assigned to identity.accountName, or explicitly assigned/created by that account.",
+        "outsourcing": "Same assignment-scoped delivery-sheet filtering as Member.",
+        "unknown": "No delivery tasks or bound Skills."
+      },
+      "tasks": "Delivery sheets only: title, customer and ready/target count. Action-time scope checks precede sheet navigation; no individual cases or review-status badges.",
+      "skills": "Upload always offered unless loading or at the 12-Skill limit. MD/ZIP reads are inert; inline naming and optional visible-sheet binding. Personal copies are account-scoped; bound snapshots retain independent IDs. Bound actions open sheets without executing Skills.",
+      "unboundReview": "Hide the entire evaluation region in both review surfaces when no Skills are bound.",
+      "popover": "Native auto popover, nonmodal dialog; Escape, light-dismiss and invoker focus are browser-owned.",
+      "responsive": "Opening on mobile or resizing an open panel into the mobile breakpoint collapses the sidebar to its icon rail.",
+      "state": "Local memory only; no backend or persistence added."
+    },
+    "limitations": ["Role filtering is presentation, not server authorization.", "Identity editing changes only the current local demo account.", "No automatic Skill execution or persistence after reload.", "No new animation or shipping raster assets."],
+    "verification": {
+      "disposition": "ship",
+      "materialFixes": ["Increase available height only for active inline editors so Save is easier to reach."],
+      "recordedTests": { "command": "node --test scripts/test-*.mjs", "passed": 113 },
+      "recordedBuild": { "command": "npm run build", "result": "passed" },
+      "rebuildCommands": ["node scripts/refine-profile-delivery-skills.mjs"],
+      "screenshots": [".impeccable/review/profile-delivery-tasks-desktop.png", ".impeccable/review/profile-delivery-skills-empty.png", ".impeccable/review/profile-delivery-skill-draft-desktop.png", ".impeccable/review/profile-delivery-skill-draft-mobile.png", ".impeccable/review/profile-delivery-unbound-review.png", ".impeccable/review/profile-delivery-bound-review.png"]
+    }
+  }
+}

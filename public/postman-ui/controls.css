@@ -1,0 +1,83 @@
+/* Shared neutral treatments for headers, local tabs and low-emphasis actions.
+   Semantic status, case labels, destructive actions and the preview canvas keep
+   their own colors. data-pm hooks are added by the isolated preview generator. */
+.forge-postman .forge-sheet-preview-controls .forge-sheet-preview-control{background:transparent!important;border:0!important;box-shadow:none!important;color:rgba(255,255,255,.8)!important}
+.forge-postman .forge-sheet-preview-controls .forge-sheet-preview-control:hover:not(:disabled),.forge-postman .forge-sheet-preview-controls .forge-sheet-preview-control:active:not(:disabled){background:transparent!important;color:#fff!important}
+.forge-postman .forge-sheet-preview-controls .forge-sheet-preview-control:disabled{background:transparent!important;color:rgba(255,255,255,.36)!important;cursor:default!important}
+.forge-postman :is([data-pm-table-heading],.pm-sheet-columns,.fg-run-heading,.fg-run-group>header,.forge-delivery-customer-heading,.forge-billing-thead,.forge-wizard-table-head){background:var(--pm-table-heading)!important;border-color:var(--pm-border)!important}
+.forge-postman :is([data-pm-table-heading],.pm-sheet-columns,.fg-run-heading,.forge-billing-thead,.forge-wizard-table-head){color:var(--pm-muted)!important;font-size:12px;font-weight:500}
+.forge-postman :is([data-pm-option],[data-pm-row],[data-flow-family=datasets]){background:var(--pm-canvas)!important;border-bottom-color:var(--pm-border)!important}
+.forge-postman [data-pm-option]{color:var(--pm-text)!important}
+.forge-postman [data-pm-row][aria-expanded=true]{box-shadow:inset 1px 0 var(--pm-tab-indicator)}
+.forge-postman [data-flow-family=datasets]{border-left-width:1px!important}
+
+.forge-postman :is([data-pm-secondary=true],.fg-button:not([data-variant]),.fg-button[data-variant=secondary],.forge-delivery-secondary,.forge-delivery-file-button,.forge-feedback-secondary,.forge-task-link-secondary,.forge-billing-button,.forge-billing-icon-button,.forge-branch-tree-actions button,.forge-branch-config-heading button,.forge-profile-editor-actions button:not(.forge-profile-primary)):not(:disabled,[aria-disabled=true],[data-disabled=true],[data-pm-primary=true]){background:var(--pm-canvas)!important;border-color:var(--pm-control)!important;color:var(--pm-text)!important;filter:none;box-shadow:none}
+.forge-postman :is([data-pm-tertiary=true],.fg-button[data-variant=tertiary],.fg-button[data-variant=link],.forge-delivery-text-button,.forge-delivery-icon-button,.forge-billing-back,.forge-billing-link,.forge-model-back,.forge-profile-skill-footer button):not(:disabled,[aria-disabled=true],[data-disabled=true],[data-pm-primary=true]){background:transparent!important;color:var(--pm-muted)!important;box-shadow:none}
+
+/* Local tabs share a white selected surface and a single neutral 1px marker. */
+.forge-postman [data-forge-segmented=underline]::before{display:none}
+.forge-postman :is([data-forge-segmented=underline],.forge-billing-tabs) button{background:transparent!important;border-bottom:1px solid transparent!important;color:var(--pm-muted)!important;box-shadow:none!important}
+.forge-postman :is([data-forge-segmented=underline],.forge-billing-tabs) button:is([aria-pressed=true],[aria-current=page],[data-motion-selected=true]){background:var(--pm-selected)!important;border-bottom-color:var(--pm-tab-indicator)!important;color:var(--pm-text)!important;font-weight:600}
+.forge-postman :is([data-forge-segmented=pill]:not(.forge-artifact-switch),.fg-segmented,.forge-billing-segment,.forge-wizard-categories) button:is([aria-pressed=true],[data-active=true]){background:var(--pm-selected)!important;color:var(--pm-text)!important;box-shadow:inset 0 0 0 1px var(--pm-tab-indicator)!important}
+.forge-postman .pm-owner-segment{height:32px;padding:2px!important;gap:2px!important;border:1px solid var(--pm-control)!important;border-radius:4px!important;background:var(--pm-subtle)!important}
+.forge-postman .pm-owner-segment::before{display:none!important}
+.forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters{display:flex;flex-wrap:nowrap;max-width:100%;padding:3px!important;gap:2px!important;border:1px solid var(--pm-border)!important;border-radius:5px!important;background:var(--pm-hover)!important}
+.forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters::before{display:none!important}
+.forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button{flex:1;min-height:28px!important;height:28px!important;padding:3px 10px!important;border-radius:3px!important;font-size:13px!important}
+.forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button[aria-pressed=true],.forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button[aria-pressed=true]:hover{background:var(--pm-selected)!important;color:var(--pm-text)!important;font-weight:600;box-shadow:inset 0 0 0 1px var(--pm-border)!important}
+.forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button:not([aria-pressed=true]):hover{background:var(--pm-pressed)!important;color:var(--pm-text)!important}
+.pm-sheet-help{display:inline-flex;align-items:center;gap:4px;color:var(--pm-muted);font-size:12px;white-space:nowrap}
+.pm-sheet-help>span{display:inline-flex}
+.forge-postman .forge-review-skill-downloads .forge-review-skill-download{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;padding:0;border:0;border-radius:4px}
+.forge-postman .forge-review-skill-download svg{display:block;width:18px;height:18px}
+@media(pointer:coarse){.forge-postman .forge-review-skill-downloads .forge-review-skill-download{width:44px;height:44px}}
+.forge-postman .forge-wizard-tag-chip{background:color-mix(in srgb,var(--tag-color,#64748b) 16%,white)!important;border-color:color-mix(in srgb,var(--tag-color,#64748b) 50%,white)!important;color:color-mix(in srgb,var(--tag-color,#64748b) 65%,#222)!important;font-weight:600}
+.pm-allocation-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0}
+.pm-allocation-toolbar input{flex:1;min-width:160px;width:auto}
+.pm-allocation-pagination{display:flex;align-items:center;justify-content:flex-end;gap:12px;font-size:12px;color:var(--pm-muted);margin:12px 0;font-variant-numeric:tabular-nums}
+.forge-postman .pm-owner-segment button{min-width:52px;min-height:26px!important;height:26px!important;padding:3px 10px!important;border-radius:3px!important}
+.forge-postman .pm-owner-segment button[aria-pressed=true]{background:var(--pm-selected)!important;color:var(--pm-text)!important;font-weight:600;box-shadow:inset 0 0 0 1px var(--pm-focus)!important}
+
+@media(hover:hover) and (pointer:fine){
+  .forge-postman :is([data-pm-option],[data-pm-row],[data-flow-family=datasets]):hover{background:var(--pm-hover)!important}
+  .forge-postman :is([data-pm-secondary=true],.fg-button:not([data-variant]),.fg-button[data-variant=secondary],.forge-delivery-secondary,.forge-delivery-file-button,.forge-feedback-secondary,.forge-task-link-secondary,.forge-billing-button,.forge-billing-icon-button,.forge-branch-tree-actions button,.forge-branch-config-heading button,.forge-profile-editor-actions button:not(.forge-profile-primary)):not(:disabled,[aria-disabled=true],[data-disabled=true],[data-pm-primary=true]):hover{background:var(--pm-hover)!important;border-color:var(--pm-hover-border)!important}
+  .forge-postman :is([data-pm-tertiary=true],.fg-button[data-variant=tertiary],.fg-button[data-variant=link],.forge-delivery-text-button,.forge-delivery-icon-button,.forge-billing-back,.forge-billing-link,.forge-model-back,.forge-profile-skill-footer button):not(:disabled,[aria-disabled=true],[data-disabled=true],[data-pm-primary=true]):hover{background:var(--pm-hover)!important;color:var(--pm-text)!important}
+  .forge-postman :is([data-forge-segmented=underline],.forge-billing-tabs,.forge-billing-segment,.forge-wizard-categories) button:not(:disabled,[aria-disabled=true],[aria-pressed=true],[aria-current=page],[data-motion-selected=true]):hover{background:var(--pm-hover)!important;color:var(--pm-text)!important}
+  .forge-postman .pm-owner-segment button:not([aria-pressed=true]):hover{background:var(--pm-hover)!important;color:var(--pm-text)!important}
+  .forge-postman .pm-owner-segment button[aria-pressed=true]:hover{background:var(--pm-selected)!important;box-shadow:inset 0 0 0 1px var(--pm-focus)!important}
+}
+.forge-postman :is([data-pm-secondary=true],[data-pm-tertiary=true]):not(:disabled,[aria-disabled=true]):active{background:var(--pm-pressed)!important}
+
+/* Style the native picker as well as its trigger. Classic OS select menus
+   ignore option colors; base-select preserves native values/change/keyboard
+   behavior while letting the entire menu use our shared interaction tokens. */
+@supports (appearance:base-select){
+  /* The review sort already ships a positioned Phosphor caret. Chromium's
+     base-select picker icon renders below this compact control, so keep this
+     one select on the classic custom-caret path. */
+  .forge-postman .forge-review-sort-select{appearance:none!important}
+  .forge-postman .forge-review-sort>.forge-icon{display:block}
+  .forge-postman select:not([multiple],[size]),
+  .forge-postman select:not([multiple],[size])::picker(select){appearance:base-select}
+  .forge-postman select:not([multiple],[size]){align-items:center;gap:8px;background:var(--pm-canvas)!important;color:var(--pm-text)!important;border:1px solid var(--pm-control)!important;line-height:20px;cursor:pointer;min-width:0}
+  .forge-postman select:not([multiple],[size]):hover:not(:disabled){background:var(--pm-hover)!important;border-color:var(--pm-hover-border)!important}
+  .forge-postman select:not([multiple],[size]):is(:open,:focus-visible){background:var(--pm-selected)!important;border-color:var(--pm-focus)!important;outline:1px solid var(--pm-focus)!important;outline-offset:-1px!important;box-shadow:none!important}
+  .forge-postman select:not([multiple],[size])::picker-icon{color:var(--pm-muted);margin-inline-start:auto;flex:none}
+  .forge-postman select:not([multiple],[size])::picker(select){background:var(--pm-canvas);color:var(--pm-text);border:1px solid var(--pm-control);border-radius:6px;padding:4px;margin-block:4px;max-height:min(320px,70dvh);overflow:auto;font:13px/20px var(--pm-font);box-shadow:0 6px 18px #00000014;scrollbar-width:thin;scrollbar-color:var(--pm-control) transparent}
+  .forge-postman select:not([multiple],[size]) option{display:flex;align-items:center;gap:8px;min-height:32px;padding:6px 10px;border:0;border-radius:3px;background:var(--pm-canvas);color:var(--pm-text);font:400 13px/20px var(--pm-font);white-space:normal;overflow-wrap:anywhere;cursor:pointer;box-sizing:border-box}
+  .forge-postman select:not([multiple],[size]) option:checked{background:var(--pm-selected);color:var(--pm-text);font-weight:500}
+  .forge-postman select:not([multiple],[size]) option:hover:not(:disabled){background:var(--pm-hover)}
+  .forge-postman select:not([multiple],[size]) option:focus-visible{background:var(--pm-selected);outline:1px solid var(--pm-focus);outline-offset:-1px}
+  .forge-postman select:not([multiple],[size]) option:active:not(:disabled){background:var(--pm-pressed)}
+  .forge-postman select:not([multiple],[size]) option::checkmark{order:1;margin-inline-start:auto;color:var(--pm-focus)}
+  .forge-postman select:not([multiple],[size]):disabled,
+  .forge-postman select:not([multiple],[size]) option:disabled{background:var(--forge-disabled-bg)!important;color:var(--forge-disabled-text)!important;cursor:not-allowed}
+  @media(pointer:coarse){.forge-postman select:not([multiple],[size]) option{min-height:44px;font-size:16px}}
+}
+
+/* Production navigation uses a page-level underline; run filters are quiet toggles. */
+.forge-postman .forge-production-tabs{min-height:46px;flex-wrap:nowrap}
+.forge-postman .forge-production-tabs [data-forge-segmented=underline]{gap:8px!important;max-width:100%;overflow-x:auto;scrollbar-width:thin}
+.forge-postman .forge-production-tabs [data-forge-segmented=underline] button{position:relative;flex:none;height:46px;padding:0 14px!important;border-bottom:2px solid transparent!important;background:transparent!important;font-size:13px!important}
+.forge-postman .forge-production-tabs [data-forge-segmented=underline] button[aria-pressed=true]{border-bottom-color:var(--pm-brand)!important;background:transparent!important;color:var(--pm-text)!important}
+.forge-postman .forge-production-tabs [data-forge-segmented=underline] button:focus-visible{outline:2px solid var(--pm-focus);outline-offset:-4px;border-radius:4px}

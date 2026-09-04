@@ -1,0 +1,50 @@
+<section class="forge-page pm-page-review pm-review-queue" aria-labelledby="queue-title">
+  <button type="button" class="pq-back" sc-camel-on-click="{{ review.back }}">[[icon:arrow-left:16]] {{ review.backLabel }}</button>
+  <header class="pq-heading"><div><h1 id="queue-title">审核队列</h1><p>{{ review.queue.subtitle }}</p></div><button type="button" class="pq-refresh" sc-camel-on-click="{{ review.queue.refresh }}" disabled="{{ review.queue.loading }}">[[icon:arrow-clockwise:16]] <sc-if value="{{ review.queue.loading }}">刷新中…</sc-if><sc-if value="{{ !review.queue.loading }}">刷新</sc-if></button></header>
+  <div class="pq-summary forge-overview-summary" role="group" aria-label="审核摘要">
+    <sc-for list="{{ review.queue.summary }}" as="s">
+      <article class="forge-summary-card pq-summary-item" data-actionable="true" data-selected="{{ s.selected }}">
+        <div class="forge-summary-heading"><span class="forge-summary-title">{{ s.label }}</span><span class="forge-summary-help" data-forge-tooltip="{{ s.description }}" data-tooltip-label="{{ s.label }}说明"></span></div>
+        <div class="forge-summary-value"><strong>{{ s.value }}</strong></div>
+        <button type="button" class="forge-summary-link" aria-label="{{ s.label }}" aria-pressed="{{ s.selected }}" sc-camel-on-click="{{ s.pick }}"></button>
+      </article>
+    </sc-for>
+  </div>
+  <div class="pq-tabs" role="tablist" aria-label="审核状态">
+    <sc-for list="{{ review.queue.tabs }}" as="tab"><button type="button" role="tab" tabindex="{{ tab.selected ? 0 : -1 }}" aria-selected="{{ tab.selected }}" aria-controls="queue-panel" sc-camel-on-click="{{ tab.pick }}">{{ tab.label }}<sc-if value="{{ tab.showCount }}"><span>{{ tab.count }}</span></sc-if></button></sc-for>
+  </div>
+  <div id="queue-panel" role="tabpanel" aria-label="审核任务">
+    <div class="pq-filters" role="search" aria-label="搜索和筛选审核任务">
+      <label class="pq-search"><span class="pq-sr">搜索任务</span>[[icon:magnifying-glass:16]]<input type="search" aria-label="搜索 Item 名称、Item ID、Run ID" placeholder="搜索 Item 名称、ID、Run ID" value="{{ review.queue.query }}" sc-camel-on-input="{{ review.queue.onQuery }}" /></label>
+      <label><select aria-label="审核范围" value="{{ review.queue.owner }}" sc-camel-on-change="{{ review.queue.setOwner }}"><option value="all">全部任务</option><option value="mine">我的任务</option></select></label>
+      <label><select aria-label="审核类型" value="{{ review.queue.type }}" sc-camel-on-change="{{ review.queue.setType }}"><option value="all">全部类型</option><option value="first">首次审核</option><option value="rework">返工复审</option></select></label>
+      <label><select aria-label="审核轮次" value="{{ review.queue.round }}" sc-camel-on-change="{{ review.queue.setRound }}"><option value="all">全部轮次</option><option value="1">第 1 轮</option><option value="2">第 2 轮</option><option value="3">第 3 轮及以上</option></select></label>
+      <label><select aria-label="提交排序" value="{{ review.queue.sort }}" sc-camel-on-change="{{ review.queue.setSort }}"><option value="newest">最新提交</option><option value="oldest">最早提交</option></select></label>
+      <sc-if value="{{ review.queue.hasFilters }}"><button type="button" class="pq-reset" sc-camel-on-click="{{ review.queue.reset }}">重置</button></sc-if>
+    </div>
+    <sc-if value="{{ review.queue.todayOnly }}"><div class="pq-date-filter">今天完成的审核<button type="button" sc-camel-on-click="{{ review.queue.clearToday }}" aria-label="取消今天筛选">[[icon:x:12]]</button></div></sc-if>
+    <div class="pq-table-scroll" tabindex="0" role="region" aria-label="审核任务表，可横向滚动" aria-busy="{{ review.queue.loading }}">
+      <div class="pq-table" role="table" aria-label="审核任务列表" aria-rowcount="{{ review.queue.total + 1 }}">
+        <div class="pq-columns pq-table-head" role="row"><div role="columnheader">任务与预览</div><div role="columnheader">{{ review.queue.statusHeading }}</div><div role="columnheader">轮次</div><div role="columnheader">{{ review.queue.personHeading }}</div><div role="columnheader">{{ review.queue.timeHeading }}</div><div role="columnheader">操作</div></div>
+        <div role="rowgroup">
+          <sc-for list="{{ review.queue.rows }}" as="task">
+            <div class="pq-columns pq-row" role="row" data-owned="{{ task.owned }}">
+              <div role="cell" class="pq-task-cell"><button type="button" class="pq-task" sc-camel-on-click="{{ task.open }}" aria-label="打开任务 {{ task.title }}" disabled="{{ task.actionDisabled }}">
+                <span class="pq-thumb"><sc-if value="{{ task.hasPreview }}"><img src="{{ task.preview }}" alt="{{ task.title }}的产物缩略图" loading="lazy" sc-camel-on-error="{{ task.imageError }}" /></sc-if><sc-if value="{{ task.noPreview }}"><span class="pq-placeholder" title="未提供产物缩略图"><sc-if value="{{ task.is3D }}">[[icon:cube:22]]</sc-if><sc-if value="{{ task.isWeb }}">[[icon:image:22]]</sc-if></span></sc-if></span>
+                <span class="pq-task-copy"><strong title="{{ task.title }}">{{ task.title }}</strong><span class="pq-context"><code title="Item ID：{{ task.id }}">{{ task.id }}</code><span aria-hidden="true">·</span><span title="{{ task.dataset }}">{{ task.dataset }}</span></span><sc-if value="{{ task.hasIssue }}"><span class="pq-issue" title="{{ task.issue }}">{{ task.issue }}</span></sc-if></span>
+              </button></div>
+              <div role="cell"><span class="pq-badge" data-tone="{{ task.tone }}" title="{{ task.claimLabel }}">{{ task.badge }}</span></div>
+              <div role="cell" class="pq-round">{{ task.roundLabel }}</div>
+              <div role="cell" class="pq-person"><span class="pq-avatar" aria-hidden="true">{{ task.initial }}</span><span title="{{ task.person }}">{{ task.person }}</span></div>
+              <div role="cell" class="pq-time" title="{{ task.timeFull }}">{{ task.timeLabel }}</div>
+              <div role="cell" class="pq-actions"><button type="button" class="pq-action" title="{{ task.claimLabel }}" data-action="{{ task.actionTone }}" sc-camel-on-click="{{ task.action }}" disabled="{{ task.actionDisabled }}" aria-busy="{{ task.busy }}">{{ task.actionLabel }}</button></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ review.queue.empty }}"><div class="pq-empty" role="status"><h2>{{ review.queue.emptyTitle }}</h2><p>{{ review.queue.emptyHint }}</p><sc-if value="{{ review.queue.hasFilters }}"><button type="button" class="pq-action" sc-camel-on-click="{{ review.queue.reset }}">重置筛选</button></sc-if></div></sc-if>
+    </div>
+    <footer class="pq-pagination"><span role="status" aria-live="polite">共 {{ review.queue.total }} 条<span class="pq-range"> · {{ review.queue.range }}</span></span><div class="pq-pagination-controls"><label>每页<select aria-label="每页记录数" value="{{ review.queue.size }}" sc-camel-on-change="{{ review.queue.setSize }}"><option value="10">10 条</option><option value="20">20 条</option><option value="50">50 条</option></select></label><button type="button" disabled="{{ review.queue.first }}" sc-camel-on-click="{{ review.queue.prev }}" aria-label="上一页">[[icon:arrow-left:14]]</button><sc-for list="{{ review.queue.pageNumbers }}" as="p"><button type="button" aria-label="第 {{ p.label }} 页" aria-current="{{ p.selected ? 'page' : 'false' }}" sc-camel-on-click="{{ p.pick }}">{{ p.label }}</button></sc-for><button type="button" disabled="{{ review.queue.last }}" sc-camel-on-click="{{ review.queue.next }}" aria-label="下一页">[[icon:arrow-right:14]]</button></div></footer>
+  </div>
+  <sc-if value="{{ review.queue.hasError }}"><div class="pq-error" role="alert"><span>{{ review.queue.error }}</span><button type="button" sc-camel-on-click="{{ review.queue.refresh }}">重试</button><button type="button" sc-camel-on-click="{{ review.queue.dismissError }}" aria-label="关闭错误提示">[[icon:x:16]]</button></div></sc-if>
+</section>
