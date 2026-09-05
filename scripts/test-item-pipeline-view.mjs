@@ -1,0 +1,39 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {test} from 'node:test';
+import {installItemPipelineView} from './postman-ui/item-pipeline-view.mjs';
+
+const source=fs.readFileSync(new URL('../public/forge-postman.html',import.meta.url),'utf8');
+const opening='<script type="__bundler/template">',closing='\n</script>\n</body>\n</html>';
+const template=JSON.parse(source.slice(source.indexOf(opening)+opening.length,source.lastIndexOf(closing)).trim());
+const built=installItemPipelineView(template);
+const css=fs.readFileSync(new URL('../public/postman-ui/item-pipeline-view.css',import.meta.url),'utf8');
+
+test('Item Pipeline reuses colored node types and explicit execution states',()=>{
+ assert.match(built,/class="pm-item-flow-node"/);
+ assert.match(built,/data-node-kind="\{\{ node\.kind \}\}" data-node-state="\{\{ node\.statusKey \}\}"/);
+ assert.match(built,/pmItemPipelineNodeStatus\(execution,index,nodeNames,runContext\)/);
+ assert.match(built,/statusKey:'passed'/);
+ assert.doesNotMatch(built,/>\{\{ node\.status \}\}<\/small>/);
+ assert.match(css,/border-left:4px solid var\(--pm-node-accent\)/);
+});
+
+test('full Pipeline opens as a large dialog with selectable node details',()=>{
+ assert.match(built,/>查看完整 Pipeline<\/button>/);
+ assert.match(built,/role="dialog" aria-modal="true" aria-labelledby="pm-full-pipeline-title"/);
+ assert.match(built,/aria-label="节点具体信息"/);
+ assert.match(built,/openFullPipeline:\(\)=>update\(\{fullPipeline:true,node:/);
+});
+
+test('failed nodes show a banner and a direct Forge alert-group action',()=>{
+ assert.match(built,/class="pm-item-pipeline-alert"/);
+ assert.match(built,/同步到 Forge 报警群/);
+ assert.match(built,/pipelineAlerts:\{\.\.\.alertState,\[name\]:'sent'\}/);
+ assert.match(built,/class="pm-item-node-failure"/);
+});
+
+test('installer remains idempotent and leaves valid component JavaScript',()=>{
+ assert.equal(installItemPipelineView(built),built);
+ const logic=built.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)?.[1];
+ new Function(logic);
+});

@@ -13,6 +13,7 @@ import {installRunRecords} from './run-records.mjs';
 import {removeDeliveryDrafts} from './remove-delivery-drafts.mjs';
 import {installPipelineResponsive} from './pipeline-responsive.mjs';
 import {installItemExplorer} from './item-explorer.mjs';
+import {installItemPipelineView} from './item-pipeline-view.mjs';
 import {installItemRunEntryActions} from './item-run-entry-actions.mjs';
 import {installTabs} from './tabs.mjs';
 import {installImportMotion} from './import-motion.mjs';
@@ -103,6 +104,7 @@ export function buildPostman(source){
  t=t.replace('&quot;default&quot;:460','&quot;default&quot;:660');
  t=installPipelineResponsive(t);
  t=installItemExplorer(t);
+ t=installItemPipelineView(t);
  t=installItemRunEntryActions(t);
  // Named page hooks avoid coupling the new patterns to inline style strings.
  for (const [flag,name] of [['isOverview','overview'],['isPipelines','pipelines'],['isDatasets','datasets'],['isResources','resources'],['isReview','review'],['isRun','run']]) {
@@ -237,7 +239,8 @@ export function buildPostman(source){
  t=installLoadingStates(t);
  t=installCheckboxMotion(t);
  const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css','loading.css','checkbox-motion.css','empty-states.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
- replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n</style>');
+ const itemPipelineCss=fs.readFileSync(new URL('public/postman-ui/item-pipeline-view.css',root),'utf8');
+ replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+itemPipelineCss+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n</style>');
  replace('</head>','<script type="module" src="/postman-ui/behavior.mjs"></script>\n</head>');
  const logic=t.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)?.[1];new Function(logic);
  return source.slice(0,start+opening.length).replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>')+'\n'+JSON.stringify(t).replaceAll('</script>','<\\u002Fscript>')+closing;
