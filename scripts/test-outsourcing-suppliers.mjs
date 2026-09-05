@@ -62,14 +62,17 @@ test('supplier, sheet and risk filters update all visible modules and empty stat
   v.reset(); v.onCycle({ target: { value: '7d' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant']);
 });
 
-test('supplier trend is a labelled three-series line chart with accessible points', () => {
-  const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
+test('supplier trend can focus one labelled series with accessible points', () => {
+  const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.trendWeeks), ['4 周前', '3 周前', '2 周前', '上周', '本周']);
   assert.equal(v.trendCompletion.length, 5); assert.equal(v.trendEffective.length, 5); assert.equal(v.trendQuality.length, 5);
   assert.match(v.trendCompletionLine, /^0,32 25,26 50,19 75,14 100,9$/);
   assert.deepEqual(Array.from(v.trendCards, card => card.label), ['任务完成率', '有效交付率', '质检通过率']);
   assert.equal(v.trendCards[0].current, '91%'); assert.equal(v.trendCards[0].change, '较上周 +5 个百分点');
-  assert.match(page, /forge-outsourcing-trend-cards/); assert.match(page, /forge-outsourcing-mini-chart/); assert.match(page, /目标 90%/);
+  assert.equal(v.trendMetric, 'all'); assert.equal(v.singleTrend, false);
+  v.onTrendMetric({ target: { value: 'quality' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.trendCards, card => card.label), ['质检通过率']); assert.equal(v.trendCards[0].current, '94%'); assert.equal(v.singleTrend, true); assert.equal(v.trendAriaLabel, '质检通过率趋势');
+  assert.match(page, /aria-label="趋势指标"/); assert.match(page, /data-single="\{\{ outsourcingSuppliers\.singleTrend \}\}"/); assert.match(page, /forge-outsourcing-mini-chart/); assert.match(page, /目标 90%/);
   assert.match(page, /data-forge-chart-tooltip="\{\{ point\.title \}\}"/); assert.match(page, /data-series="\{\{ series\.series \}\}"/);
 });
 
