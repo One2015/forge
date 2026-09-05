@@ -142,8 +142,10 @@
 .forge-postman .pm-billing-date-range label :is(input,select){width:100%;max-width:100%;box-sizing:border-box}
 @media(max-width:760px){
  .forge-postman :is(.rr-page,.pm-page-run,.pm-review-queue){padding:16px 12px!important}
- .forge-postman :is(.rr-summary,.pq-summary).forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr));--pm-summary-inset:8px}
+ .forge-postman .rr-summary.forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr));--pm-summary-inset:8px}
+ .forge-postman .pq-summary.forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr));--pm-summary-inset:8px}
  .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-card{grid-column:auto!important;padding:14px 8px!important;min-height:106px;border-right:1px solid var(--pm-border)}
+ .forge-postman .rr-summary .forge-summary-card:nth-child(n+3){border-bottom:0}
  .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-card:last-child{border-right:0}
  .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-heading{display:grid;grid-template-columns:minmax(0,1fr) 18px;gap:2px;align-items:center;min-height:24px}
  .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-title{font-size:11px;white-space:nowrap}

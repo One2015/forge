@@ -6,6 +6,7 @@ import { confirmDelivery } from './test-support/delivery-wizard.mjs';
 const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const summaryTemplate = fs.readFileSync(new URL('./templates/delivery-wizard-summary.html', import.meta.url), 'utf8');
+const styles = fs.readFileSync(new URL('./templates/delivery-wizard.css', import.meta.url), 'utf8');
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const event = value => ({ target: { value } });
 function component() {
@@ -28,13 +29,13 @@ test('wizard exposes exactly one task and blocks jumps and early submission', ()
   assert.doesNotMatch(summaryTemplate, /tag\.applied|项<\/span>/);
   assert.match(summaryTemplate, /aria-label="已配置 Tag"><sc-for[^>]+><span class="forge-wizard-tag-chip"/);
   assert.doesNotMatch(summaryTemplate, /deliveryEditor\.wizard\.skillCount|skill\.command/);
-  assert.match(summaryTemplate, /class="forge-wizard-summary-skill-values" aria-label="已配置 Skill"><sc-for[^>]+><span>\{\{ skill\.name \}\}<\/span>/);
+  assert.match(summaryTemplate, /class="forge-wizard-summary-skill-values" role="list" aria-label="已配置 Skill"><sc-for[^>]+><span role="listitem">\{\{ skill\.name \}\}<\/span>/);
   assert.doesNotMatch(summaryTemplate, /deliveryEditor\.wizard\.memberCount/);
   assert.match(template, /\.forge-wizard-summary \[data-empty="true"\]\{color:var\(--forge-disabled-text,#a3a3a3\)!important;font-weight:400!important\}/);
   assert.match(template, /class="forge-wizard-summary-rule forge-wizard-summary-tag-section"/);
   assert.equal((summaryTemplate.match(/<div class="forge-wizard-summary-rule(?:\s|")/g) || []).length, 3);
   assert.match(summaryTemplate, /class="forge-wizard-summary-rules" role="list"/);
-  assert.equal((summaryTemplate.match(/role="listitem"/g) || []).length, 3);
+  assert.equal((summaryTemplate.match(/class="forge-wizard-summary-rule[^"]*" role="listitem"/g) || []).length, 3);
   assert.match(template, /\.forge-wizard-summary-rules\{display:grid;grid-template-columns:minmax\(0,1fr\);margin-top:8px/);
   assert.match(template, /\.forge-wizard-summary-rules\{[^}]*border-bottom:0/);
   assert.match(summaryTemplate, /forge-wizard-summary-metric"><span>Tag<\/span><sc-if[^>]+><div class="forge-wizard-summary-tags"/);
@@ -42,11 +43,14 @@ test('wizard exposes exactly one task and blocks jumps and early submission', ()
   assert.match(template, /\.forge-wizard-summary-metric>span\{grid-column:1;min-width:max-content[^}]*white-space:nowrap;word-break:keep-all\}/);
   assert.match(template, /\.forge-wizard-summary-tags\{grid-column:2;display:flex;align-items:center;justify-content:flex-start;justify-self:stretch/);
   assert.doesNotMatch(template, /forge-wizard-summary-counts/);
-  assert.match(template, /\.forge-wizard-summary-skill-values\{grid-column:2;display:flex;align-items:center;justify-content:flex-start;justify-self:stretch[^}]*text-align:left/);
+  assert.match(template, /\.forge-wizard-summary-skill-values\{grid-column:2;display:grid;grid-template-columns:minmax\(0,1fr\);align-items:start;justify-items:start;justify-self:stretch[^}]*text-align:left/);
+  assert.match(template, /\.forge-wizard-summary-skill-values>span\{display:block;width:100%[^}]*font-size:13px[^}]*line-height:19px;font-weight:500[^}]*text-align:left/);
   assert.match(template, /\.forge-wizard-summary-member-tags\{grid-column:2;display:flex;align-items:center;justify-content:flex-start;justify-self:stretch[^}]*width:100%/);
   assert.match(template, /class="forge-wizard-summary-member-tags" aria-label="相关成员"/);
+  assert.match(summaryTemplate, /data-role="\{\{ member\.role \}\}" title="\{\{ member\.roleLabel \}\}" aria-label="\{\{ member\.summaryLabel \}\} · \{\{ member\.roleLabel \}\}"/);
+  for (const role of ['owner', 'reviewer-forge', 'reviewer-outsourcing']) assert.match(template, new RegExp('\\.forge-wizard-summary-member-tags>\\[data-role="' + role + '"\\]\\{'));
   assert.doesNotMatch(summaryTemplate, /aria-label="已配置成员"/);
-  assert(!v.hasSkillPreview); assert(v.hasMemberPreview); assert.equal(v.memberPreview[0].roleLabel, '所有者'); assert.equal(v.memberPreview[0].summaryLabel, '一万 (Owner)');
+  assert(!v.hasSkillPreview); assert(v.hasMemberPreview); assert.equal(v.memberPreview[0].role, 'owner'); assert.equal(v.memberPreview[0].roleLabel, '所有者'); assert.equal(v.memberPreview[0].summaryLabel, '一万 (Owner)');
   assert.doesNotMatch(template, /Tag 与 Skill 选填，成员权限仅对本单生效/);
   assert.equal(v.steps.length, 4); assert(v.steps.slice(1).every(row => row.disabled));
   basics(c); const filled = c.deliveryWizardValues();
@@ -56,10 +60,25 @@ test('wizard exposes exactly one task and blocks jumps and early submission', ()
   c.goDeliveryWizardStep(4); assert.equal(c.state.deliveryEditor.step, 1);
 });
 
+test('delivery date is required, updates the summaries and persists with the sheet', () => {
+  const c = component();
+  assert.match(c.state.deliveryEditor.deliveryDate, /^\d{4}-\d{2}-\d{2}$/);
+  basics(c);
+  c.deliveryEditorValues().onDeliveryDate(event(''));
+  assert.match(c.deliveryWizardBasicIssue(), /交付日期/);
+  assert(c.deliveryWizardValues().deliveryDateEmpty);
+  c.deliveryEditorValues().onDeliveryDate(event('2026-09-30'));
+  assert.equal(c.deliveryWizardValues().deliveryDate, '2026-09-30');
+  valid(c); confirmDelivery(c); c.saveDeliveryEditor();
+  assert.equal(c.deliverySheet(c.state.sheetKey).deliveryDate, '2026-09-30');
+});
+
 test('all four steps retain inputs and completed steps remain editable', () => {
   const c = component(); valid(c); c.patchDeliveryEditor({ desc: '保留说明' });
   confirmDelivery(c); assert(c.deliveryWizardValues().confirm);
+  assert.deepEqual(Array.from(c.deliveryWizardValues().steps, row => row.state), ['complete', 'complete', 'complete', 'current']);
   c.deliveryWizardValues().steps[0].pick(); assert.equal(c.state.deliveryEditor.step, 1);
+  assert.deepEqual(Array.from(c.deliveryWizardValues().steps, row => row.state), ['current', 'upcoming', 'upcoming', 'upcoming']);
   assert.equal(c.state.deliveryEditor.desc, '保留说明'); assert.equal(c.state.deliveryEditor.entries.length, 2);
   c.deliveryWizardValues().steps[3].pick(); assert.equal(c.state.deliveryEditor.step, 4);
 });
@@ -188,7 +207,7 @@ test('Every Item needs a valid Tag once Tag configuration is used', () => {
 test('Tag previews and summary update even before entries are selected', () => {
   const c = component(); c.patchDeliveryEditor({ tagName: 'repair', tagColor: '#e09933' }); c.addDeliveryTag();
   c.deliveryWizardValues().onDefaultTag(event(c.state.deliveryEditor.tags[0].id));
-  let v = c.deliveryWizardValues(); assert.equal(v.tagCount, 1); assert.equal(v.defaultTagName, 'repair'); assert.equal(v.tagPreview[0].color, '#e09933'); assert.equal(v.tagPreview[0].applied, 0);
+  let v = c.deliveryWizardValues(); assert.equal(v.tagCount, 1); assert.equal(v.defaultTagName, 'Repair'); assert.equal(v.tagPreview[0].name, 'Repair'); assert.equal(v.tagPreview[0].color, '#e09933'); assert.equal(v.tagPreview[0].applied, 0);
   c.setDeliveryList('天坛'); v = c.deliveryWizardValues(); assert.equal(v.tagPreview[0].applied, 1);
   v.onDefaultTag(event('')); assert.equal(c.deliveryWizardValues().tagCount, 0); assert(!c.deliveryWizardValues().hasDefaultTag);
 });
@@ -209,11 +228,13 @@ test('rules can be explicitly skipped, without overwriting prior selections on c
 
 test('confirmation exposes members and keeps the sole owner protected', () => {
   const c = component(); valid(c); confirmDelivery(c);
-  let members = c.deliveryMembersValues(); assert.equal(members.rows[0].roleLabel, '所有者'); assert(members.rows[0].removeDisabled);
+  let members = c.deliveryMembersValues(); assert.equal(members.rows[0].roleLabel, '所有者'); assert(members.rows[0].removeDisabled); assert(!members.rows[0].showRemove);
   members.rows[0].remove(); assert.equal(c.state.deliveryEditor.members.length, 1);
   members.onSearch(event('reviewer')); c.deliveryMembersValues().results[0].toggle({ target: { checked: true } });
-  members = c.deliveryMembersValues(); assert.equal(members.rows[1].accountName, 'reviewer'); members.rows[1].onRole(event('owner'));
-  assert(!c.deliveryMembersValues().rows[0].removeDisabled); assert.equal(c.deliveryWizardValues().memberCount, 2);
+  members = c.deliveryMembersValues(); assert.equal(members.rows[1].accountName, 'reviewer'); assert(members.rows[1].showRemove); assert.equal(c.deliveryWizardValues().memberPreview[1].role, 'reviewer-forge');
+  members.rows[1].onRole(event('reviewer-outsourcing')); assert.equal(c.deliveryWizardValues().memberPreview[1].role, 'reviewer-outsourcing');
+  c.deliveryMembersValues().rows[1].onRole(event('owner'));
+  assert(!c.deliveryMembersValues().rows[0].showRemove); assert(!c.deliveryMembersValues().rows[1].showRemove); assert.equal(c.deliveryWizardValues().memberCount, 2);
   c.saveDeliveryEditor(); assert.equal(c.deliverySheet(c.state.sheetKey).members.length, 2);
 });
 
@@ -229,11 +250,18 @@ test('wizard markup has responsive summary, integrated controls and no draft/aut
   assert.deepEqual(Array.from(component().deliveryWizardValues().steps, step => step.label), ['基础信息', '关联条目', '配置规则', '确认创建']);
   assert(!page.includes('粘贴 List')); assert(!page.includes('id="forge-delivery-list"'));
   assert(!page.includes('List 解析结果')); assert(!page.includes('全部 Item 已匹配')); assert(!page.includes('forge-wizard-target-help'));
-  assert(page.includes('<progress')); assert(page.includes('aria-label="创建数据单进度"')); assert(page.includes('forge-wizard-tag-chip'));
+  assert(!page.includes('<progress')); assert(!page.includes('forge-wizard-progress-heading')); assert(page.includes('forge-wizard-tag-chip'));
+  assert(page.includes('aria-label="{{ step.ariaLabel }}"')); assert(page.includes('data-state="{{ step.state }}"'));
+  assert(page.includes('id="forge-delivery-date" type="date"'));
+  assert(summaryTemplate.includes('deliveryEditor.wizard.deliveryDateEmpty'));
   for (const label of ['已创建 Tag', 'forge-wizard-removable-tag', '分配到 Item']) assert(page.includes(label), label);
   for (const removed of ['Tag 编辑模式', 'forge-wizard-tag-modes', 'forge-wizard-tag-delete-list', 'role="tablist"']) assert(!page.includes(removed), removed);
   assert(page.includes('aria-label="{{ tag.removeLabel }}"'));
   assert(page.includes('deliveryEditor.wizard.tagAssignmentLabel'));
+  assert(page.includes('<section class="forge-wizard-item-tags" aria-labelledby="forge-wizard-item-tags-heading">'));
+  assert(page.includes('class="forge-wizard-item-tag-list" role="list"'));
+  assert(page.includes('class="forge-wizard-item-tag-row" role="listitem"'));
+  assert(!styles.match(/\.forge-wizard-item-tags\{[^}]*border:/));
   assert(!page.includes('选择后应用到全部 Item；单条 Item 可在审核分配中调整。'));
   assert(!page.includes('已创建「'));
   for (const label of ['保存草稿', '存为草稿', '草稿已保存', '自动保存', '草稿仅保存在当前浏览器']) assert(!page.includes(label));

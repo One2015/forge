@@ -28,6 +28,8 @@ test('overview exposes six stable core metrics without value prefixes and exact 
   assert(cards.slice(0, 5).every(card => card.actionable && card.description.length > 15 && card.cardLabel));
   assert.equal(cards[4].v, 100); assert.equal(cards[4].unit, '%'); assert.equal(cards[4].auxiliary, '5 / 5 个模型可用');
   assert.equal(cards[5].v, 92.4); assert.equal(cards[5].unit, '%'); assert.equal(cards[5].auxiliary, '较前日 +2.1pp'); assert.equal(cards[5].actionable, true);
+  assert.equal(cards[3].auxiliaryLabel, '较前日'); assert.equal(cards[3].auxiliaryValue, '−8.1%'); assert.equal(cards[3].auxiliaryTone, 'success');
+  assert.equal(cards[5].auxiliaryLabel, '较前日'); assert.equal(cards[5].auxiliaryValue, '+2.1pp'); assert.equal(cards[5].auxiliaryTone, 'success');
   cards[0].go(); assert.equal(c.state.view, 'review'); assert.equal(c.state.reviewOwner, 'mine'); assert.equal(c.state.reviewPhase, 'pending');
   cards[1].go(); assert.equal(c.state.view, 'runs'); assert.equal(c.state.runsFilter, '运行中');
   cards[2].go(); assert.equal(c.state.view, 'delivery'); assert.equal(c.state.delStatus, 'unmet');
@@ -76,6 +78,14 @@ test('yesterday cost uses workspace calendar-day events and only shows a meaning
   ] });
   let billing = c.billingYesterday();
   assert.equal(billing.value, '$1.50'); assert.equal(billing.delta, '较前日 +50.0%');
+  let costCard = c.overviewSummary([], [])[3];
+  assert.equal(costCard.auxiliaryLabel, '较前日'); assert.equal(costCard.auxiliaryValue, '+50.0%'); assert.equal(costCard.auxiliaryTone, 'danger');
+  c.billingSource = () => ({ kind: 'ready', demo: false, events: [
+    { occurredAt: start + 1000, costMicros: 500000, inputTokens: 0, outputTokens: 0 },
+    { occurredAt: start - 1000, costMicros: 1000000, inputTokens: 0, outputTokens: 0 }
+  ] });
+  costCard = c.overviewSummary([], [])[3];
+  assert.equal(costCard.auxiliaryValue, '−50.0%'); assert.equal(costCard.auxiliaryTone, 'success');
   c.billingSource = () => ({ kind: 'ready', demo: false, events: [{ occurredAt: start + 1000, costMicros: 1, inputTokens: 0, outputTokens: 0 }] });
   billing = c.billingYesterday();
   assert.equal(billing.delta, '');
@@ -216,13 +226,16 @@ test('info controls are separate from card navigation and supported in the stand
   assert(markup.includes('data-phosphor="info"'));
   assert(markup.includes('aria-label="{{ s.cardLabel }}"'));
   assert(markup.includes('class="forge-summary-link" sc-camel-on-click="{{ s.go }}"'));
-  assert(markup.includes('class="forge-summary-auxiliary">{{ s.auxiliary }}'));
+  assert(markup.includes('class="forge-summary-auxiliary"><span>{{ s.auxiliaryLabel }}</span>'));
+  assert(markup.includes('data-tone="{{ s.auxiliaryTone }}">{{ s.auxiliaryValue }}'));
   assert(markup.includes('hint-placeholder-count="6"'));
   assert(!markup.includes('forge-summary-prefix'));
   assert(!markup.includes('forge-supplier-performance'));
   assert(!markup.includes('forge-summary-note'));
   assert(!markup.includes('s.detail'));
-  assert(template.includes("auxiliary: supplier.hasPassRate ? supplier.passRateDelta"));
+  assert(template.includes("...auxiliary(supplier.hasPassRate ? supplier.passRateDelta"));
+  assert.match(template, /\.forge-summary-auxiliary strong\[data-tone="success"\]\{color:var\(--forge-success\)\}/);
+  assert.match(template, /\.forge-summary-auxiliary strong\[data-tone="danger"\]\{color:var\(--forge-danger\)\}/);
   assert(!markup.includes('<article sc-camel-on-click'));
   assert(template.includes('.forge-overview-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))'));
   assert(template.includes('@media(max-width:1100px){.forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr))'));

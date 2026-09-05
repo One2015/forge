@@ -34,7 +34,9 @@ test('time granularity is a secondary unfilled control while metrics retain thei
   assert(template.includes('class="forge-billing-segment" role="group" aria-label="趋势指标"'));
   assert.match(template, /<\/header>\s*<div class="forge-billing-chart-controls">/);
   assert.match(template, /class="forge-billing-custom-time"[^>]*aria-label="选择自定义时间范围"/);
-  assert.match(template, /\.forge-billing-chart-controls\{[^}]*justify-content:flex-start[^}]*margin-bottom:12px/);
+  assert.match(template, /\.forge-billing-chart-controls\{[^}]*justify-content:flex-start[^}]*width:100%[^}]*margin-bottom:12px/);
+  assert.match(template, /\.forge-billing-chart-controls>\.forge-billing-granularity\{margin-left:auto\}/);
+  assert.match(template, /\.forge-billing-chart-controls\{flex-direction:column;align-items:stretch;gap:8px\}\.forge-billing-granularity\{align-self:flex-end\}/);
   assert.match(template, /\.forge-billing-granularity\{[^}]*background:transparent/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\{[^}]*background:transparent;box-shadow:none/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\[aria-pressed="true"\]\{[^}]*text-decoration:underline/);
@@ -79,12 +81,26 @@ test('the authorized demo ledger is explicitly labelled on both surfaces and cac
   assert.match(c.billingYesterday().description, /尚未接入真实消费/);
   assert.equal(c.billingYesterday().value, c.billingValues().metrics[0].value);
   assert(c.billingValues().rows.length > 1);
+  const anomaly = c.billingValues().abnormalRuns[0], mock = c.billingRunRecords().find(run => run.id === anomaly.runId);
+  assert(mock?.billingMock); assert.equal(mock.cost, anomaly.cost); assert(mock.itemMeta.length > 0);
+  assert(!c.runsData().some(run => run.billingMock));
+  assert.equal(mock.itemCosts.reduce((sum, value) => sum + Number(value.replace('$', '')), 0).toFixed(2), mock.cost.replace('$', ''));
+  let prevented = false; anomaly.open({ preventDefault() { prevented = true; } });
+  const detail = c.renderVals(); assert(prevented); assert.equal(c.state.activeRun, anomaly.runId); assert(detail.isRun); assert.match(detail.run.id, new RegExp(anomaly.runId));
+  assert.deepEqual(Array.from(detail.run.items, item => item.cost), Array.from(mock.itemCosts));
+});
+
+test('real billing input never creates synthetic production runs', () => {
+  const c = values(ledger([event('linked', { runId: 'external-run' })]));
+  assert.equal(c.billingRunRecords().length, 0);
 });
 
 test('same totals across project, supplier, and brand-qualified model views', () => {
   const c = values(ledger([event('a'), event('b', { projectId: 'p2', projectName: '项目 B', providerId: 'p2', providerName: '供应商 B' }), event('c', { brandId: 'other', brandName: '品牌 B', modelName: '另一个同 ID 型号' })]));
   let v = c.billingValues(); assert.equal(v.rows.length, 2); assert.equal(v.metrics[0].value, '$7.50'); assert.equal(v.metrics[1].value, '3,750');
-  for (const id of ['projects', 'suppliers', 'models']) { v.tabs.find(t => t.id === id).pick(); v = c.billingValues(); assert.equal(v.rows.length, 2); assert.equal(v.metrics[0].value, '$7.50'); }
+  assert(v.showOverviewSummary);
+  assert(!v.tabs.some(tab => tab.id === 'projects'));
+  for (const id of ['suppliers', 'models']) { v.tabs.find(t => t.id === id).pick(); v = c.billingValues(); assert.equal(v.rows.length, 2); assert.equal(v.metrics[0].value, '$7.50'); assert(!v.showOverviewSummary); }
   assert(v.rows.every(row => row.subtitle.includes('品牌')));
 });
 
@@ -103,7 +119,7 @@ test('filters update metrics, chart and table together; supplier change clears a
 test('dimension row drilldown narrows existing dates and updates native select state', () => {
   const c = values(); let v = c.billingValues(); const id = v.rows[0].id;
   v.rows[0].inspect(); v = c.billingValues();
-  assert.equal(v.project, id); assert(v.tabs[2].active); assert.equal(v.start, '2026-09-02');
+  assert.equal(v.project, id); assert(v.tabs.find(tab => tab.id === 'suppliers').active); assert.equal(v.start, '2026-09-02');
   assert(v.projects.find(p => p.id === id).selected);
   v.tabs.find(t => t.id === 'suppliers').pick(); v = c.billingValues(); v.rows[0].inspect();
   v = c.billingValues(); assert(v.provider); assert(v.tabs.find(t => t.id === 'models').active);
@@ -200,8 +216,8 @@ test('semantic charts, native calendars, labelled demo, focus states and updater
   const html = template.match(/<!-- billing:start -->[\s\S]*?<!-- billing:end -->/)[0];
   const c = values();
   assert.equal(c.billingValues().tabs[0].current, 'page');
-  c.billingValues().tabs[1].pick();
-  assert.equal(c.billingValues().tabs[1].current, 'page');
+  c.billingValues().tabs.find(tab => tab.id === 'suppliers').pick();
+  assert.equal(c.billingValues().tabs.find(tab => tab.id === 'suppliers').current, 'page');
   assert.equal(c.billingValues().tabs[0].current, 'false');
   assert.equal(c.billingValues().costSort, 'descending');
   c.billingValues().sortTokens();
@@ -211,6 +227,8 @@ test('semantic charts, native calendars, labelled demo, focus states and updater
   assert.match(html, /type="date"/); assert.match(html, /role="columnheader"/); assert.match(html, /role="rowheader"/); assert.match(html, /role="table"/); assert.match(html, /aria-sort=/); assert.match(html, /aria-pressed=/);
   assert.match(html, /当前未接入真实账单/); assert.match(html, /role="alert"/); assert.match(html, /aria-busy="true"/);
   assert.match(html, /<strong>示例数据<\/strong>/); assert.match(html, /forge-billing-metric-detail/); assert.doesNotMatch(html, /forge-billing-composition/);
+  assert.match(html, /showOverviewSummary[^]*forge-billing-metrics/); assert.match(html, /showOverviewSummary[^]*billing-anomaly-title[^]*billing-change-title/);
+  assert.match(html, /data-forge-tooltip="\{\{ metric\.help \}\}"/); assert.doesNotMatch(html, /forge-billing-metrics-meta|forge-billing-definition|计费说明/);
   assert.match(template, /\.forge-billing-filters\{display:grid;grid-template-columns:[^}]* auto;/); assert.match(template, /\.forge-billing-metrics>div\{[^}]*background:transparent/);
   const methods = fs.readFileSync(new URL('./templates/billing-methods.js', import.meta.url), 'utf8'); assert(!/fetch\(|XMLHttpRequest|localStorage|sessionStorage/.test(methods));
   assert.equal(updateBilling(source), source); assert.equal(updateModelStatus(source), source);
@@ -224,6 +242,7 @@ test('four nonredundant KPIs compare equal periods with consistent scope and dis
   assert.deepEqual(Array.from(v.metrics, m => m.label), ['昨日成本', '总 Tokens', '调用次数', '平均调用成本']);
   assert.equal(v.metrics[0].value, '$10.00'); assert.match(v.metrics[0].note, /\+300.0%/); assert.equal(v.metrics[0].tone, 'danger'); assert.match(v.metrics[0].detail, /最大增量来自/);
   assert.equal(v.metrics[2].value, '2'); assert.equal(v.metrics[3].value, '$5.00');
+  assert.match(v.metrics[0].help, /UTC\+8/); assert.match(v.metrics[1].help, /输入 Tokens 与输出 Tokens 之和/); assert.match(v.metrics[2].help, /调用记录数/); assert.match(v.metrics[3].help, /总费用 ÷ 调用次数/);
   assert.match(v.insight, /调用量变化贡献 \+\$2.50/); assert.match(v.insight, /模型组合变化贡献 \+\$5.00/);
   assert.match(v.updated, /11:59/); assert(!v.demo);
   assert.match(values(ledger([event('one')])).billingValues().metrics[0].note, /数据不足/);
@@ -273,7 +292,13 @@ test('stacked distribution, change reasons and abnormal runs are exposed without
   const v = c.billingValues(), html = template.match(/<!-- billing:start -->[\s\S]*?<!-- billing:end -->/)[0];
   assert(v.chartSeries.length > 0); assert(v.changeReasons.some(row => row.label === '请求量'));
   assert(v.abnormalRuns.some(row => row.runId === 'run-spike'));
-  assert.match(html, /forge-billing-stack/); assert.match(html, /较前日变化原因/); assert.match(html, /异常成本 Run/);
+  assert.match(html, /forge-billing-stack/); assert.match(html, /变化补充说明/); assert.match(html, /异常成本 Run/);
+  assert.match(html, /<ul class="forge-billing-reasons"><sc-for[\s\S]*?<li>/);
+  assert.match(html, /forge-billing-chart[\s\S]*forge-billing-breakdown[\s\S]*billing-anomaly-title/);
+  assert.match(html, /\{\{ billing\.tableLabel \}\}费用明细/);
+  assert.match(html, /<a class="forge-billing-run-link" href="\{\{ run\.href \}\}"[^>]*>查看详情<\/a>/);
+  assert.match(template, /\.forge-billing-chart\{[^}]*border-bottom:0/);
+  assert.match(template, /\.forge-billing-analysis\[aria-labelledby="billing-change-title"\]\{border-top:0\}/);
   assert.doesNotMatch(html, /treemap|line-chart/i);
 });
 
@@ -296,7 +321,7 @@ test('project and supplier drilldowns preserve time, expose alternative dimensio
   const c = values(); let v = c.billingValues(); const total = v.metrics[0].value;
   v.rows[0].inspect(); v = c.billingValues(); assert(v.canGoBack); assert(v.tabs.find(t => t.id === 'suppliers').active);
   const project = v.project; v.rows[0].inspect(); v = c.billingValues(); assert.equal(v.project, project); assert(v.provider); assert(v.tabs.find(t => t.id === 'models').active);
-  v.tabs.find(t => t.id === 'projects').pick(); assert(c.billingValues().rows.every(r => r.id === project));
+  v.tabs.find(t => t.id === 'overview').pick(); assert(c.billingValues().rows.every(r => r.id === project));
   c.billingValues().drillBack(); v = c.billingValues(); assert.equal(v.project, project); assert.equal(v.provider, '');
   v.drillBack(); v = c.billingValues(); assert.equal(v.metrics[0].value, total); assert(!v.hasChips && !v.canGoBack);
 });

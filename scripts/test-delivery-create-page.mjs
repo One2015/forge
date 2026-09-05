@@ -181,9 +181,14 @@ test('save cannot bypass an active leave confirmation; successful creation enter
 test('existing sheet editing keeps its native dialog and adds the review assignment tab', () => {
   const { c } = component(); c.state.view = 'sheet'; c.state.sheetKey = 'ant200'; c.openDeliveryEditor('ant200');
   const v = c.deliveryEditorValues(); assert(!v.page && v.modal && v.basic && !v.list && !v.skillTab);
-  assert.equal(v.tabs.length, 4); v.tabs[2].pick(); assert(c.deliveryEditorValues().skillTab);
-  v.tabs[3].pick(); assert(c.deliveryEditorValues().reviewTab);
-  v.onName(input('不保存')); v.cancel();
+  assert.equal(v.deliveryDate, '2026-09-12');
+  v.onDeliveryDate(input('2026-09-20')); v.save();
+  assert.equal(c.deliverySheet('ant200').deliveryDate, '2026-09-20');
+  c.openDeliveryEditor('ant200');
+  const reopened = c.deliveryEditorValues();
+  assert.equal(reopened.tabs.length, 4); reopened.tabs[2].pick(); assert(c.deliveryEditorValues().skillTab);
+  reopened.tabs[3].pick(); assert(c.deliveryEditorValues().reviewTab);
+  reopened.onName(input('不保存')); reopened.cancel();
   assert.equal(c.state.view, 'sheet'); assert.notEqual(c.deliverySheet('ant200').name, '不保存');
 });
 
@@ -196,7 +201,8 @@ test('shared form is mutually exclusive, readable, live-updated and uses a prote
   assert(block.includes('<dialog class="forge-delivery-editor')); assert(block.includes('<dialog class="forge-delivery-leave-dialog'));
   assert(block.includes('sc-camel-on-cancel="{{ deliveryLeave.keep }}"'));
   assert(block.includes('autofocus sc-camel-on-click="{{ deliveryLeave.keep }}"'));
-  for (const name of ['onName', 'onCustomer', 'onTarget', 'onDesc']) assert(page.includes('sc-camel-on-input="{{ deliveryEditor.' + name + ' }}"'));
+  for (const name of ['onName', 'onCustomer', 'onTarget', 'onDeliveryDate', 'onDesc']) assert(page.includes('sc-camel-on-input="{{ deliveryEditor.' + name + ' }}"'));
+  assert(block.includes('id="forge-delivery-date" type="date"'));
   assert(template.includes('.forge-delivery-create-page .forge-delivery-editor-footer{position:sticky;bottom:0;'));
   assert(template.includes('.forge-wizard-layout{display:grid;'));
   for (const migration of [updateDeliverySkillWorkspace, updateMemberPicker, addDeliverySkillLibrary]) assert(migration(source) === source, migration.name + ' preserves the creation page');

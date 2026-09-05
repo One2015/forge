@@ -74,6 +74,7 @@
     if (!editor.customer.trim()) return '请填写客户 / 供应商。';
     if (editor.customer.trim().length > 80) return '客户 / 供应商不能超过 80 字。';
     if (!/^\d+$/.test(editor.target) || Number(editor.target) < 1 || Number(editor.target) > 500) return '目标数量须为 1–500 的整数，与有效 Item 数量一致。';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(editor.deliveryDate || '') || Number.isNaN(Date.parse(editor.deliveryDate + 'T00:00:00Z'))) return '请选择有效的交付日期。';
     if (editor.logoLoading) return 'Logo 正在读取，请稍候。';
     return '';
   }
@@ -186,11 +187,14 @@
     const tagPreview = editor.tags.filter(tag => tagIds.has(tag.id)).map(tag => Object.assign({}, tag, { isDefault: tag.id === editor.defaultTagId, applied: editor.entries.filter(entry => entry.tagId !== '__none__' && (entry.tagId || editor.defaultTagId) === tag.id).length }));
     const skillPreview = editor.skills.map(skill => ({ name: skill.name, command: '/' + this.skillCommand(skill.command) }));
     const memberRoles = new Map(this.deliveryMemberRoles().map(role => [role.key, role.label]));
-    const memberPreview = editor.members.map(member => ({
-      name: member.name || member.accountName,
-      roleLabel: memberRoles.get(member.role) || '待配置',
-      summaryLabel: (member.name || member.accountName) + (member.role === 'owner' ? ' (Owner)' : '')
-    }));
+    const memberDirectory = new Map(this.deliveryMemberDirectory().map(person => [person.accountName, person]));
+    const memberPreview = editor.members.map(member => {
+      const person = memberDirectory.get(member.accountName), name = member.name || member.accountName;
+      const detail = member.detail || person?.detail || '', external = member.role === 'reviewer-outsourcing' || member.external || person?.external;
+      const teamName = member.teamName || person?.teamName || detail.replace(/^外部专家\s*[·-]\s*/, '');
+      return { name, detail, teamName, role: ['owner', 'reviewer-forge', 'reviewer-outsourcing'].includes(member.role) ? member.role : 'unknown',
+        roleLabel: memberRoles.get(member.role) || '待配置', summaryLabel: external ? '外部专家 · ' + (teamName || name) : name + (member.role === 'owner' ? ' (Owner)' : '') };
+    });
     const availableTagIds = new Set(editor.tags.map(tag => tag.id));
     const assignedTagCount = editor.entries.filter(entry => this.deliveryWizardEntryTagIds(editor, entry).some(tagId => availableTagIds.has(tagId))).length;
     const productionTasks = this.deliveryProductionTasks(), taskQuery = (editor.productionQuery || '').trim().toLowerCase();
@@ -208,9 +212,14 @@
       issue, disabled: !!issue, action: step === 4 ? '创建数据单' : '下一步', progress: step * 25, progressLabel: '第 ' + step + ' / 4 步 · ' + titles[step - 1],
       next: () => { if (this.state.deliveryEditor?.id !== id) return; if (step === 4) this.saveDeliveryEditor(); else this.goDeliveryWizardStep(step + 1, id); },
       previous: () => this.goDeliveryWizardStep(step - 1, id),
-      steps: titles.map((label, index) => ({ label, number: index + 1, current: index + 1 === step, ariaCurrent: index + 1 === step ? 'step' : 'false',
-        complete: index + 1 < reached && !problems.some(problem => problem.step <= index + 1),
-        disabled: index + 1 > reached || (index + 1 > step && problems.some(problem => problem.step < index + 1)), pick: () => this.goDeliveryWizardStep(index + 1, id) })),
+      steps: titles.map((label, index) => {
+        const position = index + 1, current = position === step;
+        const complete = position < step && !problems.some(problem => problem.step <= position);
+        const state = current ? 'current' : complete ? 'complete' : 'upcoming';
+        return { label, number: position, current, complete, state, ariaCurrent: current ? 'step' : 'false',
+          ariaLabel: '第 ' + position + ' 步，共 4 步：' + label + '，' + ({ current: '当前步骤', complete: '已完成', upcoming: '未开始' })[state],
+          disabled: position > reached || (position > step && problems.some(problem => problem.step < position)), pick: () => this.goDeliveryWizardStep(position, id) };
+      }),
       stats, hasEntries: !!editor.entries.length, noRows: !rows.length, rows, onlyExceptions: !!editor.onlyExceptions,
       onExceptions: event => patch({ onlyExceptions: event.target.checked, entryPage: 1 }),
       range: filtered.length ? ((page - 1) * pageSize + 1) + '–' + Math.min(page * pageSize, filtered.length) + ' / ' + filtered.length + ' 条' : '0 条',
@@ -237,8 +246,8 @@
       tagAssignmentLabel: '已分配 ' + assignedTagCount + ' / ' + editor.entries.length + ' 个 Item',
       tagCount: tagIds.size, skillCount: editor.skills.length, memberCount: editor.members.length,
       validEmpty: stats.valid === 0, tagEmpty: tagIds.size === 0, skillEmpty: editor.skills.length === 0, memberEmpty: editor.members.length === 0,
-      name: editor.name.trim() || '未填写', customer: editor.customer.trim() || '未填写', target: editor.target || '未填写',
-      nameEmpty: !editor.name.trim(), customerEmpty: !editor.customer.trim(), targetEmpty: !editor.target,
+      name: editor.name.trim() || '未填写', customer: editor.customer.trim() || '未填写', target: editor.target || '未填写', deliveryDate: editor.deliveryDate || '未填写',
+      nameEmpty: !editor.name.trim(), customerEmpty: !editor.customer.trim(), targetEmpty: !editor.target, deliveryDateEmpty: !editor.deliveryDate,
       skillNames: editor.skills.map(skill => skill.name).join('、') || '未选择', desc: editor.desc.trim() || '未填写',
       hasLogo: !!editor.logo, logo: editor.logo?.url || '', noLogo: !editor.logo,
       problems, hasProblems: !!problems.length,

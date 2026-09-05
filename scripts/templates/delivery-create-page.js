@@ -13,7 +13,7 @@
   deliveryDraftSignature(editor) {
     if (!editor) return '';
     return JSON.stringify({
-      name: editor.name, customer: editor.customer, target: editor.target, desc: editor.desc,
+      name: editor.name, customer: editor.customer, target: editor.target, deliveryDate: editor.deliveryDate, desc: editor.desc,
       logo: editor.logo, archive: editor.archive && [editor.archive.name, editor.archive.size],
       listText: editor.listText, entries: editor.entries, tags: editor.tags,
       tagName: editor.tagName, tagColor: editor.tagColor,

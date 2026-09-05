@@ -46,6 +46,8 @@ function installPipelineListLayout(t){
  p=p.slice(0,rowStart)+row+p.slice(rowEnd);
  replace('<div style="border-bottom:1px solid var(--forge-border);background:var(--forge-subtle);padding:16px 18px">','<div class="pm-pipelines-detail" style="border-bottom:1px solid var(--forge-border);background:var(--forge-subtle);padding:16px 18px">');
  replace('<div style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">','<div class="pm-pipelines-detail-actions" style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">');
+ replace('<div style="font-size:12px;color:var(--forge-muted)">累计成本</div>','<div style="font-size:12px;color:var(--forge-muted)">累计使用次数</div>');
+ replace('<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;font-weight:600">{{ p.cost }}</div>\n                        <div style="font-size:12px;color:var(--forge-muted)">· {{ p.runs }}</div>','<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;font-weight:600">{{ p.runs }}</div>');
  replace('<div style="border:1px solid #ece7df;border-radius:10px;background:var(--forge-subtle);padding:13px 14px;overflow-x:auto">','<div class="pm-pipelines-dag" role="region" tabindex="0" aria-label="Pipeline 流程，可横向滚动" style="border:1px solid #ece7df;border-radius:10px;background:var(--forge-subtle);padding:13px 14px;overflow-x:auto">');
  replace('<div style="display:grid;grid-template-columns:52px minmax(0,1fr) 92px;','<div class="pm-pipelines-version" style="display:grid;grid-template-columns:52px minmax(0,1fr) 92px;');
  return t.slice(0,start)+p+t.slice(end);

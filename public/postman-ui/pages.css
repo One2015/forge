@@ -132,7 +132,7 @@
 .forge-postman .forge-billing-metrics dd{font-size:24px;line-height:32px;font-weight:500}
 .forge-postman .forge-billing-metrics>div+div{padding-left:20px;border-left:1px solid var(--pm-border)}
 .forge-postman .forge-billing-trends{gap:24px}
-.forge-postman .forge-billing-chart{border:0;border-top:1px solid var(--pm-border);border-bottom:1px solid var(--pm-border);border-radius:0;padding:16px 0 8px}
+.forge-postman .forge-billing-chart{border:0;border-top:1px solid var(--pm-border);border-bottom:0;border-radius:0;padding:16px 0 8px}
 .forge-postman .forge-billing-chart header{margin-bottom:16px}
 .forge-postman .forge-billing-bar-space{background-image:linear-gradient(to bottom,transparent calc(50% - 1px),var(--pm-border) 50%,transparent calc(50% + 1px));border-top:1px solid var(--pm-border)}
 .forge-postman .forge-billing-cost-bar{background:var(--pm-focus)}
@@ -220,7 +220,7 @@
 .forge-postman .forge-billing-metrics>div+div{border-left:1px solid var(--pm-border)}
 .forge-postman .forge-billing-metrics dd{color:var(--pm-text);font-weight:600}
 .forge-postman .forge-billing-insight{background:transparent;border-radius:0}
-.forge-postman .forge-billing-chart{padding:14px 0 8px;border-top:1px solid var(--pm-border);border-bottom:1px solid var(--pm-border)}
+.forge-postman .forge-billing-chart{padding:14px 0 8px;border-top:1px solid var(--pm-border);border-bottom:0}
 .forge-postman .forge-billing-cost-bar{background:var(--pm-focus)}
 .forge-postman .forge-billing-bar-slot:is(:hover,:focus-visible,[aria-pressed=true]) .forge-billing-cost-bar{background:var(--pm-text)}
 .forge-postman .forge-billing-bar-slot:is(:hover,:focus-visible){background:var(--pm-canvas)}
@@ -252,12 +252,16 @@
 .forge-postman .forge-billing-filters :is(select,.forge-billing-date-trigger){width:100%;box-sizing:border-box}
 .forge-postman .forge-billing-date-trigger{justify-content:space-between;height:32px!important;min-height:32px!important;padding:4px 10px}
 .forge-postman .forge-billing-filters>.forge-billing-link{grid-column:auto;justify-self:start;min-height:32px;margin:0}
+.forge-postman .forge-billing-run-link{color:var(--pm-link-accent);text-decoration:underline;text-underline-offset:3px}
+.forge-postman .forge-billing-run-link:hover{color:var(--pm-link-accent-hover);text-decoration-thickness:2px}
 @supports(appearance:base-select){.forge-postman .forge-billing-filters select::picker(select){inline-size:anchor-size(width);max-inline-size:calc(100vw - 24px);box-sizing:border-box}}
 @media(max-width:1100px){.forge-postman .forge-billing-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.forge-postman .forge-billing-filters>.forge-billing-link{grid-column:1/-1}}
 @media(max-width:520px){.forge-postman .forge-billing-filters{grid-template-columns:minmax(0,1fr)}}
 @media(pointer:coarse){.forge-postman .forge-billing-date-trigger{height:44px!important;min-height:44px!important}}
 
 /* Segmented choices use the same neutral selection language as tabs and filters. */
+.forge-postman .forge-app-shell .forge-billing-segment[data-pm-tabs]{overflow:visible!important;scrollbar-width:none}
+.forge-postman .forge-app-shell .forge-billing-segment[data-pm-tabs]::-webkit-scrollbar{display:none}
 .forge-postman .forge-billing-segment button[aria-pressed=true]{background:var(--pm-selected)!important;color:var(--pm-text)!important;box-shadow:inset 0 0 0 1px var(--pm-focus)!important}
 
 /* Case quality and review decisions are independent semantic roles. */

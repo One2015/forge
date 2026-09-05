@@ -43,7 +43,7 @@
 
   deliveryDraftPayload(editor) {
     // IndexedDB structured cloning preserves the original ZIP Blob/File, unlike JSON storage.
-    const fields = ['name', 'customer', 'target', 'desc', 'logo', 'archive', 'entries', 'listText', 'listChanged', 'tags', 'skills', 'members',
+    const fields = ['name', 'customer', 'target', 'deliveryDate', 'desc', 'logo', 'archive', 'entries', 'listText', 'listChanged', 'tags', 'skills', 'members',
       'tagName', 'tagColor', 'tagComposerOpen', 'tagManagerMode', 'skillDraft', 'skillUploads', 'skillMode', 'listError', 'logoError', 'skillError'];
     return structuredClone(Object.fromEntries(fields.map(key => [key, editor[key]])));
   }
@@ -52,6 +52,7 @@
     const d = record?.data;
     return record?.schema === 1 && record.owner === owner && typeof record.id === 'string' && Number.isInteger(record.revision) && record.revision > 0 && Number.isFinite(record.savedAt) && d &&
       ['name', 'customer', 'target', 'desc', 'listText', 'tagName', 'tagColor'].every(key => typeof d[key] === 'string') &&
+      (d.deliveryDate === undefined || typeof d.deliveryDate === 'string') &&
       ['entries', 'tags', 'skills', 'members', 'skillUploads'].every(key => Array.isArray(d[key]) && d[key].every(value => value && typeof value === 'object')) &&
       d.entries.length <= 500 && d.tags.length <= 20 && d.skills.length <= 12 && d.skillUploads.length <= 12 &&
       d.entries.every(e => ['key', 'source', 'name'].every(k => typeof e[k] === 'string')) &&
@@ -135,7 +136,7 @@
       this.openDeliveryEditor();
       const editor = Object.assign({}, this.state.deliveryEditor, this.deliveryDraftPayload(record.data), {
         savedDraftId: id, draftRevision: record.revision, draftSavedAt: record.savedAt, draftSaving: false, draftError: '', draftConflict: false,
-        memberActor: owner, memberBaseline: this.deliveryMemberSignature(record.data.members)
+        memberActor: owner, memberBaseline: this.deliveryMemberSignature(record.data.members), deliveryDate: record.data.deliveryDate || ''
       });
       editor.draftBaseline = this.deliveryDraftSignature(editor);
       this.setState({ deliveryEditor: editor });

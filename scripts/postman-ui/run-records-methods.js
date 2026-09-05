@@ -15,12 +15,10 @@
     const telemetry=synthetic?ForgeRunRecords.mockTelemetry(raw):this.props.runTelemetry;
     const all=ForgeRunRecords.calculate(raw,{now,anchor,telemetry,timings:Array.isArray(this.props.runTimings)?this.props.runTimings:ForgeRunRecords.mockTimings(),decisions:st.reviewDecisions,itemTech:st.runItemTech});
     const patch=p=>this.setState({runsPage:1,runsMenu:'',...p});
-    const clear=()=>patch({runsQuery:'',runsFilter:'全部',runsMine:false,runsMetric:''});
+    const clear=()=>patch({runsQuery:'',runsFilter:'全部',runsMine:false});
     const filter=({'运行中':'running','成功':'completed','运行完成':'completed','失败':'failed','运行失败':'failed','排队中':'queued','已取消':'cancelled'})[st.runsFilter]||'all';
-    const metric=['running','review','failed'].includes(st.runsMetric)?st.runsMetric:'';
     const query=String(st.runsQuery||'').trim().toLowerCase();
-    const matchMetric=r=>metric==='review'?r.counts.review>0:!metric||r.state===metric;
-    const matches=all.rows.filter(r=>(filter==='all'||r.state===filter)&&matchMetric(r)&&(!st.runsMine||r.owner===(this.props.currentUser||'一万'))&&(!query||[r.strategy,r.name,r.pipe,r.dsName,r.id,r.owner].join(' ').toLowerCase().includes(query))).sort((a,b)=>b.started-a.started);
+    const matches=all.rows.filter(r=>(filter==='all'||r.state===filter)&&(!st.runsMine||r.owner===(this.props.currentUser||'一万'))&&(!query||[r.strategy,r.name,r.pipe,r.dsName,r.id,r.owner].join(' ').toLowerCase().includes(query))).sort((a,b)=>b.started-a.started);
     const size=[10,20,50].includes(Number(st.runsPageSize))?Number(st.runsPageSize):10, pages=Math.max(1,Math.ceil(matches.length/size)), page=Math.min(pages,Math.max(1,Number(st.runsPage)||1));
     const stop=e=>e?.stopPropagation();
     const open=(r,failures=false)=>e=>{stop(e);const index=Array.from({length:r.n},(_,i)=>i).find(i=>(st.runItemTech?.[r.id+':'+i]?.status|| (i<r.done?'success':i<r.done+r.running?'running':i<r.done+r.running+r.failed?'failed':'queued'))==='failed');this.setState({view:'run',activeRun:r.id,runItem:failures&&index!=null?r.id+':'+index:null,runsMenu:''});if(failures&&index!=null)setTimeout(()=>{if(typeof document!=='undefined')document.querySelectorAll('.pm-run-item')[index]?.scrollIntoView({block:'center',behavior:'instant'});},100);};
@@ -38,10 +36,10 @@
         actionTone:action,actionLabel:({cause:'查看原因',failed:'查看失败项',review:'去审核',detail:detailLabel})[action],action:action==='review'?review:['failed','cause'].includes(action)?failed:detail,
         copy:e=>{stop(e);this.copyRunRecordId(r.id);},copyLabel:st.runsCopied===r.id?'已复制':'复制 Run ID '+r.id};
     });
-    const kpis=[['running','运行中',all.running,'','按运行状态统计'],['review','待审核',all.review,'','所有运行的待审核 Item 总数'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分 Item 失败']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title,selected:metric===key,pick:()=>patch({runsMetric:metric===key?'':key})}));
+    const kpis=[['all','全部',all.rows.length,'','当前范围内的全部运行记录'],['running','运行中',all.running,'','按运行状态统计'],['review','待审核',all.review,'','所有运行的待审核 Item 总数'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分 Item 失败']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title}));
     return {rows,kpis,subtitle:raw.length+' 次运行',count:matches.length+' / '+raw.length,hasAny:!!raw.length,empty:!matches.length,emptyTitle:raw.length?'没有匹配的运行':'还没有运行记录',emptyHint:raw.length?'试试减少筛选条件，或换个关键词。':'从 Pipeline 发起运行后，记录会显示在这里。',query:st.runsQuery||'',onQuery:e=>patch({runsQuery:e.target.value}),mineSelected:!!st.runsMine,toggleMine:()=>patch({runsMine:!st.runsMine}),
       filters:[['all','全部'],['running','运行中'],['completed','运行完成'],['failed','运行失败'],['queued','排队中'],['cancelled','已取消']].map(([key,label])=>({label,selected:filter===key,pick:()=>patch({runsFilter:label})})),
-      hasFilters:!!query||filter!=='all'||!!st.runsMine||!!metric,clear,metricLabel:metric?kpis.find(k=>k.key===metric).label:'',hasMetric:!!metric,
+      hasFilters:!!query||filter!=='all'||!!st.runsMine,clear,metricLabel:'',hasMetric:false,
       total:matches.length,page,pages,size,first:page===1,last:page===pages,prev:()=>this.setState({runsPage:Math.max(1,page-1)}),next:()=>this.setState({runsPage:Math.min(pages,page+1)}),setSize:e=>patch({runsPageSize:Number(e.target.value)}),
       notice:st.runsNotice||'',hasNotice:!!st.runsNotice,dismiss:()=>this.setState({runsNotice:''})};
   }

@@ -1,6 +1,9 @@
   // model-status-dashboard:start
   modelStatusDashboard(input, snapshot, isDemo) {
     const state = this.state;
+    const overviewWindowDefs = [['1h', '近 1 小时'], ['24h', '近 24 小时'], ['7d', '近 7 天'], ['30d', '近 30 天']];
+    const overviewWindow = overviewWindowDefs.some(([id]) => id === state.modelOverviewWindow) ? state.modelOverviewWindow : '1h';
+    const overviewWindowLabel = overviewWindowDefs.find(([id]) => id === overviewWindow)?.[1] || '近 1 小时';
     const { fresh } = this.modelEvidenceClock(input);
     const rawRoutes = new Map((Array.isArray(input?.routes) ? input.routes : []).map(route => [route.id, route]));
     const providerRecords = new Map((Array.isArray(input?.providers) ? input.providers : []).map(provider => [provider.id, provider]));
@@ -9,13 +12,17 @@
     const percent = value => Number(value).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
     const signed = (value, suffix = '%') => value > 0 ? '+' + num(value) + suffix : value < 0 ? '−' + num(Math.abs(value)) + suffix : '正常';
     const time = at => new Date(at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const timestamp = value => { const parsed = typeof value === 'number' ? value : Date.parse(value); return Number.isFinite(parsed) ? parsed : null; };
+    const currentTime = timestamp(input?.catalogCheckedAt) || Date.now();
     const statusLabels = { severe: '严重', performance: '警告', quality: '质量异常', confirm: '需确认', billing: '余额不足', normal: '正常', failed: '调用失败', unknown: '待确认', inactive: '未纳入生产' };
+    const protocolPaths = { 'anthropic-messages': '/v1/messages', 'openai-chat': '/v1/chat/completions', 'openai-responses': '/v1/responses', 'gemini-content': '/v1beta/models/{model}:generateContent' };
     // Use explicit error categories; severity and latency alone cannot identify a supplier cause.
     const alertReasonLabels = { supplier_balance: '供应商余额不足', key_unavailable: 'Key 暂时不可用', account_shortage: '供应商账号紧缺', downstream_error: '下游供应商报错' };
     const errorReasons = { insufficient_balance: 'supplier_balance', arrears: 'supplier_balance', key_unavailable: 'key_unavailable', authentication_failed: 'key_unavailable', account_shortage: 'account_shortage', downstream_error: 'downstream_error', upstream_error: 'downstream_error' };
     const toneFor = status => ['severe', 'failed', 'billing'].includes(status) ? 'danger' : ['performance', 'quality', 'confirm'].includes(status) ? 'warning' : status === 'normal' ? 'success' : 'muted';
     const lines = snapshot.rows.map(row => {
-      const raw = rawRoutes.get(row.id) || {}, usage = raw.usage || {}, latency = raw.latency || {}, quality = raw.quality || {}, evidence = isDemo ? raw.demoEvidence || {} : {};
+      const raw = rawRoutes.get(row.id) || {}, rawUsage = raw.usage || {}, windowUsage = rawUsage.windows?.[overviewWindow];
+      const usage = windowUsage || (overviewWindow === '1h' ? rawUsage : {}), latency = raw.latency || {}, quality = raw.quality || {}, evidence = isDemo ? raw.demoEvidence || {} : {};
       const usageKnown = !row.uncertain && fresh(usage.checkedAt) && Number.isSafeInteger(usage.calls) && usage.calls >= 0 && Number.isSafeInteger(usage.failures) && usage.failures >= 0 && usage.failures <= usage.calls && Number.isFinite(usage.costUsd) && usage.costUsd >= 0;
       const latencyKnown = row.latencyLabel.includes('×') && Number.isFinite(latency.currentMs) && Number.isFinite(latency.baselineMs) && latency.baselineMs > 0;
       const calls = usageKnown ? usage.calls : null, failures = usageKnown ? usage.failures : null, failureRate = calls ? failures / calls * 100 : calls === 0 ? 0 : null;
@@ -33,6 +40,8 @@
       const qualityKind = evidence.qualityKind || (row.regressed ? 'drift' : qualityKnown ? 'normal' : 'retest');
       const inferredStatus = row.result === 'failed' && row.active ? 'failed' : row.slow ? 'severe' : row.regressed ? 'quality' : row.billingAlert ? 'billing' : row.active && row.result === 'passed' ? 'normal' : row.active || row.uncertain ? 'unknown' : 'inactive';
       const statusKey = evidence.status || inferredStatus;
+      const explicitIssueAt = timestamp(evidence.abnormalStartedAtMs ?? raw.issueStartedAt ?? raw.incidentStartedAt);
+      const observedAt = explicitIssueAt ?? timestamp(raw.checkedAt);
       const callReason = row.result === 'failed' && Object.hasOwn(errorReasons, raw.errorCode) ? errorReasons[raw.errorCode] : '';
       const balanceReason = fresh(billing.checkedAt) && ['balance_low', 'arrears'].includes(billing.status) ? 'supplier_balance' : '';
       const alertReasons = row.active && !row.uncertain ? [...new Set((isDemo ? evidence.alertReasons || [] : [callReason, balanceReason]).filter(reason => Object.hasOwn(alertReasonLabels, reason)))] : [];
@@ -44,12 +53,17 @@
       const urgentDdl = /1 天|今日|小时/.test(impact.ddl || '');
       const severity = { severe: 6, failed: 6, billing: 5, quality: 4, confirm: 4, performance: 3, unknown: 2, normal: 0, inactive: -1 }[statusKey] ?? 1;
       const businessScore = severity * 100 + (impact.tasks || 0) * 18 + (urgentDdl ? 25 : 0);
+      const protocolPath = Object.hasOwn(protocolPaths, raw.protocol) ? protocolPaths[raw.protocol] : '路径待接入';
+      const routeState = row.uncertain ? '配置待确认' : raw.enabled !== true ? '已停用' : /模型未启用/.test(row.reason) ? '已启用 · 模型停用' : raw.routable !== true ? '已启用 · 未参与路由' : /协议不匹配/.test(row.reason) ? '已启用 · 协议不匹配' : '已启用 · 可路由';
+      const routeStateTone = row.uncertain || raw.enabled !== true ? 'muted' : row.active ? 'success' : 'warning';
+      const verificationLabel = row.result === 'passed' ? '通过' : row.result === 'failed' ? '失败' : '待验证';
+      const verificationTone = row.result === 'passed' ? 'success' : row.result === 'failed' ? 'danger' : 'muted';
       const line = {
-        ...row, raw, evidence, id: row.id, providerId: row.providerId, modelId: row.modelId, line: evidence.line || row.id, calls, failures, failureRate, usageKnown,
+        ...row, raw, evidence, id: row.id, providerId: row.providerId, modelId: row.modelId, line: evidence.line || row.id, calls, failures, failureRate, costUsd: usageKnown ? usage.costUsd : null, usageKnown,
         statusKey, status: statusLabels[statusKey] || row.availability, tone: toneFor(statusKey), severity, businessScore, alertReasons, alertReason, alertReasonItems: alertReasons.map(id => ({ id, label: alertReasonLabels[id] })),
         latencyMs: latencyKnown ? latency.currentMs : null, baselineMs: latencyKnown ? latency.baselineMs : null, ratio,
         latencyValue: latencyKnown ? (latency.currentMs / 1000).toFixed(2) + 's' : '—', baselineValue: latencyKnown ? (latency.baselineMs / 1000).toFixed(2) + 's' : '—',
-        ratioLabel: ratio != null ? num(ratio) + '×' : '待检测', totalMs, totalBaselineMs, totalRatio, throughput, throughputDelta,
+        ratioLabel: ratio != null ? num(ratio) + '×' : '待检测', totalMs, totalBaselineMs, totalRatio, taskTime: totalMs == null ? '—' : num(totalMs / 1000, 1) + 's', throughput, throughputDelta,
         performanceMain: latencyKnown ? 'P95 TTFT ' + (latency.currentMs / 1000).toFixed(2) + 's · ' + num(ratio) + '×' : 'P95 TTFT 待检测',
         performanceSub: throughput != null ? num(throughput) + ' Tokens/s · ' + signed(throughputDelta || 0) : '生成速度待接入', throughputDisplay: throughput != null ? num(throughput) + ' Tokens/s' : '—',
         performanceTooltip: latencyKnown ? '当前 P95 TTFT ' + (latency.currentMs / 1000).toFixed(2) + 's；基线 ' + (latency.baselineMs / 1000).toFixed(2) + 's；差异 ' + num(ratio) + '×；当前样本 ' + latency.sampleCount + '；基线范围：' + (latency.baselineLabel || '过去 7 天同类请求') : '当前没有足够的可比延迟样本。',
@@ -59,14 +73,23 @@
         cost: usageKnown ? money(usage.costUsd) : '—', unitCost: usageKnown && calls ? money(usage.costUsd / calls) : '—', success: failureRate == null ? '—' : percent(100 - failureRate), balance: balanceKnown ? money(billing.balanceUsd) : '—', runway: runway == null ? '—' : num(runway) + 'h', hourlySpend: hourlySpendKnown ? money(billing.hourlySpendUsd) + ' / 小时' : '消耗速率待接入',
         billing, impact, impactMain: impact.tasks ? impact.tasks + ' 个运行任务' : impact.project, impactSub: impact.tasks ? impact.project + ' · ' + impact.ddl : impact.ddl,
         action, reason: alertReason || evidence.cause || row.reason, explanation: evidence.explanation || (balanceReason && !callReason ? row.billingEvidence : row.reason), errors: evidence.errors || '错误分布待接入', tests: evidence.tests || row.qualityEvidence,
-        checked: row.checked, abnormalStartedAt: evidence.abnormalStartedAt || '待确认', selected: false
+        protocolPath, routeState, routeStateTone, verificationLabel, verificationTone,
+        checked: row.checked, abnormalStartedAt: evidence.abnormalStartedAt || '待确认', observedAt, observedLabel: explicitIssueAt ? evidence.abnormalStartedAt || new Date(explicitIssueAt).toLocaleString('zh-CN') : row.checked, selected: false
       };
       return line;
     });
     const filter = state.modelFilter || 'production', provider = state.modelProvider || '', model = state.modelModel || '', route = state.modelLine || '';
     const query = String(state.modelQuery || '').trim().toLowerCase(), businessOnly = !!state.modelBusinessOnly;
+    const timeRangeDefs = [['all', '全部问题时间'], ['1h', '近 1 小时'], ['24h', '近 24 小时'], ['7d', '近 7 天'], ['30d', '近 30 天'], ['custom', '自定义时间段']];
+    const timeRange = timeRangeDefs.some(([id]) => id === state.modelTimeRange) ? state.modelTimeRange : 'all';
+    const timeStart = String(state.modelTimeStart || ''), timeEnd = String(state.modelTimeEnd || '');
+    const duration = { '1h': 3600000, '24h': 86400000, '7d': 604800000, '30d': 2592000000 }[timeRange];
+    const timeFrom = duration ? currentTime - duration : timeRange === 'custom' ? timestamp(timeStart) : null;
+    const timeTo = duration ? currentTime : timeRange === 'custom' ? timestamp(timeEnd) : null;
+    const timeRangeInvalid = timeRange === 'custom' && timeFrom != null && timeTo != null && timeFrom > timeTo;
+    const matchesTime = line => timeRange === 'all' || !timeRangeInvalid && (timeFrom == null || line.observedAt != null && line.observedAt >= timeFrom) && (timeTo == null || line.observedAt != null && line.observedAt <= timeTo);
     const matchesStatus = line => filter === 'production' ? line.active || line.uncertain : filter === 'attention' ? ['severe', 'failed', 'billing', 'performance', 'quality', 'confirm'].includes(line.statusKey) : filter === 'severe' ? line.statusKey === 'severe' || line.statusKey === 'failed' || line.statusKey === 'billing' : filter === 'performance' || filter === 'slow' ? line.statusKey === 'performance' || line.statusKey === 'severe' : filter === 'quality' ? ['quality', 'confirm'].includes(line.statusKey) : filter === 'billing' ? line.statusKey === 'billing' : filter === 'normal' ? line.statusKey === 'normal' : filter === 'available' ? line.active && line.result === 'passed' : filter === 'failed' ? line.statusKey === 'failed' : filter === 'unknown' ? ['unknown', 'confirm'].includes(line.statusKey) : filter === 'inactive' ? line.statusKey === 'inactive' : true;
-    let visible = lines.filter(line => (!query || (line.provider + ' ' + line.model + ' ' + line.line + ' ' + line.status + ' ' + line.alertReason).toLowerCase().includes(query)) && (!provider || line.providerId === provider) && (!model || line.modelId === model) && (!route || line.id === route) && (!businessOnly || line.impact.tasks > 0 || /失败|DDL|耗尽/.test(line.impactMain + line.impactSub)) && (Object.hasOwn(alertReasonLabels, filter) ? line.alertReasons.includes(filter) : matchesStatus(line)));
+    let visible = lines.filter(line => (!query || (line.provider + ' ' + line.model + ' ' + line.line + ' ' + line.status + ' ' + line.alertReason).toLowerCase().includes(query)) && (!provider || line.providerId === provider) && (!model || line.modelId === model) && (!route || line.id === route) && (!businessOnly || line.impact.tasks > 0 || /失败|DDL|耗尽/.test(line.impactMain + line.impactSub)) && matchesTime(line) && (Object.hasOwn(alertReasonLabels, filter) ? line.alertReasons.includes(filter) : matchesStatus(line)));
     const sort = state.modelSort || 'impact';
     const compare = {
       impact: (a, b) => b.businessScore - a.businessScore,
@@ -130,34 +153,85 @@
     const totalCostKnown = lines.filter(line => line.active).every(line => line.usageKnown);
     const groupBy = key => Array.from(new Map(lines.map(line => [line[key], line])).values()).map(line => ({ id: line[key], name: key === 'providerId' ? line.provider : line.model, rows: lines.filter(row => row[key] === line[key]) }));
     const legacyGroups = groupBy(state.modelDimension === 'models' ? 'modelId' : 'providerId').map(group => {
-      const calls = group.rows.reduce((sum, line) => sum + (line.calls || 0), 0), failures = group.rows.reduce((sum, line) => sum + (line.failures || 0), 0), cost = group.rows.reduce((sum, line) => sum + (Number(line.raw.usage?.costUsd) || 0), 0), worst = group.rows.slice().sort((a, b) => (b.latencyMs || 0) - (a.latencyMs || 0))[0];
+      const calls = group.rows.reduce((sum, line) => sum + (line.calls || 0), 0), failures = group.rows.reduce((sum, line) => sum + (line.failures || 0), 0), cost = group.rows.reduce((sum, line) => sum + (line.costUsd || 0), 0), worst = group.rows.slice().sort((a, b) => (b.latencyMs || 0) - (a.latencyMs || 0))[0];
       const usageKnown = group.rows.every(line => line.usageKnown);
       const latencyMetrics = new Set(group.rows.filter(line => line.latencyMs != null).map(line => line.raw.latency?.metric));
       return { ...group, failure: usageKnown && calls ? percent(failures / calls * 100) : usageKnown && calls === 0 ? '0.0%' : '—', cost: usageKnown ? money(cost) : '—', latency: latencyMetrics.size === 1 ? worst?.latencyValue?.replace('s', ' s') || '—' : '—', availability: group.rows.filter(line => line.active && line.result === 'passed').length + ' / ' + group.rows.filter(line => line.active).length + ' 条可用', account: group.rows[0]?.qualityKnown ? group.rows[0].qualityValue : '—', select: () => this.setState({ modelSelection: group.id, modelRoute: '' }) };
     });
-    const summarize = (key, nameKey) => Array.from(new Set(lines.map(line => line[key]))).map(id => {
-      const grouped = lines.filter(line => line[key] === id), calls = grouped.reduce((n,line)=>n+(line.calls||0),0), failures = grouped.reduce((n,line)=>n+(line.failures||0),0), cost = grouped.reduce((n,line)=>n+(Number(line.raw.usage?.costUsd)||0),0);
-      const latencies = grouped.map(line=>line.latencyMs).filter(Number.isFinite), speeds = grouped.map(line=>line.throughput).filter(Number.isFinite), qualities = grouped.map(line=>Number(line.qualityValue)).filter(Number.isFinite);
-      return { id, name:grouped[0]?.[nameKey]||id, requests:num(calls,0), availability:grouped.filter(line=>line.active&&line.result==='passed').length+' / '+grouped.filter(line=>line.active).length, success:calls?percent((calls-failures)/calls*100):'—', error:calls?percent(failures/calls*100):'—', latency:latencies.length?num(Math.max(...latencies)/1000,2)+'s':'—', speed:speeds.length?num(speeds.reduce((a,b)=>a+b,0)/speeds.length)+' Tokens/s':'—', quality:qualities.length?num(qualities.reduce((a,b)=>a+b,0)/qualities.length):'—', cost:money(cost), unitCost:calls?money(cost/calls):'—', trend:grouped.some(line=>line.statusKey!=='normal')?'需关注':'稳定', tone:grouped.some(line=>['severe','failed','billing'].includes(line.statusKey))?'danger':grouped.some(line=>!['normal','inactive'].includes(line.statusKey))?'warning':'success', open:()=>this.setState({modelPageTab:'lines',[key==='modelId'?'modelModel':'modelProvider']:id}) };
-    });
-    const modelOverviewRows=summarize('modelId','model'), providerOverviewRows=summarize('providerId','provider');
-    const errorMap=new Map(); lines.forEach(line=>(line.alertReasonItems||[]).forEach(reason=>errorMap.set(reason.label,(errorMap.get(reason.label)||0)+(line.failures||1))));
-    const errorOverviewRows=Array.from(errorMap,([name,count])=>({name,count:num(count,0)})).sort((a,b)=>Number(b.count.replaceAll(',',''))-Number(a.count.replaceAll(',','')));
-    const activeLines=lines.filter(line=>line.active), totalCalls=activeLines.reduce((n,line)=>n+(line.calls||0),0), totalFailures=activeLines.reduce((n,line)=>n+(line.failures||0),0), knownLatency=activeLines.map(line=>line.latencyMs).filter(Number.isFinite), knownCost=activeLines.reduce((n,line)=>n+(Number(line.raw.usage?.costUsd)||0),0);
-    const normalModels=modelOverviewRows.filter(row=>row.tone==='success').length, unavailableModels=snapshot.unavailable, warningModels=Math.max(0,snapshot.total-normalModels-unavailableModels);
-    const overviewMetrics=[
-      ['可用模型',snapshot.hasRate?snapshot.rate+'%':'—',snapshot.hasRate?snapshot.note:'待检测'],['正常模型',normalModels,'个'],['警告模型',warningModels,'个'],['不可用模型',unavailableModels,'个'],['成功率',totalCalls?percent((totalCalls-totalFailures)/totalCalls*100):'—','近 1 小时'],['错误率',totalCalls?percent(totalFailures/totalCalls*100):'—','近 1 小时'],['P95 延迟',knownLatency.length?num(Math.max(...knownLatency)/1000,2)+'s':'—','可比线路'],['平均成本',totalCalls?money(knownCost/totalCalls):'—','每次调用']
-    ].map(([label,value,note])=>({label,value,note}));
-    const comparableModel=(state.modelCompareModel||'claude-sonnet'), comparable=lines.filter(line=>line.modelId===comparableModel&&line.active), fastest=comparable.slice().sort((a,b)=>(a.latencyMs??Infinity)-(b.latencyMs??Infinity))[0], cheapest=comparable.slice().sort((a,b)=>((Number(a.raw.usage?.costUsd)||Infinity)/(a.calls||1))-((Number(b.raw.usage?.costUsd)||Infinity)/(b.calls||1)))[0], bestQuality=comparable.slice().sort((a,b)=>(Number(b.qualityValue)||0)-(Number(a.qualityValue)||0))[0];
-    const recommended=comparable.slice().sort((a,b)=>(a.failureRate??100)-(b.failureRate??100)||(b.qualityValue||0)-(a.qualityValue||0))[0];
-    const comparisonRows=comparable.map(line=>({...line,badges:[line.id===recommended?.id?'推荐线路':'',line.id===fastest?.id?'最快线路':'',line.id===cheapest?.id?'最低成本线路':'',line.id===bestQuality?.id?'质量最佳线路':'',['severe','failed','billing'].includes(line.statusKey)?'风险线路':''].filter(Boolean).map(label=>({label,tone:label==='风险线路'?'danger':'muted'})),taskTime:line.totalMs?num(line.totalMs/1000,1)+'s':'—',stability:line.failureRate==null?'待检测':line.failureRate<1?'稳定':line.failureRate<5?'波动':'高风险'}));
-    const openNativeFilter = id => {
-      if (typeof document === 'undefined') return;
-      const control = document.getElementById(id);
-      if (!control) return;
-      control.focus();
-      try { control.showPicker?.(); } catch {}
+    const qualityStatusFor = grouped => grouped.some(line => line.qualityKind === 'drift') ? '下降，待复测' : grouped.some(line => line.qualityKind === 'mismatch') ? '一致性待确认' : grouped.every(line => line.qualityKnown) ? '基线内' : '证据不足';
+    const runStatusFor = grouped => {
+      const statuses = new Set(grouped.map(line => line.statusKey));
+      if (statuses.has('severe') || statuses.has('failed')) return ['严重异常', 'danger'];
+      if (statuses.has('billing')) return ['余额风险', 'danger'];
+      if (statuses.has('quality')) return ['质量下降', 'warning'];
+      if (statuses.has('confirm')) return ['待复测', 'warning'];
+      if (statuses.has('performance')) return ['性能下降', 'warning'];
+      if (statuses.has('unknown')) return ['待确认', 'muted'];
+      if (statuses.has('normal')) return ['稳定', 'success'];
+      return ['未纳入生产', 'muted'];
     };
+    const summarize = (key, nameKey) => Array.from(new Set(lines.map(line => line[key]))).map(id => {
+      const grouped = lines.filter(line => line[key] === id), calls = grouped.reduce((n,line)=>n+(line.calls||0),0), failures = grouped.reduce((n,line)=>n+(line.failures||0),0), cost = grouped.reduce((n,line)=>n+(line.costUsd||0),0), usageKnown = grouped.every(line=>line.usageKnown);
+      const latencies = grouped.map(line=>line.latencyMs).filter(Number.isFinite), speeds = grouped.map(line=>line.throughput).filter(Number.isFinite), [statusLabel,tone] = runStatusFor(grouped);
+      return { id, name:grouped[0]?.[nameKey]||id, requests:usageKnown?num(calls,0):'—', availability:grouped.filter(line=>line.active&&line.result==='passed').length+' / '+grouped.filter(line=>line.active).length, success:usageKnown&&calls?percent((calls-failures)/calls*100):'—', latency:latencies.length?num(Math.max(...latencies)/1000,2)+'s':'—', speed:speeds.length?num(speeds.reduce((a,b)=>a+b,0)/speeds.length)+' Tokens/s':'—', qualityStatus:qualityStatusFor(grouped), cost:usageKnown?money(cost):'—', unitCost:usageKnown&&calls?money(cost/calls):'—', statusLabel, tone, open:()=>this.setState({modelPageTab:'lines',[key==='modelId'?'modelModel':'modelProvider']:id}) };
+    });
+    const modelOverviewRows=summarize('modelId','model');
+    const errorMap=new Map();
+    lines.forEach(line=>(line.alertReasonItems||[]).forEach(reason=>{
+      const current=errorMap.get(reason.id)||{id:reason.id,name:reason.label,count:0};
+      current.count+=1;
+      errorMap.set(reason.id,current);
+    }));
+    const errorOverviewRows=Array.from(errorMap.values()).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'zh-CN')).map(row=>({...row,count:num(row.count,0),open:()=>{
+      this.setState({modelPageTab:'lines',modelQuery:'',modelProvider:'',modelModel:'',modelLine:'',modelFilter:row.id,modelBusinessOnly:false,modelSelection:'',modelRoute:'',modelDrawerMode:'',modelChartPoint:null});
+      setTimeout(()=>{if(typeof document!=='undefined')document.getElementById('forge-model-table-title')?.focus();},0);
+    }}));
+    const activeLines=lines.filter(line=>line.active), totalCalls=activeLines.reduce((n,line)=>n+(line.calls||0),0), totalFailures=activeLines.reduce((n,line)=>n+(line.failures||0),0), knownLatency=activeLines.filter(line=>line.raw.latency?.metric==='ttft_p95').map(line=>line.latencyMs).filter(Number.isFinite), knownCost=activeLines.reduce((n,line)=>n+(line.costUsd||0),0);
+    const usageComplete=activeLines.length>0&&activeLines.every(line=>line.usageKnown);
+    const availableModelIds=new Set(lines.filter(line=>line.active&&line.result==='passed').map(line=>line.modelId));
+    const attentionStatuses=new Set(['severe','failed','billing','performance','quality','confirm']);
+    const attentionModelIds=new Set(lines.filter(line=>availableModelIds.has(line.modelId)&&attentionStatuses.has(line.statusKey)).map(line=>line.modelId));
+    const attentionModels=attentionModelIds.size, stableModels=Math.max(0,availableModelIds.size-attentionModels), unavailableModels=snapshot.unavailable;
+    const availabilityMetrics=[
+      ['可用模型',snapshot.hasRate?snapshot.rate+'%':'—',snapshot.hasRate?snapshot.note:'待检测','success'],
+      ['稳定模型',snapshot.hasRate?stableModels:'—','可用且无告警','neutral'],
+      ['需关注模型',snapshot.hasRate?attentionModels:'—','仍可用，有性能、质量或余额告警',attentionModels?'warning':'neutral'],
+      ['不可用模型',snapshot.hasRate?unavailableModels:'—',snapshot.unknown?'另有 '+snapshot.unknown+' 个模型状态待确认':'没有可路由线路',unavailableModels?'danger':'neutral']
+    ].map(([label,value,note,tone])=>({label,value,note,tone}));
+    const operationMetrics=[
+      ['请求量',usageComplete?num(totalCalls,0):'—',usageComplete?'生产线路':'该时段数据未接入','neutral'],
+      ['成功率',usageComplete&&totalCalls?percent((totalCalls-totalFailures)/totalCalls*100):'—',totalCalls?'生产线路':'暂无调用样本','neutral'],
+      ['P95 TTFT',knownLatency.length?num(Math.max(...knownLatency)/1000,2)+'s':'—','最近一次检测','neutral'],
+      ['平均成本',usageComplete&&totalCalls?money(knownCost/totalCalls):'—','每次调用','neutral']
+    ].map(([label,value,note,tone])=>({label,value,note,tone}));
+    const overviewMetrics=[...availabilityMetrics,...operationMetrics];
+    lines.forEach(line => {
+      line.routeBadges = [];
+      line.stability = line.failureRate == null ? '待检测' : line.failureRate < 1 ? '稳定' : line.failureRate < 5 ? '波动' : '高风险';
+      line.stabilityTone = line.failureRate == null ? 'muted' : line.failureRate < 1 ? 'success' : line.failureRate < 5 ? 'warning' : 'danger';
+    });
+    modelOptions.forEach(option => {
+      const comparable = lines.filter(line => line.modelId === option.id && line.active);
+      if (comparable.length < 2) return;
+      const withLatency = comparable.filter(line => Number.isFinite(line.latencyMs));
+      const withCost = comparable.filter(line => line.usageKnown && line.calls > 0 && Number.isFinite(line.costUsd));
+      const withQuality = comparable.filter(line => line.qualityKnown && Number.isFinite(Number(line.qualityValue)));
+      const withRecommendationEvidence = comparable.filter(line => Number.isFinite(line.failureRate) && line.qualityKnown);
+      const fastest = withLatency.slice().sort((a, b) => a.latencyMs - b.latencyMs)[0];
+      const cheapest = withCost.slice().sort((a, b) => a.costUsd / a.calls - b.costUsd / b.calls)[0];
+      const bestQuality = withQuality.slice().sort((a, b) => Number(b.qualityValue) - Number(a.qualityValue))[0];
+      const recommended = withRecommendationEvidence.slice().sort((a, b) => a.failureRate - b.failureRate || Number(b.qualityValue) - Number(a.qualityValue))[0];
+      comparable.forEach(line => {
+        line.routeBadges = [
+          line.id === recommended?.id ? '推荐线路' : '',
+          line.id === fastest?.id ? '最快线路' : '',
+          line.id === cheapest?.id ? '最低成本' : '',
+          line.id === bestQuality?.id ? '质量最佳' : ''
+        ].filter(Boolean).map(label => ({ label }));
+      });
+    });
+    lines.forEach(line => { line.routeBadgeFallback = line.routeBadges.length ? '' : '—'; });
+    const pageTab=state.modelPageTab==='overview'?'overview':'lines';
     return {
       isDemo, source: isDemo ? 'demo' : 'live', hasMonitoring: this.props.modelMonitoring != null,
       sourceLabel: isDemo ? '示例数据' : '监控数据', updated: input?.catalogCheckedAt ? '最近更新 1 分钟前' : '监控数据未接入',
@@ -166,25 +240,25 @@
       runDiagnosis: () => { const line = lines.find(item => item.statusKey === 'severe') || lines[0]; if (line) openLine(line, 'test'); },
       chips, lines: visible, allLines: lines, groups: legacyGroups, groupCount: visible.length + ' 条线路', resultCount: visible.length + ' 条线路', hasRows: visible.length > 0,
       providerOptions, modelOptions, lineOptions, query: state.modelQuery || '', provider, model, line: route, filter, businessOnly, sort,
-      hasFilters: !!(query || provider || model || route || businessOnly || filter !== 'production' || sort !== 'impact'),
+      timeRange, timeStart, timeEnd, timeRangeOptions: timeRangeDefs.map(([id, label]) => ({ id, label })), customTimeRange: timeRange === 'custom', timeRangeInvalid,
+      hasFilters: !!(query || provider || model || route || businessOnly || filter !== 'production' || sort !== 'impact' || timeRange !== 'all' || timeStart || timeEnd),
       onQuery: event => this.setState({ modelQuery: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onProvider: event => this.setState({ modelProvider: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onModel: event => this.setState({ modelModel: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onLine: event => this.setState({ modelLine: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onFilter: event => this.setState({ modelFilter: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
+      onTimeRange: event => this.setState({ modelTimeRange: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
+      onTimeStart: event => this.setState({ modelTimeStart: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
+      onTimeEnd: event => this.setState({ modelTimeEnd: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onBusiness: event => this.setState({ modelBusinessOnly: !!event.target.checked, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onSort: event => this.setState({ modelSort: event.target.value }),
-      reset: () => this.setState({ modelQuery: '', modelProvider: '', modelModel: '', modelLine: '', modelFilter: 'production', modelBusinessOnly: false, modelSort: 'impact', modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
+      reset: () => this.setState({ modelQuery: '', modelProvider: '', modelModel: '', modelLine: '', modelFilter: 'production', modelBusinessOnly: false, modelSort: 'impact', modelTimeRange: 'all', modelTimeStart: '', modelTimeEnd: '', modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       anomalySummary: isDemo ? '4 条线路存在异常 · 5 个待处理问题' : issueLines.length + ' 条线路存在异常 · ' + issueLines.length + ' 个待处理问题',
       urgentText: '云桥 / Claude Sonnet 4.5 的 P95 TTFT 升至基线 3.5×；Anthropic 账户预计 6 小时后耗尽。',
       issueCount: isDemo ? 5 : issueLines.length,
-      issuesActive: filter === 'attention', issueActionLabel: filter === 'attention' ? '已显示 ' + visible.length + ' 个待处理问题' : '查看 ' + (isDemo ? 5 : issueLines.length) + ' 个待处理问题',
-      showIssues: () => {
-        this.setState({ modelPageTab: 'lines', modelFilter: 'attention', modelSelection: '', modelRoute: '', modelDrawerMode: '', modelRetestMessage: '已筛选全部待处理问题。' });
-        setTimeout(() => { if (typeof document !== 'undefined') document.getElementById('forge-model-table-title')?.focus(); }, 0);
-      },
-      openStatusFilter: () => openNativeFilter('forge-model-status-filter'), openProviderFilter: () => openNativeFilter('forge-model-provider-filter'), openModelFilter: () => openNativeFilter('forge-model-model-filter'), openLineFilter: () => openNativeFilter('forge-model-line-filter'),
-      totalCost: totalCostKnown && lines.length ? money(lines.filter(line => line.active).reduce((sum, line) => sum + (line.raw.usage?.costUsd || 0), 0)) : '—',
+      riskVisible: !state.modelRiskDismissed,
+      dismissRisk: () => this.setState({ modelRiskDismissed: true }),
+      totalCost: totalCostKnown && lines.length ? money(lines.filter(line => line.active).reduce((sum, line) => sum + (line.costUsd || 0), 0)) : '—',
       hasSelection: !!selected, drawerOpen: !!selected, drawerDiagnostic: !!selected && (state.modelDrawerMode || 'diagnostic') === 'diagnostic', drawerTest: !!selected && state.modelDrawerMode === 'test', drawerBilling: !!selected && state.modelDrawerMode === 'billing',
       selected: selected || {}, selectedRoute: selected?.id || '', selectedGroup: selected ? selected.provider + ' / ' + selected.model : '',
       billingThreshold: Number.isFinite(selected?.billing?.alertThresholdUsd) ? money(selected.billing.alertThresholdUsd) : '—',
@@ -209,8 +283,8 @@
       testResult: !!state.modelTestResult,
       closeBilling: () => this.setState({ modelDrawerMode: 'diagnostic' }),
       dismissMessage: () => this.setState({ modelRetestMessage: '' }), message: state.modelRetestMessage || '',
-      pageTab:state.modelPageTab||'overview', overviewTab:(state.modelPageTab||'overview')==='overview', linesTab:state.modelPageTab==='lines', compareTab:state.modelPageTab==='compare', pageTabs:[['overview','运行概览'],['lines','模型线路'],['compare','线路对比测试']].map(([id,label])=>({id,label,current:(state.modelPageTab||'overview')===id?'page':'false',pick:()=>this.setState({modelPageTab:id,modelSelection:'',modelRoute:'',modelDrawerMode:''})})),
-      overviewMetrics,modelOverviewRows,providerOverviewRows,errorOverviewRows,hasErrors:errorOverviewRows.length>0,comparisonRows,hasComparison:comparisonRows.length>1,compareModels:modelOptions.map(option=>({...option,selected:option.id===comparableModel})),compareModel:comparableModel,onCompareModel:event=>this.setState({modelCompareModel:event.target.value}),
+      pageTab, overviewTab:pageTab==='overview', linesTab:pageTab==='lines', pageTabs:[['overview','运行概览'],['lines','模型线路']].map(([id,label])=>({id,label,current:pageTab===id?'page':'false',pick:()=>this.setState({modelPageTab:id,modelSelection:'',modelRoute:'',modelDrawerMode:''})})),
+      overviewMetrics,availabilityMetrics,operationMetrics,overviewWindow,overviewWindowLabel,overviewWindows:overviewWindowDefs.map(([id,label])=>({id,label})),onOverviewWindow:event=>this.setState({modelOverviewWindow:event.target.value}),overviewUsageNote:(usageComplete?'请求量、成功率和总成本按'+overviewWindowLabel+'汇总。':'当前数据源未提供'+overviewWindowLabel+'调用统计。')+' 可用线路指已启用、可路由且最近生成验证通过的线路，分母为已纳入生产的线路；P95 TTFT、生成速度与质量状态采用最近一次检测。',modelOverviewRows,errorOverviewRows,hasErrors:errorOverviewRows.length>0,
       tabs: [['providers', '模型供应商'], ['models', '模型评估']].map(([id, label]) => ({ id, label, selected: state.modelDimension === id, select: () => this.setState({ modelDimension: id }) })),
       providersView: state.modelDimension !== 'models', modelsView: state.modelDimension === 'models', accountTitle: state.modelDimension === 'models' ? '固定集得分' : '账户余额'
     };

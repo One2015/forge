@@ -73,7 +73,7 @@
 .forge-delivery-notification-note{padding-top:10px;border-top:1px solid var(--forge-border)}
 .forge-delivery-field>label{display:block;font-size:13px;line-height:20px;font-weight:500;margin-bottom:6px}
 .forge-delivery-field>label>span{color:var(--forge-accent)}
-.forge-delivery-field-grid{display:grid;grid-template-columns:minmax(0,1fr) 160px;gap:16px}
+.forge-delivery-field-grid{display:grid;grid-template-columns:minmax(0,1fr) 112px 168px;gap:12px}
 .forge-delivery-help{font-size:12px!important;line-height:18px;color:var(--forge-muted);margin:6px 0;overflow-wrap:anywhere}
 .forge-delivery-identity{--forge-logo-size:64px;display:grid;grid-template-columns:var(--forge-logo-size) minmax(0,1fr);align-items:start;gap:6px 12px;margin-bottom:16px}
 .forge-delivery-identity-name{min-width:0;margin:0}
@@ -245,6 +245,7 @@
 .forge-delivery-visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 @media(hover:hover){.forge-delivery-primary:not(:disabled):hover{background:var(--forge-accent-hover);border-color:var(--forge-accent-hover)}.forge-delivery-secondary:not(:disabled):hover,.forge-delivery-icon-button:hover,.forge-delivery-file-button:hover{background:var(--forge-subtle)}}
 @media(max-width:600px){.forge-delivery-editor{width:calc(100vw - 24px);height:min(720px,calc(100dvh - 24px));max-height:calc(100dvh - 24px)}.forge-delivery-editor-header{padding:16px 16px 10px}.forge-delivery-editor-tabs{padding:0 16px;gap:18px}.forge-delivery-editor-scroll{padding:14px 16px 16px}.forge-delivery-editor-footer{padding:12px 16px;align-items:flex-start;flex-direction:column;gap:8px}.forge-delivery-editor-footer>div{width:100%}.forge-delivery-editor-footer .forge-delivery-primary{flex:1}.forge-delivery-primary,.forge-delivery-secondary,.forge-delivery-file-button{min-height:44px}.forge-delivery-field-grid{grid-template-columns:minmax(0,1fr) 110px;gap:12px}.forge-delivery-entry{grid-template-columns:minmax(0,1fr) 100px;gap:8px}.forge-delivery-sheet-extras{padding:12px}.forge-delivery-sheet-extras>.forge-delivery-section-heading{align-items:flex-start;flex-wrap:wrap}.forge-delivery-extra-actions{flex-wrap:wrap;gap:8px}.forge-delivery-saved-entry{gap:8px;flex-wrap:wrap}.forge-delivery-saved-entry>strong{min-width:100px}.forge-sheet-scroll .forge-review-skills{margin-inline:16px}.forge-review-skill-composer{flex-wrap:wrap}.forge-review-skill-composer input{min-width:120px;height:44px}}
+@media(max-width:600px){.forge-delivery-editor .forge-delivery-field-grid{grid-template-columns:minmax(0,1fr) 96px}.forge-delivery-editor .forge-delivery-date-field{grid-column:1/-1}}
 @media(pointer:coarse){.forge-delivery-editor :is(input:not([type="file"]):not([type="color"]),textarea,select),.forge-review-skill-composer input{font-size:16px;min-height:44px}.forge-delivery-primary,.forge-delivery-secondary,.forge-delivery-file-button,.forge-review-skill-choices>button{min-height:44px}.forge-delivery-icon-button{width:44px;height:44px}.forge-delivery-color-palette>button{width:32px;height:32px}.forge-delivery-tag button{min-width:28px;min-height:28px}}
 @media(max-width:600px),(pointer:coarse){.forge-delivery-identity{--forge-logo-size:72px}.forge-delivery-editor input:not([type="file"]):not([type="color"]),.forge-delivery-editor select{height:44px}.forge-delivery-identity-meta .forge-delivery-text-button{min-height:44px}}
 /* Creation is a working page; only editing keeps the bounded dialog. */
@@ -287,7 +288,7 @@
 .forge-delivery-skill-detail-intro{flex:none;min-width:0}
 .forge-delivery-skill-detail h2{margin:0;font-size:18px;line-height:26px;font-weight:600;overflow-wrap:anywhere}
 .forge-delivery-skill-detail h2>.forge-delivery-skill-kind{font-weight:400;color:var(--forge-muted)}
-.forge-delivery-skill-shortcut{display:block;margin:6px 0 0;font-size:13px;line-height:22px;overflow-wrap:anywhere;color:var(--forge-muted)}
+.forge-delivery-skill-shortcut-row{display:flex;align-items:center;gap:4px;min-width:0;margin-top:6px}.forge-delivery-skill-shortcut{min-width:0;font-size:13px;line-height:22px;overflow-wrap:anywhere;color:var(--forge-muted)}.forge-delivery-skill-command-edit-trigger{flex:none}
 .forge-delivery-skill-detail-description{font-size:13px;line-height:20px;margin:12px 0 8px;overflow-wrap:anywhere}
 .forge-delivery-skill-detail-description:empty{display:none}
 .forge-delivery-skill-detail-body{flex:1 1 240px;min-height:100px;max-height:400px;overflow:auto;overscroll-behavior:contain;padding:16px 18px;border:1px solid var(--forge-border);border-radius:8px;background:var(--forge-subtle);font-size:13px;line-height:21px;scrollbar-width:thin;scrollbar-color:var(--forge-control-border) transparent;overflow-wrap:anywhere}
@@ -298,20 +299,17 @@
 .forge-delivery-skill-detail-body pre{padding:12px;margin:0 0 14px;border:1px solid var(--forge-border);border-radius:5px;font-size:12px;line-height:20px;white-space:pre-wrap;overflow-wrap:anywhere}
 .forge-delivery-skill-detail-body>:first-child{margin-top:0}
 .forge-delivery-skill-detail-body>:last-child{margin-bottom:0}
-.forge-delivery-skill-detail-command{flex:none;font-size:12px;color:var(--forge-muted)}
-.forge-delivery-skill-detail-command summary{min-height:28px;line-height:28px;cursor:pointer}
-.forge-delivery-skill-detail-command input{width:100%;min-width:0;min-height:36px;padding:7px 10px;border:1px solid var(--forge-control-border);border-radius:6px;background:var(--forge-panel);font:inherit;color:var(--forge-text)}
+.forge-delivery-skill-detail-command{margin-top:6px;font-size:12px;color:var(--forge-muted)}.forge-delivery-skill-detail-command>.forge-delivery-help{margin:0 0 5px}.forge-delivery-skill-command-editor{display:flex;align-items:center;gap:6px}.forge-delivery-skill-command-editor>.forge-delivery-command-edit{flex:1;min-width:0;margin:0}.forge-delivery-skill-detail-command input{width:100%;min-width:0;min-height:36px;padding:7px 10px;border:1px solid var(--forge-control-border);border-radius:6px;background:var(--forge-panel);font:inherit;color:var(--forge-text)}.forge-delivery-skill-detail-command>.forge-delivery-validation{margin:5px 0 0}
 .forge-delivery-editor .forge-delivery-tag-editor :is(button,input):focus-visible,.forge-delivery-skill-detail :is(button,input,summary,[tabindex]):focus-visible{outline:2px solid var(--forge-text);outline-offset:2px;box-shadow:none}
 .forge-delivery-custom-color:focus-within{outline:2px solid var(--forge-text);outline-offset:2px}
 @media(hover:hover) and (pointer:fine){
  .forge-delivery-editor.forge-feedback .forge-delivery-list-upload:not([data-disabled="true"]):hover,.forge-delivery-editor .forge-delivery-custom-color:hover,.forge-delivery-editor .forge-delivery-tag-editor button:not(:disabled):hover,.forge-delivery-editor .forge-delivery-skill-view:hover,.forge-delivery-skill-detail .forge-delivery-icon-button:hover{background:var(--forge-hover,#f0f1ed);color:var(--forge-text)}
- .forge-delivery-skill-detail-command summary:hover{text-decoration:underline;text-underline-offset:3px}
 }
 .forge-delivery-editor.forge-feedback .forge-delivery-list-upload:not([data-disabled="true"]):active,.forge-delivery-editor .forge-delivery-custom-color:active,.forge-delivery-editor .forge-delivery-tag-editor button:not(:disabled):active,.forge-delivery-editor .forge-delivery-skill-view:active,.forge-delivery-editor .forge-delivery-library-row:has(.forge-delivery-library-option:not([data-disabled="true"]):active),.forge-delivery-editor .forge-delivery-skill-create-menu button:not(:disabled):active,.forge-delivery-skill-detail .forge-delivery-icon-button:active{background:var(--forge-pressed,#e6e8e1);color:var(--forge-text)}
 .forge-delivery-editor .forge-delivery-tag-editor .forge-delivery-text-button:disabled{color:var(--forge-disabled-text);cursor:not-allowed}
 .forge-delivery-editor .forge-delivery-tag-editor .forge-delivery-text-button{padding:4px 8px;border-radius:4px}
 @media(max-width:600px),(pointer:coarse){
- .forge-delivery-editor.forge-feedback .forge-delivery-list-upload,.forge-delivery-editor .forge-delivery-custom-color,.forge-delivery-editor .forge-delivery-tag-actions>button,.forge-delivery-editor .forge-delivery-tag-editor .forge-delivery-text-button,.forge-delivery-editor .forge-delivery-skill-view,.forge-delivery-skill-detail-command summary{min-height:44px}
+ .forge-delivery-editor.forge-feedback .forge-delivery-list-upload,.forge-delivery-editor .forge-delivery-custom-color,.forge-delivery-editor .forge-delivery-tag-actions>button,.forge-delivery-editor .forge-delivery-tag-editor .forge-delivery-text-button,.forge-delivery-editor .forge-delivery-skill-view{min-height:44px}
  .forge-delivery-editor .forge-delivery-color-palette>button,.forge-delivery-skill-detail .forge-delivery-icon-button{width:44px;height:44px;min-height:44px}
  .forge-delivery-color-palette{gap:4px}.forge-delivery-skill-detail-command input{font-size:16px;min-height:44px}
 }

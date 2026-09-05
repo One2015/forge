@@ -49,18 +49,6 @@ export function buildPostman(source){
  t=t.replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>');
  t=t.replace('<body','<body class="forge-postman"');
  replace('<main class="forge-main"',`<header class="pm-topbar"><span class="pm-brand-dot" aria-hidden="true"></span><strong>Forge</strong><span class="pm-workspace-name">生产与交付工作台</span></header>\n<main class="forge-main"`);
- // Static billing metrics reuse the existing accessible tooltip island. Keep
- // labels, values and calculations owned by the prototype's billing model.
- const metricHelp=[
-  ['总费用','当前时间范围与筛选条件下的账单费用合计，单位为 USD。包含产生费用的失败请求，不含充值、税费或人工费用。变化比例对比上一等长时段。'],
-  ['总 Tokens','当前范围的输入 Tokens 与输出 Tokens 之和。输入包含账单已报告的缓存用量，不重复累计。'],
-  ['调用次数','当前范围内的调用记录数，包含计费失败请求。卡片下方的平均 Tokens / 次 = 总 Tokens ÷ 调用次数。'],
-  ['平均调用成本','总费用 ÷ 调用次数，单位为 USD / 次，包含计费失败请求。没有调用时显示 —；不代表模型的单 Token 价格。'],
- ].map(([label,description])=>`<sc-if value="{{ metric.label === '${label}' }}"><span class="pm-metric-help" data-forge-tooltip="${description}" data-tooltip-label="${label}说明"></span></sc-if>`).join('');
- replace('<dt>{{ metric.label }}</dt>',`<dt class="pm-metric-title"><span>{{ metric.label }}</span>${metricHelp}</dt>`);
- // Billing owns its date and dimension filters in the canonical template.
- // Keep the workspace-timezone label dynamic rather than re-installing the old UTC+8-only control.
- if(t.includes('<span>USD · 北京时间 UTC+8</span>'))t=t.replace('<span>USD · 北京时间 UTC+8</span>','<span>{{ billing.period }} · USD · {{ billing.timezoneLabel }}</span>');
  const deliveryStart=t.indexOf('<sc-if value="{{ isDelivery }}"');
  const deliveryEnd=t.indexOf('<sc-if value="{{ isSheet }}"',deliveryStart);
  let delivery=t.slice(deliveryStart,deliveryEnd);
@@ -181,7 +169,6 @@ export function buildPostman(source){
  t=t.replaceAll('aria-label="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">下载 .md</button>', 'aria-label="{{ relatedSkill.downloadLabel }}" title="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">'+skillDownloadIcon+'</button>');
  t=installReviewReferenceSkills(t);
  t=installReviewPreviewPage(t);
- replace('<div class="forge-wizard-progress-heading"><span>{{ deliveryEditor.wizard.progressLabel }}</span><span>{{ deliveryEditor.wizard.progress }}%</span></div>','');
  const wizardHeading='<div class="forge-wizard-task-heading"><h2 id="forge-wizard-step-title" tabindex="-1" aria-label="{{ deliveryEditor.wizard.title }}">{{ deliveryEditor.wizard.title }}</h2><p class="forge-delivery-help">{{ deliveryEditor.wizard.help }}</p></div>';
  replace(wizardHeading,'');
  replace('<div class="forge-wizard-layout">',wizardHeading+'\n<div class="forge-wizard-layout pm-wizard-aligned">');
@@ -227,7 +214,7 @@ export function buildPostman(source){
    const next=attrs.replace(/\sdata-pm-secondary="true"/g,'');
    return '<button'+next+' data-pm-primary="true">'+body+'</button>';
  });
- markup=markup.replace(/<button([^>]*?)>(\s*{{ sheet.exportLabel }}\s*)<\/button>/, '<button$1 disabled="disabled" title="当前原型尚未接入统一导出服务">$2</button>');
+ markup=markup.replace(/<button([^>]*?)>(\s*{{ sheet.exportLabel }}\s*)<\/button>/, '<button type="button"$1 disabled="{{ sheet.exportUnavailable }}" sc-camel-on-click="{{ sheet.exportItems }}">$2</button>');
  t=semanticMarkup(markup)+t.slice(logicStart);
  // A concurrent prototype update introduced real routes. Preserve its codec,
  // guards and history behavior while retaining this independent preview entry.

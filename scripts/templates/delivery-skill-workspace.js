@@ -7,7 +7,7 @@
     const editor = this.state.deliveryEditor;
     if (editor?.id !== id || !this.deliverySkillActorMatches(editor) || !this.deliverySkillLibraryValues(true).rows.some(row => row.key === key)) return;
     this._deliverySkillDetailTrigger = event?.currentTarget || (typeof document !== 'undefined' ? document.activeElement : null);
-    this.patchDeliveryEditor({ skillDetailKey: key }, id);
+    this.patchDeliveryEditor({ skillDetailKey: key, skillCommandEditingKey: '' }, id);
     setTimeout(() => {
       if (typeof document === 'undefined' || this.state.deliveryEditor?.id !== id || this.state.deliveryEditor.skillDetailKey !== key) return;
       const dialog = document.querySelector('dialog.forge-delivery-skill-detail');
@@ -22,7 +22,7 @@
     const trigger = this._deliverySkillDetailTrigger;
     if (typeof document !== 'undefined') document.querySelector('dialog.forge-delivery-skill-detail')?.close();
     this._deliverySkillDetailTrigger = null;
-    this.patchDeliveryEditor({ skillDetailKey: '' }, editor.id);
+    this.patchDeliveryEditor({ skillDetailKey: '', skillCommandEditingKey: '' }, editor.id);
     if (restoreFocus) setTimeout(() => {
       if (typeof document === 'undefined' || this.state.deliveryEditor?.id !== editor.id || this.state.deliveryEditor.skillDetailKey) return;
       (trigger?.isConnected ? trigger : document.getElementById('forge-delivery-skill-search'))?.focus({ preventScroll: true });
@@ -59,7 +59,26 @@
     if (!editor?.skillDetailKey) return { open: false, blocks: [] };
     const row = this.deliverySkillLibraryValues(true).rows.find(value => value.key === editor.skillDetailKey);
     if (!row) return { open: true, name: 'Skill 已不可用', description: '此 Skill 的来源已变更，请关闭详情并重新选择。', blocks: [], close: event => { if (this.state.deliveryEditor?.id === editor.id) this.closeDeliverySkillDetail(event); } };
-    return Object.assign({}, row, { open: true, blocks: this.deliverySkillContentBlocks(row.content),
+    const commandEditing = editor.skillCommandEditingKey === row.key || row.commandInvalid;
+    return Object.assign({}, row, { open: true, blocks: this.deliverySkillContentBlocks(row.content), commandEditing,
+      editCommand: event => {
+        event?.preventDefault(); event?.stopPropagation();
+        if (!row.selected || row.disabled || this.state.deliveryEditor?.id !== editor.id || this.state.deliveryEditor.skillDetailKey !== row.key) return;
+        this.patchDeliveryEditor({ skillCommandEditingKey: row.key }, editor.id);
+        setTimeout(() => {
+          if (typeof document !== 'undefined' && this.state.deliveryEditor?.id === editor.id && this.state.deliveryEditor.skillDetailKey === row.key)
+            document.getElementById('forge-skill-detail-command-input')?.focus({ preventScroll: true });
+        }, 0);
+      },
+      finishCommand: event => {
+        event?.preventDefault(); event?.stopPropagation();
+        if (row.commandInvalid || this.state.deliveryEditor?.id !== editor.id || this.state.deliveryEditor.skillDetailKey !== row.key) return;
+        this.patchDeliveryEditor({ skillCommandEditingKey: '' }, editor.id);
+        setTimeout(() => {
+          if (typeof document !== 'undefined' && this.state.deliveryEditor?.id === editor.id && this.state.deliveryEditor.skillDetailKey === row.key)
+            document.getElementById('forge-skill-detail-command-edit')?.focus({ preventScroll: true });
+        }, 0);
+      },
       close: event => { if (this.state.deliveryEditor?.id === editor.id && this.state.deliveryEditor.skillDetailKey === row.key) this.closeDeliverySkillDetail(event); } });
   }
 

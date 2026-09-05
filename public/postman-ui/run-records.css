@@ -1,7 +1,6 @@
 /* Run records: a scoped view using the existing Forge controls and neutral tokens. */
 .forge-postman .rr-page{padding:var(--pm-page-top) var(--pm-page-gutter) var(--pm-page-bottom);min-width:0;max-width:none}
 .forge-postman .rr-page .fg-page-header{margin-bottom:16px}
-.forge-postman .rr-summary-item[data-selected=true]::after{content:"";position:absolute;bottom:0;left:var(--pm-summary-inset);right:var(--pm-summary-inset);height:2px;background:var(--pm-brand);pointer-events:none}
 .forge-postman .rr-summary .forge-summary-value strong{color:var(--pm-text);font-variant-numeric:tabular-nums}
 .forge-postman .rr-page .fg-runs-toolbar{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:16px;margin-bottom:16px;min-width:0;overflow-x:auto;scrollbar-width:thin}
 .forge-postman .rr-status-tabs{display:flex;flex:none;gap:4px;align-items:center;padding:3px 2px}
@@ -55,10 +54,10 @@
 .rr-pagination select,.rr-pagination button{height:30px;border:1px solid #ddd;border-radius:4px;background:white;color:#525252;font:inherit;padding:0 7px}
 .rr-pagination button{display:flex;align-items:center}.rr-pagination button:disabled{opacity:.4;cursor:not-allowed}
 .rr-notice{display:flex;justify-content:space-between;align-items:center;background:#fafafa;border:1px solid #ddd;padding:8px 12px;font-size:12px;margin-bottom:10px}.rr-notice button{border:0;background:transparent;cursor:pointer}
-@media(max-width:760px){.forge-postman .rr-summary-item[data-selected=true]::after{bottom:0;left:12px;right:12px}.rr-pagination{gap:6px;flex-wrap:wrap}.rr-grid{grid-template-columns:240px 94px 190px 106px 70px 92px 144px}.rr-table{min-width:1050px}.rr-context>code{max-width:43%}}
+@media(max-width:760px){.rr-pagination{gap:6px;flex-wrap:wrap}.rr-grid{grid-template-columns:240px 94px 190px 106px 70px 92px 144px}.rr-table{min-width:1050px}.rr-context>code{max-width:43%}}
 .rr-person small{white-space:nowrap;font-variant-numeric:tabular-nums}
 
-.forge-postman .rr-summary.forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+.forge-postman .rr-summary.forge-overview-summary{grid-template-columns:repeat(4,minmax(0,1fr))}
 
 .forge-postman .pm-run-model-summary{grid-column:span 2;min-width:0}
 .forge-postman .pm-run-model-heading{display:flex;align-items:center;gap:8px;color:var(--pm-muted);font-size:12px}

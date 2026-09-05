@@ -43,6 +43,25 @@ test('creation defaults each dataset to its owner, includes self and Lead, and r
   assert(c.deliveryNotificationItems().some(row => row.sheetKey === sheet.key));
 });
 
+test('outsourcing contacts appear as external experts and keep their external sheet role', () => {
+  const c = component(), view = panel(c);
+  const expert = view.rows[0].options.find(person => person.accountName === 'outsourcing:stepfun');
+  assert(expert?.external); assert.match(expert.label, /^外部专家 · 陈安 · 维象制作$/);
+  view.rows[0].onReviewer(change(expert.accountName));
+  const member = c.state.deliveryEditor.members.find(person => person.accountName === expert.accountName);
+  assert.equal(member.role, 'reviewer-outsourcing');
+  assert.equal(member.detail, '外部专家 · 维象制作');
+  assert.equal(c.deliveryMembersValues().rows.find(person => person.accountName === expert.accountName).detail, '外部专家 · 维象制作');
+  const preview = c.deliveryWizardValues().memberPreview.find(person => person.name === '陈安');
+  assert.equal(preview.roleLabel, '外部专家'); assert.equal(preview.summaryLabel, '外部专家 · 维象制作');
+});
+
+test('existing supplier sheets include their external expert team in members', () => {
+  const c = component(); c.state.deliveryEditor = null; c.openDeliveryEditor('ant200');
+  const expert = c.deliveryMembersValues().rows.find(person => person.accountName === 'outsourcing:ant');
+  assert(expert); assert.equal(expert.name, '李木'); assert.equal(expert.detail, '外部专家 · 灵犀三维'); assert.equal(expert.role, 'reviewer-outsourcing');
+});
+
 test('production groups by Pipeline × dataset, deduplicates Items and survives resync and source mode changes', () => {
   const c = component(), tasks = c.deliveryProductionTasks().filter(task => !task.disabled);
   c.syncDeliveryProductionTasks(tasks.slice(0, 2).map(task => task.id));

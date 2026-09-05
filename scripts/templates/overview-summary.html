@@ -9,7 +9,7 @@
         </span>
       </div>
       <div class="forge-summary-value" style="color:{{ s.fg }}"><strong>{{ s.v }}</strong><span>{{ s.unit }}</span></div>
-      <sc-if value="{{ s.auxiliary }}"><p class="forge-summary-auxiliary">{{ s.auxiliary }}</p></sc-if>
+      <sc-if value="{{ s.auxiliary }}"><p class="forge-summary-auxiliary"><span>{{ s.auxiliaryLabel }}</span><sc-if value="{{ s.auxiliaryValue }}"><strong data-tone="{{ s.auxiliaryTone }}">{{ s.auxiliaryValue }}</strong></sc-if></p></sc-if>
       <sc-if value="{{ s.actionable }}" hint-placeholder-val="{{ true }}"><button type="button" class="forge-summary-link" sc-camel-on-click="{{ s.go }}" aria-label="{{ s.actionLabel }}"></button></sc-if>
     </article>
   </sc-for>

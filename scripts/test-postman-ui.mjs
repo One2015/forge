@@ -59,6 +59,18 @@ test('workspace typography and page rhythm share one compact scale',()=>{
  assert.match(built,/\.forge-overview-summary\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
  assert.doesNotMatch(built,/class="forge-supplier-performance"/);
 });
+test('workflow indicators distinguish completed, current and upcoming steps',()=>{
+ const wizard=built.slice(built.indexOf('<nav class="forge-wizard-steps pm-steps"'),built.indexOf('</nav>',built.indexOf('<nav class="forge-wizard-steps pm-steps"')));
+ assert.match(wizard,/aria-label="\{\{ step\.ariaLabel \}\}"/);
+ assert.match(wizard,/data-current="\{\{ step\.current \}\}" data-complete="\{\{ step\.complete \}\}" data-state="\{\{ step\.state \}\}"/);
+ assert.doesNotMatch(built,/forge-wizard-progress-heading|aria-label="创建数据单进度"/);
+ assert.match(built,/\.forge-postman \.pm-steps \.pm-step\[data-complete=true\]::after\{background:var\(--pm-step-current\)\}/);
+ assert.match(built,/\.pm-step:is\(\[aria-current=step\],\[data-current=true\],\[data-current="600"\]\) \.pm-step-number\{[^}]*background:var\(--pm-step-current\)[^}]*color:var\(--pm-on-action\)/);
+ const c=vm.runInContext('new Component()',ctx); c.openDeliveryEditor('ant200'); c.goDeliveryWizardStep(2);
+ const steps=c.deliveryWizardValues().steps;
+ assert.deepEqual(Array.from(steps,row=>row.state),['complete','current','upcoming','upcoming']);
+ assert.equal(steps.filter(row=>row.current).length,1); assert(!steps[1].complete); assert.match(steps[1].ariaLabel,/当前步骤/);
+});
 test('utility rows clear unread elevation after viewing and download states use one contextual action',()=>{
  const panels=built.slice(built.indexOf('id="forge-download-panel"'),built.indexOf('<!-- forge-sidebar-floating-panels:end -->'));
  assert.match(panels,/class="pm-utility-row pm-download-row" data-unread="\{\{ d\.unread \}\}"/);
@@ -191,7 +203,14 @@ test('Pipeline checkbox aria state follows enable and disable without opening de
  assert.equal(c.renderVals().pe.nodes[0].ariaChecked,'true');
  assert.equal(stopped,2);
 });
-test('representative sheet keeps the five metrics and accessible disabled export',()=>{for(const n of ['pm-sheet-heading','pm-sheet-progress','pm-sheet-metrics','pm-sheet-list'])assert.match(built,new RegExp(n));assert.match(built,/<button[^>]*disabled="disabled"[^>]*title="当前原型尚未接入统一导出服务"/);assert.doesNotMatch(built,/分支与主版本共享同一个交付位 · 不额外计入目标数/);});
+test('representative sheet keeps the five metrics and exports deliverable items',()=>{
+ for(const n of ['pm-sheet-heading','pm-sheet-progress','pm-sheet-metrics','pm-sheet-list'])assert.match(built,new RegExp(n));
+ assert.match(built,/<button[^>]*disabled="\{\{ sheet\.exportUnavailable \}\}"[^>]*sc-camel-on-click="\{\{ sheet\.exportItems \}\}"/);
+ assert.doesNotMatch(built,/当前原型尚未接入统一导出服务/);
+ const c=vm.runInContext('new Component()',ctx);c.setState({view:'sheet',sheetKey:'ant200',sheetFilter:'all',sheetQuery:''});
+ const sheet=c.renderVals().sheet;assert.equal(sheet.exportUnavailable,false);const csv=sheet.exportItems();assert.match(csv,/"Item 名称","Item ID","目录","Run ID","审核结论"/);assert.equal(csv.split('\r\n').length,Number(sheet.exportLabel.match(/\d+/)[0])+1);
+ assert.doesNotMatch(built,/分支与主版本共享同一个交付位 · 不额外计入目标数/);
+});
 test('all main routes stay in Postman UI after round trip',()=>{for(const path of ['/overview','/production/runs','/production/pipelines','/production/datasets','/production/resources','/review/pending','/delivery','/delivery/ant200','/billing/overview','/models']){const r=ctx.codec.read(path);assert.equal(r.error,'');const p=ctx.codec.write(r.patch);assert.match(p,/^\/forge-postman.html\?route=/);assert.equal(ctx.codec.read(p).patch.view,r.patch.view);}});
 test('app shell keeps clean URLs while the standalone preview keeps its isolated entry',()=>{
  const origin='https://forge.test';
@@ -217,10 +236,21 @@ test('billing keeps the complete filters and renders the required stacked distri
  assert.match(built,/\.forge-postman \.forge-billing-cost-bar\{background:var\(--pm-focus\)\}/);
  assert.match(built,/<div class="forge-billing-filters">/);
  assert.match(built,/id="forge-billing-calendar"/);
-assert.match(built,/USD · \{\{ billing\.timezoneLabel \}\}/);
+ assert.doesNotMatch(built,/forge-billing-metrics-meta|forge-billing-definition|计费说明/);
+ assert.match(built,/class="pm-metric-help" data-forge-tooltip="\{\{ metric\.help \}\}"/);
  assert.match(built,/class="forge-billing-stack"/);
- assert.match(built,/较前日变化原因/); assert.match(built,/异常成本 Run/);
+ assert.doesNotMatch(built,/按项目/);
+ assert.match(built,/变化补充说明/); assert.match(built,/异常成本 Run/);
+ assert.match(built,/forge-billing-chart[\s\S]*forge-billing-breakdown[\s\S]*billing-anomaly-title/);
+ assert.match(built,/\{\{ billing\.tableLabel \}\}费用明细/);
+ assert.match(built,/\.forge-postman \.forge-billing-chart\{[^}]*border-bottom:0/);
+ assert.match(built,/<ul class="forge-billing-reasons"><sc-for[\s\S]*?<li>/);
+ assert.match(built,/<a class="forge-billing-run-link" href="\{\{ run\.href \}\}"[^>]*>查看详情<\/a>/);
+ assert.match(built,/const pool = this\.runsData\(\)\.concat\(this\.billingRunRecords\(\)\);/);
+ assert.match(built,/if \(view === 'review'\) \{\s+const pool = this\.runsData\(\);/);
+ assert.match(built,/runs = this\.runsData\(\)\.concat\(this\.billingRunRecords\(\)\)/);
  assert.match(built,/\.forge-postman \.forge-billing-segment button\[aria-pressed=true\]\{background:var\(--pm-selected\)!important;color:var\(--pm-text\)!important/);
+ assert.match(built,/\.forge-postman \.forge-app-shell \.forge-billing-segment\[data-pm-tabs\]\{overflow:visible!important;scrollbar-width:none\}/);
 });
 test('every major legacy surface has a stable Postman page hook',()=>{
  for(const hook of ['pm-page-overview','pm-page-pipelines','pm-page-pipeedit','pm-page-datasets','pm-page-resources','pm-page-itemlife','pm-page-review','pm-page-submitted','pm-page-run','pm-page-error'])assert.match(built,new RegExp(hook));
@@ -295,6 +325,17 @@ test('Item assignment filters all rows, deduplicates and preserves edit permissi
  const before=JSON.stringify(c.state.deliveryEditor.datasetReviews);
  c.deliveryDatasetReviewValues().rows[0].onReviewer({target:{value:''}});
  assert.equal(JSON.stringify(c.state.deliveryEditor.datasetReviews),before);
+});
+
+test('Item assignment exposes outsourcing contacts as external experts',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();
+ c.patchDeliveryEditor({entries:[{key:'external-row',itemId:'external-id',name:'外部复核任务',source:'external-id'}],reviewScope:'item',importMode:'zip'});
+ let view=c.deliveryDatasetReviewValues(),expert=view.reviewerOptions.find(person=>person.accountName==='outsourcing:stepfun');
+ assert(expert?.external);assert.equal(expert.label,'外部专家 · 陈安 · 维象制作');
+ view.rows[0].onReviewer({target:{value:expert.accountName}});
+ assert.equal(c.state.deliveryEditor.members.find(member=>member.accountName===expert.accountName).role,'reviewer-outsourcing');
+ view=c.deliveryDatasetReviewValues();view.onPersonFilter({target:{value:expert.accountName}});
+ assert.equal(c.deliveryDatasetReviewValues().rows.length,1);
 });
 
 
@@ -375,21 +416,25 @@ for (const scope of ['sheet', 'branch']) test(scope+' accepts eight reference im
  view=c.feedbackView(key);assert.equal(view.images.length,8);assert.equal(view.images[7].name,'photo-replacement.png');assert.equal(view.remaining,0);
 });
 
-test('model line filters remain explicit and the pending shortcut preserves the current model scope',()=>{
+test('model line filters remain explicit, compose without clearing scope, and expose a dismissible risk notice',()=>{
  const c=vm.runInContext('new Component()',ctx);
  Object.assign(c.state,ctx.codec.read('/models?model=claude-sonnet').patch,{modelBusinessOnly:true});
  let view=c.modelStatusValues();
  assert.equal(view.businessOnly,true);
  assert(view.lines.every(line=>line.modelId==='claude-sonnet'));
- view.showIssues(); view=c.modelStatusValues();
+ assert(view.riskVisible); view.dismissRisk(); view=c.modelStatusValues(); assert(!view.riskVisible);
+ view.onFilter({target:{value:'attention'}}); view=c.modelStatusValues();
  assert.equal(view.filter,'attention');
  assert.equal(view.model,'claude-sonnet');
  assert(view.lines.every(line=>line.modelId==='claude-sonnet'));
  assert.equal(view.lines.some(line=>line.statusKey==='normal'),false);
  const routeTable=built.match(/<div class="forge-model-table forge-model-routes-table"[\s\S]*?<\/div><\/div><\/section>/)[0];
- for(const label of ['模型供应商','模型','线路','P95 TTFT','Tokens\/s','成功 \/ 错误率','质量','单次成本','余额 \/ 可用时间','运行任务 \/ 影响'])assert(routeTable.includes(label));
+ for(const label of ['模型供应商','模型','线路 \/ 标记','P95 TTFT','Tokens\/s','任务耗时','成功 \/ 错误率','稳定性','质量','单次成本','余额 \/ 可用时间','运行任务 \/ 影响'])assert(routeTable.includes(label));
+ const linesSection=built.match(/<section class="forge-model-table-section forge-model-lines-section">[\s\S]*?<\/section>/)[0];
+ assert(linesSection.indexOf('class="forge-model-filters"')<linesSection.indexOf('class="forge-model-table-scroll"'));
+ assert.doesNotMatch(linesSection,/aria-label="筛选(?:状态|模型供应商|模型|线路)"/);
  assert.match(built,/class="forge-model-impact-filter"/);
- assert.match(built,/运行概览/); assert.match(built,/线路对比测试/);
+ assert.match(built,/运行概览/); assert.doesNotMatch(built,/Benchmark 结果|forge-model-line-comparison|modelStatus\.comparisonRows|modelStatus\.compareTab/);
 });
 
 
@@ -771,16 +816,16 @@ test('each Item keeps one task Tag and a new choice replaces the previous value'
  assert.match(c.deliveryWizardRulesIssue(),/2 个 Item 未分配 Tag/);
  for(const option of c.deliveryWizardValues().taskTags.options)option.toggle({target:{checked:true}});
  assert.equal(c.deliveryWizardValues().tagAssignmentLabel,'已分配 2 / 2 个 Item');assert(c.deliveryWizardValues().tagAssignmentComplete);
- assert.equal(c.deliveryWizardValues().taskTags.selected[0].name,'reroll');assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'reroll');
+ assert.equal(c.deliveryWizardValues().taskTags.selected[0].name,'Reroll');assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'Reroll');
  const first=editor.entries[0];c.pmToggleTaskTag(id,first.key,repair.id,true,actor);
- assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'repair');
- assert.equal(c.deliveryDatasetReviewValues().rows[1].taskTags.selected[0].name,'reroll');
+ assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'Repair');
+ assert.equal(c.deliveryDatasetReviewValues().rows[1].taskTags.selected[0].name,'Reroll');
  confirmDelivery(c);assert.equal(c.state.deliveryEditor.step,4);c.saveDeliveryEditor();const key=c.state.sheetKey,sheet=c.deliverySheet(key);
  assert.equal(sheet.defaultTaskTagIds.length,1);assert.equal(sheet.entries[0].taskTagIds.length,1);assert.equal(sheet.datasetReviews['item:'+first.itemId].taskTagIds.length,1);
- c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'repair');
- const option=c.deliveryDatasetReviewValues().rows[0].taskTags.options.find(tag=>tag.name==='reroll');option.toggle({target:{checked:true}});assert.deepEqual([...c.state.deliveryEditor.entries[0].taskTagIds],[reroll.id]);c.saveDeliveryEditor();
- assert.equal(c.pmSheetAssignments(c.deliverySheet(key)).get(first.itemId).taskTags.selected[0].name,'reroll');
- c.pmToggleSavedTaskTag(key,first.itemId,repair.id,true,actor);c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'repair');
+ c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'Repair');
+ const option=c.deliveryDatasetReviewValues().rows[0].taskTags.options.find(tag=>tag.name==='Reroll');option.toggle({target:{checked:true}});assert.deepEqual([...c.state.deliveryEditor.entries[0].taskTagIds],[reroll.id]);c.saveDeliveryEditor();
+ assert.equal(c.pmSheetAssignments(c.deliverySheet(key)).get(first.itemId).taskTags.selected[0].name,'Reroll');
+ c.pmToggleSavedTaskTag(key,first.itemId,repair.id,true,actor);c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'Repair');
  assert.match(built,/pm-task-tag-picker[^>]*--pm-task-tag-width/);assert.match(built,/role="radiogroup"/);assert.match(built,/input type="radio" name=/);
  assert.match(built,/\.forge-postman \.pm-task-tag-options\{[^}]*width:100%[^}]*min-width:100%/);
 });

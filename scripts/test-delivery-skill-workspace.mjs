@@ -369,8 +369,11 @@ test('viewing Skill content is independent of selection and never dirties the sh
 test('detail command edits update only the selected snapshot and report empty/duplicate aliases', () => {
   const c=component(), row=c.deliveryEditorValues().library.rows[0]; row.toggle(); row.view();
   const original=c.deliverySkillLibrary()[0].command;
+  assert(!c.deliveryEditorValues().detail.commandEditing);
+  c.deliveryEditorValues().detail.editCommand(); assert(c.deliveryEditorValues().detail.commandEditing);
   c.deliveryEditorValues().detail.onCommand(change('')); assert(c.deliveryEditorValues().detail.commandInvalid);
   c.deliveryEditorValues().detail.onCommand(change('local-alias')); assert.equal(c.deliveryEditorValues().detail.command,'/local-alias');
+  c.deliveryEditorValues().detail.finishCommand(); assert(!c.deliveryEditorValues().detail.commandEditing);
   assert.equal(c.deliverySkillLibrary()[0].command,original);
   c.deliveryEditorValues().detail.close(); c.deliveryEditorValues().library.rows[1].toggle(); row.view();
   c.deliveryEditorValues().detail.onCommand(change(c.state.deliveryEditor.skills[1].command));
@@ -401,6 +404,11 @@ test('detail markup is a single native dialog with an independent link-style act
   assert(!editor.includes('查看内容与调用名'));
   assert(editor.includes('aria-haspopup="dialog" sc-camel-on-click="{{ option.view }}"'));
   assert(editor.includes('class="forge-delivery-skill-shortcut">{{ deliveryEditor.detail.command }}'));
+  assert.match(editor, /forge-delivery-skill-shortcut[^<]*<\/code><sc-if[^>]+><button id="forge-skill-detail-command-edit"[^>]+aria-label="编辑本单调用名"[^>]+sc-camel-on-click="\{\{ deliveryEditor\.detail\.editCommand \}\}">/);
+  assert(editor.includes('data-phosphor="pencil-simple"'));
+  assert(editor.includes('id="forge-skill-detail-command-input"'));
+  assert(editor.includes('sc-camel-on-click="{{ deliveryEditor.detail.finishCommand }}"'));
+  assert(!editor.includes('<summary>修改本单调用名</summary>'));
   assert(editor.includes('<span class="forge-delivery-skill-kind">Skill</span>'));
   assert(!template.includes('.forge-delivery-skill-detail h2>span{'), 'Interpolated title spans inherit heading typography, not the muted kind label');
   assert(editor.includes('aria-label="关闭 Skill 详情" autofocus'));

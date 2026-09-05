@@ -1,13 +1,15 @@
-/* Shared workflow indicator: neutral completed steps, orange current step. */
+/* Shared workflow indicator: check for completed, filled number for current, outline for upcoming. */
 .forge-postman .pm-steps{--pm-step-size:28px;--pm-step-current:var(--pm-brand);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;list-style:none;padding:0;margin:0 0 28px;counter-reset:pm-step}
 .forge-postman .pm-steps .pm-step{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;min-width:0;min-height:64px;margin:0;padding:8px 6px;border:0!important;border-radius:4px;background:transparent!important;box-shadow:none!important;opacity:1!important;color:var(--pm-muted)!important;font:400 13px/20px var(--pm-font);text-align:center;counter-increment:pm-step}
-.forge-postman .pm-steps .pm-step::after{content:"";position:absolute;top:calc(8px + var(--pm-step-size)/2);left:calc(50% + var(--pm-step-size)/2 + 8px);width:calc(100% - var(--pm-step-size) - 16px);height:1px;background:var(--pm-border);pointer-events:none}
+.forge-postman .pm-steps .pm-step::after{content:"";position:absolute;z-index:0;top:calc(8px + var(--pm-step-size)/2);left:calc(50% + var(--pm-step-size)/2 + 8px);width:calc(100% - var(--pm-step-size) - 16px);height:1px;background:var(--pm-border);pointer-events:none}
 .forge-postman .pm-steps .pm-step:last-child::after{display:none}
-.forge-postman .pm-steps .pm-step-number{display:flex;align-items:center;justify-content:center;flex:none;width:var(--pm-step-size);height:var(--pm-step-size);padding:0;margin:0;border:1px solid var(--pm-control);border-radius:50%;background:var(--pm-canvas);color:var(--pm-muted);font:500 12px/1 var(--pm-font);box-sizing:border-box}
+.forge-postman .pm-steps .pm-step-number{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;flex:none;width:var(--pm-step-size);height:var(--pm-step-size);padding:0;margin:0;border:1px solid var(--pm-control);border-radius:50%;background:var(--pm-canvas);color:var(--pm-muted);font:500 12px/1 var(--pm-font);box-sizing:border-box}
 .forge-postman .pm-steps .pm-step-label{display:block;max-width:100%;padding:0;border:0;background:transparent;line-height:20px;overflow-wrap:anywhere}
-.forge-postman .pm-steps .pm-step[data-complete=true] .pm-step-number{border-color:var(--pm-border);background:var(--pm-subtle);color:var(--pm-text)}
-.forge-postman .pm-steps .pm-step:is([aria-current=step],[data-current="600"],[data-current=true]) .pm-step-number{border-color:var(--pm-step-current);background:var(--pm-step-current);color:#fff}
-.forge-postman .pm-steps .pm-step:is([aria-current=step],[data-current="600"],[data-current=true]) .pm-step-label{color:var(--pm-text);font-weight:600}
+.forge-postman .pm-steps .pm-step[data-complete=true]::after{background:var(--pm-step-current)}
+.forge-postman .pm-steps .pm-step[data-complete=true] .pm-step-number{border-color:var(--pm-step-current);background:var(--pm-canvas);color:var(--pm-step-current)}
+.forge-postman .pm-steps .pm-step[data-complete=true] .pm-step-label{color:var(--pm-text)}
+.forge-postman .pm-steps .pm-step:is([aria-current=step],[data-current=true],[data-current="600"]) .pm-step-number{border-color:var(--pm-step-current);background:var(--pm-step-current);color:var(--pm-on-action)}
+.forge-postman .pm-steps .pm-step:is([aria-current=step],[data-current=true],[data-current="600"]) .pm-step-label{color:var(--pm-text);font-weight:600}
 .forge-postman .pm-steps button.pm-step:disabled{cursor:not-allowed}
 .forge-postman .pm-steps button.pm-step:focus-visible{outline:2px solid var(--pm-focus);outline-offset:2px}
 .forge-postman .pm-step-value{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--pm-muted)}
@@ -17,7 +19,7 @@
 .forge-postman .pm-step-index::before{content:counter(pm-step)}
 .forge-postman .pm-steps-compact{--pm-step-size:22px;grid-template-columns:repeat(3,minmax(0,1fr));margin:12px 0 16px}
 .forge-postman .pm-steps-compact .pm-step{font-size:12px;gap:6px;padding-inline:2px}
-@media(hover:hover) and (pointer:fine){.forge-postman .pm-steps button.pm-step:not(:disabled):not([aria-current=step]):hover .pm-step-label,.forge-postman .pm-step-edit:hover{color:var(--pm-text);text-decoration:underline;text-underline-offset:3px}}
+@media(hover:hover) and (pointer:fine){.forge-postman .pm-steps button.pm-step:not(:disabled):not([aria-current=step]):hover .pm-step-number{border-color:var(--pm-hover-border)}.forge-postman .pm-steps button.pm-step:not(:disabled):not([aria-current=step]):hover .pm-step-label,.forge-postman .pm-step-edit:hover{color:var(--pm-text)}}
 @media(max-width:540px){.forge-postman .pm-steps{--pm-step-size:24px;margin-bottom:24px}.forge-postman .pm-steps .pm-step{font-size:11px;gap:6px;padding-inline:2px}.forge-postman .pm-steps-compact{--pm-step-size:22px}.forge-postman .pm-step-value{font-size:11px}.forge-postman .pm-step-edit{min-height:36px}}
 /* Quantitative progress keeps its data colors and uses a consistent thin track. */
 .forge-postman :is(.pm-progress-bar,.rr-bar,.fg-run-progress-bar){height:4px;border-radius:2px;background:var(--pm-border);overflow:hidden}

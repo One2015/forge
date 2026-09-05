@@ -26,6 +26,21 @@ export function updateBilling(source) {
   if (template.includes('/* billing:start */')) replace(/\/\* billing:start \*\/[\s\S]*?\/\* billing:end \*\//, css);
   else replace(/<\/style>/, css + '\n</style>');
   if (!template.includes('      billing: this.billingValues(),')) replace(/      isOverview: view === 'overview',/, "      billing: this.billingValues(),\n      isOverview: view === 'overview',");
+  template = template.replace("    const subs = this.state.submittedRuns || [];\n    const billingRuns = this.billingRunRecords();\n    return subs.slice().reverse().concat(billingRuns, [",
+    "    const subs = this.state.submittedRuns || [];\n    return subs.slice().reverse().concat([");
+  template = template.replace(
+    "    if (view === 'review') {\n      const pool = this.runsData().concat(this.billingRunRecords());",
+    "    if (view === 'review') {\n      const pool = this.runsData();"
+  );
+  const plainRunPool = "    let run = null;\n    if (view === 'run') {\n      const pool = this.runsData();";
+  const billingRunPool = "    let run = null;\n    if (view === 'run') {\n      const pool = this.runsData().concat(this.billingRunRecords());";
+  if (template.includes(plainRunPool)) template = template.replace(plainRunPool, billingRunPool);
+  else if (!template.includes(billingRunPool)) throw new Error('Missing billing run detail pool');
+  if (!template.includes("rec.itemCosts?.[k] || (state === 'queued'")) {
+    replace(/: \(state === 'queued' \|\| state === 'cancelled' \? '—' : '\\u0024' \+ \(state === 'success'/,
+      ": (rec.itemCosts?.[k] || (state === 'queued' || state === 'cancelled' ? '—' : '\\u0024' + (state === 'success'");
+    template = template.replace("(12.4 + k * 2.6).toFixed(2)));\n            const elapsed", "(12.4 + k * 2.6).toFixed(2))));\n            const elapsed");
+  }
   template = template.replaceAll("view === 'overview' || view === 'models')", "view === 'overview' || view === 'models' || view === 'billing')")
     .replace("view !== 'overview' && view !== 'models' ?", "view !== 'overview' && view !== 'models' && view !== 'billing' ?")
     .replace("'overview', 'models', 'pipeedit'].indexOf(view)", "'overview', 'models', 'billing', 'pipeedit'].indexOf(view)");

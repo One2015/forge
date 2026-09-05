@@ -50,7 +50,7 @@
 
   forgeRouteIssue(route) {
     if (route.error) return route.error;
-    const s = route.patch, runs = this.runsData(), datasets = this.dsData(), sheets = this.deliveryData().flatMap(group => group.sheets);
+    const s = route.patch, runs = this.runsData().concat(this.billingRunRecords()), datasets = this.dsData(), sheets = this.deliveryData().flatMap(group => group.sheets);
     const run = id => runs.find(value => value.id === id), sheet = id => sheets.find(value => value.key === id);
     const itemExists = id => datasets.some(ds => ds.items.some(row => row[0] === id)) || sheets.some(value => this.sheetRows(value).some(row => row[2] === id));
     if (s.activeRun && !run(s.activeRun)) return '这条运行记录不存在，或是刷新后已清除的本地演示记录。';
@@ -202,7 +202,7 @@
       ['.forge-delivery-members', 'members'], ['.forge-delivery-tag-editor', 'tags'],
       ['.forge-billing-metrics', 'summary'],
       ['[aria-label="用量与费用趋势"]', 'trend'], ['.forge-billing-composition', 'composition'],
-      ['.forge-billing-breakdown', 'breakdown'], ['.forge-billing-definition', 'definitions'],
+      ['.forge-billing-breakdown', 'breakdown'],
       ['.forge-model-summary', 'summary'], ['[aria-label="供应商模型线路"]', 'suppliers'],
       ['.forge-task-link-history', 'associations'], ['.forge-life-history', 'history'],
       ['.review-workbench-object', 'object'], ['.review-workbench-references', 'references'],

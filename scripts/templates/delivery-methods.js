@@ -6,8 +6,10 @@
       '阶跃': { name: '阶跃 Logo.png', url: '/supplier-logos/stepfun.png' },
       '蚂蚁': { name: '蚂蚁 Logo.png', url: '/supplier-logos/ant.png' }
     };
+    const deliveryDates = { ant200: '2026-09-12', step300: '2026-09-15', stepv2w: '2026-09-18', fin120: '2026-09-21', webdev150: '2026-09-24' };
     const all = this.baseDeliveryData().flatMap(group => group.sheets.map(sheet => Object.assign({
-      customer: group.customer, logo: supplierLogos[group.customer] ? { ...supplierLogos[group.customer] } : null
+      customer: group.customer, logo: supplierLogos[group.customer] ? { ...supplierLogos[group.customer] } : null,
+      deliveryDate: deliveryDates[sheet.key] || ''
     }, sheet, this.state.deliveryOverrides?.[sheet.key])));
     all.push(...(this.state.deliverySheets || []));
     const groups = [];
@@ -74,10 +76,10 @@
     if (typeof document !== 'undefined') this._deliveryEditorTrigger = document.activeElement;
     const editor = {
       id: 'editor-' + Date.now() + '-' + (this._deliverySequence = (this._deliverySequence || 0) + 1), key,
-      tab: 'basic', step: 1, reachedStep: 1, importMode: key ? 'paste' : 'production', importModes: {}, productionTaskIds: sheet?.sourceRunIds || [], productionExcluded: [], productionQuery: '', productionPipeline: '', entryPage: 1, onlyExceptions: false, defaultTagId: sheet?.defaultTagId || '', skillCategory: 'all', name: sheet?.name || '', customer: sheet?.customer || '', desc: sheet?.desc || '', target: sheet ? String(sheet.target) : '',
+      tab: 'basic', step: 1, reachedStep: 1, importMode: key ? 'paste' : 'production', importModes: {}, productionTaskIds: sheet?.sourceRunIds || [], productionExcluded: [], productionQuery: '', productionPipeline: '', entryPage: 1, onlyExceptions: false, defaultTagId: sheet?.defaultTagId || '', skillCategory: 'all', name: sheet?.name || '', customer: sheet?.customer || '', desc: sheet?.desc || '', target: sheet ? String(sheet.target) : '', deliveryDate: sheet?.deliveryDate || (!sheet ? new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10) : ''),
       logo: sheet?.logo || null, archive: sheet?.archive || null, entries, listText: entries.map(entry => entry.source).join('\n'),
       listChanged: !sheet, tags: (sheet?.tags || []).map(tag => Object.assign({}, tag)),
-      skills: (sheet?.skills || []).map(skill => Object.assign({}, skill)), skillQuery: '', skillNotice: '', skillMode: 'existing', skillDraft: {}, skillUploads: [], tagName: '', tagColor: '', tagComposerOpen: false, tagManagerMode: 'add', tagNotice: '', skillDetailKey: '',
+      skills: (sheet?.skills || []).map(skill => Object.assign({}, skill)), skillQuery: '', skillNotice: '', skillMode: 'existing', skillDraft: {}, skillUploads: [], tagName: '', tagColor: '', tagComposerOpen: false, tagManagerMode: 'add', tagNotice: '', skillDetailKey: '', skillCommandEditingKey: '',
       logoPickerOpen: false,
       members, memberActor: identity.accountName, memberBaseline: this.deliveryMemberSignature(members), memberQuery: '', memberSearchOpen: false, memberNotice: '',
       datasetReviews: Object.fromEntries(Object.entries(sheet?.datasetReviews || {}).map(([id, review]) => [id, { ...review }])),
@@ -310,7 +312,8 @@
   }
 
   addDeliveryTag() {
-    const editor = this.state.deliveryEditor, name = editor?.tagName.trim();
+    const editor = this.state.deliveryEditor, inputName = editor?.tagName.trim();
+    const name = inputName ? inputName[0].toLocaleUpperCase() + inputName.slice(1) : '';
     const color = editor?.tagColor || '#64748b';
     if (!this.deliverySkillActorMatches(editor) || !name || name.length > 30 || !/^#[0-9a-f]{6}$/i.test(color) || editor.tags.length >= 20 || editor.tags.some(tag => tag.name.toLowerCase() === name.toLowerCase())) return;
     const tag = { id: 'tag-' + Date.now() + '-' + (this._deliverySequence = (this._deliverySequence || 0) + 1), name, color };
@@ -325,6 +328,7 @@
     if (editor.draftSaving) return '草稿正在保存，请稍候。';
     if (!editor.name.trim() || !editor.customer.trim()) return '请填写数据单名称和客户名。';
     if (!/^\d+$/.test(editor.target) || Number(editor.target) < 1 || Number(editor.target) > 100000) return '目标数量须为 1–100000 的整数。';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(editor.deliveryDate || '') || Number.isNaN(Date.parse(editor.deliveryDate + 'T00:00:00Z'))) return '请选择有效的交付日期。';
     if (editor.logoLoading || editor.listLoading || editor.skillLoading) return '文件正在读取，请稍候。';
     if (editor.listError) return editor.listError;
     if (!editor.entries.length && (!editor.key || editor.listChanged)) return '请在「List 与 Tag」中填写至少一项 List 清单。';
@@ -357,7 +361,7 @@
     const key = editor.key || 'sheet-' + Date.now() + '-' + (this._deliverySequence = (this._deliverySequence || 0) + 1);
     const now = new Date(), date = now.toISOString().slice(0, 10);
     const sheet = Object.assign({}, previous || {}, {
-      key, name: editor.name.trim(), customer: editor.customer.trim(), desc: editor.desc.trim(), target: Number(editor.target),
+      key, name: editor.name.trim(), customer: editor.customer.trim(), desc: editor.desc.trim(), target: Number(editor.target), deliveryDate: editor.deliveryDate,
       createdBy: previous?.createdBy || (!previous ? (this.props.currentUser || '一万') : ''),
       logo: editor.logo, archive: editor.archive, tags: editor.tags.map(tag => Object.assign({}, tag)), skills: skillPlan.skills,
       defaultTagId: editor.defaultTagId || '', sourceRunIds: editor.importMode === 'production' ? (editor.productionTaskIds || []).slice()
@@ -415,6 +419,7 @@
       tabs: [['basic', '基础信息'], ['list', 'List 与 Tag'], ['skills', 'Skill'], ['reviewers', '审核分配']].map(([key, label]) => ({ key, label, selected: editor.tab === key, pick: () => { this.closeDeliveryMemberPicker(editor.id); patch({ tab: key, error: '' }); } })),
       onName: event => patch({ name: event.target.value, error: '' }), onCustomer: event => patch({ customer: event.target.value, error: '' }),
       onDesc: event => patch({ desc: event.target.value }), onTarget: event => patch({ target: event.target.value, error: '' }),
+      onDeliveryDate: event => patch({ deliveryDate: event.target.value, error: '' }),
       logoUrl: editor.logo?.url || '', hasLogo: !!editor.logo, noLogo: !editor.logo, logoPickerOpen: !!editor.logoPickerOpen,
       logoPickerLabel: (editor.logo ? '更换' : '选择') + '客户 Logo；可复用平台历史 Logo 或上传新图片',
       logoChoices: logoChoices.map(logo => Object.assign({}, logo, { selected: editor.logo?.url === logo.url,

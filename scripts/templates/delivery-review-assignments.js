@@ -47,9 +47,16 @@
     for (const member of editor.members) if (!people.has(member.accountName)) people.set(member.accountName, member);
     return Array.from(people.values()).map(person => {
       const supplied = this.props.memberDirectory?.find(member => member.accountName === person.accountName);
+      const sheetRole = editor.members.find(member => member.accountName === person.accountName)?.role;
+      const accountRole = person.accountName === identity.accountName ? identity.key
+        : String(this.state.profileRoleOverrides?.[person.accountName] || supplied?.role || supplied?.roleKey || '').trim().toLowerCase().replace(/[ _]+/g, '-');
       const lead = person.accountName === identity.accountName ? identity.key === 'lead'
         : (this.state.profileRoleOverrides?.[person.accountName] || supplied?.role || supplied?.roleKey) === 'lead';
-      return { ...person, label: person.name + (person.name !== person.accountName ? ' · ' + person.accountName : '')
+      const external = person.external === true || sheetRole === 'reviewer-outsourcing' || accountRole === 'outsourcing';
+      const identityLabel = person.name + (person.name !== person.accountName && !person.accountName.startsWith('outsourcing:') ? ' · ' + person.accountName : '');
+      const detail = String(person.detail || '');
+      const supplierLabel = external && detail.startsWith('外部专家 · ') ? ' · ' + detail.slice('外部专家 · '.length) : '';
+      return { ...person, external, label: (external ? '外部专家 · ' : '') + identityLabel + supplierLabel
         + (person.accountName === identity.accountName ? '（我）' : '') + (lead ? ' · Lead' : '') };
     });
   }
@@ -72,7 +79,8 @@
       if (!person) return;
       if (!members.some(member => member.accountName === value)) {
         if (members.length >= 50) { this.patchDeliveryEditor({ reviewNotice: '成员已达 50 人上限，请先调整成员。' }, editorId); return; }
-        members.push({ accountName: value, name: person.name, role: 'reviewer-forge' });
+        members.push({ accountName: value, name: person.name, detail: person.detail || '', teamName: person.teamName || '', external: !!person.external,
+          role: person.external ? 'reviewer-outsourcing' : 'reviewer-forge' });
       }
     }
     if (field === 'status' && !this.deliveryDatasetReviewStates().some(status => status.key === value)) return;

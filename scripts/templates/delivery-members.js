@@ -3,8 +3,15 @@
     return [
       { key: 'owner', label: '所有者', description: '负责数据单与成员管理' },
       { key: 'reviewer-forge', label: 'Reviewer-Forge', description: '平台审核与反馈' },
-      { key: 'reviewer-outsourcing', label: 'Reviewer-Outsourcing', description: '外包审核与反馈' }
+      { key: 'reviewer-outsourcing', label: '外部专家', description: '外部专家审核与反馈' }
     ];
+  }
+
+  deliveryExternalExpert(supplier) {
+    if (!supplier?.id || !supplier.name) return null;
+    const teamName = String(supplier.name).trim();
+    return { accountName: 'outsourcing:' + supplier.id, name: String(supplier.contact || '外部专家').trim(),
+      detail: '外部专家 · ' + teamName, teamName, external: true, role: 'reviewer-outsourcing' };
   }
 
   deliverySheetMembers(sheet) {
@@ -17,6 +24,9 @@
     for (const name of [sheet?.assignee, ...(sheet?.assignees || [])].filter(Boolean)) {
       if (!members.some(member => member.accountName === name)) members.push({ accountName: name, name, role: 'reviewer-forge' });
     }
+    const suppliers = (typeof this.outsourcingSupplierData === 'function' ? this.outsourcingSupplierData().rows : []).concat(this.state.supplierAdded || []);
+    const expert = this.deliveryExternalExpert(suppliers.find(supplier => supplier.sheets?.some(link => link.id === sheet?.key)));
+    if (expert && !members.some(member => member.accountName === expert.accountName)) members.push(expert);
     return members;
   }
 
@@ -34,16 +44,19 @@
       const person = typeof value === 'string' ? { accountName: value, name: value } : value;
       if (!person || typeof person.accountName !== 'string' || !person.accountName.trim()) return;
       const accountName = person.accountName.trim();
-      if (!people.has(accountName)) people.set(accountName, { accountName, name: String(person.name || accountName), detail: String(person.detail || '') });
+      const accountRole = String(person.roleKey || person.role || '').trim().toLowerCase().replace(/[ _]+/g, '-');
+      if (!people.has(accountName)) people.set(accountName, { accountName, name: String(person.name || accountName), detail: String(person.detail || ''),
+        external: person.external === true || accountRole === 'outsourcing' });
     };
-    add({ accountName: identity.accountName, name: identity.name });
+    add({ accountName: identity.accountName, name: identity.name, roleKey: identity.key });
     if (Array.isArray(this.props.memberDirectory)) this.props.memberDirectory.forEach(add);
     else this.profileTaskCatalog().forEach(task => add(task.assignee));
+    if (typeof this.outsourcingSupplierData === 'function') this.outsourcingSupplierData().rows.concat(this.state.supplierAdded || []).forEach(supplier => add(this.deliveryExternalExpert(supplier)));
     return Array.from(people.values());
   }
 
   deliveryMemberSignature(members) {
-    return JSON.stringify(members.map(member => [member.accountName, member.name, member.role]).sort((a, b) => a[0].localeCompare(b[0])));
+    return JSON.stringify(members.map(member => [member.accountName, member.name, member.role, member.detail || '']).sort((a, b) => a[0].localeCompare(b[0])));
   }
 
   deliveryMembersEditable(editor = this.state.deliveryEditor) {
@@ -83,7 +96,8 @@
     if (action === 'add') {
       const person = this.deliveryMemberDirectory().find(value => value.accountName === accountName);
       if (!person || index >= 0 || members.length >= 50) return;
-      members.push({ accountName, name: person.name, role: 'reviewer-forge' });
+      members.push({ accountName, name: person.name, detail: person.detail || '', teamName: person.teamName || '', external: !!person.external,
+        role: person.external ? 'reviewer-outsourcing' : 'reviewer-forge' });
     } else {
       if (index < 0 || (action !== 'remove' && action !== 'role')) return;
       if (members[index].role === 'owner' && members.filter(member => member.role === 'owner').length === 1 && (action === 'remove' || role !== 'owner')) {
@@ -104,13 +118,14 @@
     const editor = this.state.deliveryEditor;
     if (!editor) return { rows: [], results: [], editable: false };
     const editable = this.deliveryMembersEditable(editor), roles = this.deliveryMemberRoles();
+    const directory = new Map(this.deliveryMemberDirectory().map(person => [person.accountName, person]));
     const normalize = value => String(value || '').normalize('NFKC').toLowerCase().trim();
     const query = normalize(editor.memberQuery), tokens = query.split(/\s+/).filter(Boolean);
     const matches = this.deliveryMemberDirectory().filter(person => tokens.every(token => normalize(person.name + ' ' + person.accountName + ' ' + person.detail).includes(token)));
     return {
       editable, readonly: !editable, query: editor.memberQuery, count: editor.members.length,
       showResults: editable && !!editor.memberSearchOpen, resultCount: matches.length, noResults: !matches.length,
-      directoryHelp: '可多选 · 默认 Reviewer-Forge，选择后可调整角色',
+      directoryHelp: '可多选 · 内部成员默认为 Reviewer-Forge，供应商联系人显示为外部专家',
       scope: '角色仅对这张数据单生效',
       notice: editor.memberNotice, empty: !editor.members.length,
       onSearch: event => { this.patchDeliveryEditor({ memberQuery: event.target.value }, editor.id); this.openDeliveryMemberPicker(editor.id); },
@@ -135,9 +150,11 @@
       limitNote: editor.members.length >= 50 ? '已选满 50 位成员，取消勾选后可继续选择。' : '',
       rows: editor.members.map(member => {
         const role = roles.find(value => value.key === member.role), lastOwner = member.role === 'owner' && editor.members.filter(value => value.role === 'owner').length === 1;
+        const person = directory.get(member.accountName), detail = member.detail || person?.detail || '';
         return Object.assign({}, member, { initial: Array.from(member.name || member.accountName)[0], me: member.accountName === this.profileIdentity().accountName,
+          detail, hasDetail: !!detail,
           roleLabel: role?.label || '待配置', description: role?.description || '请指定角色', roleOptions: roles,
-          roleDisabled: !editable || lastOwner, removeDisabled: !editable || lastOwner,
+          roleDisabled: !editable || lastOwner, showRemove: member.role !== 'owner', removeDisabled: !editable || lastOwner,
           hint: lastOwner ? '至少保留一位 所有者；请先指定另一位 所有者。' : '角色仅对当前数据单生效',
           roleAriaLabel: '设置 ' + member.name + ' 的数据单角色', removeLabel: '移除成员 ' + member.name,
           onRole: event => this.updateDeliveryMember(member.accountName, 'role', event.target.value, editor.id),

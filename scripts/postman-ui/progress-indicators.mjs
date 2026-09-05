@@ -5,7 +5,6 @@ export function installProgressIndicators(t) {
  const wizard=t.match(/<nav class="forge-wizard-steps"[\s\S]*?<\/nav>/)?.[0];
  if(!wizard)throw Error('Delivery stepper missing');
  replace(wizard,wizard.replace('class="forge-wizard-steps"','class="forge-wizard-steps pm-steps"').replace('<button type="button"','<button class="pm-step" type="button"').replace('class="forge-wizard-step-number"','class="forge-wizard-step-number pm-step-number"').replace('<span>{{ step.label }}</span>','<span class="pm-step-label">{{ step.label }}</span>'));
- replace('<progress class="forge-wizard-progress" value="{{ deliveryEditor.wizard.progress }}" max="100" aria-label="创建数据单进度"></progress>','');
  const start=t.indexOf('      <sc-if value="{{ showRunSteps }}"'),end=t.indexOf('      <div style="display:flex;align-items:flex-end;',start);
  if(start<0||end<start)throw Error('Run setup stepper missing');
  t=t.slice(0,start)+`      <sc-if value="{{ showRunSteps }}" hint-placeholder-val="{{ false }}">

@@ -94,8 +94,8 @@
 
 /* Node details stay beside the canvas and retain their content during exit. */
 .forge-postman .pm-pipeline-editor[data-pm-inspector-open=true]{box-sizing:border-box;padding-right:clamp(360px,30vw,420px)}
-.forge-postman .pm-pipeline-node-drawer{position:fixed;inset:40px 0 0 auto;z-index:60;width:420px;max-width:100vw;max-height:none;padding:0!important;display:flex;flex-direction:column;gap:0!important;border:0;border-left:1px solid var(--pm-border);background:var(--pm-canvas);overflow:hidden;visibility:hidden;pointer-events:none;transform:translateX(100%);opacity:0;transition:transform 160ms cubic-bezier(.19,1,.22,1),opacity 160ms ease,visibility 0s linear 160ms}
-.forge-postman .pm-pipeline-node-drawer[data-open=true]{visibility:visible;pointer-events:auto;transform:translateX(0);opacity:1;transition-duration:220ms,220ms,0s;transition-delay:0s}
+.forge-postman .pm-pipeline-node-drawer{position:fixed;inset:40px 0 0 auto;z-index:60;width:420px;max-width:100vw;max-height:none;padding:0!important;display:flex;flex-direction:column;gap:0!important;border:0;background:var(--pm-canvas);box-shadow:none;overflow:hidden;visibility:hidden;pointer-events:none;transform:translateX(100%);opacity:0;transition:transform 160ms cubic-bezier(.19,1,.22,1),opacity 160ms ease,visibility 0s linear 160ms}
+.forge-postman .pm-pipeline-node-drawer[data-open=true]{visibility:visible;pointer-events:auto;transform:translateX(0);opacity:1;box-shadow:-12px 0 32px rgba(34,31,28,.14);transition-duration:220ms,220ms,0s;transition-delay:0s}
 .forge-postman .pm-node-drawer-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid var(--pm-border);flex:none}
 .forge-postman .pm-node-drawer-header h2{font-size:15px;font-weight:600;margin:0}
 .forge-postman .pm-node-drawer-close{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:4px;background:transparent;color:var(--pm-muted);cursor:pointer}

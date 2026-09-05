@@ -123,9 +123,9 @@ test('focused generator is idempotent and controls retain native semantics', () 
   assert(template.includes('aria-describedby="forge-sheet-rework-image-help"'));
 });
 
-test('exactly three sheet roles are offered and legacy roles normalize without changing account roles', () => {
+test('exactly three sheet roles are offered with the external role named for users', () => {
   const c = component();
-  assert.deepEqual(Array.from(c.deliveryMemberRoles(), role => role.label), ['所有者', 'Reviewer-Forge', 'Reviewer-Outsourcing']);
+  assert.deepEqual(Array.from(c.deliveryMemberRoles(), role => role.label), ['所有者', 'Reviewer-Forge', '外部专家']);
   const members = c.deliverySheetMembers({ members: ['owner', 'reviewer', 'member', 'outsourcing'].map((role, i) => ({ accountName: String(i), name: String(i), role })) });
   assert.deepEqual(Array.from(members, member => member.role), ['owner', 'reviewer-forge', 'reviewer-forge', 'reviewer-outsourcing']);
   assert.equal(c.profileIdentity().label, 'Member');
@@ -133,7 +133,8 @@ test('exactly three sheet roles are offered and legacy roles normalize without c
 
 test('picker opens without a query, permits consecutive check/uncheck and preserves draft across dismissal', () => {
   const c = component(); membership(c).open();
-  assert(membership(c).showResults); assert.equal(membership(c).resultCount, 3);
+  assert(membership(c).showResults); assert.equal(membership(c).resultCount, directory.length + 3);
+  assert.equal(membership(c).results.filter(row => row.external).length, 3);
   assert(membership(c).results.find(row => row.accountName === '一万').disabled);
   for (const name of ['review-test', 'external-test']) membership(c).results.find(row => row.accountName === name).toggle({ target: { checked: true } });
   assert.equal(membership(c).count, 3); assert(membership(c).showResults);
@@ -160,7 +161,7 @@ test('all matching members remain reachable; reaching the cap still allows desel
   const people = Array.from({ length: 55 }, (_, i) => ({ accountName: 'person-' + i, name: 'Person ' + i }));
   const c = component({ memberDirectory: people });
   for (const person of people.slice(0, 49)) add(c, person.accountName);
-  membership(c).open(); assert.equal(membership(c).resultCount, 56); assert.equal(membership(c).results.length, 56);
+  membership(c).open(); assert.equal(membership(c).resultCount, people.length + 4); assert.equal(membership(c).results.length, people.length + 4);
   assert(membership(c).results.find(row => row.accountName === 'person-54').disabled);
   assert(!membership(c).results.find(row => row.accountName === 'person-0').disabled);
   membership(c).results.find(row => row.accountName === 'person-0').toggle({ target: { checked: false } });
@@ -180,7 +181,7 @@ test('successful creation queues one local inbox event per other member, with ho
   c.state.view = 'overview'; notification.go(); assert.equal(c.state.view, 'sheet'); assert.equal(c.state.sheetKey, key);
   assert(c.state.notifRead[c.deliveryNotificationItems()[0].id]);
   c.props.currentUser = 'external-test';
-  assert.match(c.renderVals().notif.items.find(item => item.isAssignment).body, /Reviewer-Outsourcing/);
+  assert.match(c.renderVals().notif.items.find(item => item.isAssignment).body, /外部专家/);
   c.renderVals().notif.readAll({ stopPropagation() {} });
   c.props.currentUser = 'review-test'; assert(c.state.notifRead[c.deliveryNotificationItems()[0].id], 'reading another inbox does not undo read receipts');
 });

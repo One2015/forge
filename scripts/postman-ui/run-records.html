@@ -2,11 +2,10 @@
  <header class="fg-page-header"><div><h1 id="fg-runs-title">运行记录</h1><p>{{ runs.subtitle }}</p></div><button type="button" class="fg-button" data-variant="primary" data-size="md" sc-camel-on-click="{{ goPipelines }}"><span class="fg-button-content"><svg class="forge-icon" data-phosphor="plus" width="16" height="16" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>新建运行</span><span class="fg-button-busy" aria-hidden="true">处理中…</span></button></header>
 
 <div class="rr-summary forge-overview-summary" role="group" aria-label="运行摘要"><sc-for list="{{ runs.kpis }}" as="k">
- <article class="forge-summary-card rr-summary-item" data-actionable="true" data-selected="{{ k.selected }}">
+ <article class="forge-summary-card rr-summary-item" data-actionable="false">
   <div class="forge-summary-heading"><span class="forge-summary-title">{{ k.label }}</span><span class="forge-summary-help" data-forge-tooltip="{{ k.title }}" data-tooltip-label="{{ k.label }}说明"></span></div>
   <div class="forge-summary-value"><strong>{{ k.value }}</strong></div>
   <sc-if value="{{ k.hasHint }}"><p class="forge-summary-note">{{ k.hint }}</p></sc-if>
-  <button type="button" class="forge-summary-link rr-kpi" aria-label="{{ k.label }}" aria-pressed="{{ k.selected }}" sc-camel-on-click="{{ k.pick }}"></button>
  </article>
 </sc-for></div>
  <div class="fg-runs-toolbar">
