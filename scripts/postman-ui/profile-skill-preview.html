@@ -1,0 +1,23 @@
+<sc-if value="{{ profile.hasSkillPreview }}">
+  <article class="pm-profile-skill-preview" aria-labelledby="pm-profile-skill-preview-name">
+    <header>
+      <span>Skill Preview</span>
+      <h3 id="pm-profile-skill-preview-name">{{ profile.skillPreview.name }}</h3>
+      <code>{{ profile.skillPreview.commandLabel }}</code>
+    </header>
+    <sc-if value="{{ profile.skillPreview.hasDescription }}">
+      <section>
+        <h4>描述</h4>
+        <p>{{ profile.skillPreview.description }}</p>
+      </section>
+    </sc-if>
+    <section>
+      <h4>指令</h4>
+      <pre>{{ profile.skillPreview.content }}</pre>
+    </section>
+    <footer>
+      <span>{{ profile.skillPreview.fileLabel }}</span>
+      <button type="button" sc-camel-on-click="{{ profile.backToSkillList }}">[[icon:arrow-left:16]] 返回 Skill 列表</button>
+    </footer>
+  </article>
+</sc-if>

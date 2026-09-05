@@ -19,16 +19,19 @@ test('logo upload and sheet name share a compact identity row with accessible he
   assert(!template.includes('class="forge-delivery-logo-upload"'));
 });
 
-test('wizard basic information keeps supplier identity beside the two required input rows', () => {
+test('wizard basic information keeps customer identity and reusable Logo picker beside required fields', () => {
   const wizard = read('./templates/delivery-wizard.html');
   const styles = read('./templates/delivery-wizard.css');
-  assert.match(wizard, /class="forge-wizard-basic-identity">[^]*?class="forge-wizard-basic-logo">[^]*?class="forge-delivery-logo-tile"[^]*?供应商 Logo[^]*?class="forge-wizard-basic-fields">[^]*?id="forge-delivery-name"[^]*?id="forge-delivery-customer"[^]*?id="forge-delivery-target"/);
+  assert.match(wizard, /class="forge-wizard-basic-identity">[^]*?class="forge-wizard-basic-logo">[^]*?class="forge-delivery-logo-tile"[^]*?客户 Logo[^]*?class="forge-wizard-basic-fields">[^]*?id="forge-delivery-name"[^]*?id="forge-delivery-customer"[^]*?id="forge-delivery-target"/);
   assert(!wizard.includes('>Logo <span class="forge-wizard-optional">选填</span>'));
   assert(!wizard.includes('<p class="forge-delivery-help">PNG、JPG、WebP，最大 2 MB</p>'));
-  assert(wizard.includes('aria-label="上传供应商 Logo，PNG、JPG、WebP，最大 2 MB"'));
+  assert(wizard.includes('id="forge-customer-logo-picker"'));
+  assert(wizard.includes('aria-label="平台历史客户 Logo"'));
+  assert(wizard.includes('aria-label="上传新的客户 Logo，PNG、JPG、WebP，最大 2 MB"'));
   assert.match(styles, /\.forge-wizard-basic-identity\{[^}]*grid-template-columns:128px minmax\(0,1fr\)/);
   assert.match(styles, /\.forge-wizard-basic-identity\{[^}]*align-items:stretch/);
   assert.match(styles, /\.forge-wizard-basic-logo \.forge-delivery-logo-tile\{[^}]*height:100%/);
+  assert.match(styles, /\.forge-customer-logo-library\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
 
 test('progressive Tag composer and compact ZIP CTA keep accessible mobile target heights', () => {
@@ -36,7 +39,7 @@ test('progressive Tag composer and compact ZIP CTA keep accessible mobile target
   assert.match(delivery, /@media\(max-width:600px\),\(pointer:coarse\)\{[^]*?input:not\(\[type="file"\]\):not\(\[type="color"\]\),\.forge-delivery-editor select\{height:44px\}/);
   assert.match(delivery, /\.forge-delivery-custom-color\{[^}]*width:auto;height:32px;margin:0/);
   assert.match(delivery, /\.forge-delivery-list-upload\{[^}]*width:auto;height:32px;min-height:32px/);
-  assert.match(delivery, /\.forge-delivery-color-palette>button:not\(\.forge-delivery-tag-reset\),\.forge-delivery-skill-detail \.forge-delivery-icon-button\{width:44px;height:44px/);
+  assert.match(delivery, /\.forge-delivery-color-palette>button,\.forge-delivery-skill-detail \.forge-delivery-icon-button\{width:44px;height:44px/);
 });
 
 test('low-specificity form defaults allow component typography and colors to win', () => {

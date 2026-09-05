@@ -14,6 +14,10 @@
 .forge-postman .rr-page .rr-filter-controls .fg-search{min-width:140px}
 .forge-postman .rr-notice{gap:12px;overflow-wrap:anywhere}
 .forge-postman .rr-notice button{flex:none}
+@media(min-width:761px){
+ .forge-postman .rr-filter-controls{flex:0 1 420px;flex-wrap:nowrap}
+ .forge-postman .rr-page .rr-filter-controls .fg-search{flex:0 1 300px;width:300px;max-width:300px}
+}
 
 @container pm-runs (max-width:980px){
  .forge-postman .rr-scroll{max-height:none;overflow:visible;min-height:0}
@@ -28,7 +32,6 @@
  .forge-postman .rr-context>code{max-width:calc(100% - 28px)}
  .forge-postman .rr-row>[role=cell]:nth-child(2){grid-column:2;grid-row:1}
  .forge-postman .rr-progress{grid-column:3;grid-row:1}
- .forge-postman .rr-progress>span{white-space:normal}
  .forge-postman .rr-person{grid-column:2;grid-row:2}
  .forge-postman .rr-row>.rr-number:nth-child(5){grid-column:3;grid-row:2}
  .forge-postman .rr-row>.rr-number:nth-child(6){grid-column:4;grid-row:2}
@@ -160,7 +163,8 @@
  .forge-postman :is(.rr-page,.pm-review-queue,.forge-delivery-wizard,.forge-profile-panel,.pm-dataset-editor,.pm-billing-date-range) :is(input:not([type=checkbox],[type=radio],[type=file]),select,textarea){font-size:16px!important}
  .forge-postman :is(.rr-page,.pm-review-queue,.forge-delivery-wizard,.forge-profile-panel,.pm-dataset-editor,.pm-billing-date-range) :is(select,input:not([type=checkbox],[type=radio],[type=file]),button,summary){min-height:44px}
  .forge-postman .rr-status-tabs .fg-button{min-height:40px}
- .forge-postman .rr-page .rr-filter-controls .fg-search{height:44px}
+ .forge-postman .rr-filter-controls{flex:1 1 100%}
+ .forge-postman .rr-page .rr-filter-controls .fg-search{flex:1 1 100%;width:100%;max-width:none;height:44px}
  .forge-postman .pm-review-queue .pq-filters .pq-search{height:44px}
  .forge-postman .pm-review-queue .pq-filters input{height:44px}
  .forge-postman .forge-wizard-footer .forge-delivery-footer-actions button{min-height:44px}

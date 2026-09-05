@@ -44,7 +44,7 @@
   deliveryDraftPayload(editor) {
     // IndexedDB structured cloning preserves the original ZIP Blob/File, unlike JSON storage.
     const fields = ['name', 'customer', 'target', 'desc', 'logo', 'archive', 'entries', 'listText', 'listChanged', 'tags', 'skills', 'members',
-      'tagName', 'tagColor', 'tagComposerOpen', 'skillDraft', 'skillUploads', 'skillMode', 'listError', 'logoError', 'skillError'];
+      'tagName', 'tagColor', 'tagComposerOpen', 'tagManagerMode', 'skillDraft', 'skillUploads', 'skillMode', 'listError', 'logoError', 'skillError'];
     return structuredClone(Object.fromEntries(fields.map(key => [key, editor[key]])));
   }
 

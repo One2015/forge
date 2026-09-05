@@ -21,7 +21,7 @@ test('case labels use independent named buttons and official icons in both revie
   assert.match(template, /class="review-workbench-bad forge-case-button"/);
 });
 
-test('delivery case marks toggle off, stay exclusive and do not change review or other Item labels', () => {
+test('delivery case marks toggle off, stay exclusive and confirm every change with a toast', () => {
   const context = vm.createContext({ URLSearchParams, setTimeout: () => 0, clearTimeout() {}, window: { location: { search: '' } },
     DCLogic: class { props = { panelWidth: 460, hasRuns: true, hasResources: true }; setState(patch) { this.state = { ...this.state, ...patch }; } } });
   vm.runInContext(code + ';globalThis.c = new Component();', context);
@@ -31,13 +31,13 @@ test('delivery case marks toggle off, stay exclusive and do not change review or
   const before = JSON.stringify(c.state.reviewDecisions);
   assert.deepEqual(Array.from(tabs(), t => t.label), ['Good Case', 'Bad Case']);
   assert(tabs().every(t => !t.selected));
-  tabs()[0].pick(click); assert(tabs()[0].selected); assert(!tabs()[1].selected);
-  tabs()[1].pick(click); assert(!tabs()[0].selected); assert(tabs()[1].selected);
-  tabs()[1].pick(click); assert(tabs().every(t => !t.selected));
+  tabs()[0].pick(click); assert(tabs()[0].selected); assert(!tabs()[1].selected); assert.equal(c.state.reviewToast, '已标注为 Good Case');
+  tabs()[1].pick(click); assert(!tabs()[0].selected); assert(tabs()[1].selected); assert.equal(c.state.reviewToast, '已标注为 Bad Case');
+  tabs()[1].pick(click); assert(tabs().every(t => !t.selected)); assert.equal(c.state.reviewToast, '已取消 Bad Case 标注');
   assert(!Object.hasOwn(c.state.sampleLabels, id));
   const staleGood = tabs()[0].pick;
-  staleGood(click); assert(tabs()[0].selected);
-  staleGood(click); assert(tabs().every(t => !t.selected), 'Repeated callback reads live state');
+  staleGood(click); assert(tabs()[0].selected); assert.equal(c.state.reviewToast, '已标注为 Good Case');
+  staleGood(click); assert(tabs().every(t => !t.selected), 'Repeated callback reads live state'); assert.equal(c.state.reviewToast, '已取消 Good Case 标注');
   assert.equal(c.state.sampleLabels.unrelated, 'good');
   assert.equal(JSON.stringify(c.state.reviewDecisions), before);
 });
@@ -45,11 +45,12 @@ test('delivery case marks toggle off, stay exclusive and do not change review or
 test('case toggle migration is idempotent and changes only the two marking callbacks', () => {
   assert.equal(toggleCaseLabels(raw), raw);
   let legacy = raw;
-  for (const [id, kind, indent] of [['r[2]', 'kind', '                '], ['meta[0]', 'value', '            ']]) {
+  for (const [id, kind, label, indent] of [['r[2]', 'kind', 'label', '                '], ['meta[0]', 'value', "(value === 'good' ? 'Good Case' : 'Bad Case')", '            ']]) {
     const next = `${indent}const labels = Object.assign({}, this.state.sampleLabels || {});
-${indent}if (labels[${id}] === ${kind}) delete labels[${id}];
+${indent}const removing = labels[${id}] === ${kind};
+${indent}if (removing) delete labels[${id}];
 ${indent}else labels[${id}] = ${kind};
-${indent}this.setState({ sampleLabels: labels });`;
+${indent}this.setState({ sampleLabels: labels, reviewToast: removing ? '已取消 ' + ${label} + ' 标注' : '已标注为 ' + ${label}, reviewToastAt: Date.now() });`;
     const previous = `${indent}this.setState({ sampleLabels: Object.assign({}, this.state.sampleLabels || {}, { [${id}]: ${kind} }) });`;
     const encoded = value => JSON.stringify(value).slice(1, -1);
     assert(legacy.includes(encoded(next)));

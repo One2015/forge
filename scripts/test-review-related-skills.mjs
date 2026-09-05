@@ -47,6 +47,21 @@ test('related Skills only reflect saved sheet selection, not the catalog or unsa
   assert.equal(c.reviewSkillValues(ctx).available, false);
 });
 
+test('the ant200 delivery Item preview exposes an explicit empty Skill state', () => {
+  const { c } = setup(postmanCode);
+  const sheet = c.deliverySheet('ant200');
+  const row = c.sheetRows(sheet).find(value => value[2] === '701f39aa8af242e2a322670c1d4b8e95');
+  assert(row, 'Expected the reported Item in ant200');
+  const values = c.reviewSkillValues({ itemId: row[2], itemName: row[0], runId: row[5], sheetKey: sheet.key, scope: 'sheet' });
+  assert.equal(values.available, false);
+  assert.equal(values.empty, true);
+  assert.equal(values.relatedSkills.length, 0);
+  const block = postman.split('<!-- sheet-skill-session:start -->')[1].split('<!-- sheet-skill-session:end -->')[0];
+  assert(block.trim().startsWith('<section class="forge-review-related-skills"'));
+  assert(block.includes('sheet.pick.skills.empty'));
+  assert(block.includes('暂未关联 Skill'));
+});
+
 test('form-created and explicitly assigned Skills download useful Markdown without executing instructions', async () => {
   const env = setup(), { c, save, review, files, anchors, timers, revoked } = env;
   c.deliveryEditorValues().workspace.write(); let v = c.deliveryEditorValues().workspace;
@@ -102,11 +117,10 @@ test('empty content and browser download failures report a recoverable error and
   c.reviewSkillValues(ctx).relatedSkills[0].download(); assert.equal(files.length, 1); assert.match(c.reviewSkillValues(ctx).downloadError, /暂无指令/);
 });
 
-test('both review panels and both variants contain conditional, labelled download controls; generation is repeatable', () => {
+test('all preview panels keep a labelled Skill section and render an empty state without leaking controls', () => {
   for (const variant of [template, postman]) {
     for (const [marker, prefix] of [['review', 'it.skills.'], ['sheet', 'sheet.pick.skills.']]) {
       const block = variant.split('<!-- ' + marker + '-skill-session:start -->')[1].split('<!-- ' + marker + '-skill-session:end -->')[0];
-      assert(block.trim().startsWith('<sc-if value="{{ ' + prefix + 'available }}"'));
       if (variant === postman && marker === 'review') {
         assert(block.includes('Skill 评估会话')); assert(!block.includes('relatedSkills'));
         const references = variant.split('<section class="review-workbench-references">')[1].split('<!-- review-skill-session:start -->')[0];
@@ -117,7 +131,9 @@ test('both review panels and both variants contain conditional, labelled downloa
         assert(references.includes('role="alert"'));
         continue;
       }
+      assert(block.trim().startsWith('<section class="forge-review-related-skills"'));
       assert(block.includes('aria-label="相关 Skill"')); assert(block.includes(prefix + 'relatedSkills'));
+      assert(block.includes(prefix + 'empty')); assert(block.includes('暂未关联 Skill'));
       assert(block.includes('aria-label="{{ relatedSkill.downloadLabel }}"')); assert(block.includes('sc-camel-on-click="{{ relatedSkill.download }}"'));
       assert(block.includes('role="alert"'));
       // The latest Postman delivery preview keeps downloads without the demo evaluator.

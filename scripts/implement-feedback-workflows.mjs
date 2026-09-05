@@ -21,7 +21,9 @@ const icon = (_, name, size) => {
   return `<svg class="forge-icon" data-phosphor="${name}" width="${size}" height="${size}" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false">${paths}</svg>`;
 };
 const read = name => fs.readFileSync(new URL('./templates/' + name, import.meta.url), 'utf8');
-const markup = name => read(name).replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, icon);
+const markup = name => read(name)
+  .replace('[[review-skill-session]]', '<!-- review-skill-session:start -->\n' + read('review-skills.html').replaceAll('skillView.', 'it.skills.') + '\n<!-- review-skill-session:end -->')
+  .replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, icon);
 if (!template.includes('// feedback-workflows:start')) {
   section('                <sc-if value="{{ sheet.pick.branchAskOpen }}"', '                <sc-if value="{{ sheet.pick.passConfirmOpen }}"', '');
   template = template.replace(/    <sc-if value="{{ reworkAsk.open }}"[\s\S]*?    <\/sc-if>/, '');

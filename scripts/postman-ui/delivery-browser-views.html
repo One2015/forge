@@ -1,0 +1,74 @@
+<section class="pm-delivery-results" aria-label="交付数据单">
+  <sc-if value="{{ delivery.empty }}" hint-placeholder-val="{{ false }}">
+    <div class="pm-delivery-empty">
+      <strong>没有匹配的数据单</strong>
+      <span>调整搜索关键词或分类后重试。</span>
+      <button type="button" sc-camel-on-click="{{ delivery.clearQuery }}">清除搜索</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ delivery.listView }}" hint-placeholder-val="{{ true }}">
+    <div class="pm-delivery-groups pm-delivery-groups-list">
+      <sc-for list="{{ delivery.customers }}" as="c" hint-placeholder-count="2">
+        <section class="pm-delivery-customer-group">
+          <!-- delivery-customer-heading:start -->
+<header class="forge-delivery-customer-heading">
+  <div class="forge-delivery-customer-identity">
+    <sc-if value="{{ c.hasLogo }}" hint-placeholder-val="{{ false }}"><img class="forge-delivery-customer-logo" src="{{ c.logo }}" alt="{{ c.logoAlt }}" width="28" height="28" /></sc-if>
+    <h2 class="forge-delivery-customer-name">{{ c.name }}</h2>
+  </div>
+  <p class="forge-delivery-customer-meta">{{ c.meta }}</p>
+</header>
+<!-- delivery-customer-heading:end -->
+          <div class="pm-delivery-list">
+            <sc-for list="{{ c.sheets }}" as="d" hint-placeholder-count="2">
+              <button type="button" class="pm-delivery-row" sc-camel-on-click="{{ d.open }}" data-flow-family="delivery" data-flow-row="{{ d.motionKey }}" aria-label="打开数据单 {{ d.name }}">
+                <span class="pm-delivery-identity"><strong>{{ d.name }}</strong><span>{{ d.created }}</span><span class="pm-delivery-badge" style="color:{{ d.badgeFg }}">{{ d.badge }}</span></span>
+                <span class="pm-delivery-counts"><sc-for list="{{ d.funnel }}" as="f" hint-placeholder-count="4"><span><span>{{ f.k }}</span><strong style="color:{{ f.fg }}">{{ f.v }}</strong></span></sc-for></span>
+                <span class="pm-delivery-progress"><span class="pm-progress-bar" aria-hidden="true"><span style="width:{{ d.segPass }};background:var(--pm-success-mark)"></span><span style="width:{{ d.segReview }};background:var(--pm-warning-mark)"></span><span style="width:{{ d.segFail }};background:var(--pm-danger-mark)"></span></span><span>{{ d.hint }}</span></span>
+                <span class="pm-delivery-open">查看子项 <svg class="forge-icon" width="16" height="16" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span>
+              </button>
+            </sc-for>
+          </div>
+        </section>
+      </sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{ delivery.folderView }}" hint-placeholder-val="{{ false }}">
+    <div class="pm-delivery-groups pm-delivery-groups-folder">
+      <sc-for list="{{ delivery.customers }}" as="c" hint-placeholder-count="2">
+        <section class="pm-delivery-customer-group">
+          <!-- delivery-customer-heading:start -->
+<header class="forge-delivery-customer-heading">
+  <div class="forge-delivery-customer-identity">
+    <sc-if value="{{ c.hasLogo }}" hint-placeholder-val="{{ false }}"><img class="forge-delivery-customer-logo" src="{{ c.logo }}" alt="{{ c.logoAlt }}" width="28" height="28" /></sc-if>
+    <h2 class="forge-delivery-customer-name">{{ c.name }}</h2>
+  </div>
+  <p class="forge-delivery-customer-meta">{{ c.meta }}</p>
+</header>
+<!-- delivery-customer-heading:end -->
+          <div class="pm-delivery-folder-grid">
+            <sc-for list="{{ c.sheets }}" as="d" hint-placeholder-count="2">
+              <article class="pm-delivery-folder-card" data-flow-family="delivery" data-flow-row="{{ d.motionKey }}">
+                <div class="pm-delivery-folder-cover" data-has-cover="{{ d.hasCover }}">
+                  <sc-if value="{{ d.hasCover }}" hint-placeholder-val="{{ false }}"><img src="{{ d.coverUrl }}" alt="{{ d.coverAlt }}" /></sc-if>
+                  <sc-if value="{{ d.noCover }}" hint-placeholder-val="{{ true }}"><div class="pm-delivery-folder-cover-empty">[[icon:folder-simple:30]]<span>添加封面</span></div></sc-if>
+                  <label class="pm-delivery-folder-cover-action">
+                    <input class="pm-delivery-cover-input" type="file" accept="image/png,image/jpeg,image/webp" aria-label="{{ d.coverLabel }}" sc-camel-on-change="{{ d.uploadCover }}" />
+                    <span>{{ d.coverAction }}</span>
+                  </label>
+                </div>
+                <button type="button" class="pm-delivery-folder-copy" sc-camel-on-click="{{ d.open }}" aria-label="打开数据单 {{ d.name }}">
+                  <span class="pm-delivery-folder-title"><strong>{{ d.name }}</strong><span style="color:{{ d.badgeFg }}">{{ d.badge }}</span></span>
+                  <span class="pm-delivery-folder-meta">{{ d.created }}</span>
+                  <span class="pm-progress-bar" aria-hidden="true"><span style="width:{{ d.segPass }};background:var(--pm-success-mark)"></span><span style="width:{{ d.segReview }};background:var(--pm-warning-mark)"></span><span style="width:{{ d.segFail }};background:var(--pm-danger-mark)"></span></span>
+                  <span class="pm-delivery-folder-hint">{{ d.hint }}</span>
+                </button>
+                <sc-if value="{{ d.coverError }}" hint-placeholder-val="{{ false }}"><p class="pm-delivery-folder-error" role="alert">{{ d.coverError }}</p></sc-if>
+              </article>
+            </sc-for>
+          </div>
+        </section>
+      </sc-for>
+    </div>
+  </sc-if>
+</section>

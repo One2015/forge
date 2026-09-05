@@ -21,7 +21,7 @@ export function renderDeliveryEditor(source) {
     .replace('<h3 class="forge-delivery-skill-title">创建 Skill</h3>', '<div class="forge-delivery-section-heading"><h3 class="forge-delivery-skill-title">创建 Skill</h3><button type="button" class="forge-delivery-secondary" sc-camel-on-click="{{ deliveryEditor.workspace.upload }}">上传 Skill 文件</button></div>')
     .replaceAll('草稿', '未完成内容');
   let page = fs.readFileSync(new URL('./templates/delivery-wizard.html', import.meta.url), 'utf8')
-    .replace('[[wizard-members]]', members.replace('</strong></div><sc-if value="{{ deliveryEditor.membership.editable }}"', '</strong><span>{{ member.accountName }}</span></div><sc-if value="{{ deliveryEditor.membership.editable }}"').replaceAll('Owner', '所有者'))
+    .replace('[[wizard-members]]', members.replaceAll('Owner', '所有者'))
     .replace('[[wizard-skills]]', skillPanel)
     .replace('[[wizard-tag-composer]]', composer)
     .replaceAll('[[wizard-summary]]', fs.readFileSync(new URL('./templates/delivery-wizard-summary.html', import.meta.url), 'utf8'))

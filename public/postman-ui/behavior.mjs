@@ -31,3 +31,11 @@ document.addEventListener('keydown',event=>{
  const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
  event.preventDefault();tabs[next].focus();tabs[next].click();
 });
+
+// Native details provide accessible disclosure semantics. Add light-dismiss so
+// task Tag pickers close when the user continues elsewhere on the page.
+document.addEventListener('click',event=>{
+ for(const picker of document.querySelectorAll('details.pm-task-tag-picker[open]')){
+  if(!picker.contains(event.target))picker.removeAttribute('open');
+ }
+});

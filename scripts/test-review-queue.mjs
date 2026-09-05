@@ -72,8 +72,18 @@ test('thumbnail accepts only exact Item/Run images and failed images become plac
  run.itemPreviews={[row.id]:'/real-item.png'};assert.equal(q().rows[0].preview,'/real-item.png');c.taskLinkImageError('/real-item.png');assert(q().rows[0].noPreview);
 });
 test('queue markup has six stable columns, semantic table, labels and no alarm design',()=>{
- const html=fs.readFileSync(new URL('./postman-ui/review-queue.html',import.meta.url),'utf8');assert.equal((html.match(/role="columnheader"/g)||[]).length,6);
+ const html=fs.readFileSync(new URL('./postman-ui/review-queue.html',import.meta.url),'utf8');const css=fs.readFileSync(new URL('../public/postman-ui/review-queue.css',import.meta.url),'utf8');assert.equal((html.match(/role="columnheader"/g)||[]).length,6);
  assert.doesNotMatch(html,/超时|即将|SLA|截止|等待时间/);assert.doesNotMatch(html,/review\.owners|review-queue-card-header/);
  assert.match(html,/sc-camel-on-input/);assert.match(html,/aria-busy/);assert.match(html,/role="alert"/);
+ assert.match(html,/Case \/ Item ID/);assert.match(html,/class="pq-thumb"/);assert.match(html,/class="pq-task-copy"><strong[^>]*>\{\{ task\.title \}\}<\/strong><code[^>]*>\{\{ task\.id \}\}<\/code>/);
+ assert.doesNotMatch(html,/pq-context|pq-issue|task\.dataset|task\.issue|data-owned/);
+ assert.doesNotMatch(css,/pq-row\[data-owned/);
+ assert.match(css,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*border-left:0!important/);
+ assert.match(css,/\.pq-table-head>\[role=columnheader\]\{text-align:left\}/);
+ assert.match(css,/\.pq-task-copy\{[^}]*gap:16px/);
+ assert.match(css,/\.pq-person\{[^}]*justify-content:flex-start/);
+ assert.match(css,/\.pq-time\{text-align:left/);
+ assert.match(css,/\.pq-actions\{[^}]*align-items:flex-start/);
+ assert.doesNotMatch(css,/text-align:right/);
  assert.match(template,/review-workbench-actions/);
 });

@@ -34,8 +34,11 @@ import {installDatasetPipelineGuide} from './dataset-pipeline-guide.mjs';
 import {installPipelineOwnerEditor} from './pipeline-owner-editor.mjs';
 import {installDatasetEditor} from './dataset-editor.mjs';
 import {installEntryTagStyle} from './entry-tag-style.mjs';
+import {installDeliveryBrowser} from './delivery-browser.mjs';
 import {installLoadingStates} from './loading-states.mjs';
 import {installCheckboxMotion} from './checkbox-motion.mjs';
+import {installNotificationToggle} from './notification-toggle.mjs';
+import {installUtilityPanels} from './utility-panels.mjs';
 const root=new URL('../../',import.meta.url);
 export function buildPostman(source){
  const opening='<script type="__bundler/template">', closing='\n</script>\n</body>\n</html>';
@@ -47,7 +50,6 @@ export function buildPostman(source){
  t=t.replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>');
  t=t.replace('<body','<body class="forge-postman"');
  replace('<main class="forge-main"',`<header class="pm-topbar"><span class="pm-brand-dot" aria-hidden="true"></span><strong>Forge</strong><span class="pm-workspace-name">生产与交付工作台</span></header>\n<main class="forge-main"`);
- replace('<span class="forge-sidebar-wordmark">Forge</span>','<span class="forge-sidebar-wordmark">工作空间</span>');
  // Static billing metrics reuse the existing accessible tooltip island. Keep
  // labels, values and calculations owned by the prototype's billing model.
  const metricHelp=[
@@ -73,13 +75,14 @@ export function buildPostman(source){
  delivery=delivery.slice(0,from)+fs.readFileSync(new URL('scripts/postman-ui/delivery-rows.html',root),'utf8')+delivery.slice(to+'              </sc-for>\n            </div>'.length);
  delivery=delivery.replace('class="forge-page"','class="forge-page pm-delivery-page"');
  t=t.slice(0,deliveryStart)+delivery+t.slice(deliveryEnd);
+ t=installDeliveryBrowser(t);
  const sheetStart=t.indexOf('<sc-if value="{{ isSheet }}"');const sheetEnd=t.indexOf('<sc-if value="{{ isOverview }}"',sheetStart);
  if(sheetStart<0||sheetEnd<sheetStart)throw Error('Sheet boundaries changed');
  let sheet=t.slice(sheetStart,sheetEnd);
- const skillSessionStart=sheet.indexOf('<section class="forge-review-skills" aria-label="Skill 评估会话">');
- const skillSessionEnd=sheet.indexOf('</section>',skillSessionStart);
+ const skillSessionStart=sheet.indexOf('<!-- skill-evaluator:start -->');
+ const skillSessionEnd=sheet.indexOf('<!-- skill-evaluator:end -->',skillSessionStart);
  if(skillSessionStart<0||skillSessionEnd<skillSessionStart)throw Error('Sheet skill session boundary changed');
- sheet=sheet.slice(0,skillSessionStart)+sheet.slice(skillSessionEnd+'</section>'.length);
+ sheet=sheet.slice(0,skillSessionStart)+sheet.slice(skillSessionEnd+'<!-- skill-evaluator:end -->'.length);
  // Related skills already resolve from this sheet's assigned bindings. Remove
  // the separate version tree so that the existing skills section follows metadata.
  const versionStart=sheet.indexOf('<sc-if value="{{ sheet.pick.hasVersionNodes }}"');
@@ -187,6 +190,8 @@ export function buildPostman(source){
  const wizardHeading='<div class="forge-wizard-task-heading"><h2 id="forge-wizard-step-title" tabindex="-1" aria-label="{{ deliveryEditor.wizard.title }}">{{ deliveryEditor.wizard.title }}</h2><p class="forge-delivery-help">{{ deliveryEditor.wizard.help }}</p></div>';
  replace(wizardHeading,'');
  replace('<div class="forge-wizard-layout">',wizardHeading+'\n<div class="forge-wizard-layout pm-wizard-aligned">');
+ t=installNotificationToggle(t);
+ t=installUtilityPanels(t);
  const logicStart=t.indexOf('<script type="text/x-dc"');
  let markup=t.slice(0,logicStart);
  markup=markup.replace(/<(div|span|button|input|select)\b[^>]*>/g,tag=>{

@@ -3,7 +3,6 @@
   <sc-if value="{{ profile.draftError }}"><p class="forge-profile-skill-error" role="alert">{{ profile.draftError }}</p></sc-if>
   <sc-for list="{{ profile.draftSkills }}" as="draft" hint-placeholder-count="0">
     <div class="forge-profile-skill-draft">
-      <div class="forge-profile-draft-file"><strong>{{ draft.filename }}</strong><button type="button" class="forge-profile-close" aria-label="移除此 Skill 草稿" disabled="{{ profile.draftLoading }}" sc-camel-on-click="{{ draft.remove }}">[[icon:x:16]]</button></div>
       <div class="forge-profile-skill-field">
         <label for="{{ draft.nameId }}">Skill 名称 <span class="pm-profile-required">*</span></label>
         <input id="{{ draft.nameId }}" aria-label="{{ draft.nameLabel }}" value="{{ draft.name }}" sc-camel-on-input="{{ draft.onName }}" maxlength="80" disabled="{{ profile.draftLoading }}" aria-invalid="{{ draft.nameInvalid }}" aria-describedby="{{ draft.nameDescribedBy }}" required />
@@ -24,11 +23,13 @@
         <textarea id="{{ draft.contentId }}" aria-label="{{ draft.contentLabel }}" value="{{ draft.content }}" sc-camel-on-input="{{ draft.onContent }}" disabled="{{ profile.draftLoading }}" aria-invalid="{{ draft.contentInvalid }}" aria-describedby="{{ draft.contentDescribedBy }}" required></textarea>
         <sc-if value="{{ draft.contentError }}"><p id="{{ draft.contentErrorId }}" class="forge-profile-skill-error" role="alert">{{ draft.contentError }}</p></sc-if>
       </div>
-      <section class="pm-profile-linked-sheets" aria-label="已关联数据单">
-        <h3>已关联数据单</h3>
-        <sc-if value="{{ draft.noLinkedSheets }}"><p>暂无关联数据单</p></sc-if>
-        <sc-if value="{{ draft.hasLinkedSheets }}"><ul><sc-for list="{{ draft.linkedSheets }}" as="sheet" hint-placeholder-count="0"><li>{{ sheet.title }}</li></sc-for></ul></sc-if>
-      </section>
+      <sc-if value="{{ draft.showLinkedSheets }}">
+        <section class="pm-profile-linked-sheets" aria-label="已关联数据单">
+          <div><h3>已关联数据单</h3><span>已保存的关联关系</span></div>
+          <sc-if value="{{ draft.noLinkedSheets }}"><p>暂无关联数据单</p></sc-if>
+          <sc-if value="{{ draft.hasLinkedSheets }}"><ul><sc-for list="{{ draft.linkedSheets }}" as="sheet" hint-placeholder-count="0"><li>{{ sheet.title }}</li></sc-for></ul></sc-if>
+        </section>
+      </sc-if>
     </div>
   </sc-for>
   <sc-if value="{{ profile.draftIssue }}"><p class="forge-profile-skill-error" role="alert">{{ profile.draftIssue }}</p></sc-if>

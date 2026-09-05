@@ -31,7 +31,7 @@
 .forge-postman :is(.fg-button,[data-pm-primary],[data-pm-secondary],[data-pm-tertiary],.forge-branch-tree-remove):is(:disabled,[aria-disabled=true],[data-disabled=true]){background:var(--forge-disabled-bg)!important;color:var(--forge-disabled-text)!important;border-color:var(--pm-border)!important;box-shadow:none!important;filter:none!important}
 
 /* White selection for nested pickers as well as top-level tabs. */
-.forge-postman :is(.forge-delivery-person-option,.forge-task-link-item,.forge-review-skill-choices button):is([data-selected=true],[aria-pressed=true]){background:var(--pm-selected)!important;border-color:transparent!important;outline:1px solid var(--pm-focus);outline-offset:-1px;box-shadow:none!important;color:var(--pm-text)!important}
+.forge-postman :is(.forge-task-link-item,.forge-review-skill-choices button):is([data-selected=true],[aria-pressed=true]){background:var(--pm-selected)!important;border-color:transparent!important;outline:1px solid var(--pm-focus);outline-offset:-1px;box-shadow:none!important;color:var(--pm-text)!important}
 .forge-postman :is(.forge-billing-segment,.forge-wizard-categories) button:not([aria-pressed=true],[data-active=true],:disabled){background:transparent!important;color:var(--pm-muted)!important}
 .forge-postman .forge-delivery-wizard{--wizard-accent:var(--pm-brand)}
 .forge-postman .forge-delivery-library-option{outline:none;background:transparent!important}

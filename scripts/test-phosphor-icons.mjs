@@ -27,8 +27,8 @@ test('every interface SVG uses unmodified official Phosphor Regular geometry', (
   const svgs = [...markup.matchAll(/<svg\b([^>]*)>([\s\S]*?)<\/svg>/g)];
   const icons = svgs.filter(([, attrs]) => attrs.includes('data-phosphor'));
   const charts = svgs.filter(([, attrs]) => attrs.includes('data-chart'));
-  // Includes branch progress connectors and compact record/remove actions.
-  assert.equal(icons.length, 198); // The retired runs pilot no longer contributes four icons to the internal base.
+  // Includes branch progress connectors, compact record actions and inline Tag removal.
+  assert.equal(icons.length, 200); // The wizard adds two rendered instances of the official x icon.
   assert.equal(charts.length, 1); assert.match(charts[0][1], /data-chart="model-trend"/);
   const names = new Set();
   for (const [, attrs, geometry] of icons) {

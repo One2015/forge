@@ -5,6 +5,7 @@ import { test } from 'node:test';
 import { confirmDelivery } from './test-support/delivery-wizard.mjs';
 const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
+const summaryTemplate = fs.readFileSync(new URL('./templates/delivery-wizard-summary.html', import.meta.url), 'utf8');
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const event = value => ({ target: { value } });
 function component() {
@@ -19,9 +20,39 @@ const valid = c => { basics(c); c.setDeliveryList('布达拉宫\n天坛'); };
 test('wizard exposes exactly one task and blocks jumps and early submission', () => {
   const c = component(); const v = c.deliveryWizardValues();
   assert(v.basic && !v.list && !v.rules && !v.confirm); assert(v.disabled);
+  assert(v.nameEmpty && v.customerEmpty && v.targetEmpty);
+  assert(v.validEmpty && v.tagEmpty && v.skillEmpty);
+  assert.match(template, /<dd data-empty="\{\{ deliveryEditor\.wizard\.nameEmpty \}\}">/);
+  assert.match(template, /<dd data-empty="\{\{ deliveryEditor\.wizard\.validEmpty \}\}">\{\{ deliveryEditor\.wizard\.stats\.valid \}\} 项<\/dd>/);
+  assert.doesNotMatch(summaryTemplate, /deliveryEditor\.wizard\.tagCount/);
+  assert.doesNotMatch(summaryTemplate, /tag\.applied|项<\/span>/);
+  assert.match(summaryTemplate, /aria-label="已配置 Tag"><sc-for[^>]+><span class="forge-wizard-tag-chip"/);
+  assert.doesNotMatch(summaryTemplate, /deliveryEditor\.wizard\.skillCount|skill\.command/);
+  assert.match(summaryTemplate, /class="forge-wizard-summary-skill-values" aria-label="已配置 Skill"><sc-for[^>]+><span>\{\{ skill\.name \}\}<\/span>/);
+  assert.doesNotMatch(summaryTemplate, /deliveryEditor\.wizard\.memberCount/);
+  assert.match(template, /\.forge-wizard-summary \[data-empty="true"\]\{color:var\(--forge-disabled-text,#a3a3a3\)!important;font-weight:400!important\}/);
+  assert.match(template, /class="forge-wizard-summary-rule forge-wizard-summary-tag-section"/);
+  assert.equal((summaryTemplate.match(/<div class="forge-wizard-summary-rule(?:\s|")/g) || []).length, 3);
+  assert.match(summaryTemplate, /class="forge-wizard-summary-rules" role="list"/);
+  assert.equal((summaryTemplate.match(/role="listitem"/g) || []).length, 3);
+  assert.match(template, /\.forge-wizard-summary-rules\{display:grid;grid-template-columns:minmax\(0,1fr\);margin-top:8px/);
+  assert.match(template, /\.forge-wizard-summary-rules\{[^}]*border-bottom:0/);
+  assert.match(summaryTemplate, /forge-wizard-summary-metric"><span>Tag<\/span><sc-if[^>]+><div class="forge-wizard-summary-tags"/);
+  assert.match(template, /\.forge-wizard-summary-metric\{display:grid;grid-template-columns:minmax\(64px,30%\) minmax\(0,1fr\);align-items:start/);
+  assert.match(template, /\.forge-wizard-summary-metric>span\{grid-column:1;min-width:max-content[^}]*white-space:nowrap;word-break:keep-all\}/);
+  assert.match(template, /\.forge-wizard-summary-tags\{grid-column:2;display:flex;align-items:center;justify-content:flex-start;justify-self:stretch/);
+  assert.doesNotMatch(template, /forge-wizard-summary-counts/);
+  assert.match(template, /\.forge-wizard-summary-skill-values\{grid-column:2;display:flex;align-items:center;justify-content:flex-start;justify-self:stretch[^}]*text-align:left/);
+  assert.match(template, /\.forge-wizard-summary-member-tags\{grid-column:2;display:flex;align-items:center;justify-content:flex-start;justify-self:stretch[^}]*width:100%/);
+  assert.match(template, /class="forge-wizard-summary-member-tags" aria-label="相关成员"/);
+  assert.doesNotMatch(summaryTemplate, /aria-label="已配置成员"/);
+  assert(!v.hasSkillPreview); assert(v.hasMemberPreview); assert.equal(v.memberPreview[0].roleLabel, '所有者'); assert.equal(v.memberPreview[0].summaryLabel, '一万 (Owner)');
+  assert.doesNotMatch(template, /Tag 与 Skill 选填，成员权限仅对本单生效/);
   assert.equal(v.steps.length, 4); assert(v.steps.slice(1).every(row => row.disabled));
+  basics(c); const filled = c.deliveryWizardValues();
+  assert(!filled.nameEmpty && !filled.customerEmpty && !filled.targetEmpty);
   c.goDeliveryWizardStep(3); assert.equal(c.state.deliveryEditor.step, 1);
-  valid(c); c.saveDeliveryEditor(); assert(!c.state.deliverySheets?.length); assert.match(c.state.deliveryEditor.error, /确认创建/);
+  c.setDeliveryList('布达拉宫\n天坛'); c.saveDeliveryEditor(); assert(!c.state.deliverySheets?.length); assert.match(c.state.deliveryEditor.error, /确认创建/);
   c.goDeliveryWizardStep(4); assert.equal(c.state.deliveryEditor.step, 1);
 });
 
@@ -119,24 +150,44 @@ test('List limits and upload loading prevent stale valid data from passing', () 
   c.patchDeliveryEditor({ listLoading: true }); c.setDeliveryImportMode('zip', c.state.deliveryEditor.id); assert.equal(c.state.deliveryEditor.importMode, 'production');
 });
 
-test('default Tag auto-selects after creation and per-item overrides persist to final sheet', () => {
-  const c = component(); valid(c); c.patchDeliveryEditor({ tagName: '默认标签' }); c.addDeliveryTag(); const first = c.state.deliveryEditor.defaultTagId;
-  c.patchDeliveryEditor({ tagName: '单条标签' }); c.addDeliveryTag(); const second = c.state.deliveryEditor.defaultTagId;
-  c.deliveryWizardValues().onDefaultTag(event(first)); c.deliveryWizardValues().rows[1].onTag(event(second));
+test('Tag creation exposes every Item for assignment and persists per-item choices', () => {
+  const c = component(); valid(c); c.patchDeliveryEditor({ tagName: '默认标签' }); c.addDeliveryTag(); const first = c.state.deliveryEditor.tags[0].id;
+  c.patchDeliveryEditor({ tagName: '单条标签' }); c.addDeliveryTag(); const second = c.state.deliveryEditor.tags[1].id;
+  assert.equal(c.state.deliveryEditor.defaultTagId, '');
+  let rows = c.deliveryEditorValues().entries; assert.equal(rows.length, 2); assert(rows.every(row => row.taskTags));
+  assert.equal(c.deliveryWizardValues().tagAssignmentLabel, '已分配 0 / 2 个 Item');
+  assert.match(c.deliveryWizardRulesIssue(), /2 个 Item 未分配 Tag/);
+  rows[0].taskTags.options.find(tag => tag.id === first).toggle({ target: { checked: true } });
+  assert.equal(c.deliveryWizardValues().tagAssignmentLabel, '已分配 1 / 2 个 Item');
+  rows = c.deliveryEditorValues().entries;
+  rows[1].taskTags.options.find(tag => tag.id === second).toggle({ target: { checked: true } });
+  assert(c.deliveryWizardValues().tagAssignmentComplete); assert.equal(c.deliveryWizardRulesIssue(), '');
   confirmDelivery(c); assert.equal(c.deliveryWizardValues().tagCount, 2); c.saveDeliveryEditor();
-  const sheet = c.deliverySheet(c.state.sheetKey); assert(sheet); assert.equal(sheet.entries[0].tagId, first); assert.equal(sheet.entries[1].tagId, second); assert.equal(sheet.defaultTagId, first);
+  const sheet = c.deliverySheet(c.state.sheetKey); assert(sheet); assert.equal(sheet.entries[0].tagId, first); assert.equal(sheet.entries[1].tagId, second); assert.equal(sheet.defaultTagId, '');
 });
 
-test('Item can explicitly opt out of default Tag; unknown tag blocks submission', () => {
+test('Created Tags render with inline remove actions and deletion clears Item assignments', () => {
+  const c = component(); valid(c);
+  for (const name of ['保留', '删除']) { c.patchDeliveryEditor({ tagName: name }); c.addDeliveryTag(); }
+  const doomed = c.state.deliveryEditor.tags[1].id;
+  c.deliveryEditorValues().entries[0].taskTags.options.find(tag => tag.id === doomed).toggle({ target: { checked: true } });
+  c.deliveryEditorValues().tags.find(tag => tag.id === doomed).remove();
+  assert(!c.state.deliveryEditor.tags.some(tag => tag.id === doomed));
+  assert(!c.deliveryEditorValues().entries[0].taskTags.selected.some(tag => tag.id === doomed));
+});
+
+test('Every Item needs a valid Tag once Tag configuration is used', () => {
   const c = component(); valid(c); c.patchDeliveryEditor({ tagName: '验收' }); c.addDeliveryTag();
-  c.deliveryWizardValues().rows[0].onTag(event('__none__')); assert.equal(c.deliveryWizardRulesIssue(), '');
+  c.deliveryWizardValues().rows[0].onTag(event('__none__')); assert.match(c.deliveryWizardRulesIssue(), /至少选择一个 Tag/);
   c.deliveryWizardValues().rows[1].onTag(event('missing')); assert.match(c.deliveryWizardRulesIssue(), /不可用/);
-  c.deliveryWizardValues().rows[1].onTag(event('')); confirmDelivery(c); c.saveDeliveryEditor();
-  assert.equal(c.deliverySheet(c.state.sheetKey).entries[0].tagId, '');
+  const tagId = c.state.deliveryEditor.tags[0].id;
+  c.deliveryWizardValues().rows[0].onTag(event(tagId)); c.deliveryWizardValues().rows[1].onTag(event(tagId));
+  confirmDelivery(c); c.saveDeliveryEditor(); assert.equal(c.deliverySheet(c.state.sheetKey).entries[0].tagId, tagId);
 });
 
 test('Tag previews and summary update even before entries are selected', () => {
   const c = component(); c.patchDeliveryEditor({ tagName: 'repair', tagColor: '#e09933' }); c.addDeliveryTag();
+  c.deliveryWizardValues().onDefaultTag(event(c.state.deliveryEditor.tags[0].id));
   let v = c.deliveryWizardValues(); assert.equal(v.tagCount, 1); assert.equal(v.defaultTagName, 'repair'); assert.equal(v.tagPreview[0].color, '#e09933'); assert.equal(v.tagPreview[0].applied, 0);
   c.setDeliveryList('天坛'); v = c.deliveryWizardValues(); assert.equal(v.tagPreview[0].applied, 1);
   v.onDefaultTag(event('')); assert.equal(c.deliveryWizardValues().tagCount, 0); assert(!c.deliveryWizardValues().hasDefaultTag);
@@ -144,6 +195,7 @@ test('Tag previews and summary update even before entries are selected', () => {
 
 test('Skill search/category filters retain selected skills at the top with independent viewing', () => {
   const c = component(); valid(c); const web = c.deliveryEditorValues().library.rows.find(row => row.command === '/web review'); web.toggle();
+  let summary = c.deliveryWizardValues(); assert(summary.hasSkillPreview); assert.equal(summary.skillPreview[0].name, web.name); assert.equal(summary.skillPreview[0].command, '/web review');
   c.deliveryWizardValues().categories.find(row => row.key === '3d').pick();
   c.deliveryEditorValues().library.onSearch(event('轨迹'));
   const rows = c.deliveryEditorValues().library.rows; assert.equal(rows.length, 2); assert(rows[0].selected); assert.equal(rows[1].name, '3D 轨迹评估');
@@ -173,14 +225,22 @@ test('account switch blocks final creation and stale wizard callbacks cannot mod
 
 test('wizard markup has responsive summary, integrated controls and no draft/autosave actions', () => {
   const page = template.split('<!-- delivery-editor:start -->')[1].split('<sc-if value="{{ deliveryEditor.modal }}"')[0];
-  for (const label of ['基础信息', '关联生产任务', '上传 ZIP', '示例', '只看异常', '默认 Tag', '配置摘要', '效果预览']) assert(page.includes(label), label);
+  for (const label of ['基础信息', '关联生产任务', '上传 ZIP', '示例', '只看异常', '默认 Tag', '配置摘要']) assert(page.includes(label), label);
   assert.deepEqual(Array.from(component().deliveryWizardValues().steps, step => step.label), ['基础信息', '关联条目', '配置规则', '确认创建']);
   assert(!page.includes('粘贴 List')); assert(!page.includes('id="forge-delivery-list"'));
   assert(!page.includes('List 解析结果')); assert(!page.includes('全部 Item 已匹配')); assert(!page.includes('forge-wizard-target-help'));
   assert(page.includes('<progress')); assert(page.includes('aria-label="创建数据单进度"')); assert(page.includes('forge-wizard-tag-chip'));
+  for (const label of ['已创建 Tag', 'forge-wizard-removable-tag', '分配到 Item']) assert(page.includes(label), label);
+  for (const removed of ['Tag 编辑模式', 'forge-wizard-tag-modes', 'forge-wizard-tag-delete-list', 'role="tablist"']) assert(!page.includes(removed), removed);
+  assert(page.includes('aria-label="{{ tag.removeLabel }}"'));
+  assert(page.includes('deliveryEditor.wizard.tagAssignmentLabel'));
+  assert(!page.includes('选择后应用到全部 Item；单条 Item 可在审核分配中调整。'));
+  assert(!page.includes('已创建「'));
   for (const label of ['保存草稿', '存为草稿', '草稿已保存', '自动保存', '草稿仅保存在当前浏览器']) assert(!page.includes(label));
   assert(page.includes('popovertarget="forge-skill-create-menu"'));
-  assert(page.includes('role="table"')); assert(page.includes('role="columnheader"')); assert(page.includes('member.accountName'));
+  assert(page.includes('role="table"')); assert(page.includes('role="columnheader"'));
+  assert(!page.includes('</strong><span>{{ member.accountName }}</span>'));
+  assert(!page.includes('修改规则')); assert(!page.includes('唯一所有者不能移除或降级'));
   assert(template.includes('@media(max-width:540px)')); assert(template.includes('.forge-wizard-summary{position:sticky;'));
   assert(page.includes('class="forge-wizard-summary-desktop"'));
   assert(page.includes('<details class="forge-wizard-summary-mobile">'));

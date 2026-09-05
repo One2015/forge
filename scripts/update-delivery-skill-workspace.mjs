@@ -33,13 +33,14 @@ export function updateDeliverySkillWorkspace(source) {
   else replace(/  \/\/ delivery-workflows:start/, page + '\n\n  // delivery-workflows:start');
   for (const [file, names] of [
     ['task-link-methods.js', ['taskLinkSource', 'deliveryLinkState', 'sheetRows']],
-    ['delivery-methods.js', ['deliveryData', 'resolveSheetLines', 'openDeliveryEditor', 'closeDeliveryEditor', 'setDeliveryList', 'uploadDeliveryList', 'uploadDeliverySkills', 'setDeliveryTagComposer', 'addDeliveryTag', 'deliveryEditorIssue', 'saveDeliveryEditor', 'deliveryEditorValues', 'deliverySheetExtras', 'boundReviewSkills', 'downloadReviewSkill', 'reviewSkillValues']],
+    ['delivery-methods.js', ['deliveryData', 'resolveSheetLines', 'openDeliveryEditor', 'closeDeliveryEditor', 'setDeliveryList', 'uploadDeliveryList', 'uploadDeliveryLogo', 'uploadDeliverySkills', 'deliveryEntryTagPicker', 'setDeliveryTagComposer', 'addDeliveryTag', 'deliveryEditorIssue', 'saveDeliveryEditor', 'deliveryEditorValues', 'deliverySheetExtras', 'boundReviewSkills', 'downloadReviewSkill', 'reviewSkillValues']],
     ['profile-methods.js', ['profileSkills', 'saveProfileSkills']]
   ]) for (const name of names) {
     const pattern = new RegExp('  (?:async )?' + name + '\\([^]*?(?=\\n  (?:async )?\\w+\\(|\\n  // [\\w-]+:end)');
     const method = read(file).match(pattern)?.[0];
     if (!method) throw new Error('Missing method ' + name);
-    if (name === 'setDeliveryTagComposer' && !pattern.test(template)) replace(/  addDeliveryTag\(\)/, method + '\n  addDeliveryTag()');
+    if (name === 'deliveryEntryTagPicker' && !pattern.test(template)) replace(/  tagForeground\(hex\)/, method + '\n  tagForeground(hex)');
+    else if (name === 'setDeliveryTagComposer' && !pattern.test(template)) replace(/  addDeliveryTag\(\)/, method + '\n  addDeliveryTag()');
     else if (name === 'downloadReviewSkill' && !pattern.test(template)) replace(/  patchSkillSession\(/, method + '\n  patchSkillSession(');
     else replace(pattern, method);
   }

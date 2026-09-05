@@ -102,6 +102,12 @@
     }
     // Native edit/confirmation dialogs and the member popover own Escape.
     if (this.state.deliveryLeave) return true;
+    if (editor.logoPickerOpen && event.key === 'Escape') {
+      event.preventDefault(); event.stopPropagation();
+      this.patchDeliveryEditor({ logoPickerOpen: false }, editor.id);
+      setTimeout(() => { if (typeof document !== 'undefined') document.getElementById('forge-customer-logo-trigger')?.focus({ preventScroll: true }); }, 0);
+      return true;
+    }
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && !event.isComposing) {
       event.preventDefault(); if (editor.key) this.saveDeliveryEditor(); else this.deliveryWizardValues().next();
     } else if (!editor.key && event.key === 'Escape' && !editor.memberSearchOpen) {

@@ -8,15 +8,21 @@ export function toggleCaseLabels(source) {
   const start = source.indexOf(opening), end = source.lastIndexOf(closing);
   if (start < 0 || end < 0) throw new Error('Missing bundled template');
   let template = JSON.parse(source.slice(start + opening.length, end).trim());
-  for (const [id, kind, indent] of [['r[2]', 'kind', '                '], ['meta[0]', 'value', '            ']]) {
+  for (const [id, kind, label, indent] of [['r[2]', 'kind', 'label', '                '], ['meta[0]', 'value', "(value === 'good' ? 'Good Case' : 'Bad Case')", '            ']]) {
     const previous = `${indent}this.setState({ sampleLabels: Object.assign({}, this.state.sampleLabels || {}, { [${id}]: ${kind} }) });`;
-    const next = `${indent}const labels = Object.assign({}, this.state.sampleLabels || {});
+    const priorToggle = `${indent}const labels = Object.assign({}, this.state.sampleLabels || {});
 ${indent}if (labels[${id}] === ${kind}) delete labels[${id}];
 ${indent}else labels[${id}] = ${kind};
 ${indent}this.setState({ sampleLabels: labels });`;
+    const next = `${indent}const labels = Object.assign({}, this.state.sampleLabels || {});
+${indent}const removing = labels[${id}] === ${kind};
+${indent}if (removing) delete labels[${id}];
+${indent}else labels[${id}] = ${kind};
+${indent}this.setState({ sampleLabels: labels, reviewToast: removing ? '已取消 ' + ${label} + ' 标注' : '已标注为 ' + ${label}, reviewToastAt: Date.now() });`;
     if (template.includes(next)) continue;
-    if (template.split(previous).length !== 2) throw new Error('Case marking callback changed: ' + id);
-    template = template.replace(previous, () => next);
+    const current = template.includes(priorToggle) ? priorToggle : previous;
+    if (template.split(current).length !== 2) throw new Error('Case marking callback changed: ' + id);
+    template = template.replace(current, () => next);
   }
   new Function(template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1]);
   return source.slice(0, start + opening.length) + '\n' + JSON.stringify(template).replaceAll('</script>', '<\\u002Fscript>') + closing;

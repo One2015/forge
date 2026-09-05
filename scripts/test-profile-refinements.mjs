@@ -78,6 +78,22 @@ test('Skill field errors appear after submission and clear as corrected; invalid
   assert.equal(c.state.profileSkillDraft,null);
 });
 
+test('saving a Skill opens a dedicated preview and returns to a clean Skill list',()=>{
+  const c=component(),change=value=>({target:{value}});
+  c.pmCreateProfileSkill();
+  let row=c.buildProfileValues().draftSkills[0];
+  row.onName(change('结构检查'));row.onCommand(change('structure'));row.onDescription(change('检查模型结构。'));row.onContent(change('逐项检查主体结构和比例。'));
+  c.saveProfileSkills();
+  let profile=c.buildProfileValues();
+  assert(!profile.hasDraft);assert(profile.hasSkillPreview);assert(!profile.showSkillList);
+  assert.equal(profile.skillPreview.name,'结构检查');assert.equal(profile.skillPreview.commandLabel,'/structure');
+  assert.equal(profile.skillPreview.description,'检查模型结构。');assert.equal(profile.skillPreview.content,'逐项检查主体结构和比例。');
+  profile.backToSkillList();profile=c.buildProfileValues();
+  assert(!profile.hasSkillPreview);assert(profile.showSkillList);assert.equal(profile.skills.length,1);
+  const skills=template.slice(template.indexOf('<section id="forge-profile-skills"'),template.indexOf('<!-- forge-profile:end -->'));
+  assert.match(skills,/<sc-if value="\{\{ profile\.hasSkillPreview \}\}">[\s\S]*返回 Skill 列表[\s\S]*<sc-if value="\{\{ profile\.showSkillList \}\}">/);
+});
+
 test('linked sheet list uses actual personal Skill bindings and respects task access',()=>{
   const c=component();
   const personal={id:'quality',owner:'一万',name:'质量检查',command:'quality',content:'检查质量',filename:'SKILL.md'};

@@ -1,5 +1,5 @@
 export const entryTagStyleCopy = [
-  ["tags: editor.tags,\n        tagLabel:", "tags: editor.tags, ...this.pmEntryTagStyle(entry, editor),\n        tagLabel:"],
+  ["tags: editor.tags, taskTags: this.deliveryEntryTagPicker(editor, entry),\n        tagLabel:", "tags: editor.tags, taskTags: this.deliveryEntryTagPicker(editor, entry), ...this.pmEntryTagStyle(entry, editor),\n        tagLabel:"],
   ["return Object.assign({}, entry, { status, label:", "return Object.assign({}, entry, { ...this.pmEntryTagStyle(entry, editor, true), status, label:"]
 ];
 export function installEntryTagStyle(t) {

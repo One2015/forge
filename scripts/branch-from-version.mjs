@@ -49,7 +49,6 @@ swap(
   + '                        <div style="margin-top:4px;font-size:12px;color:#3a352f;line-height:1.6;overflow-wrap:anywhere">{{ b.note }}</div>\n'
   + '                      </div>\n'
   + '                    </sc-for>\n'
-  + '                    <div style="margin-top:8px;font-size:12px;color:#9c948b">分支与主版本共享同一个交付位 · 不额外计入目标数</div>\n'
   + '                  </div>\n'
   + '                  </sc-if>',
 );

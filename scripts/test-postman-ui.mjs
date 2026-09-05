@@ -13,6 +13,8 @@ import {datasetPipelineCopy} from './postman-ui/dataset-pipeline-guide.mjs';
 import {sheetInlineCopy} from './postman-ui/sheet-inline-assignment.mjs';
 import {listAssociationCopy} from './postman-ui/list-association.mjs';
 import {entryTagStyleCopy} from './postman-ui/entry-tag-style.mjs';
+import {deliveryBrowserCopy} from './postman-ui/delivery-browser.mjs';
+import {notificationToggleCopy} from './postman-ui/notification-toggle.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -28,20 +30,126 @@ import {buildPostman} from './postman-ui/build.mjs';
 import {confirmDelivery} from './test-support/delivery-wizard.mjs';
 const url=new URL('./templates/forge-base.html',import.meta.url);
 const source=fs.readFileSync(url,'utf8');
+const behaviorSource=fs.readFileSync(new URL('../public/postman-ui/behavior.mjs',import.meta.url),'utf8');
 const decode=s=>JSON.parse(s.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const original=decode(source), built=decode(buildPostman(source));
 const logic=t=>t.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const ctx=vm.createContext({URL,URLSearchParams,TextDecoder,TextEncoder,Blob,setTimeout:()=>0,clearTimeout(){},window:{location:{search:''}},DCLogic:class{props={panelWidth:460,hasRuns:true,hasResources:true};setState(p){this.state={...this.state,...p};}}});
 vm.runInContext(logic(built)+';globalThis.codec=ForgeRoutes;globalThis.c=new Component();',ctx);
 test('independent generator is deterministic and preserves the source bytes',()=>{assert.equal(buildPostman(source),buildPostman(source));assert.equal(fs.readFileSync(url,'utf8'),source);assert.match(built,/Postman UI 优化版/);});
+test('task Tag picker closes when a click continues outside it',()=>{
+ assert.match(behaviorSource,/details\.pm-task-tag-picker\[open\]/);
+ assert.match(behaviorSource,/if\(!picker\.contains\(event\.target\)\)picker\.removeAttribute\('open'\)/);
+});
+test('sidebar utility counts follow the label and use the Forge accent',()=>{
+ assert.match(built,/\.forge-postman \.forge-app-shell\[data-sidebar-collapsed=false\] \.forge-sidebar-tool-count\{[^}]*position:static[^}]*margin:0[^}]*background:var\(--pm-utility-badge\)/);
+ assert.match(built,/\.forge-postman \.forge-app-shell\[data-sidebar-collapsed=true\] \.forge-sidebar-tool-count\{[^}]*position:absolute[^}]*top:1px[^}]*right:1px[^}]*background:var\(--pm-utility-badge\)/);
+ assert.match(built,/--pm-utility-badge:var\(--pm-brand\)/);
+});
+test('message and download rows share unread elevation that clears after reading or completion',()=>{
+ const panels=built.slice(built.indexOf('id="forge-download-panel"'),built.indexOf('<!-- forge-sidebar-floating-panels:end -->'));
+ assert.match(panels,/class="pm-utility-row pm-download-row" data-unread="\{\{ d\.notDone \}\}"/);
+ assert.match(panels,/class="pm-utility-row pm-notification-row" data-unread="\{\{ n\.weight === '600' \}\}"/);
+ assert.match(built,/\.forge-postman \.pm-utility-row\[data-unread=true\]\{[^}]*background:var\(--pm-utility-unread\)!important;box-shadow:0 2px 7px rgba\(20,20,20,\.08\)!important/);
+ assert.match(built,/\.forge-postman \.pm-utility-row\[data-unread=false\]\{background:transparent!important;box-shadow:none!important\}/);
+ const c=vm.runInContext('new Component()',ctx);
+ let notification=c.renderVals().notif.items[0]; assert.equal(notification.weight,'600');
+ notification.go();
+ notification=c.renderVals().notif.items.find(item=>item.title.includes('天坛')); assert.equal(notification.weight,'400');
+ let download=c.renderVals().dl.items.find(item=>item.isRunning); assert.equal(download.notDone,true);
+ c.setState({dlState:{d1:'done'}});
+ download=c.renderVals().dl.items.find(item=>item.name.includes('统一导出')); assert.equal(download.notDone,false);
+});
+test('current sidebar route keeps its selected treatment without a dark focus frame',()=>{
+ assert.match(built,/\.forge-postman \.forge-app-shell \.forge-sidebar \.forge-sidebar-link\[aria-current=page\]:focus-visible\{outline:0!important;box-shadow:none!important\}/);
+ assert.match(built,/\.forge-postman \.forge-sidebar :is\(\.forge-sidebar-link\[aria-current=page\],[^}]+background:var\(--pm-nav-soft\)!important;color:var\(--pm-nav\)!important/);
+});
+test('notification preference uses a compact semantic switch',()=>{
+ const panel=built.slice(built.indexOf('id="forge-notification-panel"'),built.indexOf('<!-- forge-sidebar-floating-panels:end -->'));
+ assert.match(panel,/<button[^>]*class="pm-notification-switch"[^>]*role="switch"[^>]*aria-label="同步到飞书"[^>]*aria-checked="\{\{ notif\.feishuChecked \}\}"/);
+ assert.doesNotMatch(panel,/<div[^>]+sc-camel-on-click="\{\{ notif\.toggleFeishu \}\}"/);
+ assert.match(built,/\.forge-postman \.pm-notification-switch\{[^}]*width:36px[^}]*height:20px[^}]*border-radius:999px/);
+ assert.match(built,/\.forge-postman \.pm-notification-switch>span\{[^}]*width:16px[^}]*height:16px/);
+ const c=vm.runInContext('new Component()',ctx);
+ const before=c.renderVals().notif.feishuChecked;
+ c.renderVals().notif.toggleFeishu({stopPropagation(){}});
+ assert.notEqual(c.renderVals().notif.feishuChecked,before);
+});
+test('profile Skill creation menu stays compact and aligned to its trigger',()=>{
+ assert.match(built,/\.forge-postman \.pm-profile-create-menu\{[^}]*width:240px[^}]*max-width:calc\(100vw - 24px\)/);
+ assert.match(built,/width=Math\.min\(240,window\.innerWidth-24\)/);
+});
+test('overview delivery progress is a flat section without a sheet-count label',()=>{
+ const start=built.indexOf('<section class="pm-overview-delivery-section"');
+ const end=built.indexOf('</section>',start);
+ assert(start>=0&&end>start);
+ const section=built.slice(start,end);
+ assert.match(section,/aria-labelledby="forge-overview-delivery-heading"/);
+ assert.match(section,/id="forge-overview-delivery-heading"[^>]*>\{\{ g\.title \}\}<\/h2>/);
+ assert.doesNotMatch(section,/\{\{ g\.count \}\}/);
+ assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span>项目负责人<\/span><span>交付日期<\/span><span>交付状态<\/span>/);
+ assert.match(section,/class="pm-overview-delivery-date"[\s\S]*\{\{ r\.deliveryDate \}\}/);
+ const c=vm.runInContext('new Component()',ctx); c.state.view='overview';
+ assert(c.renderVals().over.groups[0].rows.every(row=>/^\d+ 天后$/.test(row.deliveryDate)));
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border-radius:0[^}]*box-shadow:none!important/);
+});
+test('delivery browser replaces the result count with search and list or folder views',()=>{
+ const page=built.slice(built.indexOf('<sc-if value="{{ isDelivery }}"'),built.indexOf('<sc-if value="{{ isSheet }}"'));
+ assert.match(page,/id="pm-delivery-search"[^>]*placeholder="搜索数据单、客户或负责人"/);
+ assert.match(page,/class="pm-delivery-view-toggle"[^>]*aria-label="交付列表视图"/);
+ assert.match(page,/\{\{ delivery\.listView \}\}/);
+ assert.match(page,/\{\{ delivery\.folderView \}\}/);
+ assert.doesNotMatch(page,/\{\{ delivery\.count \}\}/);
+
+ const c=vm.runInContext('new Component()',ctx);
+ c.state.view='delivery';
+ let view=c.renderVals().delivery;
+ assert(view.listView&&!view.folderView);
+ view.views.find(option=>option.key==='folder').pick();
+ view=c.renderVals().delivery;
+ assert(view.folderView&&!view.listView);
+ view.onQuery({target:{value:'yokiguan'}});
+ view=c.renderVals().delivery;
+ assert.equal(view.customers.reduce((count,customer)=>count+customer.sheets.length,0),1);
+ assert.equal(view.customers[0].sheets[0].name,'WebDev 美学评测 150 条');
+ view.onQuery({target:{value:'不存在的交付'}});
+ assert(c.renderVals().delivery.empty);
+});
+test('folder covers validate images and preview a successful upload',()=>{
+ const c=vm.runInContext('new Component()',ctx); c.state.view='delivery'; c.state.deliveryView='folder';
+ let sheet=c.renderVals().delivery.customers[0].sheets[0];
+ assert(sheet.noCover&&!sheet.hasCover);
+ sheet.uploadCover({target:{files:[{name:'bad.gif',type:'image/gif',size:10}],value:'bad'}});
+ sheet=c.renderVals().delivery.customers[0].sheets[0];
+ assert.match(sheet.coverError,/PNG、JPG 或 WebP/);
+ ctx.FileReader=class{readAsDataURL(){this.result='data:image/png;base64,Y292ZXI=';this.onload();}};
+ sheet.uploadCover({target:{files:[{name:'cover.png',type:'image/png',size:128}],value:'cover'}});
+ sheet=c.renderVals().delivery.customers[0].sheets[0];
+ assert(sheet.hasCover&&!sheet.noCover); assert.equal(sheet.coverUrl,'data:image/png;base64,Y292ZXI='); assert.equal(sheet.coverError,'');
+});
+test('branch configuration uses three searchable single-select pickers with clean collapsed values',()=>{
+ const branch=built.slice(built.indexOf('<!-- branch-dialog:start -->'),built.indexOf('<!-- branch-dialog:end -->'));
+ for(const [type,prop] of [['pipeline','pipelinePicker'],['dataset','datasetPicker'],['item','itemPicker']]){
+  assert.match(branch,new RegExp('<button[^>]+id="forge-branch-'+type+'"[^>]+aria-haspopup="listbox"'));
+  assert.match(branch,new RegExp('branch\\.'+prop+'\\.valueLabel'));
+  assert.match(branch,new RegExp('id="forge-branch-'+type+'-search"[^>]+role="combobox"'));
+  assert.doesNotMatch(branch,new RegExp('<select id="forge-branch-'+type+'"'));
+ }
+ const itemTrigger=branch.match(/<button[^>]+id="forge-branch-item"[\s\S]*?<\/button>/)[0];
+ assert.doesNotMatch(itemTrigger,/magnifying-glass/);
+ assert.match(branch,/搜索 Pipeline、Item ID 或 Run ID/);
+ assert.match(branch,/搜索数据集、Item ID 或 Run ID/);
+ assert.match(branch,/搜索 Item 名称、ID 或 Run ID/);
+});
 test('UI transformation preserves all business methods outside route adaptation',()=>{
  const strip=source=>{source=sheetReviewHistoryCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source).replace(/  \/\/ pm-sheet-review-history:start[\s\S]*?  \/\/ pm-sheet-review-history:end\n/,'');source=itemPreviewLinkCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source);source=reviewReferenceSkillCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source);const s=pipelineNodeDrawerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source);return s.slice(s.indexOf('class Component')).replace(/^.*\/\/ pm-run-model-summary-values\n/gm,'').replace(/  \/\/ pm-delivery-preview-mock:start[\s\S]*?  \/\/ pm-delivery-preview-mock:end\n\n/,'').replace(' || this.pmDeliveryArtifactMock(itemId, runId); // pm-delivery-preview-fallback',';').replace(/  \/\/ pm-item-explorer-demo:start[\s\S]*?  \/\/ pm-item-explorer:end\n\n/,'').replace(/^.*\/\/ pm-item-explorer-values\n/gm,'').replace(/^.*\/\/ pm-node-config-values\n/gm,'').replace(/^.*\/\/ pm-pipeline-access-values\n/gm,'').replace(/  \/\/ forge-routing-methods:start[\s\S]*?\/\/ forge-routing-methods:end/,'').replace(/\n  \/\/ pm-review-queue-methods:start[\s\S]*?\/\/ pm-review-queue-methods:end\n/,'').replace(/\n      \/\/ pm-review-queue-values:start[\s\S]*?\/\/ pm-review-queue-values:end\n/,'').replace(/\n  \/\/ pm-run-records-methods:start[\s\S]*?\/\/ pm-run-records-methods:end\n/,'').replace(/    \/\/ pm-run-records-values:start[\s\S]*?\/\/ pm-run-records-values:end\n\n/,'RUN_RECORDS_VIEW_MODEL').replace(/    const runPal =[\s\S]*?(?=    const delMap =)/,'RUN_RECORDS_VIEW_MODEL').replace('const mineRows = rows.filter(r => (this.reviewQueueClaim(r) || r.assignee).toLowerCase() === me.toLowerCase()); // pm-review-queue-owner','const mineRows = rows.filter(r => r.assignee === me);')};
  const normalizeModels=s=>modelStatusCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),s);
  const normalizeCopy=beforeDrawer=>{const beforeDates=pipelineNodeDrawerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeDrawer).replace(/  \/\/ pm-pipeline-node-drawer:start[\s\S]*?  \/\/ pm-pipeline-node-drawer:end\n/,'');const beforeProfile=billingDateRangeCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeDates).replace(/  \/\/ pm-billing-date-range:start[\s\S]*?  \/\/ pm-billing-date-range:end\n/,'');const beforeEditPage=profileSkillEditorCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeProfile).replace(/  \/\/ pm-profile-skill-editor:start[\s\S]*?  \/\/ pm-profile-skill-editor:end\n/,'');const beforeTaskTags=beforeEditPage.includes('const page = true;')?deliveryEditPageCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeEditPage):beforeEditPage;const beforeChecklist=taskTagCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeTaskTags).replace(/  \/\/ pm-task-tags:start[\s\S]*?  \/\/ pm-task-tags:end\n/,'');const beforeOwner=wizardChecklistCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeChecklist).replace(/  \/\/ pm-wizard-checklist:start[\s\S]*?  \/\/ pm-wizard-checklist:end\n/,'');const beforeEditor=pipelineOwnerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeOwner).replace(/  \/\/ pm-pipeline-owner:start[\s\S]*?  \/\/ pm-pipeline-owner:end\n/,''); const sourceInput=datasetEditorCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeEditor).replace(/  \/\/ pm-dataset-editor:start[\s\S]*?  \/\/ pm-dataset-editor:end\n/,''); const originalInput=datasetPipelineCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),sourceInput).replace(/  \/\/ pm-dataset-pipeline-guide:start[\s\S]*?  \/\/ pm-dataset-pipeline-guide:end\n/,''); const raw=sheetInlineCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),originalInput).replace(/  \/\/ pm-sheet-inline:start[\s\S]*?  \/\/ pm-sheet-inline:end\n/,''); const input=listAssociationCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),raw).replace(/  \/\/ pm-list-association:start[\s\S]*?  \/\/ pm-list-association:end\n/,''); const s=entryTagStyleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),input).replace(/  \/\/ pm-entry-tag-style:start[\s\S]*?  \/\/ pm-entry-tag-style:end\n/,'');return linkedItemToastCopy.reduce((text,[from,to])=>text.replace(to,()=>from),overviewSummaryCopy.reduce((text,[from,to])=>text.replace(from,()=>to),reviewAllocationCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),ant200MockCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),lifecyclePhotoCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),s))))).replace(/\n  \/\/ pm-branch-search:start[\s\S]*?  \/\/ pm-branch-search:end\n/,'').replace('branch: this.pmBranchValues(),','branch: this.branchFormValues(),').replace(/^.*\/\/ pm-photo-slots\n/gm,'').replace(/\n\n  \/\/ pm-lifecycle-photos:start[\s\S]*?  \/\/ pm-lifecycle-photos:end\n/,'');};
  // This presentation field exposes the existing enabled state to assistive
  // technology; the enabled-state calculation and toggle callback stay intact.
- const withoutCheckboxAria=logic(built).replace("\n            ariaChecked: n.on ? 'true' : 'false',",'');
- assert.equal(normalizeCopy(normalizeModels(strip(withoutCheckboxAria))),normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
+ const withoutCheckboxAria=notificationToggleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),logic(built)).replace("\n            ariaChecked: n.on ? 'true' : 'false',",'');
+ const withoutDeliveryBrowser=deliveryBrowserCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutCheckboxAria).replace(/\n  \/\/ pm-delivery-browser:start[\s\S]*?  \/\/ pm-delivery-browser:end\n/,'');
+ assert.equal(normalizeCopy(normalizeModels(strip(withoutDeliveryBrowser))),normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
 });
 test('Pipeline checkbox aria state follows enable and disable without opening details',()=>{
  const c=vm.runInContext('new Component()',ctx);
@@ -58,7 +166,7 @@ test('Pipeline checkbox aria state follows enable and disable without opening de
  assert.equal(c.renderVals().pe.nodes[0].ariaChecked,'true');
  assert.equal(stopped,2);
 });
-test('representative sheet keeps the five metrics and accessible disabled export',()=>{for(const n of ['pm-sheet-heading','pm-sheet-progress','pm-sheet-metrics','pm-sheet-list'])assert.match(built,new RegExp(n));assert.match(built,/<button[^>]*disabled="disabled"[^>]*title="当前原型尚未接入统一导出服务"/);});
+test('representative sheet keeps the five metrics and accessible disabled export',()=>{for(const n of ['pm-sheet-heading','pm-sheet-progress','pm-sheet-metrics','pm-sheet-list'])assert.match(built,new RegExp(n));assert.match(built,/<button[^>]*disabled="disabled"[^>]*title="当前原型尚未接入统一导出服务"/);assert.doesNotMatch(built,/分支与主版本共享同一个交付位 · 不额外计入目标数/);});
 test('all main routes stay in Postman UI after round trip',()=>{for(const path of ['/overview','/production/runs','/production/pipelines','/production/datasets','/production/resources','/review/pending','/delivery','/delivery/ant200','/billing/overview','/models']){const r=ctx.codec.read(path);assert.equal(r.error,'');const p=ctx.codec.write(r.patch);assert.match(p,/^\/forge-postman.html\?route=/);assert.equal(ctx.codec.read(p).patch.view,r.patch.view);}});
 test('app shell keeps clean URLs while the standalone preview keeps its isolated entry',()=>{
  const origin='https://forge.test';
@@ -357,6 +465,8 @@ test('Delivery preview mock is scoped to the requested Item and Run, and real ma
  assert.equal(c.pmEntryTagStyle({tagId:'__none__'},c.state.deliveryEditor,true).hasTagStyle,false);
  c.patchDeliveryEditor({tags:[]});
  assert.equal(c.pmEntryTagStyle({tagId:'green'},c.state.deliveryEditor).hasTagStyle,false);
+ assert.match(built,/\.forge-postman \.pm-task-tag-chip\{[^}]*display:inline-flex[^}]*background:color-mix\(in srgb,var\(--task-tag-bg,#64748b\) 16%,white\)[^}]*border:1px solid color-mix\(in srgb,var\(--task-tag-bg,#64748b\) 50%,white\)[^}]*font-weight:400/);
+ assert.match(built,/\.forge-postman \.pm-task-tag-chip::before\{[^}]*width:7px[^}]*height:7px[^}]*background:var\(--task-tag-bg,#64748b\)/);
  });
 
 test('editing links production runs, preserves tags through dedup and saves source identities',()=>{
@@ -584,14 +694,17 @@ test('Run model summary is scoped, deduplicated and explicit empty telemetry sup
  assert.equal(c.runModelSummary({...rec,modelsUsed:['Model C']}).names[0].name,'Model C');
 });
 
-test('Wizard checklist retains deselected candidates and only includes checked entries',()=>{
- const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({name:'Checklist',customer:'测试',target:'7'});
+test('Wizard checklist defaults to target count and supports individual and bulk selection',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({name:'Checklist',customer:'测试',target:'2'});
  const id=c.state.deliveryEditor.id,run='20260825-093412-a4f7c1';c.syncDeliveryProductionTasks([run],id);
- const first=c.state.deliveryEditor.entries[0],count=c.state.deliveryEditor.entries.length;
- c.pmSelectWizardEntry(first.key,false,id);assert.equal(c.state.deliveryEditor.entries.length,count-1);assert.equal(c.pmWizardCandidates().length,count);assert(c.state.deliveryEditor.productionExcluded.includes(first.itemId));
+ const first=c.state.deliveryEditor.entries[0],count=c.pmWizardCandidates().length;
+ assert(count>2);assert.equal(c.state.deliveryEditor.entries.length,2);assert.equal(c.deliveryWizardValues().selectedCount,2);assert.equal(c.deliveryWizardValues().candidateCount,count);
+ c.pmSelectWizardEntry(first.key,false,id);assert.equal(c.state.deliveryEditor.entries.length,1);assert.equal(c.pmWizardCandidates().length,count);assert(c.state.deliveryEditor.productionExcluded.includes(first.itemId));
  c.syncDeliveryProductionTasks([run],id);assert(!c.state.deliveryEditor.entries.some(r=>r.key===first.key));assert.equal(c.pmWizardCandidates().length,count);
- c.pmSelectWizardEntry(first.key,true,id);assert.equal(c.state.deliveryEditor.entries.length,count);assert.equal(c.state.deliveryEditor.entries[0].key,first.key);
- c.pmSelectWizardEntry(first.key,false,id);c.patchDeliveryEditor({target:String(count-1)});confirmDelivery(c);c.saveDeliveryEditor();const sheet=c.deliverySheet(c.state.sheetKey);assert(sheet);assert(!sheet.entries.some(r=>r.itemId===first.itemId));
+ c.deliveryWizardValues().selectAll();assert.equal(c.state.deliveryEditor.entries.length,count);assert(c.deliveryWizardValues().selectAllDisabled);
+ c.deliveryWizardValues().clearSelection();assert.equal(c.state.deliveryEditor.entries.length,0);assert(c.deliveryWizardValues().clearSelectionDisabled);
+ c.pmSelectWizardEntry(first.key,true,id);assert.equal(c.state.deliveryEditor.entries.length,1);assert.equal(c.state.deliveryEditor.entries[0].key,first.key);
+ c.patchDeliveryEditor({target:'1'});confirmDelivery(c);c.saveDeliveryEditor();const sheet=c.deliverySheet(c.state.sheetKey);assert(sheet);assert.equal(sheet.entries.length,1);
 });
 
 test('delivery preview ignores the removed exception filter and retains production Run associations',()=>{
@@ -603,6 +716,18 @@ test('delivery preview ignores the removed exception filter and retains producti
  assert(view.rows.every(row=>row.sourceRefs.some(ref=>ref.runId===task.id && ref.pipeline===task.pipeline && ref.dataset===task.dataset)));
  view.rows[0].onSelect({target:{checked:false}});assert.equal(c.deliveryWizardValues().rows.length,5);assert.equal(c.deliveryWizardValues().stats.valid,4);
  assert.doesNotMatch(built,/只看异常|关闭异常筛选/);
+ assert.match(built,/<div class="pm-wizard-preview-title"><h3>条目预览<\/h3><span class="forge-wizard-preview-summary" role="status">\{\{ deliveryEditor\.wizard\.selectionSummary \}\}<\/span><\/div>/);
+ assert.match(built,/aria-label="Item 批量选择"[\s\S]*?>全选<\/button>[\s\S]*?>取消全选<\/button>/);
+ const previewMarkup=built.slice(built.indexOf('aria-label="同步条目预览"'),built.indexOf('<\/section>',built.indexOf('aria-label="同步条目预览"')));
+ assert.doesNotMatch(previewMarkup,/匹配状态|forge-wizard-status/);
+ assert.doesNotMatch(built,/<p class="forge-wizard-preview-summary"/);
+ assert.match(built,/\.forge-postman \.pm-wizard-preview-heading\{[^}]*justify-content:space-between!important;flex-wrap:nowrap!important;gap:16px!important/);
+ assert.match(built,/\.forge-postman \.forge-wizard-preview-summary\{[^}]*width:max-content!important[^}]*min-width:max-content[^}]*white-space:nowrap!important;word-break:normal!important;writing-mode:horizontal-tb!important/);
+ assert.match(built,/\.forge-postman \.forge-wizard-preview-summary>\*\{display:inline!important;white-space:inherit!important\}/);
+ assert.match(built,/class="forge-delivery-text-button pm-wizard-select-all"[^>]*>全选<\/button><button[^>]*class="forge-delivery-text-button pm-wizard-clear-selection"/);
+ assert.match(built,/\.forge-postman \.pm-wizard-selection-actions \.pm-wizard-select-all\{[^}]*border:1px solid var\(--pm-control\)!important[^}]*background:var\(--pm-canvas\)!important/);
+ assert.match(built,/\.forge-postman \.pm-wizard-selection-actions \.pm-wizard-clear-selection\{[^}]*border:0!important[^}]*background:transparent!important[^}]*color:var\(--pm-muted\)!important/);
+ assert.doesNotMatch(built,/<p class="forge-wizard-preview-summary"/);
 });
 test('Wizard ZIP checklist preserves tags, recomputes duplicates and resets with a new import',()=>{
  const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({importMode:'zip'});c.setDeliveryList('天坛\n天坛\n长城');
@@ -612,20 +737,26 @@ test('Wizard ZIP checklist preserves tags, recomputes duplicates and resets with
  c.pmSelectWizardEntry(first.key,false,id);c.setDeliveryList('长城');assert.equal(c.pmWizardCandidates().length,1);
 });
 
-test('Multiple task Tags synchronize rules, confirmation, saved sheet and reviewer assignment',()=>{
+test('each Item keeps one task Tag and a new choice replaces the previous value',()=>{
  const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({name:'Task tags',customer:'蚂蚁',target:'2',importMode:'zip'});c.setDeliveryList('天坛\n长城');
  for(const tagName of ['repair','reroll']){c.patchDeliveryEditor({tagName,tagColor:'#397448'});c.addDeliveryTag();}
  const editor=c.state.deliveryEditor,id=editor.id,actor=c.profileIdentity().accountName,[repair,reroll]=editor.tags;
- assert.equal(c.deliveryWizardValues().taskTags.selected.length,2);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected.length,2);
- const first=editor.entries[0];c.pmToggleTaskTag(id,first.key,repair.id,false,actor);
- assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected.map(tag=>tag.name).join(','),'reroll');
- assert.equal(c.deliveryDatasetReviewValues().rows[1].taskTags.selected.length,2);
+ assert.equal(c.deliveryWizardValues().taskTags.selected.length,0);
+ assert.match(c.deliveryWizardRulesIssue(),/2 个 Item 未分配 Tag/);
+ for(const option of c.deliveryWizardValues().taskTags.options)option.toggle({target:{checked:true}});
+ assert.equal(c.deliveryWizardValues().tagAssignmentLabel,'已分配 2 / 2 个 Item');assert(c.deliveryWizardValues().tagAssignmentComplete);
+ assert.equal(c.deliveryWizardValues().taskTags.selected[0].name,'reroll');assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'reroll');
+ const first=editor.entries[0];c.pmToggleTaskTag(id,first.key,repair.id,true,actor);
+ assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'repair');
+ assert.equal(c.deliveryDatasetReviewValues().rows[1].taskTags.selected[0].name,'reroll');
  confirmDelivery(c);assert.equal(c.state.deliveryEditor.step,4);c.saveDeliveryEditor();const key=c.state.sheetKey,sheet=c.deliverySheet(key);
- assert.equal(sheet.defaultTaskTagIds.length,2);assert.equal(sheet.entries[0].taskTagIds.length,1);assert.equal(sheet.datasetReviews['item:'+first.itemId].taskTagIds.length,1);
- c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'reroll');
- const option=c.deliveryDatasetReviewValues().rows[0].taskTags.options.find(tag=>tag.name==='repair');option.toggle({target:{checked:true}});assert.equal(c.state.deliveryEditor.entries[0].taskTagIds.length,2);c.saveDeliveryEditor();
- assert.equal(c.pmSheetAssignments(c.deliverySheet(key)).get(first.itemId).taskTags.selected.length,2);
- c.pmToggleSavedTaskTag(key,first.itemId,reroll.id,false,actor);c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected.map(tag=>tag.name).join(','),'repair');
+ assert.equal(sheet.defaultTaskTagIds.length,1);assert.equal(sheet.entries[0].taskTagIds.length,1);assert.equal(sheet.datasetReviews['item:'+first.itemId].taskTagIds.length,1);
+ c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'repair');
+ const option=c.deliveryDatasetReviewValues().rows[0].taskTags.options.find(tag=>tag.name==='reroll');option.toggle({target:{checked:true}});assert.deepEqual([...c.state.deliveryEditor.entries[0].taskTagIds],[reroll.id]);c.saveDeliveryEditor();
+ assert.equal(c.pmSheetAssignments(c.deliverySheet(key)).get(first.itemId).taskTags.selected[0].name,'reroll');
+ c.pmToggleSavedTaskTag(key,first.itemId,repair.id,true,actor);c.openDeliveryEditor(key);assert.equal(c.deliveryDatasetReviewValues().rows[0].taskTags.selected[0].name,'repair');
+ assert.match(built,/pm-task-tag-picker[^>]*--pm-task-tag-width/);assert.match(built,/role="radiogroup"/);assert.match(built,/input type="radio" name=/);
+ assert.match(built,/\.forge-postman \.pm-task-tag-options\{[^}]*width:100%[^}]*min-width:100%/);
 });
 test('Task Tag explicit clearing, deselection, removed tags and stale actors are safe',()=>{
  const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({importMode:'zip'});c.setDeliveryList('天坛');c.patchDeliveryEditor({tagName:'repair',tagColor:'#397448'});c.addDeliveryTag();
@@ -634,6 +765,13 @@ test('Task Tag explicit clearing, deselection, removed tags and stale actors are
  c.pmSelectWizardEntry(key,false,id);c.pmSelectWizardEntry(key,true,id);assert(c.deliveryWizardValues().rows[0].taskTags.empty);
  const picker=c.deliveryWizardValues().taskTags;c.props.currentUser='someone-else';const before=JSON.stringify(c.state.deliveryEditor);picker.options[0].toggle({target:{checked:false}});assert.equal(JSON.stringify(c.state.deliveryEditor),before);
  c.props.currentUser=actor;c.patchDeliveryEditor({tags:[]});assert.equal(c.pmTaskTagIds(c.state.deliveryEditor).length,0);
+});
+test('confirmation Task status summarizes per-Item Tag assignments without a default',()=>{
+ const c=vm.runInContext('new Component()',ctx);c.openDeliveryEditor();c.patchDeliveryEditor({name:'Task status',customer:'蚂蚁',target:'1',importMode:'zip'});c.setDeliveryList('天坛');
+ c.patchDeliveryEditor({tagName:'111',tagColor:'#64748b'});c.addDeliveryTag();
+ const editor=c.state.deliveryEditor,tag=editor.tags[0];c.pmToggleTaskTag(editor.id,editor.entries[0].key,tag.id,true,c.profileIdentity().accountName);
+ assert.equal(c.deliveryWizardValues().taskTagNames,'111');assert.equal(c.deliveryWizardValues().taskTags.selected.length,0);
+ assert.match(built,/<dt>Task 状态<\/dt><dd>\{\{ deliveryEditor\.wizard\.taskTagNames \}\}<\/dd>/);
 });
 
 test('existing delivery opens the prefilled wizard and updates the same sheet',()=>{
@@ -680,7 +818,7 @@ test('legacy delivery restores selected production tasks without replacing its s
 test('saved task choices and selected Item subsets take precedence over legacy inference',()=>{
  const c=vm.runInContext('new Component()',ctx),runId='20260825-093412-a4f7c1';
  c.openDeliveryEditor();c.patchDeliveryEditor({name:'部分条目',customer:'验证',target:'7'});
- c.syncDeliveryProductionTasks([runId]);
+ c.syncDeliveryProductionTasks([runId]);c.deliveryWizardValues().selectAll();
  const removed=c.state.deliveryEditor.entries[0];
  c.pmSelectWizardEntry(removed.key,false,c.state.deliveryEditor.id);confirmDelivery(c);c.saveDeliveryEditor();
  const key=c.state.sheetKey,entries=JSON.stringify(c.deliverySheet(key).entries);

@@ -117,7 +117,7 @@
 .forge-delivery-tag-actions{display:flex;align-items:center;gap:16px;margin-top:12px}
 .forge-delivery-tag-editor>p:empty,.forge-delivery-tag-chips:empty{display:none}
 .forge-delivery-color-palette{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
-.forge-delivery-editor .forge-delivery-color-palette>button:not(.forge-delivery-tag-reset){display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;min-height:32px;padding:3px;border:1px solid transparent;border-radius:50%;background:transparent;cursor:pointer}
+.forge-delivery-editor .forge-delivery-color-palette>button{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;min-height:32px;padding:3px;border:1px solid transparent;border-radius:50%;background:transparent;cursor:pointer}
 .forge-delivery-color-palette>button>span{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--tag-color);color:var(--tag-fg)}
 .forge-delivery-editor .forge-delivery-color-palette>button[aria-pressed="true"]{border-color:var(--forge-text)}
 .forge-delivery-editor .forge-delivery-custom-color{position:relative;display:inline-flex;flex:none;align-items:center;justify-content:center;width:auto;height:32px;margin:0;padding:0 8px;border:1px solid var(--forge-control-border);border-radius:5px;background:transparent;font-size:12px;line-height:20px;color:var(--forge-text);cursor:pointer;overflow:hidden}
@@ -218,6 +218,9 @@
 .forge-review-related-skills{padding:16px 0;font-family:var(--forge-font);min-width:0}
 .forge-sheet-scroll .forge-review-related-skills{margin-inline:20px}
 .forge-review-skill-downloads{list-style:none;padding:0;margin:8px 0 0}
+.forge-review-skill-empty{margin-top:10px;padding:14px 16px;border:1px solid var(--forge-border);border-radius:8px;background:var(--forge-subtle)}
+.forge-review-skill-empty strong{display:block;font-size:13px;line-height:20px;font-weight:500;color:var(--forge-text)}
+.forge-review-skill-empty p{margin:2px 0 0;font-size:12px;line-height:18px;color:var(--forge-muted)}
 .forge-review-skill-downloads li{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;padding:8px 0}
 .forge-review-skill-download-info{display:flex;flex:1 1 180px;min-width:0;flex-wrap:wrap;align-items:baseline;gap:2px 8px;overflow-wrap:anywhere}
 .forge-review-skill-download-info strong{font-size:13px;line-height:20px;font-weight:500;color:var(--forge-text)}
@@ -309,7 +312,7 @@
 .forge-delivery-editor .forge-delivery-tag-editor .forge-delivery-text-button{padding:4px 8px;border-radius:4px}
 @media(max-width:600px),(pointer:coarse){
  .forge-delivery-editor.forge-feedback .forge-delivery-list-upload,.forge-delivery-editor .forge-delivery-custom-color,.forge-delivery-editor .forge-delivery-tag-actions>button,.forge-delivery-editor .forge-delivery-tag-editor .forge-delivery-text-button,.forge-delivery-editor .forge-delivery-skill-view,.forge-delivery-skill-detail-command summary{min-height:44px}
- .forge-delivery-editor .forge-delivery-color-palette>button:not(.forge-delivery-tag-reset),.forge-delivery-skill-detail .forge-delivery-icon-button{width:44px;height:44px;min-height:44px}
+ .forge-delivery-editor .forge-delivery-color-palette>button,.forge-delivery-skill-detail .forge-delivery-icon-button{width:44px;height:44px;min-height:44px}
  .forge-delivery-color-palette{gap:4px}.forge-delivery-skill-detail-command input{font-size:16px;min-height:44px}
 }
 @media(max-width:600px){.forge-delivery-skill-detail{width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:16px}.forge-delivery-skill-detail[open]{gap:12px}.forge-delivery-skill-detail-body{padding:14px}.forge-delivery-tag-composer{padding:12px}.forge-delivery-library-row{column-gap:4px}.forge-delivery-editor .forge-delivery-skill-create-trigger{min-height:36px;height:36px}}

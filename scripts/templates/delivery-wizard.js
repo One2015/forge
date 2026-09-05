@@ -92,13 +92,27 @@
     return '';
   }
 
+  deliveryWizardEntryTagIds(editor = this.state.deliveryEditor, entry = null) {
+    if (!editor) return [];
+    const defaults = Array.isArray(editor.defaultTaskTagIds) ? editor.defaultTaskTagIds : editor.defaultTagId ? [editor.defaultTagId] : [];
+    const ids = entry
+      ? Array.isArray(entry.taskTagIds) ? entry.taskTagIds : entry.tagId === '__none__' ? [] : entry.tagId ? [entry.tagId] : defaults
+      : defaults;
+    return [...new Set(ids.filter(Boolean))];
+  }
+
   deliveryWizardRulesIssue(editor = this.state.deliveryEditor) {
     if (editor.skillLoading) return 'Skill 文件正在读取，请稍候。';
     if (editor.tagName.trim() || editor.tagColor) return '请完成正在创建的 Tag，或取消编辑。';
     if (this.deliverySkillDraftDirty(editor) || editor.skillUploads?.length) return '请完成正在创建的 Skill，或清空未完成内容。';
     if (editor.skills.length > 12) return '最多选择 12 个 Skill。';
-    if (editor.defaultTagId && !editor.tags.some(tag => tag.id === editor.defaultTagId)) return '默认 Tag 已不可用，请重新选择。';
-    if (editor.entries.some(entry => entry.tagId && entry.tagId !== '__none__' && !editor.tags.some(tag => tag.id === entry.tagId))) return '条目中有不可用的 Tag，请返回同步条目修改。';
+    const availableTagIds = new Set(editor.tags.map(tag => tag.id));
+    const configuredTagIds = this.deliveryWizardEntryTagIds(editor).concat(editor.entries.flatMap(entry => this.deliveryWizardEntryTagIds(editor, entry)));
+    if (configuredTagIds.some(tagId => !availableTagIds.has(tagId))) return '条目中有不可用的 Tag，请重新分配。';
+    if (editor.tags.length) {
+      const unassigned = editor.entries.filter(entry => !this.deliveryWizardEntryTagIds(editor, entry).length).length;
+      if (unassigned) return '还有 ' + unassigned + ' 个 Item 未分配 Tag，请为每个 Item 至少选择一个 Tag。';
+    }
     const commands = new Set();
     for (const skill of editor.skills) {
       const command = this.skillCommand(skill.command);
@@ -125,7 +139,7 @@
       if (issue || step > reached + 1) { this.patchDeliveryEditor({ error: issue || '请先完成当前步骤。' }, id); return; }
     }
     this.closeDeliveryMemberPicker(id);
-    const next = { step, reachedStep: Math.max(reached, step), tab: ['basic', 'list', 'skills', 'confirm'][step - 1], error: '' };
+    const next = { step, reachedStep: Math.max(reached, step), tab: ['basic', 'list', 'skills', 'confirm'][step - 1], logoPickerOpen: false, error: '' };
     this.patchDeliveryEditor(next, id);
     setTimeout(() => {
       if (typeof document === 'undefined' || this.state.deliveryEditor?.id !== id) return;
@@ -170,6 +184,15 @@
     const tagIds = new Set(editor.entries.map(entry => entry.tagId === '__none__' ? '' : entry.tagId || editor.defaultTagId).filter(Boolean));
     if (defaultTag) tagIds.add(defaultTag.id);
     const tagPreview = editor.tags.filter(tag => tagIds.has(tag.id)).map(tag => Object.assign({}, tag, { isDefault: tag.id === editor.defaultTagId, applied: editor.entries.filter(entry => entry.tagId !== '__none__' && (entry.tagId || editor.defaultTagId) === tag.id).length }));
+    const skillPreview = editor.skills.map(skill => ({ name: skill.name, command: '/' + this.skillCommand(skill.command) }));
+    const memberRoles = new Map(this.deliveryMemberRoles().map(role => [role.key, role.label]));
+    const memberPreview = editor.members.map(member => ({
+      name: member.name || member.accountName,
+      roleLabel: memberRoles.get(member.role) || '待配置',
+      summaryLabel: (member.name || member.accountName) + (member.role === 'owner' ? ' (Owner)' : '')
+    }));
+    const availableTagIds = new Set(editor.tags.map(tag => tag.id));
+    const assignedTagCount = editor.entries.filter(entry => this.deliveryWizardEntryTagIds(editor, entry).some(tagId => availableTagIds.has(tagId))).length;
     const productionTasks = this.deliveryProductionTasks(), taskQuery = (editor.productionQuery || '').trim().toLowerCase();
     const productionRows = productionTasks.filter(task => (!editor.productionPipeline || task.pipeline === editor.productionPipeline) && (!taskQuery || (task.name + ' ' + task.pipeline + ' ' + task.dataset + ' ' + task.id).toLowerCase().includes(taskQuery))).map(task => Object.assign({}, task, {
       selected: (editor.productionTaskIds || []).includes(task.id), toggle: () => { if (this.state.deliveryEditor?.id !== id) return; const selected = this.state.deliveryEditor.productionTaskIds || []; this.syncDeliveryProductionTasks(selected.includes(task.id) ? selected.filter(key => key !== task.id) : selected.concat(task.id), id); }
@@ -208,9 +231,14 @@
       canUseCount: stats.valid > 0 && !!stats.difference, useValidCount: () => patch({ target: String(stats.valid), error: '' }),
       editInput: () => { if (typeof document !== 'undefined') document.getElementById(editor.importMode === 'zip' ? 'forge-wizard-zip' : 'forge-delivery-list')?.focus(); },
       defaultTagId: editor.defaultTagId || '', defaultTagName: defaultTag?.name || '未设置', defaultTagHelp: defaultTag ? '默认：' + defaultTag.name : '默认（无）', defaultTag, hasDefaultTag: !!defaultTag, tagPreview, hasTagPreview: !!tagPreview.length,
+      skillPreview, hasSkillPreview: !!skillPreview.length, memberPreview, hasMemberPreview: !!memberPreview.length,
       onDefaultTag: event => patch({ defaultTagId: event.target.value }), tags: editor.tags,
+      tagAssignmentCount: assignedTagCount, tagAssignmentComplete: assignedTagCount === editor.entries.length,
+      tagAssignmentLabel: '已分配 ' + assignedTagCount + ' / ' + editor.entries.length + ' 个 Item',
       tagCount: tagIds.size, skillCount: editor.skills.length, memberCount: editor.members.length,
+      validEmpty: stats.valid === 0, tagEmpty: tagIds.size === 0, skillEmpty: editor.skills.length === 0, memberEmpty: editor.members.length === 0,
       name: editor.name.trim() || '未填写', customer: editor.customer.trim() || '未填写', target: editor.target || '未填写',
+      nameEmpty: !editor.name.trim(), customerEmpty: !editor.customer.trim(), targetEmpty: !editor.target,
       skillNames: editor.skills.map(skill => skill.name).join('、') || '未选择', desc: editor.desc.trim() || '未填写',
       hasLogo: !!editor.logo, logo: editor.logo?.url || '', noLogo: !editor.logo,
       problems, hasProblems: !!problems.length,

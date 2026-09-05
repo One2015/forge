@@ -305,7 +305,11 @@ test('single-list markup uses native controls and escaped previews, with no dupl
   assert(editor.includes('sc-camel-on-drop="{{ deliveryEditor.workspace.drop }}"'));
   assert(editor.includes('<p>{{ block.text }}</p>')); assert(editor.includes('<pre>{{ skill.content }}</pre>'));
   assert(editor.includes('aria-describedby="forge-skill-detail-command-error"'));
-  assert(editor.includes('已选 {{ deliveryEditor.skillCount }} / 12'));
+  assert(editor.includes('{{ deliveryEditor.library.count }} 个结果'));
+  assert(!editor.includes('已选 {{ deliveryEditor.skillCount }} / 12'));
+  assert(!editor.includes('forge-delivery-tag-reset'));
+  assert(!editor.includes('forge-delivery-tag-hint'));
+  assert(!editor.includes('最多 30 字，添加后可分配给清单条目。'));
   const stack=[], voids=new Set(['img','input','br','hr','meta','link']);
   for (const [full,name] of editor.matchAll(/<\/?([a-z][\w-]*)\b[^>]*>/gi)) {
     if (voids.has(name) || full.endsWith('/>')) continue;

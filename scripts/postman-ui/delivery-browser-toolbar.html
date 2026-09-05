@@ -1,0 +1,32 @@
+<div class="pm-delivery-browser-toolbar">
+  <div class="pm-delivery-category-row" data-forge-segmented="pill" role="group" aria-label="数据单分类">
+    <sc-for list="{{ delivery.cats }}" as="f" hint-placeholder-count="5">
+      <button data-motion-label="{{ f.label }}" type="button" data-motion-selected="{{ f.motionSelected }}" aria-pressed="{{ f.motionSelected }}" sc-camel-on-click="{{ f.pick }}" style="background:{{ f.bg }};color:{{ f.fg }};font-weight:{{ f.weight }};box-shadow:{{ f.shadow }}">{{ f.label }}</button>
+    </sc-for>
+  </div>
+  <div class="pm-delivery-browser-controls">
+    <label class="pm-delivery-search" for="pm-delivery-search">
+      [[icon:magnifying-glass:16]]
+      <input id="pm-delivery-search" type="search" value="{{ delivery.query }}" placeholder="搜索数据单、客户或负责人" aria-label="搜索交付数据单" sc-camel-on-change="{{ delivery.onQuery }}" />
+      <sc-if value="{{ delivery.hasQuery }}" hint-placeholder-val="{{ false }}"><button type="button" aria-label="清除交付搜索" sc-camel-on-click="{{ delivery.clearQuery }}">清除</button></sc-if>
+    </label>
+    <div class="pm-delivery-view-toggle" role="group" aria-label="交付列表视图">
+      <sc-for list="{{ delivery.views }}" as="mode" hint-placeholder-count="2">
+        <button type="button" aria-pressed="{{ mode.selected }}" sc-camel-on-click="{{ mode.pick }}">{{ mode.label }}</button>
+      </sc-for>
+    </div>
+    <div class="pm-delivery-sort">
+      <button type="button" class="pm-delivery-sort-trigger" aria-haspopup="menu" aria-expanded="{{ delivery.sortOpen }}" sc-camel-on-click="{{ delivery.toggleSort }}">
+        {{ delivery.sortLabel }}
+        <svg class="forge-icon" width="12" height="12" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg>
+      </button>
+      <div class="forge-motion-menu" data-motion-menu="deliverySort" data-motion-open="{{ delivery.sortOpen }}" role="menu">
+        <sc-for list="{{ delivery.sorts }}" as="o" hint-placeholder-count="2">
+          <button type="button" role="menuitem" sc-camel-on-click="{{ o.pick }}" style="background:{{ o.bg }};color:{{ o.fg }}">
+            <span aria-hidden="true">{{ o.mark }}</span><span>{{ o.label }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>

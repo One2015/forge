@@ -19,7 +19,7 @@
     if(typeof document==='undefined')return;
     const menu=document.getElementById('pm-profile-skill-create-menu'),trigger=event.currentTarget;
     if(!menu || !trigger)return;
-    const rect=trigger.getBoundingClientRect(),width=Math.min(280,window.innerWidth-24),height=134;
+    const rect=trigger.getBoundingClientRect(),width=Math.min(240,window.innerWidth-24),height=134;
     const below=rect.bottom+6,top=below+height<=window.innerHeight-12?below:rect.top-height-6;
     menu.style.width=width+'px';
     menu.style.left=Math.max(12,Math.min(rect.right-width,window.innerWidth-width-12))+'px';
@@ -39,7 +39,7 @@
     if(this.state.profileSkillDraft?.loading || this.personalProfileSkills().length>=12)return;
     this.pmCloseProfileSkillMenu();
     const owner=this.profileIdentity().accountName,id='profile-skills-'+(this._deliverySequence=(this._deliverySequence || 0)+1);
-    this.setState({profileTab:'skills',profileSkillNotice:'',profileSkillDraft:{id,owner,skills:[{id:'personal-'+Date.now()+'-'+this._deliverySequence,name:'',command:'',description:'',content:'',filename:'SKILL.md'}],loading:false,error:'',targetSheet:''}});
+    this.setState({profileTab:'skills',profileSkillNotice:'',profileSkillPreview:null,profileSkillDraft:{id,owner,skills:[{id:'personal-'+Date.now()+'-'+this._deliverySequence,name:'',command:'',description:'',content:'',filename:'SKILL.md'}],loading:false,error:'',targetSheet:''}});
   }
   pmProfileSkillFields(skill,draft) {
     const update=(field,event)=>{
@@ -61,7 +61,7 @@
     )).map(task=>({key:task.key,title:task.title}));
     return {...ids,descriptionLabel:skill.filename+' 的描述',contentLabel:skill.filename+' 的指令',
       commandHintId:prefix+'-command-hint',commandDescribedBy:[prefix+'-command-hint',ids.commandDescribedBy].filter(Boolean).join(' '),
-      linkedSheets,hasLinkedSheets:!!linkedSheets.length,noLinkedSheets:!linkedSheets.length,
+      linkedSheets,hasLinkedSheets:!!linkedSheets.length,noLinkedSheets:!linkedSheets.length,showLinkedSheets:!!draft.editId,
       onName:event=>update('name',event),onCommand:event=>update('command',event),
       onDescription:event=>update('description',event),onContent:event=>update('content',event)};
   }
@@ -102,6 +102,6 @@
       const updated=mine.find(row=>changed.has(row.id) && row.owner===skill.owner && row.id===skill.id);
       return updated?{...skill,name:updated.name,command:updated.command,description:updated.description,content:updated.content,size:updated.size}:skill;
     });
-    this.setState({createdPlatformSkills,profileSkillNotice:draft.editId?'Skill 已更新。':this.state.profileSkillNotice});
+    this.setState({createdPlatformSkills,profileSkillNotice:'',profileSkillPreview:{id:draft.skills[0].id,owner:draft.owner}});
   }
   // pm-profile-skill-editor:end

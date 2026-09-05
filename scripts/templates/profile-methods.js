@@ -99,7 +99,7 @@
     const owner = this.profileIdentity().accountName, id = 'profile-skills-' + (this._deliverySequence = (this._deliverySequence || 0) + 1);
     const previous = this.state.profileSkillDraft;
     const draft = { id, owner, skills: previous?.owner === owner && !previous.editId ? previous.skills : [], loading: true, error: '', targetSheet: '' };
-    this.setState({ profileTab: 'skills', profileSkillDraft: draft, profileSkillNotice: '' });
+    this.setState({ profileTab: 'skills', profileSkillDraft: draft, profileSkillPreview: null, profileSkillNotice: '' });
     const additions = [], errors = [], capacity = 12 - this.personalProfileSkills().length - draft.skills.length;
     const accept = skill => { if (additions.length >= capacity) throw new Error('个人 Skill 最多保存 12 个。'); additions.push(skill); };
     for (const file of Array.from(files || []).slice(0, 13)) {
@@ -133,7 +133,7 @@
   editPersonalSkill(id) {
     const skill = this.personalProfileSkills().find(value => value.id === id);
     if (!skill || this.state.profileSkillDraft?.loading) return;
-    this.setState({ profileTab: 'skills', profileSkillNotice: '', profileSkillDraft: {
+    this.setState({ profileTab: 'skills', profileSkillNotice: '', profileSkillPreview: null, profileSkillDraft: {
       id: 'profile-skills-' + (this._deliverySequence = (this._deliverySequence || 0) + 1), owner: skill.owner,
       editId: id, skills: [Object.assign({}, skill)], loading: false, error: '', targetSheet: ''
     } });
@@ -257,6 +257,8 @@
   buildProfileValues() {
     const identity = this.profileIdentity(), work = this.state.profileOpen ? this.profileTasks() : [], tasks = this.state.profileOpen ? this.profileDeliveryTasks(work) : [], skills = this.state.profileOpen ? this.profileSkills(work) : [];
     const draft = this.state.profileSkillDraft?.owner === identity.accountName ? this.state.profileSkillDraft : null;
+    const previewRef = this.state.profileSkillPreview?.owner === identity.accountName ? this.state.profileSkillPreview : null;
+    const previewSkill = !draft && previewRef ? this.personalProfileSkills().find(skill => skill.id === previewRef.id) : null;
     const issue = draft ? this.profileSkillDraftIssue() : '';
     const identityDraft = this.canEditProfileIdentity() && this.state.profileIdentityDraft?.accountName === identity.accountName ? this.state.profileIdentityDraft : null;
     const showTasks = this.state.profileTab !== 'skills';
@@ -279,7 +281,12 @@
         open: () => this.openProfileSkill(skill.bindingId) })),
       uploadDisabled: !!draft?.loading || this.personalProfileSkills().length >= 12,
       uploadSkills: event => { const files = Array.from(event.target.files || []); event.target.value = ''; if (files.length) this.uploadProfileSkills(files); },
-      notice: this.state.profileSkillNotice || '', hasDraft: !!draft, draftLoading: !!draft?.loading, draftError: draft?.error || '', draftIssue: issue,
+      notice: this.state.profileSkillNotice || '', hasDraft: !!draft, hasSkillPreview: !!previewSkill, showSkillList: !draft && !previewSkill,
+      skillPreview: previewSkill ? { name: previewSkill.name || previewSkill.command, commandLabel: '/' + previewSkill.command,
+        description: previewSkill.description || '', hasDescription: !!String(previewSkill.description || '').trim(), content: previewSkill.content || '',
+        fileLabel: previewSkill.filename || previewSkill.sourceFile || 'SKILL.md' } : {},
+      backToSkillList: () => this.setState({ profileSkillPreview: null, profileSkillNotice: '' }),
+      draftLoading: !!draft?.loading, draftError: draft?.error || '', draftIssue: issue,
       draftSaveDisabled: !!issue, draftSaveLabel: draft?.targetSheet ? '保存并关联' : '保存 Skill',
       draftSkills: (draft?.skills || []).map(skill => Object.assign({}, skill, {
         nameLabel: skill.filename + ' 的 Skill 名称', commandLabel: skill.filename + ' 的调用名',
@@ -289,7 +296,7 @@
       })),
       targetSheet: draft?.targetSheet || '', targetSheets: tasks.map(task => ({ key: task.key, label: task.title })),
       onTargetSheet: event => this.patchProfileSkillDraft({ targetSheet: event.target.value }),
-      saveSkills: () => this.saveProfileSkills(), cancelSkills: () => this.setState({ profileSkillDraft: null }),
+      saveSkills: () => this.saveProfileSkills(), cancelSkills: () => this.setState({ profileSkillDraft: null, profileSkillPreview: null }),
       pickTasks: () => this.setState({ profileTab: 'tasks' }), pickSkills: () => this.setState({ profileTab: 'skills' })
     };
   }

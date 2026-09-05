@@ -177,7 +177,7 @@
       onName: e => this.setState({ branchName: e.target.value }), onNote: e => this.setState({ branchNote: e.target.value }),
       nameError: duplicate ? '已有同名分支，请修改名称。' : '', duplicate,
       pipe: s.branchPipe || '', ds: s.branchDs || '', item: s.branchItem || '',
-      configuration: 'Pipeline  ' + (s.branchPipe ? s.branchPipe + ' ' + (s.branchVer || '') : '未选择') + '   ·   Dataset  ' + (s.branchDs || '未选择') + '   ·   Item  ' + (selected?.name || s.branchItem || '未选择'),
+      configuration: 'Pipeline  ' + (s.branchPipe ? s.branchPipe + ' ' + (s.branchVer || '') : '未选') + '   ·   Dataset  ' + (s.branchDs || '未选') + '   ·   Item  ' + (selected?.name || s.branchItem || '未选'),
       configOpen: !!s.branchConfigOpen, configLabel: s.branchConfigOpen ? '收起配置' : '更换配置',
       configHeading: s.branchPipe === source.sourcePipe && s.branchVer === source.sourceVer && s.branchDs === source.sourceDs && s.branchItem === (source.configItem || source.item) ? '沿用来源配置' : '本次运行配置',
       configRotation: s.branchConfigOpen ? '180deg' : '0deg',

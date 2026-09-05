@@ -77,7 +77,8 @@
       tab: 'basic', step: 1, reachedStep: 1, importMode: key ? 'paste' : 'production', importModes: {}, productionTaskIds: sheet?.sourceRunIds || [], productionExcluded: [], productionQuery: '', productionPipeline: '', entryPage: 1, onlyExceptions: false, defaultTagId: sheet?.defaultTagId || '', skillCategory: 'all', name: sheet?.name || '', customer: sheet?.customer || '', desc: sheet?.desc || '', target: sheet ? String(sheet.target) : '',
       logo: sheet?.logo || null, archive: sheet?.archive || null, entries, listText: entries.map(entry => entry.source).join('\n'),
       listChanged: !sheet, tags: (sheet?.tags || []).map(tag => Object.assign({}, tag)),
-      skills: (sheet?.skills || []).map(skill => Object.assign({}, skill)), skillQuery: '', skillNotice: '', skillMode: 'existing', skillDraft: {}, skillUploads: [], tagName: '', tagColor: '', tagComposerOpen: false, tagNotice: '', skillDetailKey: '',
+      skills: (sheet?.skills || []).map(skill => Object.assign({}, skill)), skillQuery: '', skillNotice: '', skillMode: 'existing', skillDraft: {}, skillUploads: [], tagName: '', tagColor: '', tagComposerOpen: false, tagManagerMode: 'add', tagNotice: '', skillDetailKey: '',
+      logoPickerOpen: false,
       members, memberActor: identity.accountName, memberBaseline: this.deliveryMemberSignature(members), memberQuery: '', memberSearchOpen: false, memberNotice: '',
       datasetReviews: Object.fromEntries(Object.entries(sheet?.datasetReviews || {}).map(([id, review]) => [id, { ...review }])),
       reviewBaseline: this.deliveryDatasetReviewSignature(sheet), reviewTouched: false, reviewNotice: '',
@@ -190,7 +191,7 @@
         const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error('读取失败')); reader.onabort = () => reject(new Error('读取取消')); reader.readAsDataURL(file);
       });
       await new Promise((resolve, reject) => { const image = new Image(); image.onload = () => image.naturalWidth && image.naturalWidth <= 8192 && image.naturalHeight <= 8192 ? resolve() : reject(new Error('图片尺寸无效')); image.onerror = () => reject(new Error('图片无效')); image.src = url; });
-      if (request === this._deliveryLogoRequest) this.patchDeliveryEditor({ logo: { name: file.name, url }, logoLoading: false }, id);
+      if (request === this._deliveryLogoRequest) this.patchDeliveryEditor({ logo: { name: file.name, url }, logoLoading: false, logoPickerOpen: false }, id);
     } catch (_) { if (request === this._deliveryLogoRequest) this.patchDeliveryEditor({ logoLoading: false, logoError: '无法读取 Logo，请选择有效图片。' }, id); }
   }
 
@@ -271,6 +272,30 @@
     }
   }
 
+  deliveryEntryTagPicker(editor, entry) {
+    const defaults = Array.isArray(editor.defaultTaskTagIds) ? editor.defaultTaskTagIds : editor.defaultTagId ? [editor.defaultTagId] : [];
+    const selectedIds = Array.isArray(entry.taskTagIds) ? entry.taskTagIds : entry.tagId === '__none__' ? [] : entry.tagId ? [entry.tagId] : defaults;
+    const ids = [...new Set(selectedIds)].filter(id => editor.tags.some(tag => tag.id === id));
+    const actor = this.profileIdentity().accountName;
+    const tags = editor.tags.map(tag => Object.assign({}, tag, { fg: this.tagForeground(tag.color) }));
+    const readonly = !this.deliveryMembersEditable(editor) || !!editor.listLoading;
+    return {
+      label: '设置 ' + entry.name + ' 的 Tag', readonly, empty: !ids.length,
+      selected: tags.filter(tag => ids.includes(tag.id)),
+      options: tags.map(tag => Object.assign({}, tag, { checked: ids.includes(tag.id), toggle: event => {
+        const current = this.state.deliveryEditor;
+        if (!current || current.id !== editor.id || actor !== this.profileIdentity().accountName || !this.deliveryMembersEditable(current) || current.listLoading || !current.tags.some(value => value.id === tag.id)) return;
+        const currentEntry = current.entries.find(value => value.key === entry.key);
+        if (!currentEntry) return;
+        const currentDefaults = Array.isArray(current.defaultTaskTagIds) ? current.defaultTaskTagIds : current.defaultTagId ? [current.defaultTagId] : [];
+        const currentIds = new Set((Array.isArray(currentEntry.taskTagIds) ? currentEntry.taskTagIds : currentEntry.tagId === '__none__' ? [] : currentEntry.tagId ? [currentEntry.tagId] : currentDefaults).filter(id => current.tags.some(value => value.id === id)));
+        if (event.target.checked) currentIds.add(tag.id); else currentIds.delete(tag.id);
+        const update = value => value.key === entry.key ? Object.assign({}, value, { taskTagIds: [...currentIds], tagId: [...currentIds][0] || '__none__' }) : value;
+        this.patchDeliveryEditor({ entries: current.entries.map(update), pmWizardPool: Array.isArray(current.pmWizardPool) ? current.pmWizardPool.map(update) : current.pmWizardPool, listChanged: true, reviewTouched: true, error: '' }, editor.id);
+      } })),
+    };
+  }
+
   tagForeground(hex) {
     const rgb = hex.slice(1).match(/../g).map(part => parseInt(part, 16) / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
     const luminance = rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722;
@@ -280,8 +305,8 @@
   setDeliveryTagComposer(open, id) {
     if (this.state.deliveryEditor?.id !== id || !this.deliverySkillActorMatches()) return;
     if (open && this.state.deliveryEditor.tags.length >= 20) return;
-    this.patchDeliveryEditor(open ? { tagComposerOpen: true, tagNotice: '' } : { tagComposerOpen: false, tagName: '', tagColor: '', tagNotice: '' }, id);
-    this.focusDeliverySkillControl(id, open ? 'forge-delivery-tag-name' : 'forge-delivery-tag-create');
+    this.patchDeliveryEditor(open ? { tagComposerOpen: true, tagManagerMode: 'add', tagNotice: '' } : { tagComposerOpen: false, tagManagerMode: 'add', tagName: '', tagColor: '', tagNotice: '' }, id);
+    this.focusDeliverySkillControl(id, open ? 'forge-delivery-tag-name' : (this.state.deliveryEditor?.tags.length ? 'forge-delivery-tag-add' : 'forge-delivery-tag-create'));
   }
 
   addDeliveryTag() {
@@ -289,7 +314,7 @@
     const color = editor?.tagColor || '#64748b';
     if (!this.deliverySkillActorMatches(editor) || !name || name.length > 30 || !/^#[0-9a-f]{6}$/i.test(color) || editor.tags.length >= 20 || editor.tags.some(tag => tag.name.toLowerCase() === name.toLowerCase())) return;
     const tag = { id: 'tag-' + Date.now() + '-' + (this._deliverySequence = (this._deliverySequence || 0) + 1), name, color };
-    this.patchDeliveryEditor({ tags: editor.tags.concat(tag), defaultTagId: editor.key ? editor.defaultTagId : tag.id, tagName: '', tagColor: '', tagComposerOpen: false, tagNotice: '已添加「' + name + '」' + (!editor.key ? '，已设为默认 Tag。' : '，可在条目预览中分配。') + (editor.tags.length === 19 ? '已达到 20 个 Tag 上限。' : '') }, editor.id);
+    this.patchDeliveryEditor({ tags: editor.tags.concat(tag), defaultTagId: editor.defaultTagId, tagName: '', tagColor: '', tagComposerOpen: false, tagManagerMode: 'add', tagNotice: editor.tags.length === 19 ? '已达到 20 个 Tag 上限。' : '' }, editor.id);
     this.focusDeliverySkillControl(editor.id, editor.tags.length === 19 ? 'forge-delivery-tag-heading' : 'forge-delivery-tag-create');
   }
 
@@ -365,6 +390,16 @@
     const patch = value => this.patchDeliveryEditor(value, editor.id), issue = this.deliveryEditorIssue();
     const colors = ['#64748b', '#c44318', '#b45309', '#3e744a', '#0e7490', '#3753a0', '#7550a6', '#a43b6a'];
     const tagDuplicate = editor.tags.some(tag => tag.name.toLowerCase() === editor.tagName.trim().toLowerCase());
+    const currentCustomer = editor.customer.trim().toLocaleLowerCase(), logoSeen = new Set(), logoChoices = [];
+    const addLogoChoice = (logo, customer, current = false) => {
+      if (!logo?.url || logoSeen.has(logo.url)) return;
+      logoSeen.add(logo.url);
+      logoChoices.push({ name: logo.name || customer + ' Logo', url: logo.url, customer: customer || '历史客户', current,
+        matched: !!currentCustomer && String(customer || '').trim().toLocaleLowerCase() === currentCustomer });
+    };
+    addLogoChoice(editor.logo, editor.customer.trim() || '当前数据单', true);
+    this.deliveryData().forEach(group => group.sheets.forEach(sheet => addLogoChoice(sheet.logo, sheet.customer || group.customer)));
+    logoChoices.sort((a, b) => Number(b.current) - Number(a.current) || Number(b.matched) - Number(a.matched) || a.customer.localeCompare(b.customer, 'zh-CN'));
     const commandIssue = skill => {
       const command = this.skillCommand(skill.command);
       if (!this.validSkillCommand(command)) return '调用名需为 1–60 字，可用中英文、数字、空格、短横线或下划线。';
@@ -380,27 +415,45 @@
       tabs: [['basic', '基础信息'], ['list', 'List 与 Tag'], ['skills', 'Skill'], ['reviewers', '审核分配']].map(([key, label]) => ({ key, label, selected: editor.tab === key, pick: () => { this.closeDeliveryMemberPicker(editor.id); patch({ tab: key, error: '' }); } })),
       onName: event => patch({ name: event.target.value, error: '' }), onCustomer: event => patch({ customer: event.target.value, error: '' }),
       onDesc: event => patch({ desc: event.target.value }), onTarget: event => patch({ target: event.target.value, error: '' }),
-      logoUrl: editor.logo?.url || '', hasLogo: !!editor.logo, noLogo: !editor.logo,
+      logoUrl: editor.logo?.url || '', hasLogo: !!editor.logo, noLogo: !editor.logo, logoPickerOpen: !!editor.logoPickerOpen,
+      logoPickerLabel: (editor.logo ? '更换' : '选择') + '客户 Logo；可复用平台历史 Logo 或上传新图片',
+      logoChoices: logoChoices.map(logo => Object.assign({}, logo, { selected: editor.logo?.url === logo.url,
+        meta: logo.current ? '当前选择' : logo.matched ? '当前客户历史 Logo' : '平台历史 Logo',
+        pick: () => { if (this.state.deliveryEditor?.id !== editor.id || editor.logoLoading) return; patch({ logo: { name: logo.name, url: logo.url }, logoPickerOpen: false, logoError: '' }); setTimeout(() => { if (this.state.deliveryEditor?.id === editor.id && typeof document !== 'undefined') document.getElementById('forge-customer-logo-trigger')?.focus({ preventScroll: true }); }, 0); } })),
+      toggleLogoPicker: () => { if (!editor.logoLoading) patch({ logoPickerOpen: !editor.logoPickerOpen, logoError: '' }); },
+      closeLogoPicker: () => { patch({ logoPickerOpen: false }); setTimeout(() => { if (this.state.deliveryEditor?.id === editor.id && typeof document !== 'undefined') document.getElementById('forge-customer-logo-trigger')?.focus({ preventScroll: true }); }, 0); },
       uploadLogo: event => { const file = event.target.files?.[0]; event.target.value = ''; this.uploadDeliveryLogo(file); },
-      removeLogo: () => { this._deliveryLogoRequest = (this._deliveryLogoRequest || 0) + 1; patch({ logo: null, logoLoading: false, logoError: '' }); },
+      removeLogo: () => { this._deliveryLogoRequest = (this._deliveryLogoRequest || 0) + 1; patch({ logo: null, logoLoading: false, logoError: '', logoPickerOpen: false }); },
       hasArchive: !!editor.archive, archiveName: editor.archive?.name || '',
       uploadList: event => { const file = event.target.files?.[0]; event.target.value = ''; this.uploadDeliveryList(file); },
       removeArchive: () => patch({ archive: null }), onList: event => this.setDeliveryList(event.target.value),
       entryCount: editor.entries.length, entrySummary: editor.entries.length + ' 项 · ' + editor.entries.filter(entry => !!entry.itemId).length + ' 项已匹配 Item',
       hasEntries: editor.entries.length > 0,
-      entries: editor.entries.map(entry => Object.assign({}, entry, { status: entry.itemId ? '已关联 Item' : '未关联', tags: editor.tags,
+      entries: editor.entries.map(entry => Object.assign({}, entry, { status: entry.itemId ? '已关联 Item' : '未关联', tags: editor.tags, taskTags: this.deliveryEntryTagPicker(editor, entry),
         tagLabel: '设置 ' + entry.name + ' 的 Tag', onTag: event => patch({ entries: this.state.deliveryEditor.entries.map(value => value.key === entry.key ? Object.assign({}, value, { tagId: event.target.value }) : value) }) })),
       tags: editor.tags.map(tag => Object.assign({}, tag, { fg: this.tagForeground(tag.color), removeLabel: '移除 Tag ' + tag.name,
-        remove: () => patch({ tags: this.state.deliveryEditor.tags.filter(value => value.id !== tag.id), entries: this.state.deliveryEditor.entries.map(entry => entry.tagId === tag.id ? Object.assign({}, entry, { tagId: '' }) : entry) }) })),
+        remove: () => {
+          const current = this.state.deliveryEditor;
+          if (!current || current.id !== editor.id || !this.deliverySkillActorMatches(current)) return;
+          const tags = current.tags.filter(value => value.id !== tag.id);
+          const clean = entry => {
+            const taskTagIds = (Array.isArray(entry.taskTagIds) ? entry.taskTagIds : entry.tagId && entry.tagId !== '__none__' ? [entry.tagId] : []).filter(id => id !== tag.id && tags.some(value => value.id === id));
+            return Object.assign({}, entry, { taskTagIds, tagId: taskTagIds[0] || (entry.tagId === '__none__' ? '__none__' : '') });
+          };
+          const defaultTaskTagIds = (Array.isArray(current.defaultTaskTagIds) ? current.defaultTaskTagIds : current.defaultTagId ? [current.defaultTagId] : []).filter(id => id !== tag.id && tags.some(value => value.id === id));
+          patch({ tags, defaultTaskTagIds, defaultTagId: defaultTaskTagIds[0] || '', entries: current.entries.map(clean), pmWizardPool: Array.isArray(current.pmWizardPool) ? current.pmWizardPool.map(clean) : current.pmWizardPool, tagComposerOpen: tags.length ? current.tagComposerOpen : false, tagManagerMode: tags.length ? current.tagManagerMode : 'add', tagNotice: '', listChanged: true, reviewTouched: true });
+        } })),
       onTagName: event => { if (this.deliverySkillActorMatches()) patch({ tagName: event.target.value }); },
       onTagColor: event => { if (this.deliverySkillActorMatches() && /^#[0-9a-f]{6}$/i.test(event.target.value)) patch({ tagColor: event.target.value }); },
       palette: colors.map((color, index) => ({ color, fg: this.tagForeground(color), label: ['灰色','橙色','琥珀色','绿色','青色','蓝色','紫色','玫红色'][index], selected: color === editor.tagColor, pick: () => { if (this.deliverySkillActorMatches()) patch({ tagColor: color }); } })),
       tagDisabled: !editor.tagName.trim() || tagDuplicate || editor.tags.length >= 20 || !this.deliverySkillActorMatches(editor), tagDuplicate,
-      tagHint: tagDuplicate ? '已有同名 Tag，请换一个名称。' : '最多 30 字，添加后可分配给清单条目。',
       tagColorHint: editor.tagColor ? '已选 ' + (colors.includes(editor.tagColor) ? ['灰色','橙色','琥珀色','绿色','青色','蓝色','紫色','玫红色'][colors.indexOf(editor.tagColor)] : editor.tagColor) : '未选择 · 默认灰色',
       customTagColor: editor.tagColor || '#64748b', hasTagColor: !!editor.tagColor, tagsFull: editor.tags.length >= 20 || !this.deliverySkillActorMatches(editor),
       resetTagColor: () => { if (this.deliverySkillActorMatches()) patch({ tagColor: '' }); },
       startTag: () => this.setDeliveryTagComposer(true, editor.id), cancelTag: () => this.setDeliveryTagComposer(false, editor.id),
+      tagAddMode: (editor.tagManagerMode || 'add') === 'add', tagDeleteMode: editor.tagManagerMode === 'delete',
+      selectTagAdd: () => { if (this.deliverySkillActorMatches(editor)) patch({ tagManagerMode: 'add', tagNotice: '' }); },
+      selectTagDelete: () => { if (this.deliverySkillActorMatches(editor) && editor.tags.length) patch({ tagManagerMode: 'delete', tagNotice: '' }); },
       onTagKey: event => { if (event.isComposing || this.state.deliveryEditor?.id !== editor.id) return; if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); this.setDeliveryTagComposer(false, editor.id); } else if (event.key === 'Enter' && event.target?.id === 'forge-delivery-tag-name' && !event.ctrlKey && !event.metaKey) { event.preventDefault(); event.stopPropagation(); this.addDeliveryTag(); } },
       addTag: () => { if (this.state.deliveryEditor?.id === editor.id) this.addDeliveryTag(); },
       uploadSkills: event => { const files = Array.from(event.target.files || []); event.target.value = ''; this.uploadDeliverySkills(files); },

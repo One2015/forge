@@ -1,23 +1,26 @@
-<sc-if value="{{ skillView.available }}" hint-placeholder-val="{{ false }}">
 <section class="forge-review-related-skills" aria-label="相关 Skill">
-  <div class="forge-delivery-section-heading"><h2>相关 Skill</h2><span>{{ skillView.count }} 个</span></div>
-  <p class="forge-delivery-help">来自关联交付单 · 下载为 .md 文件，可导入支持 Skill 的 AI 平台直接使用。</p>
-  <ul class="forge-review-skill-downloads">
-    <sc-for list="{{ skillView.relatedSkills }}" as="relatedSkill" hint-placeholder-count="0">
-      <li><div class="forge-review-skill-download-info"><strong>{{ relatedSkill.name }}</strong><span>{{ relatedSkill.command }}</span><small>{{ relatedSkill.source }}</small></div><button type="button" class="forge-delivery-text-button forge-review-skill-download" aria-label="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">下载 .md</button></li>
-    </sc-for>
-  </ul>
+  <div class="forge-delivery-section-heading"><h2>相关 Skill</h2><sc-if value="{{ skillView.available }}" hint-placeholder-val="{{ false }}"><span>{{ skillView.count }} 个</span></sc-if></div>
+  <sc-if value="{{ skillView.available }}" hint-placeholder-val="{{ false }}">
+    <p class="forge-delivery-help">来自关联交付单 · 下载为 .md 文件，可导入支持 Skill 的 AI 平台直接使用。</p>
+    <ul class="forge-review-skill-downloads">
+      <sc-for list="{{ skillView.relatedSkills }}" as="relatedSkill" hint-placeholder-count="0">
+        <li><div class="forge-review-skill-download-info"><strong>{{ relatedSkill.name }}</strong><span>{{ relatedSkill.command }}</span><small>{{ relatedSkill.source }}</small></div><button type="button" class="forge-delivery-text-button forge-review-skill-download" aria-label="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">下载 .md</button></li>
+      </sc-for>
+    </ul>
+  </sc-if>
+  <sc-if value="{{ skillView.empty }}" hint-placeholder-val="{{ true }}"><div class="forge-review-skill-empty"><strong>暂未关联 Skill</strong><p>当前 Item 没有可用的 Skill。</p></div></sc-if>
   <sc-if value="{{ skillView.downloadError }}" hint-placeholder-val="{{ false }}"><p class="forge-feedback-error" role="alert">{{ skillView.downloadError }}</p></sc-if>
 </section>
+<!-- skill-evaluator:start -->
+<sc-if value="{{ skillView.available }}" hint-placeholder-val="{{ false }}">
 <section class="forge-review-skills" aria-label="Skill 评估会话">
   <div class="forge-delivery-section-heading"><h2>技能评估</h2><span>演示模式</span></div>
-  <sc-if value="{{ skillView.available }}" hint-placeholder-val="{{ false }}">
-    <p class="forge-delivery-help">{{ skillView.count }} 个可用 Skill · 输入 / 或点击选择</p>
-    <div class="forge-review-skill-composer"><input id="{{ skillView.inputId }}" aria-label="Skill 调用命令" value="{{ skillView.text }}" sc-camel-on-change="{{ skillView.onText }}" sc-camel-on-key-down="{{ skillView.onKey }}" placeholder="/3d trajectory 检查模型轨迹" maxlength="1000" autocomplete="off" /><button type="button" class="forge-delivery-primary" disabled="{{ skillView.disabled }}" sc-camel-on-click="{{ skillView.invoke }}">调用</button></div>
-    <div class="forge-review-skill-choices"><sc-for list="{{ skillView.skills }}" as="skill" hint-placeholder-count="0"><button type="button" aria-pressed="{{ skill.selected }}" sc-camel-on-click="{{ skill.pick }}"><strong>{{ skill.command }}</strong><span>{{ skill.source }}</span></button></sc-for></div>
-    <sc-if value="{{ skillView.error }}" hint-placeholder-val="{{ false }}"><p class="forge-feedback-error" role="alert">{{ skillView.error }}</p></sc-if>
-    <p class="forge-delivery-help">仅加载 Skill 和当前 Item / Run；未接入真实评估引擎。</p>
-  </sc-if>
+  <p class="forge-delivery-help">{{ skillView.count }} 个可用 Skill · 输入 / 或点击选择</p>
+  <div class="forge-review-skill-composer"><input id="{{ skillView.inputId }}" aria-label="Skill 调用命令" value="{{ skillView.text }}" sc-camel-on-change="{{ skillView.onText }}" sc-camel-on-key-down="{{ skillView.onKey }}" placeholder="/3d trajectory 检查模型轨迹" maxlength="1000" autocomplete="off" /><button type="button" class="forge-delivery-primary" disabled="{{ skillView.disabled }}" sc-camel-on-click="{{ skillView.invoke }}">调用</button></div>
+  <div class="forge-review-skill-choices"><sc-for list="{{ skillView.skills }}" as="skill" hint-placeholder-count="0"><button type="button" aria-pressed="{{ skill.selected }}" sc-camel-on-click="{{ skill.pick }}"><strong>{{ skill.command }}</strong><span>{{ skill.source }}</span></button></sc-for></div>
+  <sc-if value="{{ skillView.error }}" hint-placeholder-val="{{ false }}"><p class="forge-feedback-error" role="alert">{{ skillView.error }}</p></sc-if>
+  <p class="forge-delivery-help">仅加载 Skill 和当前 Item / Run；未接入真实评估引擎。</p>
   <div class="forge-review-skill-history" aria-live="polite"><sc-for list="{{ skillView.history }}" as="entry" hint-placeholder-count="0"><article><div class="forge-delivery-section-heading"><strong>{{ entry.command }}</strong><time>{{ entry.at }}</time></div><p>已加载 Skill · 演示</p><p class="forge-delivery-help">{{ entry.context }}</p><p class="forge-delivery-help">附加要求：{{ entry.argsLabel }}</p><details><summary>查看本次加载的 Skill</summary><pre>{{ entry.content }}</pre></details><p class="forge-delivery-help">未生成真实评分，正式审核结论未改变。</p></article></sc-for></div>
 </section>
 </sc-if>
+<!-- skill-evaluator:end -->

@@ -253,11 +253,14 @@ test('identity edits preserve account ownership, update sidebar, and revoke edit
   assert(c.profileTasks().every(task => task.assignee === '一万')); assert.equal(c.personalProfileSkills().length, 1);
 });
 
-test('both review surfaces wrap the entire Skill region in a bound-Skill guard', () => {
+test('both preview surfaces keep a Skill empty state and guard only the evaluator', () => {
   for (const [scope, prefix] of [['review','it.skills'], ['sheet','sheet.pick.skills']]) {
     const region = template.split('<!-- ' + scope + '-skill-session:start -->')[1].split('<!-- ' + scope + '-skill-session:end -->')[0].trim();
-    assert(region.startsWith('<sc-if value="{{ ' + prefix + '.available }}"'));
-    assert(region.endsWith('</sc-if>'));
-    assert(!region.includes('暂无已绑定 Skill'));
+    assert(region.startsWith('<section class="forge-review-related-skills"'));
+    assert(region.includes('<sc-if value="{{ ' + prefix + '.empty }}"'));
+    assert(region.includes('暂未关联 Skill'));
+    const evaluator = region.split('<!-- skill-evaluator:start -->')[1].split('<!-- skill-evaluator:end -->')[0].trim();
+    assert(evaluator.startsWith('<sc-if value="{{ ' + prefix + '.available }}"'));
+    assert(evaluator.endsWith('</sc-if>'));
   }
 });

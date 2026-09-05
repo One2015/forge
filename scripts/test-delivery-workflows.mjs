@@ -112,9 +112,20 @@ test('async upload cannot modify a cancelled or replacement editor', async () =>
 });
 
 test('logo reads validated image data, supports removal, and rejects invalid types or image bodies', async () => {
-  const c = component(); begin(c); const file = { name: 'logo.png', type: 'image/png', size: 100 };
+  const c = component(); begin(c); c.patchDeliveryEditor({ customer: '蚂蚁' }); const file = { name: 'logo.png', type: 'image/png', size: 100 };
+  let values = c.deliveryEditorValues();
+  assert(values.logoChoices.some(logo => logo.customer === '蚂蚁'));
+  assert(values.logoChoices.some(logo => logo.customer === '阶跃'));
+  assert.equal(values.logoChoices[0].customer, '蚂蚁');
+  assert.equal(values.logoChoices[0].meta, '当前客户历史 Logo');
+  values.toggleLogoPicker(); assert.equal(c.state.deliveryEditor.logoPickerOpen, true);
+  values = c.deliveryEditorValues(); values.logoChoices.find(logo => logo.customer === '蚂蚁').pick();
+  assert.equal(c.state.deliveryEditor.logo.url, '/supplier-logos/ant.png');
+  assert.equal(c.state.deliveryEditor.logoPickerOpen, false);
+  c.deliveryEditorValues().toggleLogoPicker();
   const pending = c.uploadDeliveryLogo(file); assert(c.deliveryEditorValues().disabled); await pending;
   assert.match(c.state.deliveryEditor.logo.url, /^data:image\/png/);
+  assert.equal(c.state.deliveryEditor.logoPickerOpen, false);
   c.deliveryEditorValues().removeLogo(); assert.equal(c.state.deliveryEditor.logo, null);
   await c.uploadDeliveryLogo({ ...file, type: 'image/svg+xml' }); assert.match(c.state.deliveryEditor.logoError, /PNG/);
   await c.uploadDeliveryLogo({ ...file, invalid: true }); assert.match(c.state.deliveryEditor.logoError, /有效图片/);

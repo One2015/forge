@@ -16,12 +16,24 @@
   }
   pmSelectWizardEntry(key,checked,id) {
     const editor=this.state.deliveryEditor;
-    if(!editor || editor.id!==id || editor.key || editor.listLoading)return;
+    if(!editor || editor.id!==id || editor.listLoading)return;
     const pool=this.pmWizardCandidates(editor);if(!pool.some(row=>row.key===key))return;
     const selected=new Set(editor.entries.map(row=>row.key));if(checked)selected.add(key);else selected.delete(key);
+    this.pmApplyWizardSelection([...selected],id);
+  }
+  pmApplyWizardSelection(keys,id) {
+    const editor=this.state.deliveryEditor;
+    if(!editor || editor.id!==id || editor.listLoading)return;
+    const pool=this.pmWizardCandidates(editor),selected=new Set(keys);
     const rows=pool.filter(row=>selected.has(row.key));
     const entries=editor.importMode==='production'?rows:this.parseDeliveryWizardLines(rows.map(row=>row.source),rows).map((row,index)=>({...rows[index],...row,key:rows[index].key}));
-    this.patchDeliveryEditor({pmWizardPool:pool,entries,productionExcluded:editor.importMode==='production'?pool.filter(row=>!selected.has(row.key)).map(row=>row.itemId):editor.productionExcluded,listText:entries.map(row=>row.source).join('\n'),listChanged:true,error:''},id);
+    this.patchDeliveryEditor({pmWizardPool:pool,pmWizardSelectionTouched:true,entries,productionExcluded:editor.importMode==='production'?pool.filter(row=>!selected.has(row.key)).map(row=>row.itemId):editor.productionExcluded,listText:entries.map(row=>row.source).join('\n'),listChanged:true,error:''},id);
+  }
+  pmSelectAllWizardEntries(id) {
+    this.pmApplyWizardSelection(this.pmWizardCandidates().map(row=>row.key),id);
+  }
+  pmClearWizardEntries(id) {
+    this.pmApplyWizardSelection([],id);
   }
   pmWizardEntryTag(key,tagId,id) {
     const editor=this.state.deliveryEditor;if(!editor || editor.id!==id || editor.listLoading)return;

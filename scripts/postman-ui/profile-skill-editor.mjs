@@ -25,13 +25,21 @@ export function installProfileSkillEditor(t){
  t=t.replace(/<footer class="forge-profile-footer">\s*<p>本地演示 · 刷新后清空<\/p>\s*<\/footer>/,'');
  const toolbar=/<div class="forge-profile-skill-toolbar"><span>个人及数据单 Skill<\/span><label[\s\S]*?<\/label><\/div>/;
  if(!toolbar.test(t))throw Error('Profile Skill toolbar boundary changed');
- const menu=fs.readFileSync(new URL('profile-skill-create-menu.html',import.meta.url),'utf8').replace(/\[\[icon:([\w-]+):(\d+)\]\]/g,(_,name,size)=>fs.readFileSync(new URL('../../assets/phosphor/regular/'+name+'.svg',import.meta.url),'utf8').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="'+size+'" height="'+size+'" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
+ const renderIcons=value=>value.replace(/\[\[icon:([\w-]+):(\d+)\]\]/g,(_,name,size)=>fs.readFileSync(new URL('../../assets/phosphor/regular/'+name+'.svg',import.meta.url),'utf8').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="'+size+'" height="'+size+'" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
+ const menu=renderIcons(fs.readFileSync(new URL('profile-skill-create-menu.html',import.meta.url),'utf8'));
  t=t.replace(toolbar,()=>menu);
+ t=t.replace('<sc-if value="{{ profile.notice }}" hint-placeholder-val="{{ false }}"><p class="forge-profile-skill-notice" role="status">{{ profile.notice }}</p></sc-if>',()=>'<sc-if value="{{ profile.notice }}" hint-placeholder-val="{{ false }}"><div class="pm-profile-skill-confirmation" role="status">'+renderIcons('[[icon:check-circle:18]]')+'<div><p>{{ profile.notice }}</p><small>可从下方打开 Skill，查看详情与关联数据单。</small></div></div></sc-if>');
  t=t.replace('<div class="forge-profile-empty"><h3>还没有 Skill</h3><p>点击「上传 Skill」添加并命名，无需先关联任务。</p></div>','<div class="forge-profile-empty pm-profile-skill-empty"><img src="/postman-ui/illustrations/skill-library-empty.png" width="156" height="156" alt="" /><h3>还没有 Skill</h3><p>点击「创建 Skill」，填写指令或上传文件。</p></div>');
  const start=t.indexOf('<div class="forge-profile-skill-editor" role="group" aria-label="命名和关联 Skill">');
  const end=t.indexOf('\n        </sc-if>\n        <sc-if value="{{ profile.noSkills }}"',start);
  if(start<0 || end<0)throw Error('Profile draft form boundary changed');
- const form=fs.readFileSync(new URL('profile-skill-form.html',import.meta.url),'utf8').replace(/\[\[icon:([\w-]+):(\d+)\]\]/g,(_,name,size)=>fs.readFileSync(new URL('../../assets/phosphor/regular/'+name+'.svg',import.meta.url),'utf8').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="'+size+'" height="'+size+'" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
+ const form=renderIcons(fs.readFileSync(new URL('profile-skill-form.html',import.meta.url),'utf8'));
  t=t.slice(0,start)+form+t.slice(end);
+ const listStart=t.indexOf('<sc-if value="{{ profile.noSkills }}"',start);
+ const listEnd=t.indexOf('</ul>',listStart)+5;
+ if(listStart<0 || listEnd<5)throw Error('Profile Skill list boundary changed');
+ const preview=renderIcons(fs.readFileSync(new URL('profile-skill-preview.html',import.meta.url),'utf8'));
+ const list=t.slice(listStart,listEnd);
+ t=t.slice(0,listStart)+preview+'\n        <sc-if value="{{ profile.showSkillList }}">\n        '+list+'\n        </sc-if>'+t.slice(listEnd);
  return t.replace('  tagForeground(hex) {',fs.readFileSync(new URL('profile-skill-editor-methods.js',import.meta.url),'utf8')+'  tagForeground(hex) {');
 }

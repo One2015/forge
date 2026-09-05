@@ -205,51 +205,70 @@
 @media(max-width:600px){.forge-postman .pm-pipeline-edit-fields{grid-template-columns:minmax(0,1fr) 115px}.forge-postman .pm-pipeline-enabled{grid-column:1/-1}.forge-postman .pm-pipeline-owner-editor footer{padding:12px;gap:6px}.forge-postman .pm-pipeline-owner-editor footer button{padding:6px 8px}}
 
 .forge-postman .forge-wizard-preview{container:pm-wizard-preview / inline-size;min-width:0}
-.forge-postman .forge-wizard-table{display:grid;grid-template-columns:44px minmax(0,1fr) 76px minmax(0,max-content);width:100%;box-sizing:border-box}
+.forge-postman .forge-wizard-table{display:grid;grid-template-columns:44px minmax(0,1fr);width:100%;box-sizing:border-box}
 .forge-postman .forge-wizard-table [role=row]{grid-column:1/-1;grid-template-columns:subgrid;column-gap:10px}
 .forge-postman .forge-wizard-table .pm-wizard-check{display:flex;align-items:center;justify-content:center}
 .forge-postman .forge-wizard-table .pm-wizard-check input{width:16px;height:16px;margin:0;cursor:pointer}
-.forge-postman .forge-wizard-table select.pm-entry-tag-select{field-sizing:content;width:auto!important;min-width:0!important;max-width:180px;padding-inline:8px 24px}
 .forge-postman .forge-wizard-table [role=row].pm-wizard-empty-row{padding:0}
 .forge-postman .forge-wizard-table .forge-wizard-empty{grid-column:1/-1;min-height:112px;display:flex;align-items:center;justify-content:center;padding:24px;line-height:1.7;box-sizing:border-box;overflow-wrap:anywhere}
 .forge-postman .forge-wizard-table .forge-wizard-item>span{white-space:normal;overflow-wrap:anywhere}
 @container pm-wizard-preview (max-width:520px){
  .forge-postman .forge-wizard-table{grid-template-columns:38px minmax(0,1fr)}
  .forge-postman .forge-wizard-table [role=row]{column-gap:8px;padding:12px 10px}
- .forge-postman .forge-wizard-table-head [role=columnheader]:nth-child(n+3){display:block;position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
  .forge-postman .forge-wizard-table-row [role=cell]:nth-child(n){grid-column:2;text-align:left}
  .forge-postman .forge-wizard-table-row .pm-wizard-check{grid-column:1!important;grid-row:1;align-self:start;min-height:20px}
  .forge-postman .forge-wizard-table-row .forge-wizard-item{grid-row:1}
- .forge-postman .forge-wizard-table-row [role=cell]:nth-child(n+3){display:flex;gap:12px;align-items:flex-start}
- .forge-postman .forge-wizard-table-row [role=cell]:nth-child(n+3)::before{content:'匹配状态';flex:0 0 52px;font-size:12px;line-height:22px;color:var(--pm-muted)}
- .forge-postman .forge-wizard-table-row [role=cell]:nth-child(4)::before{content:'Tag';line-height:32px}
- .forge-postman .forge-wizard-table select.pm-entry-tag-select{max-width:100%;white-space:nowrap}
- .forge-postman .forge-wizard-preview .forge-wizard-table .pm-task-tag-picker{max-width:min(180px,100% - 64px);min-width:0}
 }
 
 .forge-postman .forge-wizard-table .pm-wizard-check input{flex:none}
 .forge-postman .forge-wizard-table-head [role=columnheader]:first-child{white-space:nowrap}
+.forge-postman .pm-wizard-preview-heading{display:flex!important;align-items:center;justify-content:space-between!important;flex-wrap:nowrap!important;gap:16px!important;min-width:0;margin-bottom:12px}
+.forge-postman .pm-wizard-preview-title{display:flex;align-items:baseline;gap:10px;min-width:0}
+.forge-postman .pm-wizard-preview-title>h3{flex:none;white-space:nowrap}
+.forge-postman .forge-wizard-preview-summary{display:inline-flex;align-items:baseline;flex:none;width:max-content!important;inline-size:max-content!important;max-width:none;min-width:max-content;margin:0;color:var(--pm-muted);font-size:12px;line-height:20px;white-space:nowrap!important;word-break:normal!important;writing-mode:horizontal-tb!important;overflow:visible}
+.forge-postman .forge-wizard-preview-summary>*{display:inline!important;white-space:inherit!important}
+.forge-postman .pm-wizard-selection-actions{display:flex;align-items:center;gap:8px;flex:none;margin-left:auto}
+.forge-postman .pm-wizard-selection-actions button{min-width:auto;min-height:28px;padding:3px 9px;font-size:12px;line-height:20px;white-space:nowrap;box-shadow:none!important}
+.forge-postman .pm-wizard-selection-actions .pm-wizard-select-all{border:1px solid var(--pm-control)!important;border-radius:4px;background:var(--pm-canvas)!important;color:var(--pm-text)!important}
+.forge-postman .pm-wizard-selection-actions .pm-wizard-clear-selection{padding-inline:3px;border:0!important;background:transparent!important;color:var(--pm-muted)!important}
+.forge-postman .pm-wizard-selection-actions button:disabled{border-color:var(--pm-border)!important;background:var(--pm-subtle)!important;color:var(--forge-disabled-text)!important;opacity:1}
+.forge-postman .pm-wizard-selection-actions .pm-wizard-clear-selection:disabled{background:transparent!important}
+@media(hover:hover) and (pointer:fine){.forge-postman .pm-wizard-selection-actions .pm-wizard-select-all:not(:disabled):hover{border-color:var(--pm-hover-border)!important;background:var(--pm-hover)!important}.forge-postman .pm-wizard-selection-actions .pm-wizard-clear-selection:not(:disabled):hover{background:transparent!important;color:var(--pm-text)!important;text-decoration:underline;text-underline-offset:3px}}
+@container pm-wizard-preview (max-width:420px){.forge-postman .pm-wizard-preview-heading{align-items:flex-start;flex-direction:column;gap:8px!important}.forge-postman .pm-wizard-selection-actions{margin-left:0}}
 .forge-postman .forge-wizard-task-copy strong{align-items:flex-start;flex-wrap:nowrap}
 .forge-postman .forge-wizard-task-copy strong>span{min-width:0;overflow-wrap:anywhere}
+.forge-postman .pm-wizard-task-context{display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap}
+.forge-postman .pm-wizard-task-context>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.forge-postman .pm-wizard-task-context>span[aria-hidden=true]{flex:none;overflow:visible}
 .forge-postman .forge-wizard-upload:focus-within{outline:none;box-shadow:none}
 .forge-postman .forge-wizard-upload input:focus-visible{outline:none!important;box-shadow:none!important}
 .forge-postman .forge-wizard-upload:has(input:focus-visible){outline:1px solid var(--pm-muted);outline-offset:3px;background:var(--pm-subtle)}
 @media(hover:hover) and (pointer:fine){.forge-postman .forge-wizard-upload:not([aria-busy=true]):hover{border-color:var(--pm-muted);background:var(--pm-subtle)}}
 
-.forge-postman .pm-task-tag-picker{position:relative;min-width:0;width:fit-content;max-width:240px;font-size:13px}
-.forge-postman .pm-task-tag-picker>summary{list-style:none;cursor:pointer;min-height:32px;display:flex;align-items:center;gap:8px;border:1px solid var(--pm-control);border-radius:4px;padding:4px 8px;background:var(--pm-canvas);color:var(--pm-text)}
+/* Optional-field text is quiet metadata everywhere, never a status badge. */
+.forge-postman :is(.forge-wizard-optional,.forge-delivery-optional,.pm-photo-optional,.forge-feedback-optional){display:inline!important;margin-left:6px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--pm-muted)!important;font-size:11px!important;line-height:inherit!important;font-weight:400!important;vertical-align:baseline!important;white-space:nowrap}
+
+.forge-postman .pm-task-tag-picker{position:relative;min-width:0;width:min(var(--pm-task-tag-width,140px),100%);max-width:280px;font-size:13px}
+.forge-postman .pm-task-tag-picker>summary{box-sizing:border-box;width:100%;list-style:none;cursor:pointer;min-height:32px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--pm-control);border-radius:4px;padding:4px 8px;background:var(--pm-canvas);color:var(--pm-text)}
 .forge-postman .pm-task-tag-picker>summary::-webkit-details-marker{display:none}
 .forge-postman .pm-task-tag-picker>summary::after{content:'';width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);flex:none;margin:0 3px 3px}
 .forge-postman .pm-task-tag-chips{display:flex;gap:4px;flex-wrap:wrap;min-width:0}
-.forge-postman .pm-task-tag-chip{display:inline-block;background:var(--task-tag-bg,#64748b);color:var(--task-tag-fg,white);border-radius:3px;padding:2px 6px;font-size:12px;line-height:18px;overflow-wrap:anywhere}
-.forge-postman .pm-task-tag-options{position:absolute;right:0;top:calc(100% + 4px);z-index:60;width:max-content;min-width:140px;max-width:min(280px,75vw);max-height:220px;overflow:auto;display:grid;gap:2px;padding:6px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);box-shadow:0 6px 18px #00000014}
+.forge-postman .pm-task-tag-chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;background:color-mix(in srgb,var(--task-tag-bg,#64748b) 16%,white);border:1px solid color-mix(in srgb,var(--task-tag-bg,#64748b) 50%,white);color:color-mix(in srgb,var(--task-tag-bg,#64748b) 65%,#222);border-radius:4px;padding:2px 7px;font-size:12px;line-height:18px;font-weight:400;overflow-wrap:anywhere}
+.forge-postman .pm-task-tag-chip::before{content:'';display:block;flex:none;width:7px;height:7px;border-radius:50%;background:var(--task-tag-bg,#64748b)}
+.forge-postman .pm-task-tag-options{box-sizing:border-box;position:absolute;right:0;top:calc(100% + 4px);z-index:60;width:100%;min-width:100%;max-width:none;max-height:220px;overflow:auto;display:grid;gap:2px;padding:6px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);box-shadow:0 6px 18px #00000014}
 .forge-postman .pm-task-tag-options>label{display:flex!important;align-items:center;gap:8px;padding:5px;cursor:pointer}
-.forge-postman .pm-task-tag-options input[type=checkbox]{width:16px!important;height:16px;flex:none;margin:0}
+.forge-postman .pm-task-tag-options input[type=radio]{width:16px!important;height:16px;flex:none;margin:0;accent-color:var(--pm-text)}
 .forge-postman .forge-wizard-tag-control>.pm-task-tag-picker .pm-task-tag-options{left:0;right:auto}
 .forge-postman .forge-wizard-tag-control{align-items:flex-start;gap:8px}
 .forge-postman .forge-wizard-tag-control>.pm-task-tag-picker{flex:0 1 auto;margin:0}
 .forge-postman .forge-wizard-tag-control :is(.pm-task-tag-picker>summary,#forge-delivery-tag-create){box-sizing:border-box;min-height:32px;height:auto;padding:5px 12px;font-size:13px;font-weight:400;line-height:20px;gap:8px}
 .forge-postman .forge-wizard-tag-control>#forge-delivery-tag-create{flex:none;white-space:nowrap}
+.forge-postman .forge-wizard-rule-heading>#forge-delivery-tag-add{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.forge-postman .pm-wizard-tag-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:0;padding:6px}
+.forge-postman .pm-wizard-tag-option{display:flex!important;align-items:center;gap:8px;min-width:0;padding:7px 8px;border-radius:4px;cursor:pointer}
+.forge-postman .pm-wizard-tag-option[data-selected=true]{background:var(--pm-subtle)}
+.forge-postman .pm-wizard-tag-option input[type=checkbox]{width:16px!important;height:16px;flex:none;margin:0}
+@media(hover:hover) and (pointer:fine){.forge-postman .pm-wizard-tag-option:hover{background:var(--pm-hover)}}
 @media(pointer:coarse){.forge-postman .forge-wizard-tag-control .pm-task-tag-picker>summary{min-height:44px}}
 .forge-postman .forge-wizard-table .pm-task-tag-picker{max-width:180px}
 .forge-postman .pm-task-tag-picker:focus-within>summary{outline:1px solid var(--pm-focus)}

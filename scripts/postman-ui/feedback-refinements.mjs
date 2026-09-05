@@ -20,9 +20,19 @@ export function installFeedbackRefinements(t){
  const start=t.indexOf('<div class="forge-feedback-upload-row">',branch),end=t.indexOf('<sc-if value="{{ branch.hasError }}"',start);
  if(branch<0||start<0||end<start)throw Error('Branch upload boundary changed');
  t=t.slice(0,start)+slots('branch','forge-branch-image-help')+t.slice(end);
- const select=/<select id="forge-branch-item"[\s\S]*?<\/select>/;
- if(!select.test(t))throw Error('Branch Item selector changed');
- t=t.replace(select,()=>icons(read('branch-item-search.html')));
+ const pickerMarkup=(type,prop,label,placeholder)=>icons(read('branch-item-search.html')
+  .replaceAll('PICKER_TYPE',type).replaceAll('PICKER_PROP',prop)
+  .replaceAll('PICKER_SEARCH_LABEL','搜索'+label).replaceAll('PICKER_LIST_LABEL','可选'+label)
+  .replaceAll('PICKER_PLACEHOLDER',placeholder));
+ for(const [type,prop,label,placeholder] of [
+  ['pipeline','pipelinePicker','Pipeline','搜索 Pipeline、Item ID 或 Run ID'],
+  ['dataset','datasetPicker','数据集','搜索数据集、Item ID 或 Run ID'],
+  ['item','itemPicker','Item','搜索 Item 名称、ID 或 Run ID']
+ ]){
+  const select=new RegExp('<select id="forge-branch-'+type+'"[\\s\\S]*?<\\/select>');
+  if(!select.test(t))throw Error('Branch '+label+' selector changed');
+  t=t.replace(select,()=>pickerMarkup(type,prop,label,placeholder));
+ }
  t=t.replace('class Component extends DCLogic {',()=> 'class Component extends DCLogic {\n'+read('branch-item-search.js'));
  t=t.replace('branch: this.branchFormValues(),','branch: this.pmBranchValues(),');
  t=t.replace("      count: images.length + ' / 6', full: images.length >= 6,", "      emptySlots: Array.from({ length: Math.max(0, 6 - images.length) }, (_, index) => ({ position: images.length + index + 1, label: '上传参考图片到第 ' + (images.length + index + 1) + ' 个空位' })), // pm-photo-slots\n      count: images.length + ' / 6', full: images.length >= 6,");
