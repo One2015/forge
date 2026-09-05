@@ -50,7 +50,7 @@ export function buildPostman(source){
  replace('<html><head>','<html lang="zh-CN"><head><title>Forge · Postman UI 优化版</title>');
  t=t.replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>');
  t=t.replace('<body','<body class="forge-postman forge-rbac-prototype"');
- replace('<main class="forge-main"',`<header class="pm-topbar"><span class="pm-brand-dot" aria-hidden="true"></span><strong>Forge</strong><span class="pm-workspace-name">生产与交付工作台</span></header>\n<main class="forge-main"`);
+ replace('<main class="forge-main"',`<header class="pm-topbar"><span class="pm-brand-mark" aria-hidden="true">F</span><strong>Forge</strong><span class="pm-workspace-name">生产与交付工作台</span><div class="pm-topbar-actions" role="group" aria-label="界面偏好"><button type="button" id="forge-density-toggle" class="pm-preference-control" aria-pressed="false"><span aria-hidden="true">↕</span><span data-forge-density-label>紧凑</span></button><button type="button" id="forge-theme-toggle" class="pm-preference-control" aria-pressed="false"><span aria-hidden="true" data-forge-theme-icon>◐</span><span data-forge-theme-label>深色</span></button></div></header>\n<main class="forge-main"`);
  const deliveryStart=t.indexOf('<sc-if value="{{ isDelivery }}"');
  const deliveryEnd=t.indexOf('<sc-if value="{{ isSheet }}"',deliveryStart);
  let delivery=t.slice(deliveryStart,deliveryEnd);
@@ -243,9 +243,10 @@ export function buildPostman(source){
  t=installLoadingStates(t);
  t=installCheckboxMotion(t);
  const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css','loading.css','checkbox-motion.css','empty-states.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
- replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n</style>');
+ replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n/* forge-ui-upgrade: semantic design-system layer */\n'+fs.readFileSync(new URL('public/postman-ui/forge-system.css',root),'utf8')+'\n</style>');
  replace('</head>',[
   '<script type="module" src="/postman-ui/behavior.mjs"></script>',
+  '<script type="module" src="/postman-ui/forge-system.mjs"></script>',
   '<link rel="stylesheet" href="/postman-ui/rbac-prototype.css">',
   '<script src="/postman-ui/rbac-prototype.js" defer></script>',
   '</head>',

@@ -1,53 +1,143 @@
-/* Forge Postman UI. Product-derived values, not an official Aether token export. */
-:root,body.forge-postman .forge-app-shell,body.forge-postman .fg-theme {
-  --pm-canvas:#ffffff; --pm-sidebar:#fcfcfc; --pm-subtle:#fafafa;
-  --pm-border:#e9e9e9; --pm-control:#cccccc; --pm-hover-border:#999999;
-  --pm-text:#222222; --pm-muted:#696969; --pm-faint:#737373;
-  --pm-hover:#f7f7f7; --pm-selected:#ffffff; --pm-pressed:#ededed;
-  --pm-table-heading:var(--pm-subtle); --pm-tab-indicator:var(--pm-focus);
-  --pm-action:#222222; --pm-action-hover:#383838; --pm-action-pressed:#111111;
-  --pm-on-action:#ffffff; --pm-action-border:#222222; --pm-focus:#525252; --pm-focus-width:1px;
-  --pm-nav:#cd3d10; --pm-nav-soft:#ffffff; --pm-brand-soft:#eeeeee;
-  --pm-link:#404040; --pm-link-hover:#222222; --pm-info:#626262; --pm-info-soft:#ffffff;
-  --pm-link-accent:#1769cc; --pm-link-accent-hover:#0d4b99;
-  --pm-action-soft:#ffffff; --pm-brand:#ff4f20; --pm-utility-badge:var(--pm-brand); --pm-utility-unread:#f3f3f3;
-  --pm-brand-deep:#c93612; --pm-brand-mid:#df6947; --pm-brand-light:#f0a18a; --pm-brand-pale:#f5a188;
-  --pm-success:#2c7b46; --pm-success-soft:#ffffff; --pm-success-mark:#41b46a;
-  --pm-warning:#8b6511; --pm-warning-soft:#fff9e8; --pm-warning-mark:#eabb45;
-  --pm-danger:#bf3d4b; --pm-danger-soft:#fff0f2; --pm-danger-mark:#f46b77;
-  --pm-success-border:#aed2ba; --pm-warning-border:#e2ca91; --pm-danger-border:#e6b8bf;
-  --pm-data-1:#afd51c; --pm-data-2:#d6ed77; --pm-data-3:#60a63a; --pm-data-4:#a1d783;
-  --pm-data-soft:#f0f0f0; --pm-data-ink:#476e27; --pm-data-line:#578f31; --pm-data-line-alt:#94a93c;
-  /* Forge chart sequence: brand coral with cool, clear supporting hues. */
+/* Forge Design Tokens
+ * Stripe-inspired product discipline with a Forge-specific ember accent.
+ * The semantic layer is public; pm/forge/fg aliases keep the DCLogic runtime stable.
+ */
+:root,
+:root[data-forge-theme="light"],
+body.forge-postman .forge-app-shell,
+body.forge-postman .fg-theme {
+  color-scheme: light;
+
+  /* Color */
+  --surface-canvas:#f7f8fa; --surface-subtle:#f2f4f7; --surface-raised:#ffffff;
+  --surface-overlay:#ffffff; --surface-inset:#eceff3; --surface-hover:#f4f5f7;
+  --surface-pressed:#eceef2; --surface-selected:#fff7f3; --surface-scrim:rgb(23 27 36 / 34%);
+  --text-primary:#20242c; --text-secondary:#505866; --text-muted:#737b88;
+  --text-disabled:#9aa1ac; --text-inverse:#ffffff; --text-link:#394150; --text-link-hover:#20242c;
+  --border-default:#dfe3e8; --border-subtle:#e9ecf0; --border-strong:#c5cbd3;
+  --accent-primary:#e34f24; --accent-primary-hover:#c9411b; --accent-primary-pressed:#ad3614;
+  --accent-soft:#fff0e9; --accent-soft-hover:#ffe7dc; --focus-ring:#6b73ff; --focus-ring-offset:#ffffff;
+  --status-success:#18794e; --status-success-soft:#eaf7f0; --status-success-border:#b9dec9;
+  --status-warning:#946200; --status-warning-soft:#fff6d8; --status-warning-border:#ead28a;
+  --status-danger:#c62f45; --status-danger-hover:#aa2438; --status-danger-soft:#fff0f2; --status-danger-border:#edb8c0;
+  --status-info:#3569a8; --status-info-soft:#edf5ff; --status-info-border:#bfd4ef;
+  --data-1:#e35a31; --data-2:#547db8; --data-3:#298b7d;
+  --data-4:#7668ad; --data-5:#b85d73; --data-6:#667280;
+
+  /* Typography */
+  --font-sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --type-display-size:clamp(2rem,3vw,2.75rem); --type-display-leading:1.12;
+  --type-page-size:1.5rem; --type-page-leading:2rem;
+  --type-section-size:1rem; --type-section-leading:1.5rem;
+  --type-component-size:.875rem; --type-component-leading:1.25rem;
+  --type-body-size:.8125rem; --type-body-leading:1.25rem;
+  --type-caption-size:.75rem; --type-caption-leading:1.125rem;
+  --weight-regular:400; --weight-medium:550; --weight-semibold:650;
+
+  /* Space */
+  --space-0:0; --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem;
+  --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem; --space-10:2.5rem;
+  --space-12:3rem; --space-16:4rem;
+
+  /* Shape, borders and elevation */
+  --radius-xs:.375rem; --radius-control:.5rem; --radius-surface:.75rem;
+  --radius-dialog:1rem; --radius-pill:999rem; --border-width:1px;
+  --shadow-raised:0 1px 2px rgb(22 27 36 / 5%),0 8px 24px rgb(22 27 36 / 5%);
+  --shadow-overlay:0 12px 36px rgb(22 27 36 / 12%),0 2px 8px rgb(22 27 36 / 7%);
+  --shadow-dialog:0 24px 64px rgb(22 27 36 / 18%),0 3px 12px rgb(22 27 36 / 8%);
+
+  /* Size and density */
+  --size-control-sm:1.75rem; --size-control-md:2rem; --size-control-lg:2.5rem; --size-touch:2.75rem;
+  --sidebar-width:13rem; --sidebar-width-collapsed:4rem; --topbar-height:3rem;
+  --page-max:96rem; --page-gutter:clamp(1.25rem,2.4vw,2.5rem);
+  --page-block-start:clamp(1.75rem,3vw,3rem); --page-block-end:4rem;
+  --density-control-height:var(--size-control-md); --density-row-height:2.75rem; --density-section-gap:var(--space-8);
+
+  /* Motion and stacking */
+  --motion-fast:100ms; --motion-control:140ms; --motion-overlay:180ms; --motion-dialog:220ms;
+  --ease-standard:cubic-bezier(.2,0,0,1); --ease-enter:cubic-bezier(0,0,.2,1); --ease-exit:cubic-bezier(.4,0,1,1);
+  --z-base:0; --z-sticky:20; --z-popover:200; --z-drawer:400; --z-dialog:600; --z-toast:800; --z-topbar:900;
+
+  /* DCLogic compatibility aliases */
+  --pm-canvas:var(--surface-raised); --pm-sidebar:var(--surface-raised); --pm-subtle:var(--surface-subtle);
+  --pm-border:var(--border-subtle); --pm-control:var(--border-default); --pm-hover-border:var(--border-strong);
+  --pm-text:var(--text-primary); --pm-muted:var(--text-secondary); --pm-faint:var(--text-muted);
+  --pm-hover:var(--surface-hover); --pm-selected:var(--surface-raised); --pm-pressed:var(--surface-pressed);
+  --pm-table-heading:var(--surface-subtle); --pm-tab-indicator:var(--accent-primary);
+  --pm-action:var(--text-primary); --pm-action-hover:#343a46; --pm-action-pressed:#151920;
+  --pm-on-action:var(--text-inverse); --pm-action-border:var(--text-primary);
+  --pm-focus:var(--focus-ring); --pm-focus-width:2px;
+  --pm-nav:var(--text-primary); --pm-nav-soft:var(--surface-selected); --pm-brand-soft:var(--accent-soft);
+  --pm-link:var(--text-link); --pm-link-hover:var(--text-link-hover); --pm-info:var(--status-info);
+  --pm-info-soft:var(--status-info-soft); --pm-link-accent:var(--status-info); --pm-link-accent-hover:#285682;
+  --pm-action-soft:var(--surface-raised); --pm-brand:var(--accent-primary); --pm-utility-badge:var(--pm-brand);
+  --pm-utility-unread:var(--surface-selected); --pm-brand-deep:var(--accent-primary-pressed);
+  --pm-brand-mid:#ee7956; --pm-brand-light:#f7ad96; --pm-brand-pale:#ffd4c7;
+  --pm-success:var(--status-success); --pm-success-soft:var(--status-success-soft); --pm-success-mark:#31a46c;
+  --pm-warning:var(--status-warning); --pm-warning-soft:var(--status-warning-soft); --pm-warning-mark:#d99d20;
+  --pm-danger:var(--status-danger); --pm-danger-soft:var(--status-danger-soft); --pm-danger-mark:#e5484d;
+  --pm-success-border:var(--status-success-border); --pm-warning-border:var(--status-warning-border); --pm-danger-border:var(--status-danger-border);
+  --pm-data-1:var(--data-1); --pm-data-2:var(--data-2); --pm-data-3:var(--data-3); --pm-data-4:var(--data-4);
+  --pm-data-soft:var(--surface-subtle); --pm-data-ink:var(--status-success); --pm-data-line:var(--data-3); --pm-data-line-alt:var(--data-2);
   --pm-chart-1:#f06442; --pm-chart-2:#5f8fc7; --pm-chart-3:#4fa69a;
   --pm-chart-4:#8b7fc0; --pm-chart-5:#cf7184; --pm-chart-6:#7f8d9b;
-  --pm-font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-  --pm-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-  --pm-control-height:32px; --pm-radius:4px; --pm-overlay-radius:8px;
-  --pm-title-size:20px; --pm-title-leading:28px;
-  --pm-body-size:13px; --pm-body-leading:20px;
-  --pm-meta-size:12px; --pm-meta-leading:18px;
-  --pm-page-gutter:24px; --pm-page-top:22px; --pm-page-bottom:40px;
-  --pm-space-1:4px; --pm-space-2:8px; --pm-space-3:12px; --pm-space-4:16px; --pm-space-6:24px;
-  --forge-font:var(--pm-font); --forge-text:var(--pm-text); --forge-muted:var(--pm-muted);
-  /* Legacy accent also styles links and metadata; keep it quiet. Primary buttons map explicitly below. */
-  --forge-accent:var(--pm-link); --forge-accent-hover:var(--pm-link-hover); --forge-accent-soft:var(--pm-info-soft);
-  --forge-bg:var(--pm-canvas); --forge-subtle:var(--pm-subtle); --forge-panel:var(--pm-canvas);
-  --forge-border:var(--pm-border); --forge-control-border:var(--pm-control);
-  --forge-surface:var(--pm-canvas); --forge-surface-soft:var(--pm-subtle); --forge-soft:var(--pm-hover);
-  --forge-hover:var(--pm-hover); --forge-pressed:var(--pm-pressed); --forge-selected-hover:#ffffff; --forge-dark-hover:var(--pm-action-hover); --forge-dark-pressed:var(--pm-action-pressed);
-  --forge-success:var(--pm-success); --forge-warning:var(--pm-warning); --forge-danger:var(--pm-danger);
-  --forge-disabled-bg:#f2f2f2; --forge-disabled-text:#767676; --forge-radius-sm:4px; --forge-radius-md:6px;
-  --fg-font:var(--pm-font); --fg-font-mono:var(--pm-mono); --fg-text:var(--pm-text); --fg-text-secondary:var(--pm-muted);
-  --fg-background:var(--pm-canvas); --fg-background-subtle:var(--pm-subtle);
-  --fg-hover:var(--pm-hover); --fg-pressed:var(--pm-pressed); --fg-gray-6:var(--pm-hover-border);
-  --fg-disabled-bg:var(--forge-disabled-bg); --fg-disabled-text:var(--forge-disabled-text); --fg-on-action:var(--pm-on-action);
-  --fg-action:var(--pm-action); --fg-action-hover:var(--pm-action-hover); --fg-action-pressed:var(--pm-action-pressed);
-  --fg-focus:var(--pm-focus); --fg-selection:var(--pm-brand-soft); --fg-info-bg:var(--pm-info-soft);
-  --fg-border:var(--pm-border); --fg-control-border:var(--pm-control); --fg-selected:var(--pm-selected);
-  --fg-control-md:32px; --fg-control-sm:28px; --fg-control-lg:40px; --fg-radius-control:4px; --fg-radius-panel:4px;
-  --fg-heading-md:20px; --fg-heading-sm:18px; --fg-text-md:13px; --fg-leading-heading:28px;
-  --fg-success:var(--pm-success); --fg-danger:var(--pm-danger); --fg-warning:var(--pm-warning); --fg-info:var(--pm-info);
-  --fg-success-bg:var(--pm-canvas); --fg-warning-bg:var(--pm-canvas); --fg-danger-bg:var(--pm-canvas);
-  --fg-chart-1:var(--pm-data-1); --fg-chart-2:var(--pm-data-2); --fg-chart-3:var(--pm-data-3); --fg-chart-4:var(--pm-data-4);
+  --pm-font:var(--font-sans); --pm-mono:var(--font-mono); --pm-control-height:var(--density-control-height);
+  --pm-radius:var(--radius-control); --pm-overlay-radius:var(--radius-surface);
+  --pm-title-size:var(--type-page-size); --pm-title-leading:var(--type-page-leading);
+  --pm-body-size:var(--type-body-size); --pm-body-leading:var(--type-body-leading);
+  --pm-meta-size:var(--type-caption-size); --pm-meta-leading:var(--type-caption-leading);
+  --pm-page-gutter:var(--page-gutter); --pm-page-top:var(--page-block-start); --pm-page-bottom:var(--page-block-end);
+  --pm-space-1:var(--space-1); --pm-space-2:var(--space-2); --pm-space-3:var(--space-3); --pm-space-4:var(--space-4); --pm-space-6:var(--space-6);
+  --forge-font:var(--font-sans); --forge-text:var(--text-primary); --forge-muted:var(--text-secondary);
+  --forge-accent:var(--text-link); --forge-accent-hover:var(--text-link-hover); --forge-accent-soft:var(--accent-soft);
+  --forge-bg:var(--surface-canvas); --forge-subtle:var(--surface-subtle); --forge-panel:var(--surface-raised);
+  --forge-border:var(--border-subtle); --forge-control-border:var(--border-default);
+  --forge-surface:var(--surface-raised); --forge-surface-soft:var(--surface-subtle); --forge-soft:var(--surface-hover);
+  --forge-hover:var(--surface-hover); --forge-pressed:var(--surface-pressed); --forge-selected-hover:var(--surface-selected);
+  --forge-dark-hover:var(--pm-action-hover); --forge-dark-pressed:var(--pm-action-pressed);
+  --forge-success:var(--status-success); --forge-warning:var(--status-warning); --forge-danger:var(--status-danger);
+  --forge-disabled-bg:var(--surface-inset); --forge-disabled-text:var(--text-disabled);
+  --forge-radius-sm:var(--radius-xs); --forge-radius-md:var(--radius-control);
+  --fg-font:var(--font-sans); --fg-font-mono:var(--font-mono); --fg-text:var(--text-primary); --fg-text-secondary:var(--text-secondary);
+  --fg-background:var(--surface-raised); --fg-background-subtle:var(--surface-subtle); --fg-hover:var(--surface-hover); --fg-pressed:var(--surface-pressed);
+  --fg-gray-6:var(--border-strong); --fg-disabled-bg:var(--forge-disabled-bg); --fg-disabled-text:var(--text-disabled); --fg-on-action:var(--text-inverse);
+  --fg-action:var(--text-primary); --fg-action-hover:var(--pm-action-hover); --fg-action-pressed:var(--pm-action-pressed);
+  --fg-focus:var(--focus-ring); --fg-selection:var(--accent-soft); --fg-info-bg:var(--status-info-soft);
+  --fg-border:var(--border-subtle); --fg-control-border:var(--border-default); --fg-selected:var(--surface-raised);
+  --fg-control-md:var(--size-control-md); --fg-control-sm:var(--size-control-sm); --fg-control-lg:var(--size-control-lg);
+  --fg-radius-control:var(--radius-control); --fg-radius-panel:var(--radius-surface);
+  --fg-heading-md:var(--type-page-size); --fg-heading-sm:1.125rem; --fg-text-md:var(--type-body-size); --fg-leading-heading:var(--type-page-leading);
+  --fg-success:var(--status-success); --fg-danger:var(--status-danger); --fg-warning:var(--status-warning); --fg-info:var(--status-info);
+  --fg-success-bg:var(--status-success-soft); --fg-warning-bg:var(--status-warning-soft); --fg-danger-bg:var(--status-danger-soft);
+  --fg-chart-1:var(--data-1); --fg-chart-2:var(--data-2); --fg-chart-3:var(--data-3); --fg-chart-4:var(--data-4);
+}
+
+:root[data-forge-theme="dark"],
+:root[data-forge-theme="dark"] body.forge-postman .forge-app-shell,
+:root[data-forge-theme="dark"] body.forge-postman .fg-theme {
+  color-scheme:dark;
+  --surface-canvas:#111318; --surface-subtle:#181b21; --surface-raised:#1d2027; --surface-overlay:#23272f;
+  --surface-inset:#15181e; --surface-hover:#252932; --surface-pressed:#2d323c; --surface-selected:#2a211e; --surface-scrim:rgb(0 0 0 / 58%);
+  --text-primary:#f1f3f5; --text-secondary:#b9c0ca; --text-muted:#929ba8; --text-disabled:#676f7b;
+  --text-inverse:#15171b; --text-link:#e2e6eb; --text-link-hover:#ffffff;
+  --border-default:#3b414c; --border-subtle:#2c313a; --border-strong:#545c69;
+  --accent-primary:#ff714a; --accent-primary-hover:#ff8868; --accent-primary-pressed:#e95d36;
+  --accent-soft:#3b241d; --accent-soft-hover:#4a2a21; --focus-ring:#9ba3ff; --focus-ring-offset:#111318;
+  --status-success:#5fd39a; --status-success-soft:#173329; --status-success-border:#2d664d;
+  --status-warning:#f2c45d; --status-warning-soft:#372c16; --status-warning-border:#675222;
+  --status-danger:#ff7a8d; --status-danger-hover:#ff9dac; --status-danger-soft:#3c2027; --status-danger-border:#713441;
+  --status-info:#80b9ff; --status-info-soft:#172b43; --status-info-border:#2d5682;
+  --shadow-raised:0 1px 2px rgb(0 0 0 / 22%),0 8px 24px rgb(0 0 0 / 16%);
+  --shadow-overlay:0 14px 40px rgb(0 0 0 / 38%),0 2px 8px rgb(0 0 0 / 24%);
+  --shadow-dialog:0 28px 72px rgb(0 0 0 / 52%),0 3px 12px rgb(0 0 0 / 30%);
+  --pm-action:#f2f4f7; --pm-action-hover:#ffffff; --pm-action-pressed:#dce0e5; --pm-action-border:#f2f4f7; --pm-nav:#ffffff;
+}
+
+:root[data-forge-density="compact"] {
+  --density-control-height:var(--size-control-sm);
+  --density-row-height:2.25rem;
+  --density-section-gap:var(--space-6);
+  --page-block-start:var(--space-6);
+  --page-block-end:var(--space-10);
 }
