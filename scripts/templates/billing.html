@@ -6,7 +6,6 @@
     <div><h1 id="forge-billing-title" tabindex="-1">用量与费用</h1><p>查看昨天花了多少钱、花在哪里、为什么变化，以及需要关注的异常。</p></div>
     <div class="forge-billing-heading-actions"><small class="forge-billing-updated">{{ billing.updated }}</small><button type="button" class="forge-billing-button" disabled="{{ !billing.ready }}" sc-camel-on-click="{{ billing.exportDetails }}">[[icon:download-simple:16]] 导出明细</button><span class="forge-billing-export-notice" role="status">{{ billing.exportNotice }}</span></div>
   </header>
-  <sc-if value="{{ billing.demo }}"><p class="forge-billing-demo"><strong>示例数据</strong><span>当前未接入真实账单，仅供演示。</span></p></sc-if>
   <nav class="forge-billing-tabs" aria-label="费用分析维度"><sc-for list="{{ billing.tabs }}" as="tab"><button type="button" aria-current="{{ tab.current }}" sc-camel-on-click="{{ tab.pick }}">{{ tab.name }}</button></sc-for></nav>
   <div id="forge-billing-calendar" class="forge-billing-popover" popover="auto">
     <header><strong>时间范围</strong><button type="button" class="forge-billing-icon-button" popovertarget="forge-billing-calendar" popovertargetaction="hide" aria-label="关闭时间范围">[[icon:x:16]]</button></header>
