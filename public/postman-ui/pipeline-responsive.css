@@ -12,7 +12,12 @@
 .forge-postman .pm-pipelines-detail{min-width:0;padding:16px!important}
 .forge-postman .pm-pipelines-detail-actions>button{margin-left:0}
 .forge-postman .pm-pipelines-dag{max-width:100%;box-sizing:border-box;overscroll-behavior-x:contain;scrollbar-width:thin}
-.forge-postman .pm-pipelines-version{grid-template-columns:40px minmax(0,1fr) 76px!important;gap:8px 12px!important}
+.forge-postman .pm-pipelines-version{grid-template-columns:40px minmax(0,1fr) 76px 16px!important;gap:8px 12px!important;width:100%;box-sizing:border-box;margin:0;border:0;border-bottom:1px solid var(--pm-border);border-radius:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}
+.forge-postman .pm-pipelines-version:last-child{border-bottom:0}
+.forge-postman .pm-pipelines-version:hover{background:var(--pm-hover)}
+.forge-postman .pm-pipelines-version:focus-visible{position:relative;z-index:1;outline:2px solid var(--pm-focus);outline-offset:-2px}
+.forge-postman .pm-pipelines-version-arrow{align-self:center;color:var(--pm-muted);transition:transform 140ms ease,color 140ms ease}
+.forge-postman .pm-pipelines-version:hover .pm-pipelines-version-arrow{transform:translateX(2px);color:var(--pm-text)}
 @container pm-pipelines (max-width:860px){
  .forge-postman .pm-pipelines-columns{display:none!important}
  .forge-postman .pm-pipelines-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important;padding:16px!important}
@@ -28,10 +33,51 @@
  .forge-postman .pm-pipelines-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}
  .forge-postman .pm-pipelines-filters>div:first-child{flex-basis:100%!important;max-width:none!important}
  .forge-postman .pm-pipelines-detail-actions>button{flex:1 1 auto;min-height:40px;height:auto!important;padding:8px!important;white-space:normal!important}
- .forge-postman .pm-pipelines-version{grid-template-columns:40px minmax(0,1fr)!important}
+ .forge-postman .pm-pipelines-version{grid-template-columns:40px minmax(0,1fr) 16px!important}
  .forge-postman .pm-pipelines-version>div:nth-child(2){grid-column:1/-1;grid-row:2}
- .forge-postman .pm-pipelines-version>div:last-child{grid-column:2;grid-row:1}
+ .forge-postman .pm-pipelines-version-time{grid-column:2;grid-row:1}
+ .forge-postman .pm-pipelines-version-arrow{grid-column:3;grid-row:1}
 }
+
+/* Version rows open a read-only snapshot without changing the current Pipeline. */
+.forge-postman .pm-pipeline-version-dialog{width:min(720px,calc(100vw - 32px))}
+.forge-postman .pm-pipeline-version-dialog header>div{min-width:0}
+.forge-postman .pm-pipeline-version-dialog header p{margin:3px 0 0;color:var(--pm-muted);font-size:12px;overflow-wrap:anywhere}
+.forge-postman .pm-pipeline-version-close{display:inline-flex;align-items:center;justify-content:center;width:32px;min-height:32px!important;padding:0!important;border-color:transparent!important;background:transparent!important;color:var(--pm-muted)!important}
+.forge-postman .pm-pipeline-version-close:hover{background:var(--pm-hover)!important;color:var(--pm-text)!important}
+.forge-postman .pm-pipeline-version-body{display:flex;flex-direction:column;gap:24px}
+.forge-postman .pm-pipeline-version-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin:0;border:1px solid var(--pm-border);border-radius:6px;overflow:hidden;background:var(--pm-border)}
+.forge-postman .pm-pipeline-version-facts>div{min-width:0;padding:12px 14px;background:var(--pm-canvas)}
+.forge-postman .pm-pipeline-version-facts dt{margin-bottom:4px;color:var(--pm-muted);font-size:12px}
+.forge-postman .pm-pipeline-version-facts dd{margin:0;font-size:13px;font-weight:600;overflow-wrap:anywhere}
+.forge-postman :is(.pm-pipeline-version-change,.pm-pipeline-version-snapshot,.pm-pipeline-version-missing) h3{margin:0 0 10px;font-size:14px}
+.forge-postman .pm-pipeline-version-change p{margin:0;color:var(--pm-text);font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+.forge-postman .pm-pipeline-version-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.forge-postman .pm-pipeline-version-section-heading span{color:var(--pm-muted);font-size:12px}
+.forge-postman .pm-pipeline-version-snapshot ol{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.forge-postman .pm-pipeline-version-node{border:1px solid var(--pm-border);border-radius:6px;background:var(--pm-canvas)}
+.forge-postman .pm-pipeline-version-node summary{display:grid;grid-template-columns:24px minmax(0,1fr) auto auto auto;gap:10px;align-items:center;min-height:44px;padding:7px 12px;box-sizing:border-box;cursor:pointer;list-style:none}
+.forge-postman .pm-pipeline-version-node summary::-webkit-details-marker{display:none}
+.forge-postman .pm-pipeline-version-node summary::after{content:'›';grid-column:5;color:var(--pm-muted);font-size:18px;transform:rotate(90deg);transition:transform 140ms ease}
+.forge-postman .pm-pipeline-version-node[open] summary::after{transform:rotate(-90deg)}
+.forge-postman .pm-pipeline-version-node-index{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--pm-subtle);color:var(--pm-muted);font-size:11px}
+.forge-postman .pm-pipeline-version-node code{min-width:0;overflow-wrap:anywhere;font:600 13px/20px var(--pm-mono)}
+.forge-postman .pm-pipeline-version-kind{padding:2px 6px;border-radius:3px;background:var(--pm-subtle);color:var(--pm-muted);font-size:10px;letter-spacing:.05em}
+.forge-postman .pm-pipeline-version-node-status{color:var(--pm-muted);font-size:12px;white-space:nowrap}
+.forge-postman .pm-pipeline-version-node-status[data-enabled=true]{color:var(--pm-success)}
+.forge-postman .pm-pipeline-version-node pre{max-height:240px;overflow:auto;margin:0;padding:14px;border-top:1px solid var(--pm-border);background:var(--pm-subtle);white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.65 var(--pm-mono)}
+.forge-postman .pm-pipeline-version-node>p{margin:0;padding:12px 14px;border-top:1px solid var(--pm-border);color:var(--pm-muted);font-size:12px}
+.forge-postman .pm-pipeline-version-missing{padding:16px;border:1px solid var(--pm-border);border-radius:6px;background:var(--pm-subtle)}
+.forge-postman .pm-pipeline-version-missing p{margin:0;color:var(--pm-muted);font-size:13px;line-height:1.65}
+@media(max-width:600px){
+ .forge-postman .pm-pipeline-version-facts{grid-template-columns:1fr}
+ .forge-postman .pm-pipeline-version-node summary{grid-template-columns:24px minmax(0,1fr) auto auto}
+ .forge-postman .pm-pipeline-version-kind{grid-column:2}
+ .forge-postman .pm-pipeline-version-node-status{grid-column:3;grid-row:1/-1}
+ .forge-postman .pm-pipeline-version-node summary::after{grid-column:4;grid-row:1/-1}
+ .forge-postman .pm-pipeline-version-close{width:44px;min-height:44px!important}
+}
+@media(prefers-reduced-motion:reduce){.forge-postman .pm-pipelines-version-arrow,.forge-postman .pm-pipeline-version-node summary::after{transition:none}}
 /* The editor reserves a flexible canvas below its wrapping toolbar. */
 .forge-postman .pm-pipeline-editor{min-width:0;min-height:0!important;height:calc(100dvh - 40px)!important;overflow:hidden;container-type:inline-size}
 .forge-postman .pm-pipeline-editor>.pm-pipeline-toolbar{display:grid!important;grid-template-columns:minmax(240px,1fr) auto;gap:12px 20px!important;padding:12px 20px!important;min-width:0;box-sizing:border-box;position:relative;z-index:6}

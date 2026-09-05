@@ -31,6 +31,7 @@ import {installListAssociation} from './list-association.mjs';
 import {installSheetInlineAssignment} from './sheet-inline-assignment.mjs';
 import {installDatasetPipelineGuide} from './dataset-pipeline-guide.mjs';
 import {installPipelineOwnerEditor} from './pipeline-owner-editor.mjs';
+import {installPipelineVersionHistory} from './pipeline-version-history.mjs';
 import {installDatasetEditor} from './dataset-editor.mjs';
 import {installEntryTagStyle} from './entry-tag-style.mjs';
 import {installDeliveryBrowser} from './delivery-browser.mjs';
@@ -151,6 +152,7 @@ export function buildPostman(source){
  t=installDatasetPipelineGuide(t);
  t=installDatasetEditor(t);
  t=installPipelineOwnerEditor(t);
+ t=installPipelineVersionHistory(t);
  t=installWizardChecklist(t);
  t=installTaskTags(t);
  t=installDeliveryEditPage(t);
