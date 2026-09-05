@@ -21,6 +21,7 @@ import {installProgressIndicators} from './progress-indicators.mjs';
 import {installModelStatus} from './model-status.mjs';
 import {installLifecyclePhotos} from './lifecycle-photos.mjs';
 import {installAnt200Mock} from './ant200-mock.mjs';
+import {installStepV2WMock} from './stepv2w-mock.mjs';
 import {refineOverviewSummary} from './overview-summary.mjs';
 import {installFeedbackRefinements} from './feedback-refinements.mjs';
 import {installLinkedItemToast} from './linked-item-toast.mjs';
@@ -162,6 +163,7 @@ export function buildPostman(source){
  t=installPipelineNodeDrawer(t);
  replace('<label for="forge-branch-note">本次迭代说明 ', '<label for="forge-branch-note">返工说明 ');
  t=installAnt200Mock(t);
+ t=installStepV2WMock(t);
  t=installItemPreviewPage(t);
  t=installSheetReviewHistory(t);
  t=installProgressIndicators(t);
