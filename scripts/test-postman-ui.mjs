@@ -58,8 +58,9 @@ test('workspace typography and page rhythm share one compact scale',()=>{
  assert.match(built,/\.pm-review-queue \.pq-heading h1\{[^}]*font-size:var\(--pm-title-size\)[^}]*line-height:var\(--pm-title-leading\)/);
  assert.match(built,/\.pm-review-queue \.pq-table-head\{[^}]*font-size:var\(--pm-meta-size\)[^}]*line-height:var\(--pm-meta-leading\)/);
  assert.match(built,/\.forge-postman \.pm-delivery-search\{[^}]*height:var\(--pm-control-height\)/);
- assert.match(built,/\.forge-overview-summary\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
- assert.match(built,/\.forge-overview-signal-grid\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(built,/\.forge-overview-summary\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
+ assert.doesNotMatch(built,/class="forge-overview-signals"/);
+ assert.doesNotMatch(built,/>错误类型</);
  assert.doesNotMatch(built,/class="forge-supplier-performance"/);
 });
 test('workflow indicators distinguish completed, current and upcoming steps',()=>{
