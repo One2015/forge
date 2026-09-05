@@ -54,11 +54,15 @@ test('workspace typography and page rhythm map to semantic Forge tokens',()=>{
  assert.match(built,/--type-page-size:1\.5rem; --type-page-leading:2rem/);
  assert.match(built,/--type-body-size:\.8125rem; --type-body-leading:1\.25rem/);
  assert.match(built,/--pm-page-gutter:var\(--page-gutter\); --pm-page-top:var\(--page-block-start\); --pm-page-bottom:var\(--page-block-end\)/);
+ assert.match(built,/--content-inset:var\(--space-5\); --content-inset-compact:var\(--space-4\); --content-inset-mobile:var\(--space-3\)/);
  assert.match(built,/\.forge-postman \.forge-page,\.forge-postman \.fg-runs\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
  assert.match(built,/\.forge-postman \.pm-review-queue\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
  assert.match(built,/\.pm-review-queue \.pq-heading h1\{[^}]*font-size:var\(--pm-title-size\)[^}]*line-height:var\(--pm-title-leading\)/);
  assert.match(built,/\.pm-review-queue \.pq-table-head\{[^}]*font-size:var\(--pm-meta-size\)[^}]*line-height:var\(--pm-meta-leading\)/);
  assert.match(built,/\.forge-postman \.pm-delivery-search\{[^}]*height:var\(--pm-control-height\)/);
+ assert.match(built,/\.pm-delivery-row\{[^}]*padding:16px var\(--content-inset-compact\)/);
+ assert.match(built,/\.forge-postman \.forge-billing-chart\{[^}]*padding:14px var\(--content-inset\) 8px/);
+ assert.doesNotMatch(built,/\.pm-delivery-row\{[^}]*padding:14px 4px/);
  assert.match(built,/\.forge-overview-summary\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
  assert.doesNotMatch(built,/class="forge-overview-signals"/);
  assert.doesNotMatch(built,/>错误类型</);
@@ -262,7 +266,7 @@ test('pending case actions make rework primary, approval secondary and selected 
  assert.match(built,/data-case=bad\]\{--case-color:var\(--pm-danger\);--case-soft:var\(--pm-danger-soft\)/);
 });
 test('billing keeps one set of chart controls and renders the required stacked distribution',()=>{
- assert.match(built,/\.forge-postman \.forge-billing-metrics>div\{border:0;border-radius:0;padding:0 20px;background:transparent\}/);
+ assert.match(built,/\.forge-postman \.forge-billing-metrics>div\{border:0;border-radius:0;padding:0 var\(--content-inset\);background:transparent\}/);
  assert.match(built,/\.forge-postman \.forge-billing-cost-bar\{background:var\(--pm-focus\)\}/);
  assert.match(built,/id="forge-billing-calendar"/);
  assert.doesNotMatch(built,/<div class="forge-billing-filters">/);

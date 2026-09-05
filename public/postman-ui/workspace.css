@@ -87,7 +87,7 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 .forge-postman .forge-main [style*="border-radius:14px"],.forge-postman .forge-main [style*="border-radius:12px"]{border-radius:4px!important}
 .forge-postman .forge-main [style*="background-image:repeating-linear-gradient"]{background-image:none!important;background-color:var(--pm-hover)!important;border-radius:4px!important}
 .forge-postman .forge-main [style*="border-bottom:1px solid #f4f0ea"]{border-bottom-color:var(--pm-border)!important}
-.forge-postman [data-flow-family=sheetItems]{padding:9px 16px!important;border-left-width:0!important;min-height:58px}
+.forge-postman [data-flow-family=sheetItems]{padding:9px var(--content-inset-compact)!important;border-left-width:0!important;min-height:58px}
 .forge-postman [data-flow-family=sheetItems]>div:first-child{height:32px!important}
 .forge-postman [data-flow-family=sheetItems] [style*="font-weight:600"]{font-weight:500!important;font-size:13px!important}
 .pm-sheet-back{display:inline-flex!important;width:fit-content;align-items:center;gap:5px;margin-bottom:12px!important;min-height:24px}
@@ -96,11 +96,11 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 .pm-sheet-heading>div:first-child{flex:1;min-width:0}
 .pm-sheet-heading>div:first-child>div:last-child{max-width:85ch;line-height:21px;overflow-wrap:anywhere}
 .pm-sheet-heading>div:first-child>div:first-child>div{border:0!important;background:var(--pm-hover)!important;color:var(--pm-muted)!important;border-radius:4px!important;padding:2px 8px!important}
-.pm-sheet-progress{padding:0 var(--space-4) var(--space-5)!important;border:0!important;border-bottom:1px solid var(--pm-border)!important;border-radius:0!important;margin-bottom:20px!important}
+.pm-sheet-progress{padding:0 var(--content-inset-compact) var(--space-5)!important;border:0!important;border-bottom:1px solid var(--pm-border)!important;border-radius:0!important;margin-bottom:20px!important}
 .pm-sheet-metrics{margin-top:14px!important;gap:16px!important}
 .pm-sheet-metrics>div+div{border-left:1px solid var(--pm-border);padding-left:16px}
 .pm-sheet-list{border:1px solid var(--pm-border)!important;border-radius:4px!important;overflow:hidden}
-.pm-sheet-list>div:first-child{padding:10px 12px!important;gap:12px!important}
+.pm-sheet-list>div:first-child{padding:10px var(--content-inset-compact)!important;gap:12px!important}
 .pm-sheet-list [role=status]{background:var(--pm-subtle)!important;border-bottom-color:var(--pm-border)!important;padding-block:8px!important}
 .pm-sheet-list [role=status]>div:first-child{background:transparent!important;border:0!important;color:var(--pm-muted)!important}
 .pm-sheet-list [role=status] button{color:var(--pm-muted)!important;border-color:var(--pm-control)!important}
@@ -165,7 +165,7 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 
 /* Item inspection and inline assignment are separate interactive targets. */
 .forge-postman .pm-sheet-list { overflow-x:auto; }
-.forge-postman .pm-sheet-assignment-grid { display:grid; grid-template-columns:44px minmax(170px,1.3fr) minmax(140px,1fr) 90px 116px 114px; gap:12px; min-width:860px; padding:10px 16px; align-items:center; border-bottom:1px solid var(--pm-border); }
+.forge-postman .pm-sheet-assignment-grid { display:grid; grid-template-columns:44px minmax(170px,1.3fr) minmax(140px,1fr) 90px 116px 114px; gap:12px; min-width:860px; padding:10px var(--content-inset-compact); align-items:center; border-bottom:1px solid var(--pm-border); }
 .forge-postman .pm-sheet-assignment-row { min-height:70px; }
 .forge-postman .pm-sheet-item-open { grid-column:1/5; display:grid; grid-template-columns:subgrid; gap:12px; align-items:center; min-width:0; padding:0!important; margin:0; border:0!important; background:transparent; text-align:left; color:var(--pm-text); font:inherit; cursor:pointer; }
 .forge-postman .pm-sheet-item-open:hover { background:transparent!important; }

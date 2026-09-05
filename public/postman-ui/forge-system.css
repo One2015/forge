@@ -210,7 +210,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
   .forge-postman .pm-page-overview .forge-summary-card:nth-child(-n+3){border-bottom:1px solid var(--border-subtle)!important}
 }
 @media(max-width:760px){
-  :root{--page-gutter:.875rem;--page-block-start:1.25rem;--page-block-end:2.5rem;--sidebar-width:9.5rem}
+  :root{--page-gutter:.875rem;--page-block-start:1.25rem;--page-block-end:2.5rem;--sidebar-width:9.5rem;--content-inset:var(--space-4);--content-inset-compact:var(--space-3)}
   .pm-topbar{padding-inline:.75rem}
   .pm-topbar .pm-workspace-name{display:none}
   .pm-preference-control{min-width:1.875rem;width:1.875rem;padding:0}

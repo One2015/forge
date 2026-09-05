@@ -68,7 +68,7 @@
  .forge-postman .pm-review-queue .pq-table-scroll{max-height:none;overflow:visible}
  .forge-postman .pm-review-queue .pq-table{min-width:0}
  .forge-postman .pm-review-queue .pq-table-head{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0;white-space:nowrap}
- .forge-postman .pm-review-queue .pq-row{grid-template-columns:minmax(220px,1fr) 100px 120px;gap:10px 16px;padding:16px 12px}
+ .forge-postman .pm-review-queue .pq-row{grid-template-columns:minmax(220px,1fr) 100px 120px;gap:10px 16px;padding:16px var(--content-inset-compact)}
  .forge-postman .pm-review-queue .pq-task-cell{grid-column:1;grid-row:1/4}
  .forge-postman .pm-review-queue .pq-task{padding:0;min-height:0;align-items:flex-start}
  .forge-postman .pm-review-queue .pq-thumb{width:56px;height:44px}
@@ -99,7 +99,7 @@
 
 @container pm-sheet-list (max-width:860px){
  .forge-postman .pm-sheet-columns{display:none}
- .forge-postman .pm-sheet-assignment-grid{min-width:0;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:16px}
+ .forge-postman .pm-sheet-assignment-grid{min-width:0;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:var(--content-inset-compact)}
  .forge-postman .pm-sheet-item-open{grid-column:1/-1;grid-template-columns:40px minmax(0,1fr);gap:6px 12px}
  .forge-postman .pm-sheet-item-thumbnail{grid-column:1;grid-row:1/3;align-self:start;height:40px}
  .forge-postman .pm-sheet-item-identity{grid-column:2;gap:4px}
@@ -123,7 +123,7 @@
  .forge-postman .forge-wizard-review>div{grid-template-columns:90px minmax(0,1fr)}
  .forge-postman .pm-assignment-table{min-width:0;grid-template-columns:minmax(0,1fr) max-content}
  .forge-postman .pm-assignment-table .pm-assignment-head{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0}
- .forge-postman .pm-assignment-row{height:auto!important;min-height:0;grid-template-columns:minmax(0,1fr) max-content!important;gap:12px!important;padding:14px 10px!important}
+ .forge-postman .pm-assignment-row{height:auto!important;min-height:0;grid-template-columns:minmax(0,1fr) max-content!important;gap:12px!important;padding:14px var(--content-inset-mobile)!important}
  .forge-postman .pm-assignment-row>div:first-child{grid-column:1/-1}
  .forge-postman .pm-assignment-identity strong{white-space:normal;overflow-wrap:anywhere}
  .forge-postman .pm-allocation-item-id{white-space:normal;overflow-wrap:anywhere}
@@ -143,10 +143,10 @@
 .forge-postman .pm-billing-date-range label{min-width:0}
 .forge-postman .pm-billing-date-range label :is(input,select){width:100%;max-width:100%;box-sizing:border-box}
 @media(max-width:760px){
- .forge-postman :is(.rr-page,.pm-page-run,.pm-review-queue){padding:16px 12px!important}
+ .forge-postman :is(.rr-page,.pm-page-run,.pm-review-queue){padding:16px var(--pm-page-gutter)!important}
  .forge-postman .rr-summary.forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr));--pm-summary-inset:8px}
  .forge-postman .pq-summary.forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr));--pm-summary-inset:8px}
- .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-card{grid-column:auto!important;padding:14px 8px!important;min-height:106px;border-right:1px solid var(--pm-border)}
+ .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-card{grid-column:auto!important;padding:14px var(--content-inset-mobile)!important;min-height:106px;border-right:1px solid var(--pm-border)}
  .forge-postman .rr-summary .forge-summary-card:nth-child(n+3){border-bottom:0}
  .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-card:last-child{border-right:0}
  .forge-postman :is(.rr-summary,.pq-summary) .forge-summary-heading{display:grid;grid-template-columns:minmax(0,1fr) 18px;gap:2px;align-items:center;min-height:24px}
