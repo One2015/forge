@@ -13,6 +13,7 @@ import {installRunRecords} from './run-records.mjs';
 import {removeDeliveryDrafts} from './remove-delivery-drafts.mjs';
 import {installPipelineResponsive} from './pipeline-responsive.mjs';
 import {installItemExplorer} from './item-explorer.mjs';
+import {installItemRunEntryActions} from './item-run-entry-actions.mjs';
 import {installTabs} from './tabs.mjs';
 import {installImportMotion} from './import-motion.mjs';
 import {installGlobalResponsive} from './global-responsive.mjs';
@@ -101,6 +102,7 @@ export function buildPostman(source){
  t=t.replace('&quot;default&quot;:460','&quot;default&quot;:660');
  t=installPipelineResponsive(t);
  t=installItemExplorer(t);
+ t=installItemRunEntryActions(t);
  // Named page hooks avoid coupling the new patterns to inline style strings.
  for (const [flag,name] of [['isOverview','overview'],['isPipelines','pipelines'],['isDatasets','datasets'],['isResources','resources'],['isReview','review'],['isRun','run']]) {
   const i=t.indexOf('<sc-if value="{{ '+flag+' }}"'); const page=t.indexOf('class="forge-page"',i);

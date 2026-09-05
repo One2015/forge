@@ -1,5 +1,6 @@
 import {sheetReviewHistoryCopy} from './postman-ui/sheet-review-history.mjs';
 import {itemPreviewLinkCopy} from './postman-ui/item-preview-page.mjs';
+import {itemRunEntryActionsLogicCopy} from './postman-ui/item-run-entry-actions.mjs';
 import {reviewReferenceSkillCopy} from './postman-ui/review-reference-skills.mjs';
 import {pipelineNodeDrawerCopy} from './postman-ui/pipeline-node-drawer.mjs';
 import {billingDateRangeCopy} from './postman-ui/billing-date-range.mjs';
@@ -187,7 +188,8 @@ test('UI transformation preserves all business methods outside route adaptation'
  const withoutUtilityPanels=utilityPanelLogicCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),logic(built));
  const withoutCheckboxAria=notificationToggleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutUtilityPanels).replace("\n            ariaChecked: n.on ? 'true' : 'false',",'');
  const withoutDeliveryBrowser=deliveryBrowserCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutCheckboxAria).replace(/\n  \/\/ pm-delivery-browser:start[\s\S]*?  \/\/ pm-delivery-browser:end\n/,'');
- assert.equal(normalizeCopy(normalizeModels(strip(withoutDeliveryBrowser))),normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
+ const withoutItemRunEntryActions=itemRunEntryActionsLogicCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutDeliveryBrowser);
+ assert.equal(normalizeCopy(normalizeModels(strip(withoutItemRunEntryActions))),normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
 });
 test('Pipeline checkbox aria state follows enable and disable without opening details',()=>{
  const c=vm.runInContext('new Component()',ctx);
