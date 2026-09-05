@@ -441,6 +441,11 @@ test('model line filters remain explicit, compose without clearing scope, and ex
  assert.doesNotMatch(linesSection,/aria-label="筛选(?:状态|模型供应商|模型|线路)"/);
  assert.match(built,/class="forge-model-impact-filter"/);
  assert.match(built,/运行概览/); assert.doesNotMatch(built,/Benchmark 结果|forge-model-line-comparison|modelStatus\.comparisonRows|modelStatus\.compareTab/);
+ const overviewGrid=built.match(/\.forge-postman \.forge-model-overview-table \[role="row"\]\{grid-template-columns:([^}]+)\}/)[1].trim().split(/\s+/);
+ assert.equal(overviewGrid.length,9);
+ const overviewTable=built.match(/<div class="forge-model-overview-table"[\s\S]*?<\/sc-for><\/div>/)[0];
+ const overviewHeader=overviewTable.match(/<div role="row" class="forge-model-table-head">[\s\S]*?<\/div>/)[0];
+ assert.equal((overviewHeader.match(/<span>/g)||[]).length,9);
 });
 
 
