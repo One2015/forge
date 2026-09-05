@@ -88,6 +88,9 @@ test('frequent issues are grouped by expert team instead of repeating cards', ()
   assert.deepEqual(Array.from(v.issueGroups, group => group.supplier), ['维象制作', '灵犀三维']);
   assert.equal(v.issueGroups[0].count, 2); assert.equal(v.issueGroups[0].items[0].count, 14);
   assert.match(page, /forge-outsourcing-issue-groups/); assert.match(page, /按专家团队归类/);
+  const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
+  assert.match(css, /\.forge-outsourcing-issue-groups\{[^}]*padding:0\}/);
+  assert.match(css, /\.forge-outsourcing-issue-groups>section>div\{border:0;border-radius:0\}/);
 });
 
 test('management tab exposes all required fields and adds an in-memory expert team', () => {
