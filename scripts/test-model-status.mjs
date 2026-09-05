@@ -129,20 +129,21 @@ test('model overview uses explicit metrics, categorical quality and a working us
   assert.match(overviewHtml, /aria-label="模型表现统计时段"/); assert.match(overviewHtml, /row\.latency/); assert.match(overviewHtml, /row\.qualityStatus/); assert.match(overviewHtml, /row\.statusLabel/);
 });
 
-test('error reasons are a standalone affected-route summary with direct drill-down', () => {
+test('error reasons are a filterable percentage summary with direct drill-down', () => {
   const { c } = component(); c.openModelStatus();
   let view = c.modelStatusValues();
   assert.equal(view.errorOverviewRows.length, 4);
-  assert(view.errorOverviewRows.every(row => row.count === '1'));
+  assert.equal(view.errorTotal, '4'); assert(view.errorOverviewRows.every(row => row.count === '1' && row.percentage === '25.0%'));
+  assert.deepEqual(Array.from(view.errorProviderOptions, row => row.name), ['Anthropic', '云桥']);
+  view.onErrorProvider({ target: { value: 'yunqiao' } }); view = c.modelStatusValues(); assert.equal(view.errorProvider, 'yunqiao'); assert.equal(view.errorTotal, '3');
   const downstream = view.errorOverviewRows.find(row => row.id === 'downstream_error');
   assert.equal(downstream.name, '下游供应商报错');
   downstream.open(); view = c.modelStatusValues();
-  assert(view.linesTab); assert.equal(view.filter, 'downstream_error'); assert.equal(view.resultCount, '1 条线路');
+  assert(view.linesTab); assert.equal(view.filter, 'downstream_error'); assert.equal(view.provider, 'yunqiao'); assert.equal(view.resultCount, '1 条线路');
   assert.deepEqual(Array.from(view.rows, row => row.id), ['production-02']);
   const overviewHtml = template.match(/modelStatus\.overviewTab[\s\S]*?modelStatus\.linesTab/)[0];
   assert(!overviewHtml.includes('模型供应商整体表现')); assert(!overviewHtml.includes('providerOverviewRows'));
-  assert.match(overviewHtml, /按当前异常线路归类；同一线路可能包含多个原因/);
-  assert.match(overviewHtml, /forge-model-error-cards/); assert.match(overviewHtml, /row\.count/); assert.match(overviewHtml, /条受影响线路/); assert.match(overviewHtml, /row\.open/);
+  assert.match(overviewHtml, /aria-label="错误原因模型供应商"/); assert.match(overviewHtml, /forge-model-error-list/); assert.match(overviewHtml, /row\.count/); assert.match(overviewHtml, /row\.percentage/); assert.match(overviewHtml, /row\.open/);
 });
 
 test('a selected usage window stays unavailable when live monitoring did not provide it', () => {
@@ -259,8 +260,8 @@ test('benchmark-only evidence is consolidated into the model-lines table', () =>
 test('overview sections use a consistent vertical rhythm', () => {
   assert.match(modelStyles, /\.forge-model-overview\+\.forge-model-table-section\{margin-top:28px\}/);
   assert.match(modelStyles, /\.forge-model-error-summary\{margin-top:28px\}/);
-  assert.match(modelStyles, /\.forge-model-error-cards\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)[^}]*gap:10px/);
-  assert.match(modelStyles, /@media\(max-width:900px\)\{[^}]*\.forge-model-error-cards\{grid-template-columns:repeat\(2,1fr\)/);
+  assert.match(modelStyles, /\.forge-model-error-list button\{[^}]*grid-template-columns:minmax\(0,1fr\) auto/);
+  assert.match(modelStyles, /\.forge-model-error-bar\{[^}]*position:absolute/);
   assert.match(modelStyles, /\.forge-model-lines-section\{margin-top:24px\}/);
   assert.match(modelStyles, /\.forge-model-lines-section>\.forge-model-filters\{margin:0 0 14px\}/);
 });

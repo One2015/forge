@@ -55,7 +55,7 @@ test('supplier, sheet and risk filters update all visible modules and empty stat
   const c = component(); c.openOutsourcingSuppliers();
   assert.equal(c.outsourcingSupplierValues().resetDisabled, true);
   c.outsourcingSupplierValues().onSupplier({ target: { value: 'stepfun' } });
-  let v = c.outsourcingSupplierValues(); assert.equal(v.resetDisabled, false); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '维象制作'); assert(v.issues.every(issue => issue.supplier === '维象制作'));
+  let v = c.outsourcingSupplierValues(); assert.equal(v.resetDisabled, false); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '维象制作'); assert.equal(v.issueTotal, 22); assert.equal(v.issueRows.length, 2);
   v.onSheet({ target: { value: 'ant200' } }); v = c.outsourcingSupplierValues(); assert(!v.hasRows); assert(!v.hasTrend); assert(!v.hasIssues);
   v.reset(); v = c.outsourcingSupplierValues(); assert.equal(v.resetDisabled, true); assert.equal(v.detailRows.length, 3);
   v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.metrics.at(-1).value, 0);
@@ -86,14 +86,16 @@ test('delivery table is concise and supplier names open the merged detail drawer
   v.closeDetail(); assert(!c.outsourcingSupplierValues().detailOpen);
 });
 
-test('frequent issues are grouped by expert team instead of repeating cards', () => {
-  const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
-  assert.deepEqual(Array.from(v.issueGroups, group => group.supplier), ['维象制作', '灵犀三维']);
-  assert.equal(v.issueGroups[0].count, 2); assert.equal(v.issueGroups[0].items[0].count, 14);
-  assert.match(page, /forge-outsourcing-issue-groups/); assert.match(page, /按专家团队归类/);
+test('frequent issues are an aggregate percentage list with an expert filter', () => {
+  const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
+  assert.equal(v.issueTotal, 28); assert.equal(v.issueTypeCount, 3);
+  assert.deepEqual(Array.from(v.issueRows, row => [row.name, row.count, row.percentage]), [['材质与参考图不一致', 14, '50%'], ['交互热点缺失', 8, '28.6%'], ['命名规范不一致', 6, '21.4%']]);
+  v.onIssueSupplier({ target: { value: 'stepfun' } }); v = c.outsourcingSupplierValues();
+  assert.equal(v.issueTotal, 22); assert.deepEqual(Array.from(v.issueRows, row => [row.name, row.percentage]), [['材质与参考图不一致', '63.6%'], ['交互热点缺失', '36.4%']]);
+  assert.match(page, /aria-label="高频问题专家团队"/); assert.match(page, /forge-outsourcing-issue-list/); assert.match(page, /issue\.percentage/);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
-  assert.match(css, /\.forge-outsourcing-issue-groups\{[^}]*padding:0\}/);
-  assert.match(css, /\.forge-outsourcing-issue-groups>section>div\{border:0;border-radius:0\}/);
+  assert.match(css, /\.forge-outsourcing-issue-list article\{[^}]*grid-template-columns:minmax\(0,1fr\) auto/);
+  assert.match(css, /\.forge-outsourcing-issue-bar\{[^}]*position:absolute/);
 });
 
 test('management tab exposes all required fields and adds an in-memory expert team', () => {

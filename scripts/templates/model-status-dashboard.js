@@ -176,14 +176,17 @@
       return { id, name:grouped[0]?.[nameKey]||id, requests:usageKnown?num(calls,0):'—', availability:grouped.filter(line=>line.active&&line.result==='passed').length+' / '+grouped.filter(line=>line.active).length, success:usageKnown&&calls?percent((calls-failures)/calls*100):'—', latency:latencies.length?num(Math.max(...latencies)/1000,2)+'s':'—', speed:speeds.length?num(speeds.reduce((a,b)=>a+b,0)/speeds.length)+' Tokens/s':'—', qualityStatus:qualityStatusFor(grouped), cost:usageKnown?money(cost):'—', unitCost:usageKnown&&calls?money(cost/calls):'—', statusLabel, tone, open:()=>this.setState({modelPageTab:'lines',[key==='modelId'?'modelModel':'modelProvider']:id}) };
     });
     const modelOverviewRows=summarize('modelId','model');
+    const requestedErrorProvider=String(state.modelErrorProvider||''),errorProvider=lines.some(line=>line.providerId===requestedErrorProvider)?requestedErrorProvider:'',errorLines=errorProvider?lines.filter(line=>line.providerId===errorProvider):lines;
+    const errorProviderOptions=Array.from(new Map(lines.filter(line=>line.alertReasonItems?.length).map(line=>[line.providerId,{id:line.providerId,name:line.provider}])).values());
     const errorMap=new Map();
-    lines.forEach(line=>(line.alertReasonItems||[]).forEach(reason=>{
+    errorLines.forEach(line=>(line.alertReasonItems||[]).forEach(reason=>{
       const current=errorMap.get(reason.id)||{id:reason.id,name:reason.label,count:0};
       current.count+=1;
       errorMap.set(reason.id,current);
     }));
-    const errorOverviewRows=Array.from(errorMap.values()).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'zh-CN')).map(row=>({...row,count:num(row.count,0),open:()=>{
-      this.setState({modelPageTab:'lines',modelQuery:'',modelProvider:'',modelModel:'',modelLine:'',modelFilter:row.id,modelBusinessOnly:false,modelSelection:'',modelRoute:'',modelDrawerMode:'',modelChartPoint:null});
+    const errorValues=Array.from(errorMap.values()).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'zh-CN')),errorTotal=errorValues.reduce((n,row)=>n+row.count,0);
+    const errorOverviewRows=errorValues.map((row,index)=>({...row,count:num(row.count,0),percentage:errorTotal?percent(row.count/errorTotal*100):'—',barStyle:'width:'+(errorTotal?Math.max(4,row.count*100/errorTotal):0)+'%',tone:String(index%4+1),open:()=>{
+      this.setState({modelPageTab:'lines',modelQuery:'',modelProvider:errorProvider,modelModel:'',modelLine:'',modelFilter:row.id,modelBusinessOnly:false,modelSelection:'',modelRoute:'',modelDrawerMode:'',modelChartPoint:null});
       setTimeout(()=>{if(typeof document!=='undefined')document.getElementById('forge-model-table-title')?.focus();},0);
     }}));
     const activeLines=lines.filter(line=>line.active), totalCalls=activeLines.reduce((n,line)=>n+(line.calls||0),0), totalFailures=activeLines.reduce((n,line)=>n+(line.failures||0),0), knownLatency=activeLines.filter(line=>line.raw.latency?.metric==='ttft_p95').map(line=>line.latencyMs).filter(Number.isFinite), knownCost=activeLines.reduce((n,line)=>n+(line.costUsd||0),0);
@@ -284,7 +287,7 @@
       closeBilling: () => this.setState({ modelDrawerMode: 'diagnostic' }),
       dismissMessage: () => this.setState({ modelRetestMessage: '' }), message: state.modelRetestMessage || '',
       pageTab, overviewTab:pageTab==='overview', linesTab:pageTab==='lines', pageTabs:[['overview','运行概览'],['lines','模型线路']].map(([id,label])=>({id,label,current:pageTab===id?'page':'false',pick:()=>this.setState({modelPageTab:id,modelSelection:'',modelRoute:'',modelDrawerMode:''})})),
-      overviewMetrics,availabilityMetrics,operationMetrics,overviewWindow,overviewWindowLabel,overviewWindows:overviewWindowDefs.map(([id,label])=>({id,label})),onOverviewWindow:event=>this.setState({modelOverviewWindow:event.target.value}),overviewUsageNote:(usageComplete?'请求量、成功率和总成本按'+overviewWindowLabel+'汇总。':'当前数据源未提供'+overviewWindowLabel+'调用统计。')+' 可用线路指已启用、可路由且最近生成验证通过的线路，分母为已纳入生产的线路；P95 TTFT、生成速度与质量状态采用最近一次检测。',modelOverviewRows,errorOverviewRows,hasErrors:errorOverviewRows.length>0,
+      overviewMetrics,availabilityMetrics,operationMetrics,overviewWindow,overviewWindowLabel,overviewWindows:overviewWindowDefs.map(([id,label])=>({id,label})),onOverviewWindow:event=>this.setState({modelOverviewWindow:event.target.value}),overviewUsageNote:(usageComplete?'请求量、成功率和总成本按'+overviewWindowLabel+'汇总。':'当前数据源未提供'+overviewWindowLabel+'调用统计。')+' 可用线路指已启用、可路由且最近生成验证通过的线路，分母为已纳入生产的线路；P95 TTFT、生成速度与质量状态采用最近一次检测。',modelOverviewRows,errorProvider,errorProviderOptions,onErrorProvider:event=>this.setState({modelErrorProvider:event.target.value}),errorTotal:num(errorTotal,0),errorTypeCount:errorOverviewRows.length,errorOverviewRows,hasErrors:errorOverviewRows.length>0,
       tabs: [['providers', '模型供应商'], ['models', '模型评估']].map(([id, label]) => ({ id, label, selected: state.modelDimension === id, select: () => this.setState({ modelDimension: id }) })),
       providersView: state.modelDimension !== 'models', modelsView: state.modelDimension === 'models', accountTitle: state.modelDimension === 'models' ? '固定集得分' : '账户余额'
     };
