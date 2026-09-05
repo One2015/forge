@@ -49,10 +49,10 @@ test('sidebar utility counts follow the label and use the Forge accent',()=>{
  assert.match(built,/\.forge-postman \.forge-app-shell\[data-sidebar-collapsed=true\] \.forge-sidebar-tool-count\{[^}]*position:absolute[^}]*top:1px[^}]*right:1px[^}]*background:var\(--pm-utility-badge\)/);
  assert.match(built,/--pm-utility-badge:var\(--pm-brand\)/);
 });
-test('workspace typography and page rhythm share one compact scale',()=>{
- assert.match(built,/--pm-title-size:20px; --pm-title-leading:28px;/);
- assert.match(built,/--pm-body-size:13px; --pm-body-leading:20px;/);
- assert.match(built,/--pm-page-gutter:24px; --pm-page-top:22px; --pm-page-bottom:40px;/);
+test('workspace typography and page rhythm map to semantic Forge tokens',()=>{
+ assert.match(built,/--type-page-size:1\.5rem; --type-page-leading:2rem/);
+ assert.match(built,/--type-body-size:\.8125rem; --type-body-leading:1\.25rem/);
+ assert.match(built,/--pm-page-gutter:var\(--page-gutter\); --pm-page-top:var\(--page-block-start\); --pm-page-bottom:var\(--page-block-end\)/);
  assert.match(built,/\.forge-postman \.forge-page,\.forge-postman \.fg-runs\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
  assert.match(built,/\.forge-postman \.pm-review-queue\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
  assert.match(built,/\.pm-review-queue \.pq-heading h1\{[^}]*font-size:var\(--pm-title-size\)[^}]*line-height:var\(--pm-title-leading\)/);

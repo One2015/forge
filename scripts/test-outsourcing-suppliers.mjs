@@ -35,8 +35,8 @@ test('overview card and sidebar open the single external expert destination', ()
     assert.equal(c.state.dlOpen, false); assert.equal(c.state.notifOpen, false);
     assert.equal(c.state.sidebarCollapsed, narrow);
   }
-  const c = component(), supplierCard = c.overviewSignalValues().experts;
-  assert.match(supplierCard.cardLabel, /外部专家表现/); assert.equal(supplierCard.value, 92.4);
+  const c = component(), supplierCard = c.renderVals().over.stats.find(card => card.k === '外部专家表现');
+  assert.match(supplierCard.cardLabel, /外部专家表现/); assert.equal(supplierCard.v, 92.4);
   supplierCard.go(); assert.equal(c.state.view, 'outsourcing-suppliers');
 });
 

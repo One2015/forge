@@ -34,7 +34,7 @@ test('the generated UI keeps the complete semantic table inventory', () => {
   const built = buildPostman(source);
   const template = JSON.parse(built.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
   const labels = [...template.matchAll(/<[^>]+role="table"[^>]*>/g)].map(match => match[0].match(/aria-label="([^"]+)"/)?.[1] || 'comparison');
-  for (const label of ['审核任务列表', '运行记录表格', '同步条目预览', 'Item 审核分配', '实际生产模型线路', '单家供应商交付情况']) {
+  for (const label of ['审核任务列表', '运行记录表格', '同步条目预览', 'Item 审核分配', '实际生产模型线路', '单个专家团队交付情况']) {
     assert(labels.includes(label), label);
   }
   assert(labels.some(label => label.includes('费用明细')));
