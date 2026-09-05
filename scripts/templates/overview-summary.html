@@ -1,19 +1,15 @@
 <!-- overview-summary:start -->
-<section class="forge-overview-summary" aria-label="概览汇总">
-  <sc-for list="{{ over.stats }}" as="s" hint-placeholder-count="5">
-    <article class="forge-summary-card" data-actionable="{{ s.actionable }}">
+<section class="forge-overview-summary" aria-label="概览核心指标">
+  <sc-for list="{{ over.stats }}" as="s" hint-placeholder-count="6">
+    <article class="forge-summary-card" data-actionable="{{ s.actionable }}" aria-label="{{ s.cardLabel }}">
       <div class="forge-summary-heading">
         <h3 class="forge-summary-title">{{ s.k }}</h3>
-        <div class="forge-summary-meta">
-          <span class="forge-summary-help" data-forge-tooltip="{{ s.description }}" data-tooltip-label="{{ s.k }}说明">
-            <button type="button" class="forge-summary-info" data-tooltip-fallback="true" aria-label="{{ s.k }}说明：{{ s.description }}" title="{{ s.description }}">[[icon:info:16]]</button>
-          </span>
-        </div>
+        <span class="forge-summary-help" data-forge-tooltip="{{ s.description }}" data-tooltip-label="{{ s.k }}说明">
+          <button type="button" class="forge-summary-info" data-tooltip-fallback="true" aria-label="{{ s.k }}说明：{{ s.description }}" title="{{ s.description }}">[[icon:info:16]]</button>
+        </span>
       </div>
       <div class="forge-summary-value" style="color:{{ s.fg }}"><strong>{{ s.v }}</strong><span>{{ s.unit }}</span></div>
-          <p class="forge-summary-note" title="{{ s.note }}">{{ s.note }}</p>
-          <sc-if value="{{ s.detail }}"><p class="forge-summary-model-detail">{{ s.detail }}</p></sc-if>
-          <sc-if value="{{ s.checked }}"><small class="forge-summary-model-checked">{{ s.checked }}</small></sc-if>
+      <sc-if value="{{ s.auxiliary }}"><p class="forge-summary-auxiliary">{{ s.auxiliary }}</p></sc-if>
       <sc-if value="{{ s.actionable }}" hint-placeholder-val="{{ true }}"><button type="button" class="forge-summary-link" sc-camel-on-click="{{ s.go }}" aria-label="{{ s.actionLabel }}"></button></sc-if>
     </article>
   </sc-for>

@@ -60,11 +60,11 @@ test('all main pages, details, filters and utility panels have stable round trip
     '/production/submitted', '/production/submitted?run=run-1', '/production/pipelines?status=archived&q=test', '/production/pipelines/demo?status=all',
     '/production/pipelines/demo/edit?node=build', '/production/datasets', '/production/datasets/demo?version=v2&pipeline=build&q=item',
     '/production/resources', '/review/pending?run=run-1&owner=mine&sort=oldest&q=item', '/review/results',
-    '/review/run-1/items/item-1?phase=results&tab=files', '/delivery?category=Web3D&sort=oldest', '/delivery/new#skills',
+    '/review/run-1/items/item-1?phase=results&tab=files', '/delivery?category=Web3D&status=unmet&sort=oldest', '/delivery/new#skills',
     '/delivery/new?draft=local-1#list', '/delivery/ant200?status=review&q=item&tag=重点', '/delivery/ant200/items/item-1',
     '/delivery/ant200/edit#skills', '/delivery/ant200/edit#tags', '/items/item-1?run=run-1&sheet=ant200&from=review',
     '/billing/models?preset=custom&start=2026-08-01&end=2026-08-31&grain=hour&provider=Anthropic&model=claude&project=web3d&sort=tokens',
-    '/billing/suppliers', '/billing/projects?metric=calls&sort=calls&direction=asc&page=2&pageSize=5&search=web&bin=2026-09-02T15', '/models?provider=test&status=attention&q=model', '/models?dimension=models&status=slow&selection=claude&route=yq-claude', '/models?source=live', '/overview?panel=downloads',
+    '/billing/suppliers', '/billing/projects?metric=calls&sort=calls&direction=asc&page=2&pageSize=5&search=web&bin=2026-09-02T15', '/models?provider=test&status=attention&q=model', '/models?dimension=models&status=slow&selection=claude&route=yq-claude', '/models?source=live', '/models?tab=compare', '/outsourcing-suppliers', '/outsourcing-suppliers/stepfun?sheet=step300&risk=high&cycle=7d', '/outsourcing-suppliers?tab=management', '/overview?panel=downloads',
     '/overview?panel=notifications', '/overview?panel=profile&profile=skills',
   ]) {
     const route = codec.read(url); assert.equal(route.error, '', url);
@@ -72,6 +72,8 @@ test('all main pages, details, filters and utility panels have stable round trip
     sameURL(codec.write(route.patch), url);
   }
   assert.equal(codec.read('/delivery').patch.delCat, 'all');
+  assert.equal(codec.read('/delivery').patch.delStatus, 'all');
+  assert.equal(codec.read('/delivery?status=unmet').patch.delStatus, 'unmet');
   assert.equal(codec.read('/delivery').patch.delSort, 'newest');
 });
 
@@ -83,7 +85,7 @@ test('aliases and legacy bookmarks resolve without replaying approval or mutatio
 });
 
 test('invalid paths and encoded separators cannot navigate to a foreign origin', () => {
-  for (const input of ['/oops', '/forge.html/oops', '/delivery/a/items', '/production/pipelines/a/delete', '/models/oops', '/items/%E0%A4%A', '/items/%2froot', '//evil.test', 'https://evil.test', '/\\evil.test', '/items/%00']) {
+  for (const input of ['/oops', '/forge.html/oops', '/delivery/a/items', '/production/pipelines/a/delete', '/models/oops', '/outsourcing-suppliers/a/b', '/items/%E0%A4%A', '/items/%2froot', '//evil.test', 'https://evil.test', '/\\evil.test', '/items/%00']) {
     const route = codec.read(input); assert(route.error, input);
     assert.equal(route.patch.view, 'route-error');
     assert.equal(new URL(codec.write(route.patch), 'http://localhost:3007').origin, 'http://localhost:3007');

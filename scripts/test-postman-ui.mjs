@@ -15,6 +15,7 @@ import {listAssociationCopy} from './postman-ui/list-association.mjs';
 import {entryTagStyleCopy} from './postman-ui/entry-tag-style.mjs';
 import {deliveryBrowserCopy} from './postman-ui/delivery-browser.mjs';
 import {notificationToggleCopy} from './postman-ui/notification-toggle.mjs';
+import {utilityPanelLogicCopy} from './postman-ui/utility-panels.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -42,23 +43,46 @@ test('task Tag picker closes when a click continues outside it',()=>{
  assert.match(behaviorSource,/if\(!picker\.contains\(event\.target\)\)picker\.removeAttribute\('open'\)/);
 });
 test('sidebar utility counts follow the label and use the Forge accent',()=>{
- assert.match(built,/\.forge-postman \.forge-app-shell\[data-sidebar-collapsed=false\] \.forge-sidebar-tool-count\{[^}]*position:static[^}]*margin:0[^}]*background:var\(--pm-utility-badge\)/);
+ assert.match(built,/\.forge-postman \.forge-app-shell\[data-sidebar-collapsed=false\] \.forge-sidebar-tool-count\{[^}]*position:static[^}]*margin:0 0 0 12px[^}]*background:var\(--pm-utility-badge\)/);
  assert.match(built,/\.forge-postman \.forge-app-shell\[data-sidebar-collapsed=true\] \.forge-sidebar-tool-count\{[^}]*position:absolute[^}]*top:1px[^}]*right:1px[^}]*background:var\(--pm-utility-badge\)/);
  assert.match(built,/--pm-utility-badge:var\(--pm-brand\)/);
 });
-test('message and download rows share unread elevation that clears after reading or completion',()=>{
+test('workspace typography and page rhythm share one compact scale',()=>{
+ assert.match(built,/--pm-title-size:20px; --pm-title-leading:28px;/);
+ assert.match(built,/--pm-body-size:13px; --pm-body-leading:20px;/);
+ assert.match(built,/--pm-page-gutter:24px; --pm-page-top:22px; --pm-page-bottom:40px;/);
+ assert.match(built,/\.forge-postman \.forge-page,\.forge-postman \.fg-runs\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
+ assert.match(built,/\.forge-postman \.pm-review-queue\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
+ assert.match(built,/\.pm-review-queue \.pq-heading h1\{[^}]*font-size:var\(--pm-title-size\)[^}]*line-height:var\(--pm-title-leading\)/);
+ assert.match(built,/\.pm-review-queue \.pq-table-head\{[^}]*font-size:var\(--pm-meta-size\)[^}]*line-height:var\(--pm-meta-leading\)/);
+ assert.match(built,/\.forge-postman \.pm-delivery-search\{[^}]*height:var\(--pm-control-height\)/);
+ assert.match(built,/\.forge-overview-summary\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
+ assert.doesNotMatch(built,/class="forge-supplier-performance"/);
+});
+test('utility rows clear unread elevation after viewing and download states use one contextual action',()=>{
  const panels=built.slice(built.indexOf('id="forge-download-panel"'),built.indexOf('<!-- forge-sidebar-floating-panels:end -->'));
- assert.match(panels,/class="pm-utility-row pm-download-row" data-unread="\{\{ d\.notDone \}\}"/);
+ assert.match(panels,/class="pm-utility-row pm-download-row" data-unread="\{\{ d\.unread \}\}"/);
  assert.match(panels,/class="pm-utility-row pm-notification-row" data-unread="\{\{ n\.weight === '600' \}\}"/);
  assert.match(built,/\.forge-postman \.pm-utility-row\[data-unread=true\]\{[^}]*background:var\(--pm-utility-unread\)!important;box-shadow:0 2px 7px rgba\(20,20,20,\.08\)!important/);
  assert.match(built,/\.forge-postman \.pm-utility-row\[data-unread=false\]\{background:transparent!important;box-shadow:none!important\}/);
+ assert.match(panels,/class="pm-download-progress"[^>]*aria-label="\{\{ d\.state \}\} \{\{ d\.pct \}\}"/);
+ assert.match(panels,/sc-camel-on-click="\{\{ d\.cancelPacking \}\}"[^>]*>取消打包<\/button>/);
+ assert.match(panels,/sc-camel-on-click="\{\{ d\.stopDownload \}\}"[^>]*>停止<\/button>/);
+ assert.doesNotMatch(panels,/>暂停<\/div>|>继续<\/div>|从列表移除/);
+ assert.match(built,/\.forge-postman \.forge-sidebar-popover-list\{display:grid;gap:8px;padding:8px/);
+ assert.match(built,/\.forge-postman \.pm-download-state\{[^}]*background:transparent!important/);
  const c=vm.runInContext('new Component()',ctx);
  let notification=c.renderVals().notif.items[0]; assert.equal(notification.weight,'600');
  notification.go();
  notification=c.renderVals().notif.items.find(item=>item.title.includes('天坛')); assert.equal(notification.weight,'400');
- let download=c.renderVals().dl.items.find(item=>item.isRunning); assert.equal(download.notDone,true);
- c.setState({dlState:{d1:'done'}});
- download=c.renderVals().dl.items.find(item=>item.name.includes('统一导出')); assert.equal(download.notDone,false);
+ let downloads=c.renderVals().dl;
+ assert(downloads.items.every(item=>item.unread));
+ downloads.toggle(); downloads=c.renderVals().dl;
+ assert(downloads.open); assert(downloads.items.every(item=>!item.unread));
+ const packing=downloads.items.find(item=>item.isPacking); assert(packing.canCancelPacking&&!packing.canStopDownload);
+ const downloading=downloads.items.find(item=>item.isDownloading); assert(downloading.canStopDownload&&!downloading.canCancelPacking);
+ downloading.stopDownload({stopPropagation(){}});
+ assert(c.renderVals().dl.items.find(item=>item.name.includes('天坛')).isDone);
 });
 test('current sidebar route keeps its selected treatment without a dark focus frame',()=>{
  assert.match(built,/\.forge-postman \.forge-app-shell \.forge-sidebar \.forge-sidebar-link\[aria-current=page\]:focus-visible\{outline:0!important;box-shadow:none!important\}/);
@@ -147,7 +171,8 @@ test('UI transformation preserves all business methods outside route adaptation'
  const normalizeCopy=beforeDrawer=>{const beforeDates=pipelineNodeDrawerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeDrawer).replace(/  \/\/ pm-pipeline-node-drawer:start[\s\S]*?  \/\/ pm-pipeline-node-drawer:end\n/,'');const beforeProfile=billingDateRangeCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeDates).replace(/  \/\/ pm-billing-date-range:start[\s\S]*?  \/\/ pm-billing-date-range:end\n/,'');const beforeEditPage=profileSkillEditorCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeProfile).replace(/  \/\/ pm-profile-skill-editor:start[\s\S]*?  \/\/ pm-profile-skill-editor:end\n/,'');const beforeTaskTags=beforeEditPage.includes('const page = true;')?deliveryEditPageCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeEditPage):beforeEditPage;const beforeChecklist=taskTagCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeTaskTags).replace(/  \/\/ pm-task-tags:start[\s\S]*?  \/\/ pm-task-tags:end\n/,'');const beforeOwner=wizardChecklistCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeChecklist).replace(/  \/\/ pm-wizard-checklist:start[\s\S]*?  \/\/ pm-wizard-checklist:end\n/,'');const beforeEditor=pipelineOwnerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeOwner).replace(/  \/\/ pm-pipeline-owner:start[\s\S]*?  \/\/ pm-pipeline-owner:end\n/,''); const sourceInput=datasetEditorCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeEditor).replace(/  \/\/ pm-dataset-editor:start[\s\S]*?  \/\/ pm-dataset-editor:end\n/,''); const originalInput=datasetPipelineCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),sourceInput).replace(/  \/\/ pm-dataset-pipeline-guide:start[\s\S]*?  \/\/ pm-dataset-pipeline-guide:end\n/,''); const raw=sheetInlineCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),originalInput).replace(/  \/\/ pm-sheet-inline:start[\s\S]*?  \/\/ pm-sheet-inline:end\n/,''); const input=listAssociationCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),raw).replace(/  \/\/ pm-list-association:start[\s\S]*?  \/\/ pm-list-association:end\n/,''); const s=entryTagStyleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),input).replace(/  \/\/ pm-entry-tag-style:start[\s\S]*?  \/\/ pm-entry-tag-style:end\n/,'');return linkedItemToastCopy.reduce((text,[from,to])=>text.replace(to,()=>from),overviewSummaryCopy.reduce((text,[from,to])=>text.replace(from,()=>to),reviewAllocationCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),ant200MockCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),lifecyclePhotoCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),s))))).replace(/\n  \/\/ pm-branch-search:start[\s\S]*?  \/\/ pm-branch-search:end\n/,'').replace('branch: this.pmBranchValues(),','branch: this.branchFormValues(),').replace(/^.*\/\/ pm-photo-slots\n/gm,'').replace(/\n\n  \/\/ pm-lifecycle-photos:start[\s\S]*?  \/\/ pm-lifecycle-photos:end\n/,'');};
  // This presentation field exposes the existing enabled state to assistive
  // technology; the enabled-state calculation and toggle callback stay intact.
- const withoutCheckboxAria=notificationToggleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),logic(built)).replace("\n            ariaChecked: n.on ? 'true' : 'false',",'');
+ const withoutUtilityPanels=utilityPanelLogicCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),logic(built));
+ const withoutCheckboxAria=notificationToggleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutUtilityPanels).replace("\n            ariaChecked: n.on ? 'true' : 'false',",'');
  const withoutDeliveryBrowser=deliveryBrowserCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutCheckboxAria).replace(/\n  \/\/ pm-delivery-browser:start[\s\S]*?  \/\/ pm-delivery-browser:end\n/,'');
  assert.equal(normalizeCopy(normalizeModels(strip(withoutDeliveryBrowser))),normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
 });
@@ -187,12 +212,14 @@ test('pending case actions make rework primary, approval secondary and selected 
  assert.match(built,/data-case=good\]\{--case-color:var\(--pm-success\);--case-soft:var\(--pm-success-soft\)/);
  assert.match(built,/data-case=bad\]\{--case-color:var\(--pm-danger\);--case-soft:var\(--pm-danger-soft\)/);
 });
-test('billing uses a gray cost chart with dimensions controlled by tabs',()=>{
+test('billing keeps the complete filters and renders the required stacked distribution',()=>{
  assert.match(built,/\.forge-postman \.forge-billing-metrics>div\{border:0;border-radius:0;padding:0 20px;background:transparent\}/);
  assert.match(built,/\.forge-postman \.forge-billing-cost-bar\{background:var\(--pm-focus\)\}/);
- assert.doesNotMatch(built,/<div class="forge-billing-filters">/);
- assert.doesNotMatch(built,/id="forge-billing-calendar"/);
- assert.match(built,/{{ billing.period }} · USD · 北京时间 UTC\+8/);
+ assert.match(built,/<div class="forge-billing-filters">/);
+ assert.match(built,/id="forge-billing-calendar"/);
+assert.match(built,/USD · \{\{ billing\.timezoneLabel \}\}/);
+ assert.match(built,/class="forge-billing-stack"/);
+ assert.match(built,/较前日变化原因/); assert.match(built,/异常成本 Run/);
  assert.match(built,/\.forge-postman \.forge-billing-segment button\[aria-pressed=true\]\{background:var\(--pm-selected\)!important;color:var\(--pm-text\)!important/);
 });
 test('every major legacy surface has a stable Postman page hook',()=>{
@@ -348,22 +375,21 @@ for (const scope of ['sheet', 'branch']) test(scope+' accepts eight reference im
  view=c.feedbackView(key);assert.equal(view.images.length,8);assert.equal(view.images[7].name,'photo-replacement.png');assert.equal(view.remaining,0);
 });
 
-test('model summary and pending shortcut preserve complete results without hidden impact filters',()=>{
+test('model line filters remain explicit and the pending shortcut preserves the current model scope',()=>{
  const c=vm.runInContext('new Component()',ctx);
  Object.assign(c.state,ctx.codec.read('/models?model=claude-sonnet').patch,{modelBusinessOnly:true});
  let view=c.modelStatusValues();
- assert.equal(view.businessOnly,false);
- assert.equal(view.lines.length,3);
+ assert.equal(view.businessOnly,true);
+ assert(view.lines.every(line=>line.modelId==='claude-sonnet'));
  view.showIssues(); view=c.modelStatusValues();
  assert.equal(view.filter,'attention');
- assert.equal(view.model,'');
- assert.equal(view.lines.length,5);
+ assert.equal(view.model,'claude-sonnet');
+ assert(view.lines.every(line=>line.modelId==='claude-sonnet'));
  assert.equal(view.lines.some(line=>line.statusKey==='normal'),false);
- const header=built.match(/<div class="forge-model-table-head"[^>]*>(.*?)<\/div>/)[1];
- assert.equal((header.match(/role="columnheader"/g)||[]).length,9);
- assert.doesNotMatch(header,/操作|供应商 \/ 模型/);
- assert.doesNotMatch(built,/<(?:div|label)[^>]+class="forge-model-(?:actions|impact-filter)"/);
- assert.match(built,/class="pm-model-summary forge-overview-summary"/);
+ const routeTable=built.match(/<div class="forge-model-table forge-model-routes-table"[\s\S]*?<\/div><\/div><\/section>/)[0];
+ for(const label of ['模型供应商','模型','线路','P95 TTFT','Tokens\/s','成功 \/ 错误率','质量','单次成本','余额 \/ 可用时间','运行任务 \/ 影响'])assert(routeTable.includes(label));
+ assert.match(built,/class="forge-model-impact-filter"/);
+ assert.match(built,/运行概览/); assert.match(built,/线路对比测试/);
 });
 
 

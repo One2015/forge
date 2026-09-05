@@ -15,7 +15,8 @@
     "postman-ui": "node scripts/build-turbine-preview.mjs && node scripts/postman-ui/build.mjs",
     "dev:postman": "VINEXT_NO_DEV_LOCK=1 npm run dev -- --hostname 127.0.0.1 --port 3011",
     "build:postman": "npm run build",
-    "prepare:ui": "npm run routes && node scripts/build-summary-tooltips.mjs && node scripts/build-artifact-preview.mjs && npm run postman-ui"
+    "sync:analytics": "node scripts/update-billing.mjs && node scripts/update-model-status.mjs && node scripts/update-outsourcing-suppliers.mjs && node scripts/update-forge-sidebar.mjs",
+    "prepare:ui": "npm run routes && npm run sync:analytics && node scripts/build-summary-tooltips.mjs && node scripts/build-artifact-preview.mjs && npm run postman-ui"
   },
   "dependencies": {
     "@google/model-viewer": "^4.3.1",

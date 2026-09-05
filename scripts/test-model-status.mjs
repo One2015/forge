@@ -6,6 +6,7 @@ import { updateModelStatus } from './update-model-status.mjs';
 import { updateDeliverySkillWorkspace } from './update-delivery-skill-workspace.mjs';
 
 const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
+const modelStyles = fs.readFileSync(new URL('./templates/model-status.css', import.meta.url), 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const NOW = Date.UTC(2026, 8, 2, 12);
@@ -45,7 +46,7 @@ test('percentage is deduplicated by production model, not supplier or protocol c
   const payload = data([model('a'), model('a'), model('b'), model('c'), model('off', { enabled: false })], [route('r1', 'a'), route('r1', 'a'), route('r2', 'a', 'p', { outcome: 'failed' }), route('r3', 'b', 'p', { outcome: 'failed' }), route('r4', 'c', 'p', { outcome: 'failed' }), route('r5', 'off')]);
   const result = snap(payload); assert.equal(result.rate, 33.3); assert.equal(result.total, 3); assert.equal(result.available, 1); assert.equal(result.unavailable, 2); assert.equal(result.rows.length, 5);
   const { c } = component(payload), card = c.overviewSummary([], [])[4];
-  assert.equal(card.v, result.rate); assert.equal(card.unit, '% 当前可用'); assert.equal(card.note, '1 / 3 个模型可用');
+  assert.equal(card.v, result.rate); assert.equal(Object.hasOwn(card, 'prefix'), false); assert.equal(card.unit, '%'); assert.equal(card.auxiliary, '1 / 3 个模型可用');
 });
 
 test('a working production route keeps a model available, failed stopped protocols do not count', () => {
@@ -158,11 +159,24 @@ test('freshness expires while the page is open and interval is cleaned up', () =
 
 test('native controls, labelled metrics, empty states and safe evidence rendering are present', () => {
   const html = template.match(/<!-- model-status:start -->[\s\S]*?<!-- model-status:end -->/)[0];
-  assert.match(html, /id="forge-model-title" tabindex="-1"/); assert.match(html, /class="forge-model-table" role="table"/); assert.match(html, /<dl class="forge-model-drawer-metrics">/);
-  assert.match(html, /role="dialog"/); assert.match(html, /data-chart="model-trend"/); assert.match(html, /aria-label="供应商筛选"/);
-  assert.match(html, /模型监控待接入/); assert.match(html, /示例操作不会自动切换生产线路/); assert(!html.includes('innerHTML')); assert(!html.includes('80%')); assert(!html.includes('重测</button>'));
+  assert.match(html, /id="forge-model-title" tabindex="-1"/); assert.match(html, /class="forge-model-table forge-model-routes-table" role="table"/); assert.match(html, /<dl class="forge-model-drawer-metrics">/);
+  assert.match(html, /role="dialog"/); assert.match(html, /data-chart="model-trend"/); assert.match(html, /aria-label="模型供应商筛选"/);
+  assert.doesNotMatch(html, /forge-model-demo-badge/);
+  assert.match(html, /模型监控待接入/); assert.match(html, /页面不会自动切换生产线路/); assert(!html.includes('innerHTML')); assert(!html.includes('80%')); assert(!html.includes('重测</button>'));
   const methods = fs.readFileSync(new URL('./templates/model-status-methods.js', import.meta.url), 'utf8');
   assert(!/fetch\(|XMLHttpRequest|localStorage|sessionStorage/.test(methods));
+});
+
+test('comparison intro is borderless and uses explicit section spacing', () => {
+  assert.match(modelStyles, /\.forge-model-compare-intro\{[^}]*margin:0 0 24px[^}]*padding:0[^}]*border:0/);
+  assert.match(modelStyles, /\.forge-model-test-config\{[^}]*margin:0 0 28px/);
+});
+
+test('overview sections use a consistent vertical rhythm', () => {
+  assert.match(modelStyles, /\.forge-model-overview\+\.forge-model-table-section\{margin-top:28px\}/);
+  assert.match(modelStyles, /\.forge-model-overview-grid\{[^}]*margin-top:28px/);
+  assert.match(modelStyles, /\.forge-model-overview-grid>\.forge-model-table-section\{margin-top:0\}/);
+  assert.match(modelStyles, /\.forge-model-filters\+\.forge-model-table-section\{margin-top:28px\}/);
 });
 
 test('model and existing creation generators remain idempotent', () => {
@@ -266,6 +280,15 @@ test('issue, supplier, model, line, business and query filters work together', (
   view.onModel({ target: { value: 'gpt-41' } }); assert.equal(c.modelStatusValues().rows.length, 2);
   c.modelStatusValues().onLine({ target: { value: 'official-gpt' } }); assert.equal(c.modelStatusValues().rows.length, 1);
   c.modelStatusValues().reset(); c.modelStatusValues().onBusiness({ target: { checked: true } }); assert.equal(c.modelStatusValues().rows.length, 7);
+});
+
+test('risk shortcut exposes an active filtered state and table headers open native filters', () => {
+  const { c } = component(); c.openModelStatus(); c.setState({ modelPageTab: 'lines' });
+  let view = c.modelStatusValues(); assert(!view.issuesActive); view.showIssues(); view = c.modelStatusValues();
+  assert(view.issuesActive); assert.equal(view.filter, 'attention'); assert.match(view.issueActionLabel, /已显示 5 个待处理问题/); assert.match(view.message, /已筛选/);
+  const html = template.match(/<!-- model-status:start -->[\s\S]*?<!-- model-status:end -->/)[0];
+  for (const label of ['筛选状态', '筛选模型供应商', '筛选模型', '筛选线路']) assert(html.includes('aria-label="' + label + '"'));
+  for (const id of ['forge-model-status-filter', 'forge-model-provider-filter', 'forge-model-model-filter', 'forge-model-line-filter']) assert(html.includes('id="' + id + '"'));
 });
 
 test('model filters intersect in any selection order without clearing other dimensions', () => {
@@ -376,18 +399,17 @@ test('demo alarm reasons support combined filters, search, reset and URL round t
   }
 });
 
-test('status navigation reflows without an inner scroll area and both variants remove the sort control', () => {
+test('three-tab information architecture and controls stay identical in canonical and generated variants', () => {
   const postmanSource = fs.readFileSync(new URL('../public/forge-postman.html', import.meta.url), 'utf8');
   const postman = JSON.parse(postmanSource.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
   for (const variant of [template, postman]) {
     const html = variant.match(/<!-- model-status:start -->[\s\S]*?<!-- model-status:end -->/)[0];
-    assert(!html.includes('业务影响优先')); assert(!html.includes('forge-model-sort')); assert(!html.includes('modelStatus.onSort'));
+    for (const label of ['运行概览', '模型线路', '线路对比测试']) assert(html.includes(label));
+    assert(html.includes('仅看有业务影响')); assert(!html.includes('forge-model-sort')); assert(!html.includes('modelStatus.onSort'));
     for (const control of ['onProvider', 'onModel', 'onLine', 'onFilter', 'onQuery']) assert(html.includes('modelStatus.' + control));
-    // Postman uses summary cards and intentionally omits the business-impact checkbox.
-    if (variant === postman) {
-      assert(html.includes('pm-model-summary'));
-      assert(!html.includes('modelStatus.onBusiness'));
-    } else assert(html.includes('modelStatus.onBusiness'));
+    assert(html.includes('modelStatus.onBusiness'));
+    for (const term of ['相同数据集', 'Prompt', '模型参数', '并发', '超时', '重试策略']) assert(html.includes(term));
+    assert(html.includes('不会自动切换生产线路'));
     const css = variant.match(/\/\* model-status:start \*\/[\s\S]*?\/\* model-status:end \*\//)[0];
     const navigation = css.match(/\.forge-model-issue-filters\{([^}]+)\}/)[1];
     assert.match(navigation, /display:grid/); assert.match(navigation, /repeat\(6,minmax\(0,1fr\)\)/); assert.match(navigation, /overflow:visible/);

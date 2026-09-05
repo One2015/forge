@@ -27,8 +27,9 @@ test('every interface SVG uses unmodified official Phosphor Regular geometry', (
   const svgs = [...markup.matchAll(/<svg\b([^>]*)>([\s\S]*?)<\/svg>/g)];
   const icons = svgs.filter(([, attrs]) => attrs.includes('data-phosphor'));
   const charts = svgs.filter(([, attrs]) => attrs.includes('data-chart'));
-  // Includes branch progress connectors, compact record actions and inline Tag removal.
-  assert.equal(icons.length, 200); // The wizard adds two rendered instances of the official x icon.
+  // Includes branch progress connectors, compact record actions, inline Tag removal,
+  // supplier navigation/detail actions and the four model-route header filters.
+  assert.equal(icons.length, 206);
   assert.equal(charts.length, 1); assert.match(charts[0][1], /data-chart="model-trend"/);
   const names = new Set();
   for (const [, attrs, geometry] of icons) {
@@ -46,7 +47,7 @@ test('every interface SVG uses unmodified official Phosphor Regular geometry', (
     assert.match(attrs, /focusable="false"/);
     assert(!attrs.includes('stroke-width='));
   }
-  assert.equal(names.size, 37);
+  assert.equal(names.size, 38);
   assert(template.includes('Phosphor Icons license'));
 });
 

@@ -51,12 +51,12 @@
         latencyValue: latencyKnown ? (latency.currentMs / 1000).toFixed(2) + 's' : '—', baselineValue: latencyKnown ? (latency.baselineMs / 1000).toFixed(2) + 's' : '—',
         ratioLabel: ratio != null ? num(ratio) + '×' : '待检测', totalMs, totalBaselineMs, totalRatio, throughput, throughputDelta,
         performanceMain: latencyKnown ? 'P95 TTFT ' + (latency.currentMs / 1000).toFixed(2) + 's · ' + num(ratio) + '×' : 'P95 TTFT 待检测',
-        performanceSub: throughput != null ? num(throughput) + ' Tokens/s · ' + signed(throughputDelta || 0) : '生成速度待接入',
+        performanceSub: throughput != null ? num(throughput) + ' Tokens/s · ' + signed(throughputDelta || 0) : '生成速度待接入', throughputDisplay: throughput != null ? num(throughput) + ' Tokens/s' : '—',
         performanceTooltip: latencyKnown ? '当前 P95 TTFT ' + (latency.currentMs / 1000).toFixed(2) + 's；基线 ' + (latency.baselineMs / 1000).toFixed(2) + 's；差异 ' + num(ratio) + '×；当前样本 ' + latency.sampleCount + '；基线范围：' + (latency.baselineLabel || '过去 7 天同类请求') : '当前没有足够的可比延迟样本。',
         qualityKnown, qualityValue: qualityKnown ? num(quality.score || 0) : '—', qualityKind, qualityTitle, qualityDetail,
         qualityDelta: qualityKind === 'drift' && qualityKnown ? signed((quality.score - quality.baselineScore) / quality.baselineScore * 100) : qualityKind === 'mismatch' ? '与直连差异 ' + num(evidence.directGap || 0) + '%' : '',
         failure: failureRate == null ? '—' : percent(failureRate), failureDetail: usageKnown ? num(failures, 0) + ' / ' + num(calls, 0) : '调用统计待接入',
-        cost: usageKnown ? money(usage.costUsd) : '—', balance: balanceKnown ? money(billing.balanceUsd) : '—', runway: runway == null ? '—' : num(runway) + 'h', hourlySpend: hourlySpendKnown ? money(billing.hourlySpendUsd) + ' / 小时' : '消耗速率待接入',
+        cost: usageKnown ? money(usage.costUsd) : '—', unitCost: usageKnown && calls ? money(usage.costUsd / calls) : '—', success: failureRate == null ? '—' : percent(100 - failureRate), balance: balanceKnown ? money(billing.balanceUsd) : '—', runway: runway == null ? '—' : num(runway) + 'h', hourlySpend: hourlySpendKnown ? money(billing.hourlySpendUsd) + ' / 小时' : '消耗速率待接入',
         billing, impact, impactMain: impact.tasks ? impact.tasks + ' 个运行任务' : impact.project, impactSub: impact.tasks ? impact.project + ' · ' + impact.ddl : impact.ddl,
         action, reason: alertReason || evidence.cause || row.reason, explanation: evidence.explanation || (balanceReason && !callReason ? row.billingEvidence : row.reason), errors: evidence.errors || '错误分布待接入', tests: evidence.tests || row.qualityEvidence,
         checked: row.checked, abnormalStartedAt: evidence.abnormalStartedAt || '待确认', selected: false
@@ -135,6 +135,29 @@
       const latencyMetrics = new Set(group.rows.filter(line => line.latencyMs != null).map(line => line.raw.latency?.metric));
       return { ...group, failure: usageKnown && calls ? percent(failures / calls * 100) : usageKnown && calls === 0 ? '0.0%' : '—', cost: usageKnown ? money(cost) : '—', latency: latencyMetrics.size === 1 ? worst?.latencyValue?.replace('s', ' s') || '—' : '—', availability: group.rows.filter(line => line.active && line.result === 'passed').length + ' / ' + group.rows.filter(line => line.active).length + ' 条可用', account: group.rows[0]?.qualityKnown ? group.rows[0].qualityValue : '—', select: () => this.setState({ modelSelection: group.id, modelRoute: '' }) };
     });
+    const summarize = (key, nameKey) => Array.from(new Set(lines.map(line => line[key]))).map(id => {
+      const grouped = lines.filter(line => line[key] === id), calls = grouped.reduce((n,line)=>n+(line.calls||0),0), failures = grouped.reduce((n,line)=>n+(line.failures||0),0), cost = grouped.reduce((n,line)=>n+(Number(line.raw.usage?.costUsd)||0),0);
+      const latencies = grouped.map(line=>line.latencyMs).filter(Number.isFinite), speeds = grouped.map(line=>line.throughput).filter(Number.isFinite), qualities = grouped.map(line=>Number(line.qualityValue)).filter(Number.isFinite);
+      return { id, name:grouped[0]?.[nameKey]||id, requests:num(calls,0), availability:grouped.filter(line=>line.active&&line.result==='passed').length+' / '+grouped.filter(line=>line.active).length, success:calls?percent((calls-failures)/calls*100):'—', error:calls?percent(failures/calls*100):'—', latency:latencies.length?num(Math.max(...latencies)/1000,2)+'s':'—', speed:speeds.length?num(speeds.reduce((a,b)=>a+b,0)/speeds.length)+' Tokens/s':'—', quality:qualities.length?num(qualities.reduce((a,b)=>a+b,0)/qualities.length):'—', cost:money(cost), unitCost:calls?money(cost/calls):'—', trend:grouped.some(line=>line.statusKey!=='normal')?'需关注':'稳定', tone:grouped.some(line=>['severe','failed','billing'].includes(line.statusKey))?'danger':grouped.some(line=>!['normal','inactive'].includes(line.statusKey))?'warning':'success', open:()=>this.setState({modelPageTab:'lines',[key==='modelId'?'modelModel':'modelProvider']:id}) };
+    });
+    const modelOverviewRows=summarize('modelId','model'), providerOverviewRows=summarize('providerId','provider');
+    const errorMap=new Map(); lines.forEach(line=>(line.alertReasonItems||[]).forEach(reason=>errorMap.set(reason.label,(errorMap.get(reason.label)||0)+(line.failures||1))));
+    const errorOverviewRows=Array.from(errorMap,([name,count])=>({name,count:num(count,0)})).sort((a,b)=>Number(b.count.replaceAll(',',''))-Number(a.count.replaceAll(',','')));
+    const activeLines=lines.filter(line=>line.active), totalCalls=activeLines.reduce((n,line)=>n+(line.calls||0),0), totalFailures=activeLines.reduce((n,line)=>n+(line.failures||0),0), knownLatency=activeLines.map(line=>line.latencyMs).filter(Number.isFinite), knownCost=activeLines.reduce((n,line)=>n+(Number(line.raw.usage?.costUsd)||0),0);
+    const normalModels=modelOverviewRows.filter(row=>row.tone==='success').length, unavailableModels=snapshot.unavailable, warningModels=Math.max(0,snapshot.total-normalModels-unavailableModels);
+    const overviewMetrics=[
+      ['可用模型',snapshot.hasRate?snapshot.rate+'%':'—',snapshot.hasRate?snapshot.note:'待检测'],['正常模型',normalModels,'个'],['警告模型',warningModels,'个'],['不可用模型',unavailableModels,'个'],['成功率',totalCalls?percent((totalCalls-totalFailures)/totalCalls*100):'—','近 1 小时'],['错误率',totalCalls?percent(totalFailures/totalCalls*100):'—','近 1 小时'],['P95 延迟',knownLatency.length?num(Math.max(...knownLatency)/1000,2)+'s':'—','可比线路'],['平均成本',totalCalls?money(knownCost/totalCalls):'—','每次调用']
+    ].map(([label,value,note])=>({label,value,note}));
+    const comparableModel=(state.modelCompareModel||'claude-sonnet'), comparable=lines.filter(line=>line.modelId===comparableModel&&line.active), fastest=comparable.slice().sort((a,b)=>(a.latencyMs??Infinity)-(b.latencyMs??Infinity))[0], cheapest=comparable.slice().sort((a,b)=>((Number(a.raw.usage?.costUsd)||Infinity)/(a.calls||1))-((Number(b.raw.usage?.costUsd)||Infinity)/(b.calls||1)))[0], bestQuality=comparable.slice().sort((a,b)=>(Number(b.qualityValue)||0)-(Number(a.qualityValue)||0))[0];
+    const recommended=comparable.slice().sort((a,b)=>(a.failureRate??100)-(b.failureRate??100)||(b.qualityValue||0)-(a.qualityValue||0))[0];
+    const comparisonRows=comparable.map(line=>({...line,badges:[line.id===recommended?.id?'推荐线路':'',line.id===fastest?.id?'最快线路':'',line.id===cheapest?.id?'最低成本线路':'',line.id===bestQuality?.id?'质量最佳线路':'',['severe','failed','billing'].includes(line.statusKey)?'风险线路':''].filter(Boolean).map(label=>({label,tone:label==='风险线路'?'danger':'muted'})),taskTime:line.totalMs?num(line.totalMs/1000,1)+'s':'—',stability:line.failureRate==null?'待检测':line.failureRate<1?'稳定':line.failureRate<5?'波动':'高风险'}));
+    const openNativeFilter = id => {
+      if (typeof document === 'undefined') return;
+      const control = document.getElementById(id);
+      if (!control) return;
+      control.focus();
+      try { control.showPicker?.(); } catch {}
+    };
     return {
       isDemo, source: isDemo ? 'demo' : 'live', hasMonitoring: this.props.modelMonitoring != null,
       sourceLabel: isDemo ? '示例数据' : '监控数据', updated: input?.catalogCheckedAt ? '最近更新 1 分钟前' : '监控数据未接入',
@@ -155,7 +178,12 @@
       anomalySummary: isDemo ? '4 条线路存在异常 · 5 个待处理问题' : issueLines.length + ' 条线路存在异常 · ' + issueLines.length + ' 个待处理问题',
       urgentText: '云桥 / Claude Sonnet 4.5 的 P95 TTFT 升至基线 3.5×；Anthropic 账户预计 6 小时后耗尽。',
       issueCount: isDemo ? 5 : issueLines.length,
-      showIssues: () => this.setState({ modelFilter: 'attention', modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
+      issuesActive: filter === 'attention', issueActionLabel: filter === 'attention' ? '已显示 ' + visible.length + ' 个待处理问题' : '查看 ' + (isDemo ? 5 : issueLines.length) + ' 个待处理问题',
+      showIssues: () => {
+        this.setState({ modelPageTab: 'lines', modelFilter: 'attention', modelSelection: '', modelRoute: '', modelDrawerMode: '', modelRetestMessage: '已筛选全部待处理问题。' });
+        setTimeout(() => { if (typeof document !== 'undefined') document.getElementById('forge-model-table-title')?.focus(); }, 0);
+      },
+      openStatusFilter: () => openNativeFilter('forge-model-status-filter'), openProviderFilter: () => openNativeFilter('forge-model-provider-filter'), openModelFilter: () => openNativeFilter('forge-model-model-filter'), openLineFilter: () => openNativeFilter('forge-model-line-filter'),
       totalCost: totalCostKnown && lines.length ? money(lines.filter(line => line.active).reduce((sum, line) => sum + (line.raw.usage?.costUsd || 0), 0)) : '—',
       hasSelection: !!selected, drawerOpen: !!selected, drawerDiagnostic: !!selected && (state.modelDrawerMode || 'diagnostic') === 'diagnostic', drawerTest: !!selected && state.modelDrawerMode === 'test', drawerBilling: !!selected && state.modelDrawerMode === 'billing',
       selected: selected || {}, selectedRoute: selected?.id || '', selectedGroup: selected ? selected.provider + ' / ' + selected.model : '',
@@ -181,7 +209,9 @@
       testResult: !!state.modelTestResult,
       closeBilling: () => this.setState({ modelDrawerMode: 'diagnostic' }),
       dismissMessage: () => this.setState({ modelRetestMessage: '' }), message: state.modelRetestMessage || '',
-      tabs: [['providers', '供应商'], ['models', '模型评估']].map(([id, label]) => ({ id, label, selected: state.modelDimension === id, select: () => this.setState({ modelDimension: id }) })),
+      pageTab:state.modelPageTab||'overview', overviewTab:(state.modelPageTab||'overview')==='overview', linesTab:state.modelPageTab==='lines', compareTab:state.modelPageTab==='compare', pageTabs:[['overview','运行概览'],['lines','模型线路'],['compare','线路对比测试']].map(([id,label])=>({id,label,current:(state.modelPageTab||'overview')===id?'page':'false',pick:()=>this.setState({modelPageTab:id,modelSelection:'',modelRoute:'',modelDrawerMode:''})})),
+      overviewMetrics,modelOverviewRows,providerOverviewRows,errorOverviewRows,hasErrors:errorOverviewRows.length>0,comparisonRows,hasComparison:comparisonRows.length>1,compareModels:modelOptions.map(option=>({...option,selected:option.id===comparableModel})),compareModel:comparableModel,onCompareModel:event=>this.setState({modelCompareModel:event.target.value}),
+      tabs: [['providers', '模型供应商'], ['models', '模型评估']].map(([id, label]) => ({ id, label, selected: state.modelDimension === id, select: () => this.setState({ modelDimension: id }) })),
       providersView: state.modelDimension !== 'models', modelsView: state.modelDimension === 'models', accountTitle: state.modelDimension === 'models' ? '固定集得分' : '账户余额'
     };
   }

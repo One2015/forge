@@ -1,6 +1,6 @@
   // model-status-methods:start
   openModelStatus() {
-    this.setState({ view: 'models', modelQuery: '', modelProvider: '', modelModel: '', modelLine: '', modelFilter: 'production', modelBusinessOnly: false, modelSort: 'impact', modelSelection: '', modelRoute: '', modelDrawerMode: '', modelChartMetric: 'ttft', modelTestResult: false });
+    this.setState({ view: 'models', modelPageTab: 'overview', modelQuery: '', modelProvider: '', modelModel: '', modelLine: '', modelFilter: 'production', modelBusinessOnly: false, modelSort: 'impact', modelSelection: '', modelRoute: '', modelDrawerMode: '', modelChartMetric: 'ttft', modelTestResult: false });
     setTimeout(() => { if (this.state.view === 'models' && typeof document !== 'undefined') document.getElementById('forge-model-title')?.focus(); }, 0);
   }
   mountModelStatusClock() {

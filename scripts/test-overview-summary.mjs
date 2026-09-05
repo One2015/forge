@@ -21,99 +21,65 @@ function component(props = {}) {
   return context.instance;
 }
 
-test('overview uses explicit units and preserves destinations and item-based calculations', () => {
+test('overview exposes six stable core metrics without value prefixes and exact filtered destinations', () => {
   const c = component(), cards = c.renderVals().over.stats;
-  assert.deepEqual(Array.from(cards, card => card.k), ['待审核', '运行中', '交付缺口', '昨日成本', '模型状态']);
-  const queue = c.pendingQueue().filter(q => c.assignmentOf(String(q.id), c.roundsOf(q.id)).mine);
-  assert.equal(cards[0].v, queue.length);
-  assert.equal(cards[0].unit, '项');
-  assert.equal(cards[1].v, c.runsData().filter(run => run.running > 0).length);
-  assert.equal(cards[1].unit, '个任务');
-  assert.equal(cards[1].note, '正在处理 3 项内容');
-  assert.equal(cards[2].v, c.deliveryData().flatMap(group => group.sheets).reduce((sum, sheet) => sum + Math.max(0, sheet.target - sheet.passed), 0));
-  assert.equal(cards[3].v, c.billingYesterday().value);
-  cards[0].go(); assert.equal(c.state.view, 'review'); assert.equal(c.state.reviewOwner, 'mine');
-  cards[1].go(); assert.equal(c.state.view, 'runs');
-  cards[2].go(); assert.equal(c.state.view, 'delivery');
-  assert(cards.every(card => card.description.length > 15));
-  assert(cards[3].actionable); cards[3].go(); assert.equal(c.state.view, 'billing');
-  assert(cards[4].actionable); cards[4].go(); assert.equal(c.state.view, 'models');
+  assert.deepEqual(Array.from(cards, card => card.k), ['待审核', '运行中', '交付缺口', '昨日成本', '模型状态', '外包供应商表现']);
+  assert(cards.every(card => !Object.hasOwn(card, 'prefix')));
+  assert(cards.slice(0, 5).every(card => card.actionable && card.description.length > 15 && card.cardLabel));
+  assert.equal(cards[4].v, 100); assert.equal(cards[4].unit, '%'); assert.equal(cards[4].auxiliary, '5 / 5 个模型可用');
+  assert.equal(cards[5].v, 92.4); assert.equal(cards[5].unit, '%'); assert.equal(cards[5].auxiliary, '较前日 +2.1pp'); assert.equal(cards[5].actionable, true);
+  cards[0].go(); assert.equal(c.state.view, 'review'); assert.equal(c.state.reviewOwner, 'mine'); assert.equal(c.state.reviewPhase, 'pending');
+  cards[1].go(); assert.equal(c.state.view, 'runs'); assert.equal(c.state.runsFilter, '运行中');
+  cards[2].go(); assert.equal(c.state.view, 'delivery'); assert.equal(c.state.delStatus, 'unmet');
+  cards[3].go(); assert.equal(c.state.view, 'billing'); assert.equal(c.state.billing.preset, 'yesterday');
+  cards[4].go(); assert.equal(c.state.view, 'models'); assert.equal(c.state.modelDimension, 'providers'); assert.equal(c.state.modelSource, '');
+  cards[5].go(); assert.equal(c.state.view, 'outsourcing-suppliers');
 });
 
-test('review summary removes the assignment label but preserves its scope in help and empty states', () => {
-  const c = component(), review = c.renderVals().over.stats[0];
-  assert.equal(review.note, '布达拉宫、黄鹤楼等');
-  assert(!review.note.includes('指派给你'));
-  assert.equal(review.assignment, undefined);
-  assert.equal(review.assignmentDetail, undefined);
-  assert.match(review.description, /指派给你 6 项.*别人名下/);
-  const markup = template.match(/<!-- overview-summary:start -->[\s\S]*?<!-- overview-summary:end -->/)[0];
-  assert(!markup.includes('s.assignment'));
-  assert(!template.includes('forge-summary-assignment'));
-  assert(markup.includes('class="forge-summary-title">{{ s.k }}</h3>'));
-  assert(markup.includes('class="forge-summary-info"'));
-  c.pendingQueue = () => [];
-  const empty = c.renderVals().over.stats[0];
-  assert.equal(empty.v, 0); assert.equal(empty.note, '暂无指派给你的待审内容');
-});
-
-test('review name preview is bounded without inventing a project name or dropping duplicate-titled Items', () => {
+test('review and running metrics dedupe their own entities and exclude other states', () => {
   const c = component();
-  c.assignmentOf = () => ({ mine: true });
-  c.pendingQueue = () => [
-    { id: '123456789', meta: [] },
-    { id: '2', meta: ['2', '', '', '', '同名内容'] }
+  c.assignmentOf = id => ({ mine: id !== 'other' });
+  c.pendingQueue = () => [{ id: 'a' }, { id: 'a' }, { id: 'other' }];
+  const cards = c.overviewSummary([
+    { id: 'r1', status: 'running', running: 20 },
+    { id: 'r1', status: 'running', running: 20 },
+    { id: 'r2', status: 'running', running: 0 },
+    { id: 'r3', status: 'queued', running: 8 }
+  ], []);
+  assert.equal(cards[0].v, 1);
+  assert.equal(cards[1].v, 2);
+  assert.match(cards[1].description, /Run ID 去重/);
+  assert.equal(cards[1].auxiliary, '');
+});
+
+test('delivery shortage counts approved linked delivery Item IDs once and clamps each sheet at zero', () => {
+  const c = component();
+  c.deliveryEntries = sheet => sheet.entries || [];
+  c.deliveryEntryId = entry => entry.id;
+  c.sheetRows = sheet => sheet.rows;
+  const sheets = [
+    { target: 3, entries: [{ id: 'a' }, { id: 'b' }], rows: [['A', '', 'a', 'passed'], ['A copy', '', 'a', 'passed'], ['B', '', 'b', 'review']] },
+    { target: 1, entries: [{ id: 'c' }, { id: 'd' }], rows: [['C', '', 'c', 'passed'], ['D', '', 'd', 'passed']] },
+    { target: 4, passed: 2 }
   ];
-  let card = c.overviewSummary([], [])[0];
-  assert.equal(card.note, 'Item 12345678、同名内容');
-  c.pendingQueue = () => [
-    { id: '1', meta: ['1', '', '', '', '同名内容'] },
-    { id: '2', meta: ['2', '', '', '', '同名内容'] },
-    { id: '3', meta: ['3', '', '', '', '第三项不应堆进卡片'] }
-  ];
-  card = c.overviewSummary([], [])[0];
-  assert.equal(card.v, 3);
-  assert.equal(card.note, '同名内容、同名内容等');
-  assert.match(template, /\.forge-summary-note\{[^}]*-webkit-line-clamp:2/);
+  assert.equal(c.overviewFinalDeliveryCount(sheets[0]), 1);
+  assert.equal(c.overviewSummary([], sheets)[2].v, 4);
+  assert.match(c.overviewSummary([], sheets)[2].description, /按交付 Item ID 去重/);
 });
 
-test('running counts tasks, not Items or queued work, and describes an idle state', () => {
+test('yesterday cost uses workspace calendar-day events and only shows a meaningful previous-day change', () => {
   const c = component();
-  const card = c.overviewSummary([
-    { running: 2 }, { running: 1 }, { running: 0, status: 'queued' }
-  ], [])[1];
-  assert.equal(card.v, 2); assert.equal(card.note, '正在处理 3 项内容');
-  assert.match(card.description, /一个任务可以处理多项内容/);
-  const idle = c.overviewSummary([{ running: 0, status: 'queued' }], [])[1];
-  assert.equal(idle.v, 0); assert.equal(idle.note, '暂无运行中的任务');
-});
-
-test('delivery shortage means quantity to complete, not failed quality or every sheet', () => {
-  const c = component();
-  const sheets = [{ target: 200, passed: 150 }, { target: 100, passed: 100 }, { target: 10, passed: 12 }];
-  const card = c.overviewSummary([], sheets)[2];
-  assert.equal(card.v, 50); assert.equal(card.note, '1 张数据单待补齐');
-  assert.match(card.description, /不代表质量不合格或交付逾期/);
-  const complete = c.overviewSummary([], sheets.slice(1))[2];
-  assert.equal(complete.v, 0); assert.equal(complete.note, '交付数量已满足目标');
-  assert.equal(c.overviewSummary([], [])[2].note, '暂无交付数据单');
-  const overview = template.slice(template.indexOf("if (view === 'overview') {"), template.indexOf("if (view === 'resources') {"));
-  assert(overview.includes("'待补齐 ' + gap + ' 项' : '数量已齐'"));
-  assert(!overview.includes('今天的健康度'));
-  assert(!overview.includes('未达标'));
-});
-
-test('yesterday cost is event-based and never reuses the rolling Run cohort', () => {
-  const c = component();
-  const card = c.overviewSummary([
-    { h: 0, cost: '$1.40' }, { h: 23.99, cost: '$10.60' }, { h: 24, cost: '$100' },
-    { h: -1, cost: '$100' }, { h: null, cost: '$100' }, { cost: '$100' }
-  ], [])[3];
-  assert.equal(card.v, c.billingYesterday().value); assert.match(card.note, /示例账单/);
-  assert.match(card.description, /费用发生时间/);
-  assert.match(card.description, /不是按运行创建时间/);
-  const empty = c.overviewSummary([], [])[3];
-  assert.equal(empty.v, card.v); assert.equal(empty.note, card.note);
+  const start = c.billingStamp(c.billingPreset('yesterday').start);
+  c.billingSource = () => ({ kind: 'ready', demo: false, events: [
+    { occurredAt: start + 1000, costMicros: 1500000, inputTokens: 0, outputTokens: 0 },
+    { occurredAt: start - 1000, costMicros: 1000000, inputTokens: 0, outputTokens: 0 }
+  ] });
+  let billing = c.billingYesterday();
+  assert.equal(billing.value, '$1.50'); assert.equal(billing.delta, '较前日 +50.0%');
+  c.billingSource = () => ({ kind: 'ready', demo: false, events: [{ occurredAt: start + 1000, costMicros: 1, inputTokens: 0, outputTokens: 0 }] });
+  billing = c.billingYesterday();
+  assert.equal(billing.delta, '');
+  assert.match(billing.description, /昨日 00:00 至今日 00:00/);
 });
 
 test('delivery progress identifies suppliers instead of repeating status dots and keeps quantities and navigation', () => {
@@ -205,86 +171,42 @@ test('supplier identities have fixed compact dimensions, uncropped images and de
   assert(!template.includes('<div style="width:6px;height:6px;border-radius:50%;background:{{ r.dot }};flex:none"></div>'));
 });
 
-function liveModelCard(props) {
-  const c = component(props);
-  c.state.modelSource = 'live';
-  return c.renderVals().over.stats[4];
-}
-
-test('overview shares the labelled model-page mock snapshot and issue totals', () => {
-  const c = component();
-  const card = c.renderVals().over.stats[4];
-  assert.equal(card.v, 100);
-  assert.equal(card.unit, '% 当前可用');
-  assert.equal(card.note, '示例数据 · 5 / 5 个模型可用');
-  assert.equal(card.detail, '5 个待处理问题 · 最高延迟 3.5×');
-  assert.match(card.description, /示例快照，非真实监测结果/);
-  card.go();
-  const detail = c.modelStatusValues();
-  assert.equal(detail.isDemo, true);
-  assert.equal(detail.rate, card.v);
-  assert.equal(detail.checked, card.checked);
-  assert.equal(detail.allLines.length, 8);
-  assert.match(card.detail, new RegExp('^' + detail.issueCount + ' 个待处理问题'));
-  c.setState({ modelQuery: '不存在的线路', modelProvider: 'openai', modelFilter: 'normal' });
-  assert.equal(c.modelStatusValues().lines.length, 0);
-  const filteredCard = c.overviewSummary([], [])[4];
-  assert.equal(filteredCard.detail, card.detail);
-  assert.equal(filteredCard.checked, card.checked);
-});
-
-test('overview respects the model-page source switch without disguising live errors as demo data', () => {
-  const c = component();
-  c.openModelStatus();
-  c.modelStatusValues().sourceToggle();
-  assert.equal(c.overviewSummary([], [])[4].note, '可用性检测待接入');
-  c.modelStatusValues().sourceToggle();
-  assert.match(c.overviewSummary([], [])[4].note, /^示例数据/);
+test('model KPI uses labelled mock data by default while live sources require complete fresh evidence', () => {
+  const mockedComponent = component(), mocked = mockedComponent.renderVals().over.stats[4];
+  assert.equal(mocked.v, 100); assert.equal(mocked.unit, '%'); assert.equal(mocked.auxiliary, '5 / 5 个模型可用'); assert.match(mocked.description, /演示数据/);
+  mocked.go(); assert.equal(mockedComponent.state.view, 'models'); assert.equal(mockedComponent.state.modelSource, '');
   for (const modelMonitoring of [{ status: 'loading' }, { status: 'error' }, {}, []]) {
-    const live = component({ modelMonitoring });
-    const card = live.renderVals().over.stats[4];
-    assert.equal(card.v, '—');
-    assert(!card.note.includes('示例数据'));
-    assert.equal(card.note, live.modelStatusSnapshot().note);
+    const card = component({ modelMonitoring }).renderVals().over.stats[4];
+    assert.equal(card.v, '—'); assert.equal(card.cardLabel, '模型状态，待检测');
   }
-  const expired = c.modelDemoInput();
-  expired.catalogCheckedAt = Date.now() - 2 * 86400000;
-  const card = component({ modelMonitoring: expired }).renderVals().over.stats[4];
-  assert.equal(card.v, '—');
-  assert(!card.note.includes('示例数据'));
+  const seed = component(), liveInput = seed.modelDemoInput();
+  const live = component({ modelMonitoring: liveInput }).renderVals().over.stats[4];
+  assert.equal(typeof live.v, 'number'); assert.equal(Object.hasOwn(live, 'prefix'), false); assert.equal(live.unit, '%');
+  liveInput.catalogCheckedAt = Date.now() - 2 * 86400000;
+  assert.equal(component({ modelMonitoring: liveInput }).renderVals().over.stats[4].v, '—');
 });
 
-test('live model availability never invents missing data or trusts legacy counts without evidence', () => {
-  for (const count of [undefined, null, -1, NaN, '8', 1.5, 0, 8]) {
-    const card = liveModelCard({ availableModelCount: count });
-    assert.equal(card.v, '—'); assert.equal(card.note, '可用性检测待接入');
-    assert.equal(card.actionable, true);
-    assert.match(card.description, /延迟、质量和账户状态单独衡量/);
-  }
-});
-
-test('legacy numerator and denominator alone cannot establish current availability', () => {
-  for (const [available, total] of [[8, 10], [1, 3], [0, 8], [8, 8]]) {
-    const card = liveModelCard({ availableModelCount: available, configuredModelCount: total });
-    assert.equal(card.v, '—'); assert.equal(card.unit, '');
-    assert.match(card.description, /至少一条生产可路由且协议匹配/);
-    assert.match(card.description, /清单不完整、检测过期或存在未知模型/);
-    assert.equal(card.actionable, true);
-  }
-});
-
-test('invalid, empty and inconsistent model denominators do not render a misleading percentage', () => {
-  for (const total of [undefined, null, NaN, -1, '10', 2.5, Infinity]) {
-    const card = liveModelCard({ availableModelCount: 2, configuredModelCount: total });
-    assert.equal(card.v, '—'); assert.equal(card.unit, '');
-  }
-  for (const available of [null, undefined, -1, 2.5, '2']) {
-    assert.equal(liveModelCard({ availableModelCount: available, configuredModelCount: 10 }).v, '—');
-  }
-  const empty = liveModelCard({ availableModelCount: 0, configuredModelCount: 0 });
-  assert.equal(empty.v, '—'); assert.equal(empty.note, '可用性检测待接入');
-  const inconsistent = liveModelCard({ availableModelCount: 9, configuredModelCount: 8 });
-  assert.equal(inconsistent.v, '—'); assert.equal(inconsistent.note, '可用性检测待接入');
+test('supplier performance uses labelled mock data by default and final risk state ordering when connected', () => {
+  const mock = component().renderVals().over.supplierPerformance;
+  assert.equal(mock.metric, 3); assert.equal(mock.rows.length, 3); assert.equal(mock.mocked, true); assert.equal(mock.canOpenAll, true);
+  assert.equal(mock.passRate, 92.4); assert.equal(mock.passRateDelta, '较前日 +2.1pp');
+  assert.deepEqual(Array.from(mock.rows, row => row.id), ['mock-stepfun', 'mock-ant', 'mock-internal']);
+  const unavailable = component({ fellowSupplierRisk: { status: 'error' } }).renderVals().over.supplierPerformance;
+  assert.equal(unavailable.metric, '待接入'); assert.equal(unavailable.rows.length, 0);
+  const input = { status: 'ready', complete: true, yesterdayPassRate: 88.2, previousDayPassRate: 87.9, suppliers: [
+    { id: 'm-late', name: '中风险晚', atRisk: true, finalRiskState: 'medium', primaryReason: '产能波动', deadlineAt: '2026-09-20' },
+    { id: 'h-late', name: '高风险晚', atRisk: true, finalRiskState: 'high', primaryReason: '关键节点延期', deadlineAt: '2026-09-18' },
+    { id: 'h-soon', name: '高风险近', atRisk: true, finalRiskState: 'high', primaryReason: '质量门禁未通过', deadlineAt: '2026-09-10' },
+    { id: 'safe', name: '无风险', atRisk: false, finalRiskState: 'critical', primaryReason: '不应出现', deadlineAt: '2026-09-01' }
+  ] };
+  const c = component({ fellowSupplierRisk: input });
+  const data = c.renderVals().over.supplierPerformance;
+  assert.equal(data.metric, 3);
+  assert.deepEqual(Array.from(data.rows, row => row.id), ['h-soon', 'h-late', 'm-late']);
+  const card = c.renderVals().over.stats[5];
+  assert.equal(card.v, 88.2); assert.equal(card.unit, '%'); assert.equal(card.auxiliary, '较前日 +0.3pp'); assert.equal(card.actionable, true);
+  card.go(); assert.equal(c.state.view, 'outsourcing-suppliers');
+  data.rows[0].open(); assert.equal(c.state.supplierVendor, 'h-soon');
 });
 
 test('info controls are separate from card navigation and supported in the standalone page', () => {
@@ -292,8 +214,19 @@ test('info controls are separate from card navigation and supported in the stand
   assert(markup.includes('data-forge-tooltip="{{ s.description }}"'));
   assert(markup.includes('data-tooltip-label="{{ s.k }}说明"'));
   assert(markup.includes('data-phosphor="info"'));
+  assert(markup.includes('aria-label="{{ s.cardLabel }}"'));
   assert(markup.includes('class="forge-summary-link" sc-camel-on-click="{{ s.go }}"'));
+  assert(markup.includes('class="forge-summary-auxiliary">{{ s.auxiliary }}'));
+  assert(markup.includes('hint-placeholder-count="6"'));
+  assert(!markup.includes('forge-summary-prefix'));
+  assert(!markup.includes('forge-supplier-performance'));
+  assert(!markup.includes('forge-summary-note'));
+  assert(!markup.includes('s.detail'));
+  assert(template.includes("auxiliary: supplier.hasPassRate ? supplier.passRateDelta"));
   assert(!markup.includes('<article sc-camel-on-click'));
+  assert(template.includes('.forge-overview-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))'));
+  assert(template.includes('@media(max-width:1100px){.forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr))'));
+  assert(template.includes('@media(max-width:600px){.forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr))'));
   assert(template.includes('<script src="/forge-summary-tooltips.js" defer>'));
   const ui = fs.readFileSync(new URL('./ui/summary-tooltips.tsx', import.meta.url), 'utf8');
   assert(ui.includes("from '@radix-ui/react-tooltip'"));

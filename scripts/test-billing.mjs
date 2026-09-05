@@ -6,14 +6,15 @@ import { updateBilling } from './update-billing.mjs';
 import { updateModelStatus } from './update-model-status.mjs';
 
 const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
+const themeTokens = fs.readFileSync(new URL('../public/postman-ui/tokens.css', import.meta.url), 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const NOW = Date.parse('2026-09-03T12:00:00+08:00');
-function component(billingUsage, now = NOW) {
+function component(billingUsage, now = NOW, extraProps = {}) {
   const context = vm.createContext({
     URLSearchParams, window: { location: { search: '' } }, setTimeout: () => 0, clearTimeout() {},
     Date: class extends Date { static now() { return now; } },
-    DCLogic: class { props = { panelWidth: 460, hasRuns: true, hasResources: true, currentUser: '一万', billingUsage }; setState(patch) { Object.assign(this.state, patch); } }
+    DCLogic: class { props = { panelWidth: 460, hasRuns: true, hasResources: true, currentUser: '一万', billingUsage, ...extraProps }; setState(patch) { Object.assign(this.state, patch); } }
   });
   vm.runInContext(code + ';globalThis.instance = new Component();', context);
   return context.instance;
@@ -22,13 +23,30 @@ const event = (id, extra = {}) => ({ id, occurredAt: '2026-09-02T10:15:00+08:00'
 const ledger = (events = [event('one')]) => ({ status: 'ready', currency: 'USD', complete: true, events });
 const values = input => { const c = component(input); c.openBilling(); return c; };
 
+test('billing chart uses the centralized Forge chart sequence', () => {
+  const expected = ['#f06442', '#5f8fc7', '#4fa69a', '#8b7fc0', '#cf7184', '#7f8d9b'];
+  expected.forEach((color, index) => assert(themeTokens.includes(`--pm-chart-${index + 1}:${color}`)));
+  assert.match(template, /const colors=\['var\(--pm-chart-1\)'[\s\S]*'var\(--pm-chart-6\)'\]/);
+});
+
 test('time granularity is a secondary unfilled control while metrics retain their segment', () => {
   assert(template.includes('class="forge-billing-granularity" role="group" aria-label="时间粒度"'));
   assert(template.includes('class="forge-billing-segment" role="group" aria-label="趋势指标"'));
+  assert.match(template, /<\/header>\s*<div class="forge-billing-chart-controls">/);
+  assert.match(template, /class="forge-billing-custom-time"[^>]*aria-label="选择自定义时间范围"/);
+  assert.match(template, /\.forge-billing-chart-controls\{[^}]*justify-content:flex-start[^}]*margin-bottom:12px/);
   assert.match(template, /\.forge-billing-granularity\{[^}]*background:transparent/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\{[^}]*background:transparent;box-shadow:none/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\[aria-pressed="true"\]\{[^}]*text-decoration:underline/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button:is\(:hover,:active\)\{background:transparent/);
+});
+
+test('custom time control reuses the existing calendar range state', () => {
+  const c = values();
+  assert.equal(c.billingValues().custom, false);
+  c.billingValues().openCustomTime();
+  assert.equal(c.billingValues().preset, 'custom');
+  assert.equal(c.billingValues().custom, true);
 });
 
 test('yesterday is a UTC+8 calendar day with inclusive start and exclusive end', () => {
@@ -39,12 +57,19 @@ test('yesterday is a UTC+8 calendar day with inclusive start and exclusive end',
     event('today', { occurredAt: '2026-09-03T00:00:00+08:00', costMicros: 100000000 })
   ]));
   const card = c.overviewSummary([{ h: 1, cost: '$99999' }], [])[3];
-  assert.equal(card.k, '昨日成本'); assert.equal(card.v, '$5.00'); assert.match(card.note, /2026-09-02/);
+  assert.equal(card.k, '昨日成本'); assert.equal(card.v, '$5.00'); assert.match(c.billingYesterday().note, /2026-09-02/);
   card.go(); const view = c.renderVals();
   assert.equal(view.billing.metrics[0].value, card.v); assert.equal(view.billing.grain, 'hour'); assert.equal(view.billing.bars.length, 24);
   assert(view.billing.open && !view.isOverview && !view.showSubNav && !view.isRuns);
   assert.equal(view.sidebar.overviewCurrent, 'page'); assert.equal(view.sidebar.productionCurrent, 'false');
   view.billing.back(); assert.equal(c.state.view, 'overview');
+});
+
+test('yesterday follows the configured workspace timezone instead of a rolling 24-hour window', () => {
+  const c = component(ledger(), NOW, { workspaceTimezoneOffsetMinutes: -240, workspaceTimezoneName: 'America/Toronto' });
+  assert.equal(c.billingDay(Date.parse('2026-09-03T03:30:00Z')), '2026-09-02');
+  assert.equal(c.billingStamp('2026-09-02'), Date.parse('2026-09-02T04:00:00Z'));
+  assert.match(c.billingYesterday().description, /工作区时区（America\/Toronto）/);
 });
 
 test('the authorized demo ledger is explicitly labelled on both surfaces and cached', () => {
@@ -196,7 +221,7 @@ const coveredLedger = events => ({ ...ledger(events), coverageStart: '2026-08-01
 test('four nonredundant KPIs compare equal periods with consistent scope and disclose missing coverage', () => {
   const c = values(coveredLedger([event('old', { occurredAt: '2026-09-01T10:00:00+08:00' }), event('new', { costMicros: 5000000 }), event('new2', { costMicros: 5000000 })]));
   const v = c.billingValues();
-  assert.deepEqual(Array.from(v.metrics, m => m.label), ['总费用', '总 Tokens', '调用次数', '平均调用成本']);
+  assert.deepEqual(Array.from(v.metrics, m => m.label), ['昨日成本', '总 Tokens', '调用次数', '平均调用成本']);
   assert.equal(v.metrics[0].value, '$10.00'); assert.match(v.metrics[0].note, /\+300.0%/); assert.equal(v.metrics[0].tone, 'danger'); assert.match(v.metrics[0].detail, /最大增量来自/);
   assert.equal(v.metrics[2].value, '2'); assert.equal(v.metrics[3].value, '$5.00');
   assert.match(v.insight, /调用量变化贡献 \+\$2.50/); assert.match(v.insight, /模型组合变化贡献 \+\$5.00/);
@@ -222,21 +247,34 @@ test('bucket selection filters KPIs, composition, table and exports while retain
   c.billingValues().bars.find(b => b.key.endsWith('T15')).pick();
   let v = c.billingValues(); assert.equal(v.bars.length, 24); assert.equal(v.metrics[0].value, '$9.00'); assert.equal(v.rows.length, 1); assert.equal(v.contributors[0].name, '下午项目'); assert.match(v.focusLabel, /15:00–16:00/);
   assert.match(v.exportDetails(), /"pm"/); assert(!v.exportDetails().includes('"am"'));
-  v.chartMetrics.find(m => m.id === 'tokens').pick(); v = c.billingValues(); assert(v.tokenMode && v.hasFocus);
+  v.chartMetrics.find(m => m.id === 'tokens').pick(); v = c.billingValues();
+  assert(v.hasFocus); assert(v.chartSeries.length > 0); assert(v.bars.some(bar => bar.segments.length > 0));
   v.columns.find(c => c.id === 'calls').pick(); assert(c.billingValues().hasFocus);
   v.tabs.find(t => t.id === 'models').pick(); assert(c.billingValues().hasFocus);
   c.billingValues().clearBin(); assert.equal(c.billingValues().metrics[0].value, '$11.50');
 });
 
-test('every zero bucket is explicit and hover details include both token parts, calls and comparison', () => {
+test('every zero bucket is explicit and stacked hover details include totals, dimension values and shares', () => {
   const c = values(coveredLedger([event('one')])); let v = c.billingValues();
   assert.equal(v.bars.filter(b => b.zero).length, 23);
-  assert.match(v.bars[0].tooltip, /费用.*\$0.00/); assert.match(v.bars[0].tooltip, /调用次数.*0/);
-  assert.match(v.bars[10].tooltip, /输入 Tokens.*1,000/); assert.match(v.bars[10].tooltip, /输出 Tokens.*250/); assert.match(v.bars[10].tooltip, /较上一等长时段/); assert.match(v.bars[10].tooltip, /费用构成.*供应商 A \/ 型号 A/s);
+  assert.match(v.bars[0].tooltip, /总量.*\$0.00/);
+  assert.match(v.bars[10].tooltip, /总量.*\$2.50/); assert.match(v.bars[10].tooltip, /项目构成.*项目 A.*\$2.50.*100%/s);
   v.chartMetrics.find(m => m.id === 'tokens').pick(); v = c.billingValues();
-  assert.equal(v.bars[10].inputHeight, '80%'); assert.equal(v.bars[10].outputHeight, '20%');
+  assert.equal(v.bars[10].segments[0].value, 1250); assert.match(v.bars[10].tooltip, /总量.*1\.3K/);
   v.chartMetrics.find(m => m.id === 'calls').pick(); assert.equal(c.billingValues().unit, '次');
   c.billingValues().bars[0].pick(); assert.equal(c.billingValues().metrics[0].value, '$0.00'); assert(!c.billingValues().hasRows);
+});
+
+test('stacked distribution, change reasons and abnormal runs are exposed without line or treemap charts', () => {
+  const c = values(coveredLedger([
+    event('normal', { runId: 'run-normal', taskName: '常规任务' }),
+    event('spike', { runId: 'run-spike', taskName: '大上下文任务', costMicros: 50000000, anomalyReason: '上下文长度异常增长' }),
+  ]));
+  const v = c.billingValues(), html = template.match(/<!-- billing:start -->[\s\S]*?<!-- billing:end -->/)[0];
+  assert(v.chartSeries.length > 0); assert(v.changeReasons.some(row => row.label === '请求量'));
+  assert(v.abnormalRuns.some(row => row.runId === 'run-spike'));
+  assert.match(html, /forge-billing-stack/); assert.match(html, /较前日变化原因/); assert.match(html, /异常成本 Run/);
+  assert.doesNotMatch(html, /treemap|line-chart/i);
 });
 
 test('all numeric sorts toggle both ways; search and pagination never alter KPI denominators', () => {

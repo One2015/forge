@@ -1,10 +1,20 @@
   // billing-methods:start
+  billingTimezoneOffsetMinutes() {
+    const configured = Number(this.props.workspaceTimezoneOffsetMinutes);
+    return Number.isFinite(configured) && configured >= -720 && configured <= 840 ? configured : 480;
+  }
+  billingTimezoneLabel() {
+    const configured = String(this.props.workspaceTimezoneName || '').trim();
+    if (configured) return configured;
+    const offset = this.billingTimezoneOffsetMinutes(), sign = offset >= 0 ? '+' : '−', absolute = Math.abs(offset);
+    return 'UTC' + sign + Math.floor(absolute / 60) + (absolute % 60 ? ':' + String(absolute % 60).padStart(2, '0') : '');
+  }
   billingDay(stamp) {
-    return new Date(stamp + 8 * 3600000).toISOString().slice(0, 10);
+    return new Date(stamp + this.billingTimezoneOffsetMinutes() * 60000).toISOString().slice(0, 10);
   }
   billingStamp(day) {
     if (typeof day !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return NaN;
-    const stamp = Date.parse(day + 'T00:00:00+08:00');
+    const stamp = Date.parse(day + 'T00:00:00Z') - this.billingTimezoneOffsetMinutes() * 60000;
     return Number.isFinite(stamp) && this.billingDay(stamp) === day ? stamp : NaN;
   }
   billingPreset(preset) {
@@ -47,7 +57,7 @@
       catalog.forEach((model, m) => {
         for (let n = 0; n < 3; n++) {
           const project = projects[(day + m + n) % projects.length], scale = 2 + ((day * 13 + m * 7 + n * 11) % 17);
-          events.push({ id: 'demo-' + day + '-' + m + '-' + n, occurredAt: end - day * 86400000 + ((m * 3 + n * 7) % 24) * 3600000 + 900000,
+          events.push({ id: 'demo-' + day + '-' + m + '-' + n, runId: 'run-' + day + '-' + ((m+n)%5), taskName: project[1] + ' · 批次生成', anomalyReason: (day+m+n)%17===0 ? '重试次数与上下文长度同时升高' : '', occurredAt: end - day * 86400000 + ((m * 3 + n * 7) % 24) * 3600000 + 900000,
             projectId: project[0], projectName: project[1], brandId: model[0], brandName: model[1], modelId: model[2], modelName: model[3], providerId: model[4], providerName: model[5],
             inputTokens: scale * (6200 + m * 1100), outputTokens: scale * (1200 + n * 400), costMicros: scale * (430000 + m * 275000 + n * 61000) });
         }
@@ -75,6 +85,7 @@
       const stamp = typeof row.occurredAt === 'number' ? row.occurredAt : typeof row.occurredAt === 'string' && /(?:Z|[+-]\d{2}:\d{2})$/.test(row.occurredAt) ? Date.parse(row.occurredAt) : NaN;
       if (!Number.isFinite(stamp) || Math.abs(stamp) > 8.64e15 || stamp > Date.now()) { valid = false; break; }
       const record = Object.fromEntries(required.map(key => [key, row[key].trim()]));
+      for (const key of ['runId', 'taskName', 'anomalyReason']) record[key] = typeof row[key] === 'string' ? row[key].trim().slice(0, 200) : '';
       record.occurredAt = stamp;
       for (const key of Object.keys(totals)) {
         if (!Number.isSafeInteger(row[key]) || row[key] < 0) valid = false;
@@ -105,8 +116,12 @@
   billingYesterday() {
     const source = this.billingSource(), range = this.billingPreset('yesterday'), start = this.billingStamp(range.start);
     const sum = this.billingSum(source.events.filter(row => row.occurredAt >= start && row.occurredAt < start + 86400000));
+    const previous = this.billingSum(source.events.filter(row => row.occurredAt >= start - 86400000 && row.occurredAt < start));
+    const change = source.kind === 'ready' && previous.cost > 0 ? (sum.cost / previous.cost - 1) * 100 : null;
+    const delta = change == null ? '' : '较前日 ' + (Math.abs(change) < .05 ? '0%' : (change > 0 ? '+' : '−') + Math.abs(change).toFixed(1) + '%');
     return { value: source.kind === 'ready' ? this.billingMoney(sum.cost) : '—', note: source.demo ? '示例账单 · ' + range.start + ' · UTC+8' : source.kind === 'ready' ? range.start + ' · UTC+8' : source.message,
-      description: '按北京时间（UTC+8）昨日 00:00 至今日 00:00 的费用发生时间统计 USD 模型调用费用。不是按运行创建时间筛选，也不含充值、税费或人工费用。' + (source.demo ? '当前展示示例账单，尚未接入真实消费。' : '') };
+      delta,
+      description: '按工作区时区（' + this.billingTimezoneLabel() + '）昨日 00:00 至今日 00:00 的费用发生时间统计 USD 模型调用费用。不是按运行创建时间筛选，也不含充值、税费或人工费用。' + (source.demo ? '当前展示示例账单，尚未接入真实消费。' : '') };
   }
   openBilling() {
     this.setState({ view: 'billing', billing: Object.assign(this.billingPreset('yesterday'), { tab: 'overview', project: '', provider: '', model: '', sort: 'cost', bin: null }) });
@@ -115,6 +130,15 @@
   updateBilling(patch) {
     const scopeChanged = ['start', 'end', 'grain', 'project', 'provider', 'model'].some(key => key in patch);
     this.setState({ billing: Object.assign({}, this.state.billing, { page: 1, exportNotice: '' }, scopeChanged ? { bin: null } : {}, patch) });
+  }
+  billingCompatibleGrain(startDay, endDay, currentGrain) {
+    const start = this.billingStamp(startDay), end = this.billingStamp(endDay);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return currentGrain;
+    const days = (end - start) / 86400000 + 1;
+    if (currentGrain === 'hour' && days > 7) return 'day';
+    if (currentGrain === 'day' && days > 366) return 'month';
+    if (currentGrain === 'month' && days > 3653) return 'year';
+    return currentGrain;
   }
   billingChange(current, previous, known = true) {
     if (!known) return '上一周期数据不足';
@@ -157,14 +181,14 @@
     const matched = ready ? inRange(start, end) : [];
     const covered = (a, b) => ready && Number.isFinite(source.coverageStart) && Number.isFinite(source.coverageEnd) && source.coverageStart <= a && source.coverageEnd >= b;
     const keyOf = stamp => {
-      const local = new Date(stamp + 8 * 3600000).toISOString();
+      const local = new Date(stamp + this.billingTimezoneOffsetMinutes() * 60000).toISOString();
       return s.grain === 'hour' ? local.slice(0, 13) : s.grain === 'day' ? local.slice(0, 10) : s.grain === 'month' ? local.slice(0, 7) : local.slice(0, 4);
     };
     const buckets = [], bucketMap = new Map();
     if (ready) {
       for (let cursor = start; cursor < end;) {
-        const local = new Date(cursor + 8 * 3600000), key = keyOf(cursor);
-        const next = s.grain === 'hour' ? cursor + 3600000 : s.grain === 'day' ? cursor + 86400000 : s.grain === 'month' ? Date.UTC(local.getUTCFullYear(), local.getUTCMonth() + 1, 1) - 8 * 3600000 : Date.UTC(local.getUTCFullYear() + 1, 0, 1) - 8 * 3600000;
+        const offset=this.billingTimezoneOffsetMinutes()*60000, local = new Date(cursor + offset), key = keyOf(cursor);
+        const next = s.grain === 'hour' ? cursor + 3600000 : s.grain === 'day' ? cursor + 86400000 : s.grain === 'month' ? Date.UTC(local.getUTCFullYear(), local.getUTCMonth() + 1, 1) - offset : Date.UTC(local.getUTCFullYear() + 1, 0, 1) - offset;
         const b = { key, start: cursor, end: Math.min(next, end), cost: 0, input: 0, output: 0, calls: 0 };
         buckets.push(b); bucketMap.set(key, b); cursor = next;
       }
@@ -177,9 +201,17 @@
     const comparisonKnown = covered(previousStart, rangeEnd);
     const sum = this.billingSum(current), prior = this.billingSum(previous), totalTokens = sum.input + sum.output;
     const compareText = this.billingChange(sum.cost, prior.cost, comparisonKnown);
-    const labelTime = stamp => new Date(stamp + 8 * 3600000).toISOString().slice(0, 16).replace('T', ' ');
+    const labelTime = stamp => new Date(stamp + this.billingTimezoneOffsetMinutes() * 60000).toISOString().slice(0, 16).replace('T', ' ');
     const bucketLabel = b => s.grain === 'hour' ? labelTime(b.start) + '–' + labelTime(b.end).slice(b.end - b.start <= 3600000 && this.billingDay(b.start) === this.billingDay(b.end) ? 11 : 0) : s.grain === 'day' ? b.key : this.billingDay(b.start) + ' 至 ' + this.billingDay(b.end - 1);
     const metricValue = b => s.metric === 'tokens' ? b.input + b.output : s.metric === 'calls' ? b.calls : b.cost;
+    const dimension = s.tab === 'suppliers' ? 'provider' : s.tab === 'models' ? 'model' : 'project';
+    const tableLabel = { project: '项目', provider: '模型供应商', model: '模型' }[dimension];
+    const dimensionId = row => dimension === 'model' ? modelKey(row) : row[dimension + 'Id'], dimensionName = row => row[dimension + 'Name'];
+    const eventMetric = row => s.metric === 'tokens' ? row.inputTokens + row.outputTokens : s.metric === 'calls' ? 1 : row.costMicros;
+    const seriesMap = new Map(); matched.forEach(row => { const id=dimensionId(row); if(!seriesMap.has(id))seriesMap.set(id,{id,name:dimensionName(row),value:0}); seriesMap.get(id).value+=eventMetric(row); });
+    const colors=['var(--pm-chart-1)','var(--pm-chart-2)','var(--pm-chart-3)','var(--pm-chart-4)','var(--pm-chart-5)','var(--pm-chart-6)'];
+    const sortedSeries=Array.from(seriesMap.values()).sort((a,b)=>b.value-a.value), keep=sortedSeries.slice(0,5), keepIds=new Set(keep.map(row=>row.id));
+    const chartSeries=keep.map((row,index)=>({...row,color:colors[index]})); if(sortedSeries.length>5)chartSeries.push({id:'__other',name:'其他',color:colors[5]});
     const maxCost = Math.max(1, ...buckets.map(b => b.cost)), maxTokens = Math.max(1, ...buckets.map(b => b.input + b.output));
     const chartMax = Math.max(1, ...buckets.map(metricValue));
     const chartFormat = value => s.metric === 'cost' ? this.billingMoney(value) : this.billingCompact(value);
@@ -191,19 +223,18 @@
       const label = bucketLabel(b), cost = this.billingMoney(b.cost), input = this.billingNumber(b.input), output = this.billingNumber(b.output), calls = this.billingNumber(b.calls);
       const bucketMix = new Map();
       inRange(b.start, b.end).forEach(row => {
-        const mixKey = row.providerId + '\u0000' + modelKey(row);
-        if (!bucketMix.has(mixKey)) bucketMix.set(mixKey, { name: row.providerName + ' / ' + row.modelName, cost: 0 });
-        bucketMix.get(mixKey).cost += row.costMicros;
+        const rawId=dimensionId(row), mixKey=keepIds.has(rawId)?rawId:'__other', name=keepIds.has(rawId)?dimensionName(row):'其他';
+        if (!bucketMix.has(mixKey)) bucketMix.set(mixKey, { id:mixKey,name,value:0 });
+        bucketMix.get(mixKey).value += eventMetric(row);
       });
-      const mixLines = Array.from(bucketMix.values()).sort((a, z) => z.cost - a.cost).slice(0, 3).map(entry => entry.name + '  ' + this.billingMoney(entry.cost) + '  ' + (b.cost ? Math.round(entry.cost * 100 / b.cost) : 0) + '%');
-      const tooltip = [label + ' · UTC+8', '费用  ' + cost, '输入 Tokens  ' + input, '输出 Tokens  ' + output, '调用次数  ' + calls, '较上一等长时段（' + (s.metric === 'cost' ? '费用' : s.metric === 'tokens' ? 'Tokens' : '调用次数') + '）  ' + change, ...(mixLines.length ? ['', '费用构成', ...mixLines] : [])].join('\n');
+      const total=metricValue(b), segments=chartSeries.map(series=>{const value=bucketMix.get(series.id)?.value||0;return {name:series.name,value,style:'height:'+(100*value/chartMax)+'%;background:'+series.color,label:series.name+' '+chartFormat(value)+' · '+(total?Math.round(value*1000/total)/10:0)+'%'};}).filter(segment=>segment.value>0);
+      const mixLines = segments.slice().reverse().map(entry => entry.label);
+      const tooltip = [label + ' · '+this.billingTimezoneLabel(), '总量  ' + chartFormat(total), ...(mixLines.length ? ['', tableLabel+'构成', ...mixLines] : [])].join('\n');
       return { key: b.key, label, axis: showTick(i) ? s.grain === 'hour' ? (days > 1 ? b.key.slice(5, 10) + ' ' : '') + b.key.slice(11) + ':00' : s.grain === 'day' ? b.key.slice(5) : b.key : '',
-        height: (100 * metricValue(b) / chartMax) + '%', costHeight: (100 * b.cost / maxCost) + '%', inputHeight: (100 * b.input / maxTokens) + '%', outputHeight: (100 * b.output / maxTokens) + '%',
+        height: (100 * metricValue(b) / chartMax) + '%', segments, costHeight: (100 * b.cost / maxCost) + '%', inputHeight: (100 * b.input / maxTokens) + '%', outputHeight: (100 * b.output / maxTokens) + '%',
         cost, tokens: this.billingNumber(b.input + b.output), input, output, calls, zero: metricValue(b) === 0, active: b.key === s.bin, tooltip, help: tooltip.split('\n').filter(Boolean).join('，'),
         pick: () => this.updateBilling({ bin: b.key === s.bin ? null : b.key }) };
     });
-    const dimension = s.tab === 'suppliers' ? 'provider' : s.tab === 'models' ? 'model' : 'project';
-    const tableLabel = { project: '项目', provider: '供应商', model: '模型' }[dimension];
     const groupRows = (events, dimension) => {
       const groups = new Map();
       events.forEach(row => {
@@ -248,6 +279,16 @@
     const decreasing = sum.cost < prior.cost;
     const driverRow = contributorsWithHistory.sort((a, b) => decreasing ? a.delta - b.delta : b.delta - a.delta)[0];
     const driver = comparisonKnown && driverRow && (decreasing ? driverRow.delta < 0 : driverRow.delta > 0) ? (decreasing ? '费用减少最多的是 ' : '最大增量来自 ') + driverRow.name + '：' + signedMoney(driverRow.delta) + '。' : top && sum.cost ? '主要费用来自 ' + top.name + '，占 ' + top.share + '。' : '当前范围暂无费用构成。';
+    const changeReasons = [
+      { label:'请求量', value:comparisonKnown?signedMoney(volumeEffect):'—', note:comparisonKnown?'按调用次数变化与前期平均单次成本计算':'上一周期覆盖不足' },
+      { label:'模型路由与用量组合', value:comparisonKnown?signedMoney(mixEffect):'—', note:'包含模型组合和单次用量变化' },
+      { label:'重试', value:'—', note:'账单尚未提供可归因的重试费用' },
+      { label:'单价', value:'—', note:'账单尚未提供有效单价版本' },
+      { label:'上下文长度', value:'—', note:'账单尚未提供可归因的上下文差异' }
+    ];
+    const runGroups=new Map(); current.filter(row=>row.runId).forEach(row=>{if(!runGroups.has(row.runId))runGroups.set(row.runId,{id:row.runId,task:row.taskName||'所属任务待接入',cost:0,reasons:new Set()});const run=runGroups.get(row.runId);run.cost+=row.costMicros;if(row.anomalyReason)run.reasons.add(row.anomalyReason);});
+    const runValues=Array.from(runGroups.values()),runAverage=runValues.length?runValues.reduce((n,row)=>n+row.cost,0)/runValues.length:0;
+    const abnormalRuns=runValues.filter(row=>row.cost>runAverage*1.05||row.reasons.size).map(row=>({id:row.id,runId:row.id,task:row.task,cost:this.billingMoney(row.cost),deviation:runAverage?'+'+Math.round((row.cost/runAverage-1)*100)+'%':'—',reason:Array.from(row.reasons)[0]||'成本高于同范围 Run 平均值',open:()=>this.setState({view:'runs',runsQuery:row.id})})).sort((a,b)=>Number(b.deviation.replace(/[^\d.-]/g,''))-Number(a.deviation.replace(/[^\d.-]/g,''))).slice(0,5);
     const costTone = (value, baseline) => !comparisonKnown || value === baseline ? 'neutral' : value < baseline ? 'success' : 'danger';
     const metric = (label, value, note, tone = 'neutral', detail = '') => ({ label, value: ready ? value : '—', note, tone, detail });
     const presets = [['yesterday', '昨日'], ['week', '近 7 天'], ['month', '本月'], ['year', '近 12 个月'], ['years', '近 3 年'], ['custom', '自定义']].map(([id, name]) => ({ id, name, selected: s.preset === id }));
@@ -259,17 +300,17 @@
     return {
       open: true, ready, loading: source.kind === 'loading', failed: source.kind === 'error', disconnected: source.kind === 'disconnected', unavailable: source.kind === 'error' || source.kind === 'disconnected', demo: source.demo, message: source.message, error,
       start: s.start, end: s.end, today, preset: s.preset, grain: s.grain, period, presetName, custom: s.preset === 'custom', exportNotice: s.exportNotice || '',
-      updated: Number.isFinite(source.updatedAt) ? '最近更新 ' + labelTime(source.updatedAt) + ' · UTC+8' : '数据更新时间未提供',
+      updated: Number.isFinite(source.updatedAt) ? '最近更新 ' + labelTime(source.updatedAt) + ' · ' + this.billingTimezoneLabel() : '数据更新时间未提供', timezoneLabel:this.billingTimezoneLabel(),
       project: s.project, provider: s.provider, model: s.model, projects, providers, models, noProject: !s.project, noProvider: !s.provider, noModel: !s.model, filtered, presets,
       chips, hasChips: chips.length > 0, showScope: chips.length > 0 || !!selected, canGoBack: !!s.trail?.length,
       drillBack: () => { const trail = [...(s.trail || [])], previous = trail.pop(); if (previous) this.updateBilling({ ...previous, trail }); },
-      tabs: [['overview', '总览'], ['projects', '按项目'], ['suppliers', '按供应商'], ['models', '按模型']].map(([id, name]) => ({ id, name, active: s.tab === id, current: s.tab === id ? 'page' : 'false', pick: () => this.updateBilling({ tab: id, query: '' }) })),
+      tabs: [['overview', '总览'], ['projects', '按项目'], ['suppliers', '按模型供应商'], ['models', '按模型']].map(([id, name]) => ({ id, name, active: s.tab === id, current: s.tab === id ? 'page' : 'false', pick: () => this.updateBilling({ tab: id, query: '' }) })),
       grains: [['hour', '小时'], ['day', '日'], ['month', '月'], ['year', '年']].map(([id, name]) => ({ id, name, active: s.grain === id, pick: () => this.updateBilling({ grain: id }) })),
       chartMetrics: [['cost', '费用'], ['tokens', 'Tokens'], ['calls', '调用次数']].map(([id, name]) => ({ id, name, active: s.metric === id, pick: () => this.updateBilling({ metric: id }) })),
-      tokenMode: s.metric === 'tokens', chartTitle: s.metric === 'tokens' ? 'Token 用量趋势' : s.metric === 'calls' ? '调用次数趋势' : '费用趋势', unit: s.metric === 'cost' ? 'USD' : s.metric === 'tokens' ? 'Tokens' : '次',
-      metrics: [metric('总费用', this.billingMoney(sum.cost), comparisonKnown ? '较上一周期 ' + compareText + ' · ' + signedMoney(sum.cost - prior.cost) : '上一周期数据不足', costTone(sum.cost, prior.cost), driver), metric('总 Tokens', this.billingNumber(totalTokens), '输入 ' + this.billingCompact(sum.input) + ' / 输出 ' + this.billingCompact(sum.output)), metric('调用次数', this.billingNumber(sum.calls), sum.calls ? '平均 ' + this.billingNumber(Math.round(totalTokens / sum.calls)) + ' Tokens / 次' : '平均 Tokens / 次 —'), metric('平均调用成本', sum.calls ? this.billingMoney(currentAvg) : '—', comparisonKnown ? '较上一周期 ' + this.billingChange(currentAvg, previousAvg, true) + ' · USD / 次' : 'USD / 次 · 含计费失败请求', costTone(currentAvg, previousAvg))],
+      chartSeries, chartTitle: s.metric === 'tokens' ? 'Token 用量分布' : s.metric === 'calls' ? '调用次数分布' : '费用分布', unit: s.metric === 'cost' ? 'USD' : s.metric === 'tokens' ? 'Tokens' : '次',
+      metrics: [metric(s.preset==='yesterday'&&!selected?'昨日成本':'总费用', this.billingMoney(sum.cost), comparisonKnown ? (s.preset==='yesterday'&&!selected?'较前日 ':'较上一周期 ') + signedMoney(sum.cost-prior.cost) + ' · ' + compareText : '上一周期数据不足', costTone(sum.cost, prior.cost), driver), metric('总 Tokens', this.billingNumber(totalTokens), '输入 ' + this.billingCompact(sum.input) + ' / 输出 ' + this.billingCompact(sum.output)), metric('调用次数', this.billingNumber(sum.calls), sum.calls ? '平均 ' + this.billingNumber(Math.round(totalTokens / sum.calls)) + ' Tokens / 次' : '平均 Tokens / 次 —'), metric('平均调用成本', sum.calls ? this.billingMoney(currentAvg) : '—', comparisonKnown ? '较上一周期 ' + this.billingChange(currentAvg, previousAvg, true) + ' · USD / 次' : 'USD / 次 · 含计费失败请求', costTone(currentAvg, previousAvg))],
       inputShare: totalTokens ? (100 * sum.input / totalTokens).toFixed(1) + '%' : '0%', insight, driver, comparisonKnown,
-      comparisonPeriod: comparisonKnown ? '对比 ' + labelTime(previousStart) + ' — ' + labelTime(rangeStart) + '（不含结束时刻）' : '',
+      comparisonPeriod: comparisonKnown ? '对比 ' + labelTime(previousStart) + ' — ' + labelTime(rangeStart) + '（不含结束时刻）' : '', changeReasons, abnormalRuns, hasAbnormalRuns:abnormalRuns.length>0,
       contributors, remainder: this.billingMoney(remainder), hasRemainder: remainder > 0, compositionLabel: tableLabel + '费用构成', compositionNote: top && sum.cost ? 'Top 1 · ' + top.name + ' 占 ' + top.share : '当前范围没有计费金额',
       hasRows: rows.length > 0, hasData: allRows.length > 0, rows, tableLabel, columns, resultCount: filteredRows.length, groupCount: allRows.length,
       callCount: this.billingNumber(sum.calls), query: s.query, noSearch: !s.query, page, pages, pageSize, rangeLabel: filteredRows.length ? ((page - 1) * pageSize + 1) + '–' + Math.min(page * pageSize, filteredRows.length) : '0',
@@ -280,7 +321,16 @@
       chartAxis: [chartFormat(chartMax), chartFormat(chartMax / 2), s.metric === 'cost' ? '$0' : '0'], bars, chartMinWidth: Math.max(260, buckets.length * 18) + 'px',
       focusLabel: selected ? bucketLabel(selected) : '', focusCost: selected ? this.billingMoney(selected.cost) : '', focusTokens: selected ? '输入 ' + this.billingNumber(selected.input) + ' / 输出 ' + this.billingNumber(selected.output) : '', hasFocus: !!selected, clearBin: () => this.updateBilling({ bin: null }),
       onPreset: e => e.target.value === 'custom' ? this.updateBilling({ preset: 'custom' }) : this.updateBilling(this.billingPreset(e.target.value)),
-      onStart: e => this.updateBilling({ start: e.target.value, preset: 'custom' }), onEnd: e => this.updateBilling({ end: e.target.value, preset: 'custom' }),
+      openCustomTime: () => {
+        this.updateBilling({ preset: 'custom' });
+        setTimeout(() => {
+          if (typeof document === 'undefined') return;
+          const calendar = document.getElementById('forge-billing-calendar');
+          if (!calendar || typeof calendar.showPopover !== 'function') return;
+          try { if (!calendar.matches(':popover-open')) calendar.showPopover(); } catch (_) {}
+        }, 0);
+      },
+      onStart: e => this.updateBilling({ start: e.target.value, preset: 'custom', grain:this.billingCompatibleGrain(e.target.value,s.end,s.grain) }), onEnd: e => this.updateBilling({ end: e.target.value, preset: 'custom', grain:this.billingCompatibleGrain(s.start,e.target.value,s.grain) }),
       onProject: e => this.updateBilling({ project: e.target.value, trail: [] }), onProvider: e => this.updateBilling({ provider: e.target.value, model: '', trail: [] }), onModel: e => this.updateBilling({ model: e.target.value, trail: [] }),
       reset: () => this.updateBilling({ ...this.billingPreset('yesterday'), project: '', provider: '', model: '', query: '', trail: [] }), resetDates: () => this.updateBilling(this.billingPreset('yesterday')),
       sortCost: () => sort('cost'), sortTokens: () => sort('tokens'),

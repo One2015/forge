@@ -11,8 +11,9 @@ const ForgeRoutes = (() => {
     sheetKey: null, sheetRow: null, sheetFilter: 'all', sheetQuery: '', sheetTagFilter: '',
     lifeItem: null, lifeRun: null, lifeDs: null, lifeFrom: null, lifeBranch: null,
     pipeFilter: '活跃', pipeQuery: '', dsQuery: '', runsFilter: '全部', runsMine: false, runsQuery: '',
-    delCat: 'all', delSort: 'newest', billing: undefined,
-    modelQuery: '', modelProvider: '', modelModel: '', modelLine: '', modelFilter: 'production', modelDimension: 'providers', modelSelection: '', modelRoute: '', modelSource: '', modelBusinessOnly: false, modelSort: 'impact', modelDrawerMode: '', modelChartMetric: 'ttft', modelNoteOpen: false,
+    delCat: 'all', delStatus: 'all', delSort: 'newest', billing: undefined,
+    modelQuery: '', modelProvider: '', modelModel: '', modelLine: '', modelFilter: 'production', modelDimension: 'providers', modelSelection: '', modelRoute: '', modelSource: '', modelBusinessOnly: false, modelSort: 'impact', modelDrawerMode: '', modelChartMetric: 'ttft', modelNoteOpen: false, modelPageTab: 'overview',
+    supplierTab: 'performance', supplierVendor: '', supplierSheet: '', supplierRisk: '', supplierCycle: 'all', supplierAddOpen: false,
     dlOpen: false, notifOpen: false, profileOpen: false, profileTab: 'tasks',
     routeAnchor: '', routeError: '', routeMissingUrl: '',
   });
@@ -73,6 +74,7 @@ const ForgeRoutes = (() => {
       } else if (parts[0] === 'delivery') {
         patch.view = 'delivery';
         patch.delCat = oneOf(get('category'), ['Web3D', 'Vision2Web', '金融', 'WebDev'], 'all');
+        patch.delStatus = get('status') === 'unmet' ? 'unmet' : 'all';
         patch.delSort = get('sort') === 'oldest' ? 'oldest' : 'newest';
         if (parts.length === 2 && parts[1] === 'new') {
           patch.view = 'delivery-create'; result.editor = { key: null, tab: oneOf(patch.routeAnchor, ['basic', 'list', 'skills', 'confirm'], 'basic') }; result.draft = get('draft');
@@ -98,7 +100,11 @@ const ForgeRoutes = (() => {
         patch.modelDimension = oneOf(get('dimension'), ['providers', 'models'], 'providers');
         patch.modelSelection = get('selection'); patch.modelRoute = get('route'); patch.modelSource = get('source') === 'live' ? 'live' : '';
         patch.modelBusinessOnly = get('impact') === '1'; patch.modelSort = oneOf(get('sort'), ['impact', 'severity', 'latency', 'errors', 'balance', 'updated'], 'impact');
-        patch.modelDrawerMode = oneOf(get('drawer'), ['diagnostic', 'test', 'billing'], ''); patch.modelChartMetric = oneOf(get('metric'), ['ttft', 'throughput', 'total', 'errors'], 'ttft');
+        patch.modelDrawerMode = oneOf(get('drawer'), ['diagnostic', 'test', 'billing'], ''); patch.modelChartMetric = oneOf(get('metric'), ['ttft', 'throughput', 'total', 'errors'], 'ttft'); patch.modelPageTab = oneOf(get('tab'), ['overview', 'lines', 'compare'], 'overview');
+      } else if (parts[0] === 'outsourcing-suppliers' && parts.length <= 2) {
+        patch.view = 'outsourcing-suppliers'; patch.supplierVendor = parts[1] || get('supplier');
+        patch.supplierTab = oneOf(get('tab'), ['performance', 'management'], 'performance'); patch.supplierSheet = get('sheet');
+        patch.supplierRisk = oneOf(get('risk'), ['critical', 'high', 'medium', 'low'], ''); patch.supplierCycle = oneOf(get('cycle'), ['all', '7d', '30d', 'quarter'], 'all');
       } else throw Error('route');
       patch.profileOpen = get('panel') === 'profile'; patch.profileTab = get('profile') === 'skills' ? 'skills' : 'tasks';
       patch.dlOpen = get('panel') === 'downloads'; patch.notifOpen = get('panel') === 'notifications';
@@ -127,12 +133,13 @@ const ForgeRoutes = (() => {
         if (deep) { set('phase', s.reviewPhase === 'done' ? 'results' : ''); set('tab', s.reviewTab === '文件' ? 'files' : ''); } else set('run', s.reviewRun, 'all');
         set('owner', s.reviewOwner, 'all'); set('sort', s.reviewSort, 'newest'); set('q', s.reviewQuery); break;
       }
-      case 'delivery': path = '/delivery'; set('category', s.delCat, 'all'); set('sort', s.delSort, 'newest'); break;
+      case 'delivery': path = '/delivery'; set('category', s.delCat, 'all'); set('status', s.delStatus, 'all'); set('sort', s.delSort, 'newest'); break;
       case 'delivery-create': path = '/delivery/new'; set('draft', s.deliveryEditor?.savedDraftId); anchor = s.deliveryEditor?.tab || 'basic'; break;
       case 'sheet': path = '/delivery/' + enc(s.sheetKey || 'missing') + (s.sheetRow ? '/items/' + enc(s.sheetRow) : ''); set('status', s.sheetFilter, 'all'); set('q', s.sheetQuery); set('tag', s.sheetTagFilter); break;
       case 'itemlife': path = '/items/' + enc(s.lifeItem || 'missing'); set('run', s.lifeRun); set('sheet', s.sheetKey); set('from', s.lifeFrom === 'review' ? 'review' : ''); break;
       case 'billing': path = '/billing/' + (s.billing?.tab || 'overview'); for (const key of ['preset', 'start', 'end', 'grain', 'project', 'provider', 'model', 'bin']) set(key, s.billing?.[key]); set('sort', s.billing?.sort, 'cost'); set('direction', s.billing?.direction, 'desc'); set('metric', s.billing?.metric, 'cost'); set('search', s.billing?.query); set('page', s.billing?.page, '1'); set('pageSize', s.billing?.pageSize, '10'); break;
-      case 'models': path = '/models'; set('q', s.modelQuery); set('provider', s.modelProvider); set('model', s.modelModel); set('line', s.modelLine); set('status', s.modelFilter, 'production'); set('dimension', s.modelDimension, 'providers'); set('selection', s.modelSelection); set('route', s.modelRoute); set('source', s.modelSource); set('impact', s.modelBusinessOnly ? '1' : ''); set('sort', s.modelSort, 'impact'); set('drawer', s.modelDrawerMode); set('metric', s.modelChartMetric, 'ttft'); break;
+      case 'models': path = '/models'; set('q', s.modelQuery); set('provider', s.modelProvider); set('model', s.modelModel); set('line', s.modelLine); set('status', s.modelFilter, 'production'); set('dimension', s.modelDimension, 'providers'); set('selection', s.modelSelection); set('route', s.modelRoute); set('source', s.modelSource); set('impact', s.modelBusinessOnly ? '1' : ''); set('sort', s.modelSort, 'impact'); set('drawer', s.modelDrawerMode); set('metric', s.modelChartMetric, 'ttft'); set('tab', s.modelPageTab, 'overview'); break;
+      case 'outsourcing-suppliers': path = '/outsourcing-suppliers' + (s.supplierVendor ? '/' + enc(s.supplierVendor) : ''); set('tab', s.supplierTab, 'performance'); set('sheet', s.supplierSheet); set('risk', s.supplierRisk); set('cycle', s.supplierCycle, 'all'); break;
       case 'route-error': return s.routeMissingUrl || '/not-found';
     }
     if (s.deliveryEditor?.key) { path = '/delivery/' + enc(s.deliveryEditor.key) + '/edit'; anchor = anchor || s.deliveryEditor.tab || 'basic'; }

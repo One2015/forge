@@ -11,9 +11,9 @@
 </sc-for></div>
  <div class="fg-runs-toolbar">
  <div class="rr-status-tabs" role="group" aria-label="运行状态"><sc-for list="{{ runs.filters }}" as="f" hint-placeholder-count="4"><button type="button" class="fg-button" data-variant="tertiary" data-size="sm" sc-camel-on-click="{{ f.pick }}" aria-pressed="{{ f.selected }}" data-motion-label="{{ f.label }}"><span class="fg-button-content">{{ f.label }}</span><span class="fg-button-busy" aria-hidden="true">处理中…</span></button></sc-for></div>
+ <label class="fg-checkbox-label"><input type="checkbox" checked="{{ runs.mineSelected }}" sc-camel-on-change="{{ runs.toggleMine }}"><span>只看我的</span></label>
  <div class="rr-filter-controls">
  <div class="fg-search"><svg class="forge-icon" data-phosphor="magnifying-glass" width="16" height="16" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg><input class="fg-input" type="search" aria-label="搜索运行、Pipeline 或数据集" placeholder="搜索运行、Pipeline 或数据集…" value="{{ runs.query }}" sc-camel-on-input="{{ runs.onQuery }}"></div>
- <label class="fg-checkbox-label"><input type="checkbox" checked="{{ runs.mineSelected }}" sc-camel-on-change="{{ runs.toggleMine }}"><span>只看我的</span></label>
  <sc-if value="{{ runs.hasFilters }}"><button type="button" class="rr-reset" sc-camel-on-click="{{ runs.clear }}">重置</button></sc-if></div></div>
 
 <sc-if value="{{ runs.hasNotice }}"><div class="rr-notice" role="status">{{ runs.notice }}<button type="button" aria-label="关闭提示" sc-camel-on-click="{{ runs.dismiss }}">[[icon:x:14]]</button></div></sc-if>

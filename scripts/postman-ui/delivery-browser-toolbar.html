@@ -3,6 +3,7 @@
     <sc-for list="{{ delivery.cats }}" as="f" hint-placeholder-count="5">
       <button data-motion-label="{{ f.label }}" type="button" data-motion-selected="{{ f.motionSelected }}" aria-pressed="{{ f.motionSelected }}" sc-camel-on-click="{{ f.pick }}" style="background:{{ f.bg }};color:{{ f.fg }};font-weight:{{ f.weight }};box-shadow:{{ f.shadow }}">{{ f.label }}</button>
     </sc-for>
+    <button type="button" aria-pressed="{{ delivery.unmet }}" sc-camel-on-click="{{ delivery.toggleUnmet }}" style="background:{{ delivery.unmetBg }};color:{{ delivery.unmetFg }};font-weight:{{ delivery.unmetWeight }}">未达标</button>
   </div>
   <div class="pm-delivery-browser-controls">
     <label class="pm-delivery-search" for="pm-delivery-search">

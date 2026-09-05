@@ -97,6 +97,17 @@ test('rail, hover, selected, focus and borderless toggle styles share explicit s
   assert(css.includes('outline:2px solid var(--forge-accent)'));
   assert(!t.includes('/* download-selected:start */'));
 });
+test('sidebar motion preserves continuity without clipping every navigation item', () => {
+  const css = read('./templates/interaction-states.css');
+  assert(css.includes('transition:clip-path 180ms var(--forge-sidebar-ease)'));
+  assert(css.includes('transition-duration:240ms,180ms'));
+  assert(css.includes('opacity 160ms ease 55ms'));
+  assert(css.includes('translate 200ms var(--forge-sidebar-ease) 35ms'));
+  assert(css.includes(':active:not(:disabled){transform:scale(.985)}'));
+  assert.doesNotMatch(css, /\.forge-sidebar :is\(\.forge-sidebar-link,\.forge-sidebar-tool,\.forge-sidebar-profile\)\{clip-path/);
+  assert.doesNotMatch(css, /transition:(?:padding-left|width)/);
+  assert.match(css, /@media\(prefers-reduced-motion:no-preference\)\{/);
+});
 test('floating utilities stay outside the animated sidebar clipping boundary', () => {
   const asideStart = t.indexOf('<aside class="forge-sidebar"'), asideEnd = t.indexOf('</aside>',asideStart);
   for (const id of ['forge-download-panel','forge-notification-panel']) {

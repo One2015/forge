@@ -59,6 +59,35 @@ function ChartTooltip({ host, description }: { host: HTMLElement; description: s
   </Tooltip.Root></Tooltip.Provider>;
 }
 
+function PassiveTooltip({ host, description }: { host: HTMLElement; description: string }) {
+  const [open, setOpen] = React.useState(false);
+  const id = React.useId();
+  React.useEffect(() => {
+    const show = () => setOpen(true), hide = () => setOpen(false);
+    host.addEventListener('pointerenter', show);
+    host.addEventListener('pointerleave', hide);
+    host.addEventListener('focus', show);
+    host.addEventListener('blur', hide);
+    return () => {
+      host.removeEventListener('pointerenter', show);
+      host.removeEventListener('pointerleave', hide);
+      host.removeEventListener('focus', show);
+      host.removeEventListener('blur', hide);
+    };
+  }, [host]);
+  React.useEffect(() => {
+    if (open) host.setAttribute('aria-describedby', id);
+    else host.removeAttribute('aria-describedby');
+    return () => host.removeAttribute('aria-describedby');
+  }, [host, open, id]);
+  return <Tooltip.Provider delayDuration={250}><Tooltip.Root open={open} onOpenChange={setOpen} disableHoverableContent>
+    <Tooltip.Trigger asChild><span aria-hidden="true" /></Tooltip.Trigger>
+    <Tooltip.Portal><Tooltip.Content id={id} className="forge-summary-tooltip" side="right" align="center" sideOffset={8} collisionPadding={12}>
+      {description}
+    </Tooltip.Content></Tooltip.Portal>
+  </Tooltip.Root></Tooltip.Provider>;
+}
+
 // Small progressive-enhancement island: DCLogic retains ownership of its DOM
 // and data. React owns only the injected mount, never the generated children.
 const roots = new Map<HTMLElement, { root: Root; mount: HTMLSpanElement; key: string }>();
@@ -69,9 +98,10 @@ function sync() {
       roots.delete(host);
     }
   }
-  document.querySelectorAll<HTMLElement>('[data-forge-tooltip], [data-forge-chart-tooltip]').forEach(host => {
+  document.querySelectorAll<HTMLElement>('[data-forge-tooltip], [data-forge-chart-tooltip], [data-forge-passive-tooltip]').forEach(host => {
     const chart = host.hasAttribute('data-forge-chart-tooltip');
-    const description = host.getAttribute(chart ? 'data-forge-chart-tooltip' : 'data-forge-tooltip') || '';
+    const passive = host.hasAttribute('data-forge-passive-tooltip');
+    const description = host.getAttribute(chart ? 'data-forge-chart-tooltip' : passive ? 'data-forge-passive-tooltip' : 'data-forge-tooltip') || '';
     const label = host.getAttribute('data-tooltip-label') || '说明';
     if (!description || description.includes('{{')) return;
     let mounted = roots.get(host);
@@ -84,7 +114,7 @@ function sync() {
     const key = label + '\n' + description;
     if (mounted.key === key) return;
     mounted.key = key;
-    mounted.root.render(chart ? <ChartTooltip host={host} description={description} /> : <SummaryTooltip label={label} description={description} />);
+    mounted.root.render(chart ? <ChartTooltip host={host} description={description} /> : passive ? <PassiveTooltip host={host} description={description} /> : <SummaryTooltip label={label} description={description} />);
     host.dataset.enhanced = 'true';
   });
 }
@@ -96,6 +126,6 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document.documentElement, {
   subtree: true, childList: true, attributes: true,
-  attributeFilter: ['data-forge-tooltip', 'data-tooltip-label', 'data-forge-chart-tooltip']
+  attributeFilter: ['data-forge-tooltip', 'data-tooltip-label', 'data-forge-chart-tooltip', 'data-forge-passive-tooltip']
 });
 sync();

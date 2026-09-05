@@ -54,6 +54,7 @@ export function updateOverviewSummary(source) {
   if (overviewEnd < 0) throw new Error('Overview render boundary changed');
   const render = template.slice(overview, overviewEnd)
     .replace("subtitle: '今天的健康度 · ' + runs.length + ' 个运行 · ' + flat.length + ' 张数据单'", "subtitle: runs.length + ' 个运行记录 · ' + flat.length + ' 张数据单'")
+    .replace("stats: this.overviewSummary(runs, flat),\n        groups:", "stats: this.overviewSummary(runs, flat),\n        supplierPerformance: this.supplierPerformanceValues(),\n        groups:")
     .replace("right: gap ? '差 ' + gap + ' 条' : '已达标'", "right: gap ? '待补齐 ' + gap + ' 项' : '数量已齐'")
     .replace("dot: gap ? '#c8912f' : '#5f9a63'", 'supplier: this.overviewDeliveryIdentity(d)');
   template = template.slice(0, overview) + render + template.slice(overviewEnd);

@@ -18,9 +18,16 @@
   --pm-success-border:#aed2ba; --pm-warning-border:#e2ca91; --pm-danger-border:#e6b8bf;
   --pm-data-1:#afd51c; --pm-data-2:#d6ed77; --pm-data-3:#60a63a; --pm-data-4:#a1d783;
   --pm-data-soft:#f0f0f0; --pm-data-ink:#476e27; --pm-data-line:#578f31; --pm-data-line-alt:#94a93c;
+  /* Forge chart sequence: brand coral with cool, clear supporting hues. */
+  --pm-chart-1:#f06442; --pm-chart-2:#5f8fc7; --pm-chart-3:#4fa69a;
+  --pm-chart-4:#8b7fc0; --pm-chart-5:#cf7184; --pm-chart-6:#7f8d9b;
   --pm-font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   --pm-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
   --pm-control-height:32px; --pm-radius:4px; --pm-overlay-radius:8px;
+  --pm-title-size:20px; --pm-title-leading:28px;
+  --pm-body-size:13px; --pm-body-leading:20px;
+  --pm-meta-size:12px; --pm-meta-leading:18px;
+  --pm-page-gutter:24px; --pm-page-top:22px; --pm-page-bottom:40px;
   --pm-space-1:4px; --pm-space-2:8px; --pm-space-3:12px; --pm-space-4:16px; --pm-space-6:24px;
   --forge-font:var(--pm-font); --forge-text:var(--pm-text); --forge-muted:var(--pm-muted);
   /* Legacy accent also styles links and metadata; keep it quiet. Primary buttons map explicitly below. */

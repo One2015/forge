@@ -2,7 +2,7 @@
 <div class="forge-sidebar-utilities" role="group" aria-label="个人工具">
   <button type="button" class="forge-sidebar-tool" data-utility="dl" sc-camel-on-click="{{ sidebar.toggleDownloads }}" aria-label="{{ dl.tip }}" title="{{ dl.tip }}" aria-expanded="{{ dl.open }}" aria-controls="forge-download-panel">
     [[icon:download-simple:20]]<span class="forge-sidebar-tool-label">下载</span>
-    <sc-if value="{{ dl.hasActive }}" hint-placeholder-val="{{ true }}"><span class="forge-sidebar-tool-count" aria-hidden="true">{{ dl.active }}</span></sc-if>
+    <sc-if value="{{ dl.hasActive }}" hint-placeholder-val="{{ true }}"><span class="forge-sidebar-tool-count forge-sidebar-tool-count-unread" aria-hidden="true">{{ dl.active }}</span></sc-if>
   </button>
   <button type="button" class="forge-sidebar-tool" data-utility="notif" sc-camel-on-click="{{ sidebar.toggleMessages }}" aria-label="消息 · {{ notif.tip }}" title="{{ notif.tip }}" aria-expanded="{{ notif.open }}" aria-controls="forge-notification-panel">
     [[icon:bell:20]]<span class="forge-sidebar-tool-label">消息</span>

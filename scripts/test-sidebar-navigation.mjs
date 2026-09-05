@@ -22,16 +22,19 @@ function component(props = {}, narrow = false) {
   return context.instance;
 }
 
-test('four primary destinations live only in the semantic left navigation', () => {
+test('five destinations, including outsourcing suppliers, live in the semantic left navigation', () => {
   assert.match(sidebar, /<nav[^>]+aria-label="主导航"/);
-  const buttons = [...sidebar.matchAll(/<button class="forge-sidebar-link"[^>]+aria-label="([^"]+)"/g)].map(x => x[1]);
-  assert.deepEqual(buttons, ['概览', '生产', '审核', '交付']);
-  for (const action of ['goOverview', 'goRuns', 'goReview', 'goDelivery']) {
+  const buttons = [...sidebar.matchAll(/<button[^>]+class="[^"]*\bforge-sidebar-link\b[^"]*"[^>]+aria-label="([^"]+)"/g)].map(x => x[1]);
+  assert.deepEqual(buttons, ['概览', '生产', '审核', '交付', '外包供应商表现']);
+  for (const action of ['goOverview', 'goRuns', 'goReview', 'goDelivery', 'goSuppliers']) {
     assert(sidebar.includes('{{ sidebar.' + action + ' }}'));
     assert(!toolbar.includes('{{ ' + action + ' }}'));
   }
   assert(sidebar.includes('aria-expanded="{{ sidebar.expanded }}"'));
   assert(sidebar.includes('aria-controls="forge-primary-navigation"'));
+  assert.match(sidebar, /data-phosphor="storefront"/);
+  assert.match(sidebar, /sc-camel-on-click="\{\{ sidebar\.goSuppliers \}\}"/);
+  assert.doesNotMatch(sidebar, /forge-sidebar-link-coming-soon|aria-disabled="true"/);
 });
 
 test('Forge wordmark is compact without scaling the logo or navigation controls', () => {
@@ -51,6 +54,7 @@ test('every destination and nested view has exactly one active navigation item',
     pipelines: 'productionCurrent', datasets: 'productionCurrent', resources: 'productionCurrent',
     pipeedit: 'productionCurrent', submitted: 'productionCurrent', review: 'reviewCurrent',
     delivery: 'deliveryCurrent', sheet: 'deliveryCurrent', itemlife: 'deliveryCurrent',
+    'outsourcing-suppliers': 'suppliersCurrent',
   };
   for (const [view, expected] of Object.entries(cases)) {
     c.setState({ view, lifeFrom: null });
@@ -84,7 +88,9 @@ test('the toggle stays in the header in both states, including narrow layouts', 
   assert(sidebar.indexOf('class="forge-sidebar-collapse"') < sidebar.indexOf('<nav'));
   assert(!sidebar.includes('class="forge-sidebar-bottom"'));
   assert(sidebar.includes('class="forge-sidebar-backdrop"'));
-  assert(template.includes('.forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar{width:184px'));
+  assert(template.includes('.forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar{width:148px'));
+  assert(template.includes('.forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar-nav{flex:none}'));
+  assert(template.includes('.forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar-utilities{margin-top:16px}'));
   const c = component({}, true);
   assert.equal(c.renderVals().sidebar.collapsed, true);
   c.renderVals().sidebar.toggle();
@@ -97,7 +103,7 @@ test('narrow navigation closes after selection, while desktop preserves preferen
   for (const narrow of [false, true]) {
     const c = component({}, narrow);
     c.setState({ sidebarCollapsed: false, reworkNotes: { current: '保留草稿' } });
-    for (const [action, view] of [['goOverview','overview'],['goRuns','runs'],['goReview','review'],['goDelivery','delivery']]) {
+    for (const [action, view] of [['goOverview','overview'],['goRuns','runs'],['goReview','review'],['goDelivery','delivery'],['goSuppliers','outsourcing-suppliers']]) {
       c.setState({ sidebarCollapsed: false });
       c.renderVals().sidebar[action](click);
       assert.equal(c.state.view, view);
@@ -160,6 +166,8 @@ test('utility panels follow the rail and collapse it on narrow screens without l
   assert(template.includes('font-size:0;line-height:0;border-radius:50%'));
   assert(utilities.includes('aria-controls="forge-download-panel"'));
   assert(utilities.includes('aria-controls="forge-notification-panel"'));
+  assert.match(utilities, /\{\{ dl\.active \}\}<\/span>/);
+  assert.equal((utilities.match(/class="forge-sidebar-tool-count forge-sidebar-tool-count-unread"/g) || []).length, 2);
   assert(template.includes("e.key === 'Escape' && (this.state.dlOpen || this.state.notifOpen)"));
 });
 

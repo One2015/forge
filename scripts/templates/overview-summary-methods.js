@@ -7,55 +7,94 @@
     return {
       name, initial, logoUrl, hasLogo, noLogo: !hasLogo,
       onError: () => {
-        // A late image error must not hide a replacement Logo on the same sheet.
         if (!logoUrl || this.deliverySheet(sheet.key)?.logo?.url?.trim() !== logoUrl) return;
         this.setState({ overviewLogoFailures: Object.assign({}, this.state.overviewLogoFailures, { [sheet.key]: logoUrl }) });
       }
     };
   }
+  overviewFinalDeliveryCount(sheet) {
+    const entries = this.deliveryEntries?.(sheet) || [];
+    if (!entries.length) return Math.max(0, Number(sheet?.passed) || 0);
+    const linkedIds = new Set(entries.map(entry => String(this.deliveryEntryId(entry))));
+    const finalIds = new Set();
+    for (const row of this.sheetRows(sheet)) {
+      const id = String(row?.[2] || '');
+      if (id && linkedIds.has(id) && row?.[3] === 'passed') finalIds.add(id);
+    }
+    return finalIds.size;
+  }
+  supplierPerformanceValues() {
+    const mocked = !this.props.fellowSupplierRisk;
+    const source = this.props.fellowSupplierRisk || {
+      status: 'ready', complete: true, suppliers: [
+        { id: 'mock-stepfun', name: '阶跃科技', atRisk: true, finalRiskState: 'high', primaryReason: '关键交付节点延期', deadlineAt: '2026-09-10' },
+        { id: 'mock-ant', name: '蚂蚁集团', atRisk: true, finalRiskState: 'medium', primaryReason: '临近交付日期', deadlineAt: '2026-09-12' },
+        { id: 'mock-internal', name: '内部评测', atRisk: true, finalRiskState: 'low', primaryReason: '质量复核待完成', deadlineAt: '2026-09-18' }
+      ], yesterdayPassRate: 92.4, previousDayPassRate: 90.3
+    };
+    const unavailable = message => ({ connected: false, ready: false, metric: '待接入', rows: [], message,
+      canOpenAll: true, openAll: () => this.openOutsourcingSuppliers() });
+    if (source.status !== 'ready' || source.complete !== true || !Array.isArray(source.suppliers)) {
+      return unavailable(source.status === 'loading' ? '供应商风险数据读取中' : '供应商风险数据不可用');
+    }
+    const rank = { critical: 4, high: 3, medium: 2, low: 1 };
+    const labels = { critical: '严重风险', high: '高风险', medium: '中风险', low: '低风险' };
+    const rows = source.suppliers.filter(supplier => supplier && supplier.atRisk === true && rank[supplier.finalRiskState])
+      .map(supplier => ({
+        id: String(supplier.id || ''), name: String(supplier.name || '').trim(),
+        level: String(supplier.riskLevel || labels[supplier.finalRiskState]), reason: String(supplier.primaryReason || '').trim(),
+        rank: rank[supplier.finalRiskState], deadline: Number.isFinite(Date.parse(supplier.deadlineAt)) ? Date.parse(supplier.deadlineAt) : Infinity,
+        canOpen: true,
+        open: () => this.openOutsourcingSuppliers('performance', String(supplier.id || ''))
+      })).filter(row => row.id && row.name && row.reason)
+      .sort((a, b) => b.rank - a.rank || a.deadline - b.deadline || a.name.localeCompare(b.name));
+    const validRate = value => Number.isFinite(Number(value)) && Number(value) >= 0 && Number(value) <= 100;
+    const hasPassRate = validRate(source.yesterdayPassRate);
+    const passRate = hasPassRate ? Math.round(Number(source.yesterdayPassRate) * 10) / 10 : '—';
+    const hasPreviousRate = validRate(source.previousDayPassRate);
+    const passRateDelta = hasPassRate && hasPreviousRate
+      ? (() => { const delta = Math.round((Number(source.yesterdayPassRate) - Number(source.previousDayPassRate)) * 10) / 10; return delta === 0 ? '与前日持平' : '较前日 ' + (delta > 0 ? '+' : '−') + Math.abs(delta).toFixed(1) + 'pp'; })()
+      : '';
+    return { connected: !mocked, mocked, ready: true, metric: rows.length, rows: rows.slice(0, 5), hasPassRate, passRate, passRateDelta, message: rows.length ? '' : '当前没有存在履约风险的供应商',
+      canOpenAll: true,
+      openAll: () => this.openOutsourcingSuppliers() };
+  }
   overviewSummary(runs, sheets) {
-    const fullQueue = this.pendingQueue();
-    const mine = fullQueue.filter(q => this.assignmentOf(String(q.id), this.roundsOf(q.id)).mine);
-    const others = fullQueue.length - mine.length;
-    // Name the actual review Items, not a mixture of delivery sheets and dataset groups.
-    const reviewTitles = mine.slice(0, 2).map(q => {
-      const title = String(q.meta?.[4] || '').trim();
-      return title ? this.itemTitle(title) : 'Item ' + String(q.id).slice(0, 8);
-    });
-    const reviewPreview = reviewTitles.join('、') + (mine.length > 2 ? '等' : '');
-    const running = runs.filter(run => run.running > 0);
-    const runningItems = running.reduce((sum, run) => sum + run.running, 0);
-    const gaps = sheets.filter(sheet => sheet.passed < sheet.target);
-    // Calendar-day billing uses occurrence timestamps, never Run ages.
+    const mine = [...new Map(this.pendingQueue()
+      .filter(item => this.assignmentOf(String(item.id), this.roundsOf(item.id)).mine)
+      .map(item => [String(item.id), item])).values()];
+    const running = [...new Map(runs.filter(run => run.status === 'running' && (run.id || run.runId)).map(run => [String(run.id || run.runId), run])).values()];
+    const gaps = sheets.map(sheet => Math.max((Number(sheet.target) || 0) - this.overviewFinalDeliveryCount(sheet), 0));
+    const shortage = gaps.reduce((sum, gap) => sum + gap, 0);
     const billing = this.billingYesterday();
-    // Overview and detail use the same evidence-aware, per-model aggregation.
-    const { input: modelInput, isDemo } = this.modelStatusSource();
-    const model = this.modelStatusSnapshot(modelInput);
-    const demo = isDemo ? this.modelStatusDashboard(modelInput, model, true) : null;
-    // Use all lines: detail-page filters must not change the overview totals.
-    const slowest = demo?.allLines.filter(line => line.active && line.ratio != null).sort((a, b) => b.ratio - a.ratio)[0];
-    const modelDetail = demo ? demo.issueCount + ' 个待处理问题' + (slowest ? ' · 最高延迟 ' + slowest.ratioLabel : '') : model.detail;
-    const assignmentDetail = '指派给你 ' + mine.length + ' 项 · 另有 ' + others + ' 项在别人名下';
+    const modelMocked = this.props.modelMonitoring == null;
+    const model = this.modelStatusSnapshot(modelMocked ? this.modelDemoInput() : this.props.modelMonitoring);
+    const supplier = this.supplierPerformanceValues();
     return [
-      { k: '待审核', v: mine.length, unit: '项', fg: 'var(--forge-text)',
-        note: reviewPreview || '暂无指派给你的待审内容',
-        description: '等待你审核的内容（Item）数量，同一 Item 只计一次。' + assignmentDetail + '。卡片列出前两项内容，点击查看完整待审列表。',
-        actionable: true, actionLabel: '查看指派给我的待审核内容', go: () => this.openReview('all', { reviewOwner: 'mine' }) },
-      { k: '运行中', v: running.length, unit: '个任务', fg: 'var(--forge-text)',
-        note: running.length ? '正在处理 ' + runningItems + ' 项内容' : '暂无运行中的任务',
-        description: '正在生成或修复内容的运行任务（Run）数量。一个任务可以处理多项内容；当前 ' + running.length + ' 个任务正在处理 ' + runningItems + ' 项内容，不含排队和待审核内容。',
-        actionable: true, actionLabel: '查看运行记录', go: () => this.setState({ view: 'runs' }) },
-      { k: '交付缺口', v: gaps.reduce((sum, sheet) => sum + sheet.target - sheet.passed, 0), unit: '项', fg: gaps.length ? '#8a5a16' : 'var(--forge-text)',
-        note: gaps.length ? gaps.length + ' 张数据单待补齐' : (sheets.length ? '交付数量已满足目标' : '暂无交付数据单'),
-        description: '各数据单还需补齐的可交付数量之和，按“目标数量 − 当前可交付数量”计算，每单最低为 0。生产中或待审核内容尚不计入可交付；数量缺口不代表质量不合格或交付逾期。',
-        actionable: true, actionLabel: '查看交付数据单与数量缺口', go: () => this.setState({ view: 'delivery' }) },
-      { k: '昨日成本', v: billing.value, unit: '', fg: 'var(--forge-text)',
-        note: billing.note, description: billing.description,
-        actionable: true, actionLabel: '查看昨日成本与用量分析', go: () => this.openBilling() },
-      { k: '模型状态', v: model.rate, unit: model.hasRate ? '% 当前可用' : '', fg: 'var(--forge-text)',
-        note: (isDemo ? '示例数据 · ' : '') + model.note, detail: modelDetail, checked: model.checked,
-        description: (isDemo ? '当前为模型页的同一份示例快照，非真实监测结果。' : '') + '当前可用模型占比 = 已确认可用的模型数 ÷ 生产启用的模型总数，按模型去重，保留 1 位小数。至少一条生产可路由且协议匹配的线路在 ' + model.freshnessLabel + ' 内通过生成验证，模型才计为可用。清单不完整、检测过期或存在未知模型时不显示百分比。100% 可用也可能有线路需处理；延迟、质量和账户状态单独衡量。',
-        actionable: true, actionLabel: '查看模型状态与线路问题', go: () => this.openModelStatus() }
+      { k: '待审核', v: mine.length, unit: '项', fg: 'var(--forge-text)', auxiliary: '',
+        cardLabel: '待审核，待我审核 ' + mine.length + ' 项',
+        description: '当前用户负责且尚未完成的审核 Item 数量，按 Item ID 去重。',
+        actionable: true, actionLabel: '进入审核队列，筛选待我审核', go: () => this.openReview('all', { reviewOwner: 'mine', reviewPhase: 'pending' }) },
+      { k: '运行中', v: running.length, unit: '个任务', fg: 'var(--forge-text)', auxiliary: '',
+        cardLabel: '运行中，运行中 ' + running.length + ' 个任务',
+        description: '状态为运行中的 Run 任务数量，按 Run ID 去重，不统计运行中的 Item 数。',
+        actionable: true, actionLabel: '进入运行记录，筛选运行中', go: () => this.setState({ view: 'runs', runsFilter: '运行中' }) },
+      { k: '交付缺口', v: shortage, unit: '项', fg: shortage ? '#8a5a16' : 'var(--forge-text)', auxiliary: '',
+        cardLabel: '交付缺口，距离目标还差 ' + shortage + ' 项',
+        description: '所有未达标数据单的目标数量减最终有效交付量之和。最终有效交付须已通过审核并关联数据单，按交付 Item ID 去重；每张数据单最低为 0。',
+        actionable: true, actionLabel: '进入交付数据单，筛选未达标', go: () => this.setState({ view: 'delivery', delStatus: 'unmet' }) },
+      { k: '昨日成本', v: billing.value, unit: '', fg: 'var(--forge-text)', auxiliary: billing.delta || '',
+        cardLabel: '昨日成本 ' + billing.value + (billing.delta ? '，' + billing.delta : ''),
+        description: billing.description,
+        actionable: true, actionLabel: '进入成本分析，时间范围为昨日', go: () => this.openBilling() },
+      { k: '模型状态', v: model.hasRate ? model.rate : '—', unit: model.hasRate ? '%' : '', fg: 'var(--forge-text)', auxiliary: model.hasRate ? model.note : '待检测',
+        cardLabel: model.hasRate ? '模型状态，可用模型 ' + model.rate + '%，' + model.note : '模型状态，待检测',
+        description: '当前确认可用的生产模型数除以当前启用的生产模型总数。清单不完整、检测过期或健康状态未知时不显示百分比。' + (modelMocked ? ' 当前为演示数据。' : ''),
+        actionable: true, actionLabel: '进入模型供应商表现与错误原因分析', go: () => { this.openModelStatus(); this.setState({ modelSource: modelMocked ? '' : 'live', modelDimension: 'providers' }); } },
+      { k: '外包供应商表现', v: supplier.hasPassRate ? supplier.passRate : '—', unit: supplier.hasPassRate ? '%' : '', fg: 'var(--forge-text)', auxiliary: supplier.hasPassRate ? supplier.passRateDelta : (supplier.ready ? '通过率待接入' : supplier.message),
+        cardLabel: supplier.hasPassRate ? '外包供应商表现，昨日通过率 ' + supplier.passRate + '%' + (supplier.passRateDelta ? '，' + supplier.passRateDelta : '') : '外包供应商表现，昨日通过率待接入',
+        description: supplier.hasPassRate ? '昨日通过的供应商交付批次占昨日已完成审核的供应商交付批次比例。' + (supplier.mocked ? ' 当前为演示数据。' : '') : '供应商昨日通过率尚未接入。',
+        actionable: true, actionLabel: '进入外包供应商表现', go: supplier.openAll }
     ];
   }
   // overview-summary-methods:end

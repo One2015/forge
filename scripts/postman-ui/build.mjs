@@ -1,6 +1,5 @@
 import {installPipelineNodeDrawer} from './pipeline-node-drawer.mjs';
 import {installReviewReferenceSkills} from './review-reference-skills.mjs';
-import {installBillingDateRange} from './billing-date-range.mjs';
 import {installProfileSkillEditor} from './profile-skill-editor.mjs';
 import {installDeliveryEditPage} from './delivery-edit-page.mjs';
 import {installTaskTags} from './task-tags.mjs';
@@ -59,13 +58,9 @@ export function buildPostman(source){
   ['平均调用成本','总费用 ÷ 调用次数，单位为 USD / 次，包含计费失败请求。没有调用时显示 —；不代表模型的单 Token 价格。'],
  ].map(([label,description])=>`<sc-if value="{{ metric.label === '${label}' }}"><span class="pm-metric-help" data-forge-tooltip="${description}" data-tooltip-label="${label}说明"></span></sc-if>`).join('');
  replace('<dt>{{ metric.label }}</dt>',`<dt class="pm-metric-title"><span>{{ metric.label }}</span>${metricHelp}</dt>`);
- // Analysis tabs own the dimensions; retain the active date range as context.
- const billingFiltersStart=t.indexOf('  <div class="forge-billing-filters">');
- const billingFiltersEnd=t.indexOf('  <sc-if value="{{ billing.error }}">',billingFiltersStart);
- if(billingFiltersStart<0||billingFiltersEnd<0)throw Error('Billing filters boundary changed');
- t=t.slice(0,billingFiltersStart)+t.slice(billingFiltersEnd);
- t=installBillingDateRange(t);
- replace('<span>USD · 北京时间 UTC+8</span>','<span>{{ billing.period }} · USD · 北京时间 UTC+8</span>');
+ // Billing owns its date and dimension filters in the canonical template.
+ // Keep the workspace-timezone label dynamic rather than re-installing the old UTC+8-only control.
+ if(t.includes('<span>USD · 北京时间 UTC+8</span>'))t=t.replace('<span>USD · 北京时间 UTC+8</span>','<span>{{ billing.period }} · USD · {{ billing.timezoneLabel }}</span>');
  const deliveryStart=t.indexOf('<sc-if value="{{ isDelivery }}"');
  const deliveryEnd=t.indexOf('<sc-if value="{{ isSheet }}"',deliveryStart);
  let delivery=t.slice(deliveryStart,deliveryEnd);
