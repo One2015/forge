@@ -236,11 +236,12 @@ test('pending case actions make rework primary, approval secondary and selected 
  assert.match(built,/data-case=good\]\{--case-color:var\(--pm-success\);--case-soft:var\(--pm-success-soft\)/);
  assert.match(built,/data-case=bad\]\{--case-color:var\(--pm-danger\);--case-soft:var\(--pm-danger-soft\)/);
 });
-test('billing keeps the complete filters and renders the required stacked distribution',()=>{
+test('billing keeps one set of chart controls and renders the required stacked distribution',()=>{
  assert.match(built,/\.forge-postman \.forge-billing-metrics>div\{border:0;border-radius:0;padding:0 20px;background:transparent\}/);
  assert.match(built,/\.forge-postman \.forge-billing-cost-bar\{background:var\(--pm-focus\)\}/);
- assert.match(built,/<div class="forge-billing-filters">/);
  assert.match(built,/id="forge-billing-calendar"/);
+ assert.doesNotMatch(built,/<div class="forge-billing-filters">/);
+ assert.match(built,/class="forge-billing-custom-time"[^>]*aria-controls="forge-billing-calendar"/);
  assert.doesNotMatch(built,/forge-billing-metrics-meta|forge-billing-definition|计费说明/);
  assert.match(built,/class="pm-metric-help" data-forge-tooltip="\{\{ metric\.help \}\}"/);
  assert.match(built,/class="forge-billing-stack"/);
