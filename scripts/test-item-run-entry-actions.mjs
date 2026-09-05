@@ -13,6 +13,25 @@ test('run artifacts expose large preview and round-scoped information actions', 
   assert.match(built, /class="pm-life-run-info-link"[^>]*sc-camel-on-click="\{\{ n\.openRunInfo \}\}"[^>]*>运行信息/);
   assert.match(built, /previewNote: n\.kind === '交付'[^\n]+: '本次运行产物'/);
   assert.match(built, /this\.setState\(\{ lifeRun: targetRun, lifeBranch: null, pmItemTab: 'pipeline', routeAnchor: '' \}\)/);
+  assert.match(built, /class="pm-life-run-info-link"[^>]*sc-camel-on-click="\{\{ n\.openRun \}\}"[^>]*>查看详细原因<\/button>/);
+  assert.doesNotMatch(built, />查看运行详情<\/div>/);
+  assert.match(built, /const failedNode = Object\.entries\(evidence\.nodes \|\| \{\}\)/);
+  assert.match(built, /pmItemExplorer: Object\.assign\([^\n]+\{ node: failedNode \}/);
+});
+
+test('the failed prototype run identifies the pipeline stage and timeout detail', () => {
+  const logic = built.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
+  const context = vm.createContext({
+    URL, URLSearchParams, TextDecoder, TextEncoder, Blob,
+    setTimeout: () => 0, clearTimeout() {}, window: {location: {search: ''}},
+    DCLogic: class { props = {panelWidth: 460, hasRuns: true, hasResources: true}; setState(patch) { this.state = {...this.state, ...patch}; } },
+  });
+  vm.runInContext(logic + ';globalThis.component=new Component();', context);
+  const demo = vm.runInContext("component.pmItemExplorerDemo('b3d81c4e77af4a5c9e2f1a6b8c0d3e5f','20260825-034505-c19f2a')", context);
+  assert.equal(demo.execution.nodes.build.status, '失败');
+  assert.equal(demo.execution.nodes.build.attempts[0].error.code, 'GLB_EXPORT_TIMEOUT');
+  assert.match(demo.execution.nodes.build.attempts[0].error.message, /超过 900 秒/);
+  assert.equal(demo.execution.events.at(-1).node, 'build');
 });
 
 test('the selected prototype run includes pipeline, files, prompts and trace data', () => {
