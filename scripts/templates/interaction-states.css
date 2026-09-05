@@ -46,20 +46,17 @@
   .forge-app-shell[data-sidebar-collapsed] .forge-sidebar-tool-count{position:static;top:auto;right:auto;min-width:18px;width:auto;height:18px;padding:0 5px;font-size:12px;line-height:18px;border-radius:5px;background:var(--forge-border)}
   .forge-app-shell[data-sidebar-collapsed] .forge-sidebar-tool-count-unread{background:var(--forge-accent-soft)}
   .forge-sidebar :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){opacity:1;translate:0;visibility:visible}
-  .forge-app-shell[data-sidebar-collapsed="true"] :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){opacity:0;translate:-6px;visibility:hidden}
+  .forge-app-shell[data-sidebar-collapsed="true"] :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){opacity:0;translate:0;visibility:hidden}
   .forge-sidebar-tool:has(.forge-sidebar-tool-count)::after{content:"";position:absolute;left:32px;top:6px;width:5px;height:5px;border-radius:50%;background:var(--forge-muted);opacity:0;pointer-events:none}
   .forge-sidebar-tool:has(.forge-sidebar-tool-count-unread)::after{background:var(--forge-accent)}
   .forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar-tool::after{opacity:1}
   @media(prefers-reduced-motion:no-preference){
-    html:not([data-forge-input="keyboard"]) .forge-app-shell .forge-sidebar{transition:clip-path 180ms var(--forge-sidebar-ease),box-shadow 160ms ease}
-    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar{transition-duration:240ms,180ms}
-    html:not([data-forge-input="keyboard"]) .forge-sidebar::after{transition:transform 180ms var(--forge-sidebar-ease)}
-    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar::after{transition-duration:240ms}
-    html:not([data-forge-input="keyboard"]) .forge-sidebar :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){transition:opacity 100ms ease-in,translate 120ms ease-in,visibility 0s 120ms}
-    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){transition:opacity 160ms ease 55ms,translate 200ms var(--forge-sidebar-ease) 35ms,visibility 0s}
+    html:not([data-forge-input="keyboard"]) .forge-app-shell .forge-sidebar{transition:box-shadow 90ms ease-out}
+    html:not([data-forge-input="keyboard"]) .forge-sidebar :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){transition:opacity 70ms ease-out,visibility 0s 70ms}
+    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] :is(.forge-sidebar-wordmark,.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy,.forge-sidebar-tool-count,.forge-sidebar-collapse){transition:opacity 90ms ease-out,visibility 0s}
     html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed] .forge-sidebar :is(button.forge-sidebar-link,button.forge-sidebar-tool,button.forge-sidebar-profile){transition:background-color 120ms ease,color 120ms ease,transform 120ms ease}
     html:not([data-forge-input="keyboard"]) .forge-sidebar :is(button.forge-sidebar-link,button.forge-sidebar-tool,button.forge-sidebar-profile):active:not(:disabled){transform:scale(.985)}
-    html:not([data-forge-input="keyboard"]) .forge-sidebar-collapse .forge-icon{transition:transform 200ms var(--forge-sidebar-ease)}
+    html:not([data-forge-input="keyboard"]) .forge-sidebar-collapse .forge-icon{transition:transform 80ms ease-out}
     html:not([data-forge-input="keyboard"]) .forge-sidebar-tool::after{transition:opacity 100ms ease}
   }
 }
@@ -69,14 +66,13 @@
   .forge-app-shell[data-sidebar-collapsed="true"] :is(.forge-sidebar-link,.forge-sidebar-tool){justify-content:flex-start;padding-inline:12px}
   .forge-app-shell[data-sidebar-collapsed="true"] .forge-sidebar-profile{justify-content:flex-start;padding-inline:8px}
   .forge-sidebar :is(.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy){opacity:1;translate:0;visibility:visible}
-  .forge-app-shell[data-sidebar-collapsed="true"] :is(.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy){opacity:0;translate:-6px;visibility:hidden}
+  .forge-app-shell[data-sidebar-collapsed="true"] :is(.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy){opacity:0;translate:0;visibility:hidden}
   @media(prefers-reduced-motion:no-preference){
-    html:not([data-forge-input="keyboard"]) .forge-sidebar{transition:clip-path 180ms var(--forge-sidebar-ease),box-shadow 160ms ease}
-    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar{transition-duration:240ms,180ms}
-    html:not([data-forge-input="keyboard"]) .forge-sidebar-backdrop{transition:opacity 160ms ease,visibility 0s 160ms}
-    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar-backdrop{transition:opacity 180ms ease,visibility 0s}
-    html:not([data-forge-input="keyboard"]) .forge-sidebar :is(.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy){transition:opacity 100ms ease-in,translate 120ms ease-in,visibility 0s 120ms}
-    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] :is(.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy){transition:opacity 160ms ease 55ms,translate 200ms var(--forge-sidebar-ease) 35ms,visibility 0s}
+    html:not([data-forge-input="keyboard"]) .forge-sidebar{transition:box-shadow 90ms ease-out}
+    html:not([data-forge-input="keyboard"]) .forge-sidebar-backdrop{transition:opacity 90ms ease-out,visibility 0s 90ms}
+    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] .forge-sidebar-backdrop{transition:opacity 90ms ease-out,visibility 0s}
+    html:not([data-forge-input="keyboard"]) .forge-sidebar :is(.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy){transition:opacity 70ms ease-out,visibility 0s 70ms}
+    html:not([data-forge-input="keyboard"]) .forge-app-shell[data-sidebar-collapsed="false"] :is(.forge-sidebar-link>span,.forge-sidebar-tool-label,.forge-sidebar-profile-copy){transition:opacity 90ms ease-out,visibility 0s}
   }
 }
 /* interaction-states:end */

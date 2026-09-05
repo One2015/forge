@@ -3,7 +3,8 @@
 ## Local baseline and isolation
 
 - Local source repository: `/Users/apple/Documents/ChatGPT/forge 2/forge-ia-refresh`.
-- Local source commit: `5e746b05bf68cc58cd76ea25acf2c39e1314864c`.
+- Initial local source commit: `5e746b05bf68cc58cd76ea25acf2c39e1314864c`.
+- Latest local `main` synchronized before final validation: `41ec9b482d0dad675052ddeab29f9cd79fc97237`.
 - Active local tracked and valid untracked work was captured without reading or syncing a remote.
 - Snapshot commit in the isolated worktree: `62ca064227e83bb6e3d471741db7d4ee42269a59`.
 - Upgrade branch/worktree: `design/forge-ui-upgrade` at `/Users/apple/Documents/ChatGPT/forge 2/forge-ui-upgrade`.
@@ -29,7 +30,7 @@ This is a focused implementation validation, not a formal third-party WCAG certi
 
 ## Automated checks
 
-- Unit/integration/template tests: 646 passed, 0 failed.
+- Unit/integration/template tests: 648 passed, 0 failed.
 - Scoped ESLint: passed.
 - Production build (`npm run build`): passed.
 - TypeScript: six existing errors remain in the pre-upgrade artifact preview and summary tooltip React files.

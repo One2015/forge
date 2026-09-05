@@ -97,12 +97,15 @@ test('rail, hover, selected, focus and borderless toggle styles share explicit s
   assert(css.includes('outline:2px solid var(--forge-accent)'));
   assert(!t.includes('/* download-selected:start */'));
 });
-test('sidebar motion preserves continuity without clipping every navigation item', () => {
+test('sidebar toggle avoids large travel and keeps only a brief fade', () => {
   const css = read('./templates/interaction-states.css');
-  assert(css.includes('transition:clip-path 180ms var(--forge-sidebar-ease)'));
-  assert(css.includes('transition-duration:240ms,180ms'));
-  assert(css.includes('opacity 160ms ease 55ms'));
-  assert(css.includes('translate 200ms var(--forge-sidebar-ease) 35ms'));
+  assert(css.includes('transition:box-shadow 90ms ease-out'));
+  assert(css.includes('transition:opacity 90ms ease-out,visibility 0s'));
+  assert(css.includes('opacity:0;translate:0;visibility:hidden'));
+  assert(!css.includes('transition:clip-path'));
+  assert(!css.includes('transition:transform 180ms'));
+  assert(!css.includes('transition:opacity 160ms'));
+  assert(!css.includes('translate 200ms'));
   assert(css.includes(':active:not(:disabled){transform:scale(.985)}'));
   assert.doesNotMatch(css, /\.forge-sidebar :is\(\.forge-sidebar-link,\.forge-sidebar-tool,\.forge-sidebar-profile\)\{clip-path/);
   assert.doesNotMatch(css, /transition:(?:padding-left|width)/);

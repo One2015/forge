@@ -1,6 +1,6 @@
 # Forge UI Upgrade · Implementation audit
 
-Baseline: local `main` commit `5e746b05bf68cc58cd76ea25acf2c39e1314864c` plus the active local working-tree changes, captured in isolated branch commit `62ca064`.
+Baseline: local `main` commit `5e746b05bf68cc58cd76ea25acf2c39e1314864c` plus the active local working-tree changes, captured in isolated branch commit `62ca064`. Before final validation, the branch was synchronized through the newer local-only `main` commit `41ec9b482d0dad675052ddeab29f9cd79fc97237`.
 
 ## Stack and truth sources
 
@@ -42,7 +42,7 @@ Buttons, icon buttons, links, text inputs, textareas, selects, custom pickers, c
 
 ## Final verification
 
-- `npm test`: 646 / 646 passing.
+- `npm test`: 648 / 648 passing after synchronizing the latest local feature commits.
 - Scoped ESLint for the changed runtime/build/test files: passing.
 - `npm run build`: see `VALIDATION.md` for the final result.
 - Repository-wide TypeScript currently reports six pre-existing errors in `scripts/ui/artifact-preview.tsx` and `scripts/ui/summary-tooltips.tsx`; this upgrade does not touch those files.

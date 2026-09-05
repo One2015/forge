@@ -3,10 +3,25 @@ import fs from 'node:fs';
 const css = fs.readFileSync(new URL('../../public/postman-ui/item-run-entry-actions.css', import.meta.url), 'utf8');
 const noteBefore = "n.kind === '交付' ? '交付产物 · 可交互页面' : (n.kind.indexOf('审核') === 0 ? '该轮送审的产物' : '这一次运行的产物')";
 const noteAfter = "n.kind === '交付' ? '交付产物 · 可交互页面' : (n.kind.indexOf('审核') === 0 ? '该轮送审的产物' : '本次运行产物')";
+const failureActionBefore = '<div sc-camel-on-click="{{ n.openRun }}" style="font-size:12px;color:var(--forge-muted);cursor:pointer;white-space:nowrap" style-hover="color:var(--forge-text)">查看运行详情</div>';
+const failureActionAfter = '<button type="button" class="pm-life-run-info-link" sc-camel-on-click="{{ n.openRun }}">查看详细原因</button>';
 
-const openRun = `            openRun: e => {
+const openRunBefore = `            openRun: e => {
               e.stopPropagation();
               if (r[5]) this.setState({ view: 'run', activeRun: r[5] });
+            },`;
+const openRunAfter = `            openRun: e => {
+              e.stopPropagation();
+              const targetRun = r[5] || st.lifeRun;
+              if (!targetRun) return;
+              const evidence = this.props.itemExecution?.[r[2]]?.[targetRun] || this.pmItemExplorerDemo(r[2], targetRun)?.execution || {};
+              const failedNode = Object.entries(evidence.nodes || {}).find(([, record]) => ['failed','error','timeout','失败','运行失败'].includes(String(record?.status || '').toLowerCase()))?.[0]
+                || (/GLB|导出|产物/.test(String(n.body || '')) ? 'build' : null);
+              const explorerKey = r[2] + ':' + targetRun;
+              this.setState({ lifeRun: targetRun, lifeBranch: null, pmItemTab: 'pipeline', routeAnchor: '', pmItemExplorer: Object.assign({}, this.state.pmItemExplorer, { [explorerKey]: Object.assign({}, this.state.pmItemExplorer?.[explorerKey], { node: failedNode }) }) });
+              setTimeout(() => {
+                if (typeof document !== 'undefined') document.querySelector('.pm-item-pipeline')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+              }, 0);
             },`;
 const runInfo = `            runArtifact: /^Run /.test(n.kind),
             openRunInfo: e => {
@@ -18,13 +33,15 @@ const runInfo = `            runArtifact: /^Run /.test(n.kind),
                 if (typeof document !== 'undefined') document.querySelector('.pm-item-tabs')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
               }, 0);
             },
-${openRun}`;
+${openRunAfter}`;
 
-export const itemRunEntryActionsLogicCopy = [[noteBefore, noteAfter], [openRun, runInfo]];
+export const itemRunEntryActionsLogicCopy = [[noteBefore, noteAfter], [openRunBefore, runInfo]];
 
 export function installItemRunEntryActions(t) {
   if (!t.includes(noteBefore)) throw Error('Item run artifact label boundary changed');
   t = t.replace(noteBefore, noteAfter);
+  if (!t.includes(failureActionBefore)) throw Error('Item failure detail action boundary changed');
+  t = t.replace(failureActionBefore, failureActionAfter);
 
   const previewNoteAt = t.indexOf('{{ n.previewNote }}');
   const actionStart = t.lastIndexOf('<div style="margin-top:8px;display:flex;align-items:center;gap:9px">', previewNoteAt);
@@ -41,8 +58,8 @@ export function installItemRunEntryActions(t) {
                     </div>`;
   t = t.slice(0, actionStart) + actions + t.slice(actionEnd + actionTail.length);
 
-  if (!t.includes(openRun)) throw Error('Item run detail action boundary changed');
-  t = t.replace(openRun, runInfo);
+  if (!t.includes(openRunBefore)) throw Error('Item run detail action boundary changed');
+  t = t.replace(openRunBefore, runInfo);
 
   const demoBoundary = '  pmItemExplorerDemo(id, runId) {\n';
   if (!t.includes(demoBoundary)) throw Error('Item run information demo boundary changed');

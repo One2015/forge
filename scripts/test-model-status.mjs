@@ -121,6 +121,8 @@ test('model overview uses explicit metrics, categorical quality and a working us
   const fullDay = view.modelOverviewRows.find(row => row.name === 'Claude Opus 4.1');
   assert.equal(view.overviewWindowLabel, '近 24 小时'); assert.notEqual(fullDay.requests, oneHour.requests); assert.notEqual(fullDay.cost, oneHour.cost);
   assert.match(view.overviewUsageNote, /可用线路指已启用、可路由且最近生成验证通过/);
+  assert.match(modelStyles, /\.forge-model-table-heading>div\{[^}]*min-width:0;flex:1/);
+  assert.match(modelStyles, /\.forge-model-table-heading p\{[^}]*white-space:nowrap;overflow:hidden;text-overflow:ellipsis/);
   const overviewHtml = template.match(/modelStatus\.overviewTab[\s\S]*?modelStatus\.linesTab/)[0];
   for (const label of ['请求量', '可用线路', '成功率', 'P95 TTFT', '生成速度', '质量状态', '总成本', '运行状态']) assert.match(overviewHtml, new RegExp('>' + label + '<'));
   for (const removed of ['成功 / 错误率', '>质量<', '>成本<', '>趋势<']) assert(!overviewHtml.includes(removed));

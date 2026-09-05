@@ -25,6 +25,7 @@ import vm from 'node:vm';
 import {modelStatusCopy} from './postman-ui/model-status.mjs';
 import {lifecyclePhotoCopy} from './postman-ui/lifecycle-photos.mjs';
 import {ant200MockCopy} from './postman-ui/ant200-mock.mjs';
+import {stepV2WMockCopy} from './postman-ui/stepv2w-mock.mjs';
 import {overviewSummaryCopy} from './postman-ui/overview-summary.mjs';
 import {reviewAllocationCopy} from './postman-ui/review-allocation.mjs';
 import {linkedItemToastCopy} from './postman-ui/linked-item-toast.mjs';
@@ -204,6 +205,7 @@ test('UI transformation preserves all business methods outside route adaptation'
  const withoutCheckboxAria=notificationToggleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutUtilityPanels).replace("\n            ariaChecked: n.on ? 'true' : 'false',",'');
  const withoutDeliveryBrowser=deliveryBrowserCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutCheckboxAria).replace(/\n  \/\/ pm-delivery-browser:start[\s\S]*?  \/\/ pm-delivery-browser:end\n/,'');
  const withoutItemRunEntryActions=itemRunEntryActionsLogicCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutDeliveryBrowser);
+ const withoutStepV2WMock=stepV2WMockCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutItemRunEntryActions);
  const withoutRunItemOrigin=text=>text
   .replace("\n    const lifeFromRun = view === 'itemlife' && st.lifeFrom === 'run';",'')
   .replace(' && !lifeFromRun);',');')
@@ -212,7 +214,7 @@ test('UI transformation preserves all business methods outside route adaptation'
   .replace("\n            const itemId = meta[0] || (rec.id.replace(/[^a-f0-9]/g, '') + String(k).padStart(2, '0')).slice(0, 32);",'')
   .replace('              id: itemId,',"              id: meta[0] || (rec.id.replace(/[^a-f0-9]/g, '') + String(k).padStart(2, '0')).slice(0, 32),")
   .replace(/              rowCursor:[\s\S]*?\n              noAction:/,'              RUN_ITEM_DETAIL_ENTRY\n              noAction:');
- const businessActual=withoutRunItemOrigin(normalizeCopy(normalizeModels(strip(withoutItemRunEntryActions))));
+ const businessActual=withoutRunItemOrigin(normalizeCopy(normalizeModels(strip(withoutStepV2WMock))));
  const businessExpected=withoutRunItemOrigin(normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
  assert.equal(businessActual,businessExpected);
 });
@@ -464,6 +466,11 @@ test('model line filters remain explicit, compose without clearing scope, and ex
  assert.doesNotMatch(linesSection,/aria-label="筛选(?:状态|模型供应商|模型|线路)"/);
  assert.match(built,/class="forge-model-impact-filter"/);
  assert.match(built,/运行概览/); assert.doesNotMatch(built,/Benchmark 结果|forge-model-line-comparison|modelStatus\.comparisonRows|modelStatus\.compareTab/);
+ const overviewGrid=built.match(/\.forge-postman \.forge-model-overview-table \[role="row"\]\{grid-template-columns:([^}]+)\}/)[1].trim().split(/\s+/);
+ assert.equal(overviewGrid.length,9);
+ const overviewTable=built.match(/<div class="forge-model-overview-table"[\s\S]*?<\/sc-for><\/div>/)[0];
+ const overviewHeader=overviewTable.match(/<div role="row" class="forge-model-table-head">[\s\S]*?<\/div>/)[0];
+ assert.equal((overviewHeader.match(/<span>/g)||[]).length,9);
 });
 
 

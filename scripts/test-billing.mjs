@@ -77,10 +77,11 @@ test('yesterday follows the configured workspace timezone instead of a rolling 2
   assert.match(c.billingYesterday().description, /工作区时区（America\/Toronto）/);
 });
 
-test('the authorized demo ledger is explicitly labelled on both surfaces and cached', () => {
+test('the authorized demo ledger remains identified in data and overview while the billing banner stays hidden', () => {
   const c = values(), demo = c.billingSource();
   assert(demo.demo); assert.equal(demo, c.billingSource()); assert(demo.events.length > 1000);
   assert(c.billingValues().demo); assert.match(c.billingYesterday().note, /示例账单/);
+  assert.doesNotMatch(template, /forge-billing-demo|当前未接入真实账单|<strong>示例数据<\/strong>/);
   assert.match(c.billingYesterday().description, /尚未接入真实消费/);
   assert.equal(c.billingYesterday().value, c.billingValues().metrics[0].value);
   assert(c.billingValues().rows.length > 1);
@@ -215,7 +216,7 @@ test('sorting by cost or tokens is functional and deterministic', () => {
   assert.equal(c.billingValues().rows[0].name, 'Expensive'); c.billingValues().sortTokens(); assert.equal(c.billingValues().rows[0].name, 'Cheap'); c.billingValues().sortCost(); assert.equal(c.billingValues().rows[0].name, 'Expensive');
 });
 
-test('semantic charts, native calendars, labelled demo, focus states and updater idempotence', () => {
+test('semantic charts, native calendars, hidden demo banner, focus states and updater idempotence', () => {
   const html = template.match(/<!-- billing:start -->[\s\S]*?<!-- billing:end -->/)[0];
   const c = values();
   assert.equal(c.billingValues().tabs[0].current, 'page');
@@ -228,8 +229,8 @@ test('semantic charts, native calendars, labelled demo, focus states and updater
   assert.equal(c.billingValues().costSort, 'none');
   assert(!/aria-[\w-]+="\{\{[^}]*\?/.test(html), 'runtime attributes require precomputed values');
   assert.match(html, /type="date"/); assert.match(html, /role="columnheader"/); assert.match(html, /role="rowheader"/); assert.match(html, /role="table"/); assert.match(html, /aria-sort=/); assert.match(html, /aria-pressed=/);
-  assert.match(html, /当前未接入真实账单/); assert.match(html, /role="alert"/); assert.match(html, /aria-busy="true"/);
-  assert.match(html, /<strong>示例数据<\/strong>/); assert.match(html, /forge-billing-metric-detail/); assert.doesNotMatch(html, /forge-billing-composition/);
+  assert.doesNotMatch(html, /forge-billing-demo|当前未接入真实账单|<strong>示例数据<\/strong>/); assert.match(html, /role="alert"/); assert.match(html, /aria-busy="true"/);
+  assert.doesNotMatch(html, /forge-billing-metric-detail|metric\.detail/); assert.doesNotMatch(html, /forge-billing-composition/);
   assert.match(html, /showOverviewSummary[^]*forge-billing-metrics/); assert.match(html, /showOverviewSummary[^]*billing-anomaly-title[^]*billing-change-title/);
   assert.match(html, /data-forge-tooltip="\{\{ metric\.help \}\}"/); assert.doesNotMatch(html, /forge-billing-metrics-meta|forge-billing-definition|计费说明/);
   assert.doesNotMatch(html, /class="forge-billing-filters"/); assert.match(template, /\.forge-billing-metrics>div\{[^}]*background:transparent/);
@@ -243,7 +244,7 @@ test('four nonredundant KPIs compare equal periods with consistent scope and dis
   const c = values(coveredLedger([event('old', { occurredAt: '2026-09-01T10:00:00+08:00' }), event('new', { costMicros: 5000000 }), event('new2', { costMicros: 5000000 })]));
   const v = c.billingValues();
   assert.deepEqual(Array.from(v.metrics, m => m.label), ['昨日成本', '总 Tokens', '调用次数', '平均调用成本']);
-  assert.equal(v.metrics[0].value, '$10.00'); assert.match(v.metrics[0].note, /\+300.0%/); assert.equal(v.metrics[0].tone, 'danger'); assert.match(v.metrics[0].detail, /最大增量来自/);
+  assert.equal(v.metrics[0].value, '$10.00'); assert.match(v.metrics[0].note, /\+300.0%/); assert.equal(v.metrics[0].tone, 'danger'); assert.equal(v.metrics[0].detail, undefined);
   assert.equal(v.metrics[2].value, '2'); assert.equal(v.metrics[3].value, '$5.00');
   assert.match(v.metrics[0].help, /UTC\+8/); assert.match(v.metrics[1].help, /输入 Tokens 与输出 Tokens 之和/); assert.match(v.metrics[2].help, /调用记录数/); assert.match(v.metrics[3].help, /总费用 ÷ 调用次数/);
   assert.match(v.insight, /调用量变化贡献 \+\$2.50/); assert.match(v.insight, /模型组合变化贡献 \+\$5.00/);

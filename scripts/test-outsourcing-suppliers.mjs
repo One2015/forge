@@ -53,10 +53,11 @@ test('performance page keeps the required section order without exposing fixture
 
 test('supplier, sheet and risk filters update all visible modules and empty states', () => {
   const c = component(); c.openOutsourcingSuppliers();
+  assert.equal(c.outsourcingSupplierValues().resetDisabled, true);
   c.outsourcingSupplierValues().onSupplier({ target: { value: 'stepfun' } });
-  let v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '维象制作'); assert(v.issues.every(issue => issue.supplier === '维象制作'));
+  let v = c.outsourcingSupplierValues(); assert.equal(v.resetDisabled, false); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '维象制作'); assert(v.issues.every(issue => issue.supplier === '维象制作'));
   v.onSheet({ target: { value: 'ant200' } }); v = c.outsourcingSupplierValues(); assert(!v.hasRows); assert(!v.hasTrend); assert(!v.hasIssues);
-  v.reset(); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 3);
+  v.reset(); v = c.outsourcingSupplierValues(); assert.equal(v.resetDisabled, true); assert.equal(v.detailRows.length, 3);
   v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.metrics.at(-1).value, 0);
   v.reset(); v.onCycle({ target: { value: '7d' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant']);
 });
@@ -87,6 +88,9 @@ test('frequent issues are grouped by expert team instead of repeating cards', ()
   assert.deepEqual(Array.from(v.issueGroups, group => group.supplier), ['维象制作', '灵犀三维']);
   assert.equal(v.issueGroups[0].count, 2); assert.equal(v.issueGroups[0].items[0].count, 14);
   assert.match(page, /forge-outsourcing-issue-groups/); assert.match(page, /按专家团队归类/);
+  const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
+  assert.match(css, /\.forge-outsourcing-issue-groups\{[^}]*padding:0\}/);
+  assert.match(css, /\.forge-outsourcing-issue-groups>section>div\{border:0;border-radius:0\}/);
 });
 
 test('management tab exposes all required fields and adds an in-memory expert team', () => {
@@ -102,6 +106,9 @@ test('management tab exposes all required fields and adds an in-memory expert te
 test('supplier generator is idempotent and responsive CSS uses shared tokens', () => {
   assert.equal(updateOutsourcingSuppliers(source), source);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
+  assert.match(page, /class="forge-outsourcing-reset" disabled="\{\{ outsourcingSuppliers\.resetDisabled \}\}"/);
+  assert.match(css, /\.forge-outsourcing-reset\{[^}]*border:0;[^}]*background:transparent;[^}]*color:var\(--pm-brand\)/);
+  assert.match(css, /\.forge-outsourcing-reset:disabled\{[^}]*color:var\(--forge-muted\)/);
   assert.match(css, /@media\(max-width:1000px\)/); assert.match(css, /@media\(max-width:640px\)/);
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}|rgba?\(/i);
   for (const token of ['--forge-border', '--forge-panel', '--pm-brand', '--pm-chart-1']) assert(css.includes('var(' + token + ')'));
