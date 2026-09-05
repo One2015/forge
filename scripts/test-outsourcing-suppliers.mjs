@@ -25,7 +25,7 @@ function component(props = {}, narrow = false) {
   return context.instance;
 }
 
-test('overview card and sidebar open the single outsourcing supplier destination', () => {
+test('overview card and sidebar open the single external expert destination', () => {
   for (const narrow of [false, true]) {
     const c = component({}, narrow);
     c.setState({ sidebarCollapsed: false, dlOpen: true, notifOpen: true });
@@ -35,18 +35,18 @@ test('overview card and sidebar open the single outsourcing supplier destination
     assert.equal(c.state.dlOpen, false); assert.equal(c.state.notifOpen, false);
     assert.equal(c.state.sidebarCollapsed, narrow);
   }
-  const c = component(), supplierCard = c.overviewSummary([], [])[5];
-  assert.equal(supplierCard.k, '外包供应商表现'); assert.equal(supplierCard.actionable, true);
+  const c = component(), supplierCard = c.overviewSignalValues().experts;
+  assert.match(supplierCard.cardLabel, /外部专家表现/); assert.equal(supplierCard.value, 92.4);
   supplierCard.go(); assert.equal(c.state.view, 'outsourcing-suppliers');
 });
 
 test('performance page keeps the required section order without exposing fixture labels', () => {
-  const labels = ['整体供应商表现', '供应商表现筛选器', '单家供应商交付情况', '制作供应商达标趋势', '高频问题'];
+  const labels = ['外部专家整体表现', '外部专家表现筛选器', '单个专家团队交付情况', '外部专家达标趋势', '高频问题'];
   let cursor = -1;
   for (const label of labels) { const next = page.indexOf(label); assert(next > cursor, label); cursor = next; }
   assert.doesNotMatch(page, /Mock 数据|履约明细与风险评估/); assert.match(page, /与模型 API 供应商分开管理/);
   const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
-  assert(v.demo); assert.deepEqual(Array.from(v.metrics, row => row.label), ['总交付目标', '已分配任务量', '最终有效交付量', '整体完成率', '整体质检通过率', '风险供应商数量']);
+  assert(v.demo); assert.deepEqual(Array.from(v.metrics, row => row.label), ['总交付目标', '已分配任务量', '最终有效交付量', '整体完成率', '整体质检通过率', '风险专家团队']);
   assert.equal(v.metrics[0].value, 620); assert.equal(v.metrics[1].value, 602); assert.equal(v.metrics[0].value - v.metrics[1].value, 18);
   assert(v.hasRows); assert(v.hasTrend); assert(v.hasIssues);
 });
@@ -82,16 +82,16 @@ test('delivery table is concise and supplier names open the merged detail drawer
   v.closeDetail(); assert(!c.outsourcingSupplierValues().detailOpen);
 });
 
-test('frequent issues are grouped by supplier instead of repeating supplier cards', () => {
+test('frequent issues are grouped by expert team instead of repeating cards', () => {
   const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.issueGroups, group => group.supplier), ['维象制作', '灵犀三维']);
   assert.equal(v.issueGroups[0].count, 2); assert.equal(v.issueGroups[0].items[0].count, 14);
-  assert.match(page, /forge-outsourcing-issue-groups/); assert.match(page, /按供应商归类/);
+  assert.match(page, /forge-outsourcing-issue-groups/); assert.match(page, /按专家团队归类/);
 });
 
-test('management tab exposes all required fields and adds an in-memory supplier', () => {
+test('management tab exposes all required fields and adds an in-memory expert team', () => {
   const c = component(); c.openOutsourcingSuppliers('management'); let v = c.outsourcingSupplierValues();
-  assert(v.managementTab); assert.match(page, /名称 \*/); assert.match(page, /联系人/); assert.match(page, /联系方式/); assert.match(page, /任务类型/); assert.match(page, /目标产能/); assert.doesNotMatch(page, /默认产能/); assert.match(page, /合作状态/); assert.match(page, /备注/);
+  assert(v.managementTab); assert.match(page, /专家团队名称 \*/); assert.match(page, /联系人/); assert.match(page, /联系方式/); assert.match(page, /任务类型/); assert.match(page, /目标产能/); assert.doesNotMatch(page, /默认产能/); assert.match(page, /合作状态/); assert.match(page, /备注/);
   assert.match(page, /list="forge-outsourcing-task-types"/); assert.match(page, /placeholder="输入或选择任务类型"/); assert.match(page, /<option value="Web3D"><\/option>/); assert.match(page, /<option value="质量复核"><\/option>/);
   assert.deepEqual(Array.from(v.managementRows, row => row.name), ['维象制作', '灵犀三维', '观澜质检']);
   v.openAdd(); v = c.outsourcingSupplierValues(); assert(v.addOpen); assert(!v.canAdd);

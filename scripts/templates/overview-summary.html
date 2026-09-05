@@ -1,6 +1,6 @@
 <!-- overview-summary:start -->
-<section class="forge-overview-summary" aria-label="概览核心指标">
-  <sc-for list="{{ over.stats }}" as="s" hint-placeholder-count="6">
+<section class="forge-overview-summary" aria-label="待办与交付摘要">
+  <sc-for list="{{ over.stats }}" as="s" hint-placeholder-count="3">
     <article class="forge-summary-card" data-actionable="{{ s.actionable }}" aria-label="{{ s.cardLabel }}">
       <div class="forge-summary-heading">
         <h3 class="forge-summary-title">{{ s.k }}</h3>
@@ -9,9 +9,48 @@
         </span>
       </div>
       <div class="forge-summary-value" style="color:{{ s.fg }}"><strong>{{ s.v }}</strong><span>{{ s.unit }}</span></div>
-      <sc-if value="{{ s.auxiliary }}"><p class="forge-summary-auxiliary"><span>{{ s.auxiliaryLabel }}</span><sc-if value="{{ s.auxiliaryValue }}"><strong data-tone="{{ s.auxiliaryTone }}">{{ s.auxiliaryValue }}</strong></sc-if></p></sc-if>
       <sc-if value="{{ s.actionable }}" hint-placeholder-val="{{ true }}"><button type="button" class="forge-summary-link" sc-camel-on-click="{{ s.go }}" aria-label="{{ s.actionLabel }}"></button></sc-if>
     </article>
   </sc-for>
+</section>
+
+<section class="forge-overview-signals" aria-labelledby="forge-overview-signals-title">
+  <header class="forge-overview-signals-heading">
+    <div><h2 id="forge-overview-signals-title">运行信号</h2><p>昨日费用与近 24 小时运行质量</p></div>
+    <sc-if value="{{ over.signals.demo }}"><span>演示数据</span></sc-if>
+  </header>
+  <div class="forge-overview-signal-grid">
+    <article class="forge-overview-signal-card" aria-label="{{ over.signals.cost.cardLabel }}">
+      <header><div><h3>昨日成本</h3><p>{{ over.signals.cost.caption }}</p></div><span class="forge-summary-help" data-forge-tooltip="{{ over.signals.cost.description }}" data-tooltip-label="昨日成本说明"><button type="button" class="forge-summary-info" data-tooltip-fallback="true" aria-label="昨日成本说明：{{ over.signals.cost.description }}" title="{{ over.signals.cost.description }}">[[icon:info:16]]</button></span></header>
+      <div class="forge-overview-signal-value"><strong>{{ over.signals.cost.value }}</strong><sc-if value="{{ over.signals.cost.delta }}"><span data-tone="{{ over.signals.cost.tone }}">{{ over.signals.cost.delta }}</span></sc-if></div>
+      <div class="forge-overview-sparkline" aria-hidden="true"><svg viewBox="0 0 100 48" preserveAspectRatio="none" focusable="false"><polygon points="{{ over.signals.cost.area }}"></polygon><polyline points="{{ over.signals.cost.points }}"></polyline></svg><div><span>00:00</span><span>12:00</span><span>24:00</span></div></div>
+      <button type="button" class="forge-summary-link" sc-camel-on-click="{{ over.signals.cost.go }}" aria-label="查看昨日成本分析"></button>
+    </article>
+
+    <article class="forge-overview-signal-card" aria-label="{{ over.signals.model.cardLabel }}">
+      <header><div><h3>模型状态</h3><p>{{ over.signals.model.caption }}</p></div><span class="forge-summary-help" data-forge-tooltip="{{ over.signals.model.description }}" data-tooltip-label="模型状态说明"><button type="button" class="forge-summary-info" data-tooltip-fallback="true" aria-label="模型状态说明：{{ over.signals.model.description }}" title="{{ over.signals.model.description }}">[[icon:info:16]]</button></span></header>
+      <div class="forge-overview-signal-value"><strong>{{ over.signals.model.value }}<small>{{ over.signals.model.unit }}</small></strong><span data-tone="{{ over.signals.model.tone }}">{{ over.signals.model.note }}</span></div>
+      <div class="forge-overview-model-bar" aria-hidden="true"><span data-tone="success" style="{{ over.signals.model.availableStyle }}"></span><span data-tone="danger" style="{{ over.signals.model.unavailableStyle }}"></span><span data-tone="muted" style="{{ over.signals.model.unknownStyle }}"></span></div>
+      <dl class="forge-overview-model-legend"><sc-for list="{{ over.signals.model.rows }}" as="row" hint-placeholder-count="3"><div data-tone="{{ row.tone }}"><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div></sc-for></dl>
+      <button type="button" class="forge-summary-link" sc-camel-on-click="{{ over.signals.model.go }}" aria-label="查看模型状态"></button>
+    </article>
+
+    <article class="forge-overview-signal-card" aria-label="{{ over.signals.experts.cardLabel }}">
+      <header><div><h3>外部专家表现</h3><p>{{ over.signals.experts.caption }}</p></div><span class="forge-summary-help" data-forge-tooltip="{{ over.signals.experts.description }}" data-tooltip-label="外部专家表现说明"><button type="button" class="forge-summary-info" data-tooltip-fallback="true" aria-label="外部专家表现说明：{{ over.signals.experts.description }}" title="{{ over.signals.experts.description }}">[[icon:info:16]]</button></span></header>
+      <div class="forge-overview-signal-value"><strong>{{ over.signals.experts.value }}<small>{{ over.signals.experts.unit }}</small></strong><span data-tone="{{ over.signals.experts.tone }}">{{ over.signals.experts.delta }}</span></div>
+      <div class="forge-overview-ranked-heading"><span>专家团队</span><span>通过率</span></div>
+      <div class="forge-overview-ranked-list"><sc-for list="{{ over.signals.experts.rows }}" as="row" hint-placeholder-count="3"><div class="forge-overview-ranked-row"><span class="forge-overview-ranked-fill" data-tone="{{ row.tone }}" style="{{ row.style }}"></span><span class="forge-overview-ranked-label">{{ row.name }}</span><strong>{{ row.value }}</strong></div></sc-for></div>
+      <button type="button" class="forge-summary-link" sc-camel-on-click="{{ over.signals.experts.go }}" aria-label="查看外部专家表现"></button>
+    </article>
+
+    <article class="forge-overview-signal-card" aria-label="{{ over.signals.errors.cardLabel }}">
+      <header><div><h3>错误类型</h3><p>{{ over.signals.errors.caption }}</p></div><span class="forge-summary-help" data-forge-tooltip="{{ over.signals.errors.description }}" data-tooltip-label="错误类型说明"><button type="button" class="forge-summary-info" data-tooltip-fallback="true" aria-label="错误类型说明：{{ over.signals.errors.description }}" title="{{ over.signals.errors.description }}">[[icon:info:16]]</button></span></header>
+      <div class="forge-overview-signal-value"><strong>{{ over.signals.errors.value }}</strong><span data-tone="{{ over.signals.errors.tone }}">{{ over.signals.errors.rate }}</span></div>
+      <div class="forge-overview-ranked-heading"><span>错误类型</span><span>占比</span></div>
+      <div class="forge-overview-ranked-list"><sc-for list="{{ over.signals.errors.rows }}" as="row" hint-placeholder-count="3"><div class="forge-overview-ranked-row"><span class="forge-overview-ranked-fill" data-tone="{{ row.tone }}" style="{{ row.style }}"></span><span class="forge-overview-ranked-label">{{ row.label }} <small>({{ row.count }})</small></span><strong>{{ row.value }}</strong></div></sc-for></div>
+      <sc-if value="{{ over.signals.errors.empty }}"><p class="forge-overview-signal-empty">近 24 小时未记录错误</p></sc-if>
+      <button type="button" class="forge-summary-link" sc-camel-on-click="{{ over.signals.errors.go }}" aria-label="查看模型错误详情"></button>
+    </article>
+  </div>
 </section>
 <!-- overview-summary:end -->
