@@ -96,7 +96,7 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 .pm-sheet-heading>div:first-child{flex:1;min-width:0}
 .pm-sheet-heading>div:first-child>div:last-child{max-width:85ch;line-height:21px;overflow-wrap:anywhere}
 .pm-sheet-heading>div:first-child>div:first-child>div{border:0!important;background:var(--pm-hover)!important;color:var(--pm-muted)!important;border-radius:4px!important;padding:2px 8px!important}
-.pm-sheet-progress{padding:0 0 20px!important;border:0!important;border-bottom:1px solid var(--pm-border)!important;border-radius:0!important;margin-bottom:20px!important}
+.pm-sheet-progress{padding:0 var(--space-4) var(--space-5)!important;border:0!important;border-bottom:1px solid var(--pm-border)!important;border-radius:0!important;margin-bottom:20px!important}
 .pm-sheet-metrics{margin-top:14px!important;gap:16px!important}
 .pm-sheet-metrics>div+div{border-left:1px solid var(--pm-border);padding-left:16px}
 .pm-sheet-list{border:1px solid var(--pm-border)!important;border-radius:4px!important;overflow:hidden}
