@@ -96,8 +96,8 @@
     </div>
     <footer class="review-workbench-actions">
       <sc-if value="{{ it.pending }}" hint-placeholder-val="{{ true }}">
-        <button class="review-workbench-approve" sc-camel-on-click="{{ it.pass }}">通过审核 <kbd>A</kbd></button>
-        <button class="review-workbench-reject" sc-camel-on-click="{{ it.rework }}">要求返工 <kbd>R</kbd></button>
+        <button class="review-workbench-approve" sc-camel-on-click="{{ it.pass }}" disabled="{{ it.actionsDisabled }}">通过审核 <kbd>A</kbd></button>
+        <button class="review-workbench-reject" sc-camel-on-click="{{ it.rework }}" disabled="{{ it.actionsDisabled }}">要求返工 <kbd>R</kbd></button>
       </sc-if>
       <sc-if value="{{ it.needsNote }}" hint-placeholder-val="{{ false }}">
         <button class="review-workbench-approve" sc-camel-on-click="{{ it.cancelNote }}">取消返工</button>

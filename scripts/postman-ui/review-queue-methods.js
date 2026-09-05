@@ -39,16 +39,23 @@
   }
   reviewQueueValues({ rows, records, review, recs, runOfItem, me }) {
     const st = this.state;
-    // Previewing a claimed Item must not resume or alter another review session.
-    if (st.queuePreviewOnly) {
-      const noop = event => event?.stopPropagation();
-      review.items = (review.items || []).map(item => ({ ...item, pending: false, needsNote: false, notNeedsNote: true,
-        pass: noop, rework: noop, cancelNote: noop, submitNote: noop }));
-    }
+    const sameUser = (a, b) => String(a || '').toLowerCase() === String(b || '').toLowerCase();
+    const rowByKey = new Map(rows.map(row => [row.key, row]));
+    const noop = event => event?.stopPropagation();
+    // Existing claims open as read-only review context, including direct Item links.
+    // A claim created by this browser session remains actionable for its reviewer.
+    review.items = (review.items || []).map(item => {
+      const row = rowByKey.get(item.key);
+      const claim = row ? this.reviewQueueClaim(row) : '';
+      const activeSession = !st.queuePreviewOnly && Object.prototype.hasOwnProperty.call(st.reviewClaims || {}, item.key) && sameUser(claim, me);
+      const locked = !!st.queuePreviewOnly || !!st.reworkDrafts?.[item.key] || (!!claim && !activeSession);
+      return locked ? { ...item, actionsDisabled: true, needsNote: false, notNeedsNote: true,
+        pass: noop, rework: noop, cancelNote: noop, submitNote: noop } : { ...item, actionsDisabled: false };
+    });
     const now = Date.now();
     const submittedAt = this._queueClock || (this._queueClock = now);
     const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
-    const eq = (a, b) => String(a || '').toLowerCase() === String(b || '').toLowerCase();
+    const eq = sameUser;
     const decided = st.reviewDecisions || {};
     const pending = rows.filter(r => !(decided[r.key] === 'pass' || decided[r.key] === 'rework' && st.reworkSent?.[r.key]));
     const patch = values => this.setState({ queuePage: 1, reviewOpen: null, deepReview: null, ...values });

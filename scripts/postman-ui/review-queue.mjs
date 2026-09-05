@@ -11,6 +11,18 @@ export function installReviewQueue(t) {
   if (header < 0 || content < header) throw Error('Review workbench boundary changed');
   modal = modal.slice(0, header) + modal.slice(content);
   modal = modal.replace('value="{{ review.isPending }}"', 'value="{{ review.focused }}"');
+  const readonlyActions = [
+    ['review-workbench-approve', 'it.pass'],
+    ['review-workbench-reject', 'it.rework'],
+  ];
+  for (const [className, handler] of readonlyActions) {
+    const before = `class="${className}" sc-camel-on-click="{{ ${handler} }}"`;
+    const after = before + ' disabled="{{ it.actionsDisabled }}"';
+    if (!modal.includes(after)) {
+      if (!modal.includes(before)) throw Error('Review workbench action boundary changed: ' + className);
+      modal = modal.replace(before, after);
+    }
+  }
   let page = read('review-queue.html').replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, (_, name, size) => {
     const svg = fs.readFileSync(new URL('../../assets/phosphor/regular/' + name + '.svg', import.meta.url), 'utf8');
     return svg.replace(/<svg[^>]*>/, '<svg class="forge-icon" data-phosphor="' + name + '" width="' + size + '" height="' + size + '" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">');
