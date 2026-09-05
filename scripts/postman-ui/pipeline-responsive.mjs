@@ -30,7 +30,7 @@ function installPipelineListLayout(t){
  if(start<0||end<start)throw Error('Pipeline list layout boundary changed');
  let p=t.slice(start,end);
  const replace=(from,to)=>{if(!p.includes(from))throw Error('Pipeline list layout anchor changed: '+from.slice(0,80));p=p.replace(from,to);};
- replace('<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">','<div class="pm-pipelines-heading" style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">');
+ replace('<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">','<div class="pm-production-page-heading pm-pipelines-heading" style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">');
  replace('<div style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">','<div class="pm-pipelines-filters" style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">');
  replace('<div style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">','<div class="pm-pipelines-list" style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">');
  replace('<div style="display:grid;grid-template-columns:minmax(0,1.7fr)', '<div class="pm-pipelines-columns" style="display:grid;grid-template-columns:minmax(0,1.7fr)');

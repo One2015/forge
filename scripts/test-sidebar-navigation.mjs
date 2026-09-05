@@ -126,6 +126,13 @@ test('the existing primary and production-level actions remain available', () =>
   assert.equal(c.renderVals().sidebar.productionCurrent, 'page');
 });
 
+test('production secondary navigation scrolls without exposing a native scrollbar', () => {
+  const css = fs.readFileSync(new URL('./templates/forge-sidebar.css', import.meta.url), 'utf8');
+  assert.match(css, /\.forge-production-tabs>div\{[^}]*scrollbar-width:none[^}]*-ms-overflow-style:none/);
+  assert.match(css, /\.forge-production-tabs>div::\-webkit-scrollbar\{display:none\}/);
+  assert.match(css, /@media\(max-width:760px\)\{[\s\S]*?\.forge-production-tabs>div\{[^}]*overflow-x:auto/);
+});
+
 test('download, messages and actual profile live in the sidebar with no top toolbar', () => {
   const c = component({ currentUser: 'Allen' });
   assert.equal(c.renderVals().sidebar.userName, 'Allen');

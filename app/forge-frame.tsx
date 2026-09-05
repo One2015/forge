@@ -2,7 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-export default function ForgeFrame() {
+type ForgeFrameProps = {
+  source?: string;
+  title?: string;
+};
+
+export default function ForgeFrame({
+  source = '/forge-postman.html',
+  title = 'Forge · Postman UI 优化版',
+}: ForgeFrameProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -22,8 +30,8 @@ export default function ForgeFrame() {
         </div>
       </div>
       {!ready && <span className="pm-loading-sr" role="status">正在加载工作台…</span>}
-      <iframe ref={frame} className="forge-frame pm-loading-content" src="/forge-postman.html" title="Forge · Postman UI 优化版" onLoad={()=>setReady(true)} aria-hidden={!ready} inert={!ready}/>
-      <noscript><a className="fallback-link" href="/forge-postman.html">打开 Forge · Postman UI 优化版</a></noscript>
+      <iframe ref={frame} className="forge-frame pm-loading-content" src={source} title={title} onLoad={()=>setReady(true)} aria-hidden={!ready} inert={!ready}/>
+      <noscript><a className="fallback-link" href={source}>打开 {title}</a></noscript>
     </main>
   );
 }

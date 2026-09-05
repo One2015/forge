@@ -63,6 +63,19 @@ test('workspace typography and page rhythm share one compact scale',()=>{
  assert.doesNotMatch(built,/>错误类型</);
  assert.doesNotMatch(built,/class="forge-supplier-performance"/);
 });
+test('production list pages share one stable title and primary-action grid',()=>{
+ const headings=Array.from(built.matchAll(/<(?:header|div) class="[^"]*\bpm-production-page-heading\b[^"]*"/g),match=>match[0]);
+ assert.equal(headings.length,4);
+ assert(headings.some(value=>value.includes('fg-page-header')));
+ assert(headings.some(value=>value.includes('pm-pipelines-heading')));
+ for(const [flag,endAnchor] of [['isDatasets','<script type="text/x-dc"'],['isResources','<sc-if value="{{ isItemLife }}"']]){
+  const start=built.indexOf('<sc-if value="{{ '+flag+' }}"');
+  const end=built.indexOf(endAnchor,start);
+  assert.match(built.slice(start,end),/class="pm-production-page-heading"/);
+ }
+ assert.match(built,/\.forge-postman :is\(\.forge-page,\.fg-runs\)>\.pm-production-page-heading\{display:grid!important;grid-template-columns:minmax\(0,1fr\) auto;align-items:start!important;gap:24px!important;min-height:52px;margin-bottom:20px!important\}/);
+ assert.match(built,/\.forge-postman \.pm-production-page-heading>button\{align-self:start;justify-self:end;flex:none;margin:0!important\}/);
+});
 test('workflow indicators distinguish completed, current and upcoming steps',()=>{
  const wizard=built.slice(built.indexOf('<nav class="forge-wizard-steps pm-steps"'),built.indexOf('</nav>',built.indexOf('<nav class="forge-wizard-steps pm-steps"')));
  assert.match(wizard,/aria-label="\{\{ step\.ariaLabel \}\}"/);
@@ -191,7 +204,17 @@ test('UI transformation preserves all business methods outside route adaptation'
  const withoutCheckboxAria=notificationToggleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutUtilityPanels).replace("\n            ariaChecked: n.on ? 'true' : 'false',",'');
  const withoutDeliveryBrowser=deliveryBrowserCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutCheckboxAria).replace(/\n  \/\/ pm-delivery-browser:start[\s\S]*?  \/\/ pm-delivery-browser:end\n/,'');
  const withoutItemRunEntryActions=itemRunEntryActionsLogicCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutDeliveryBrowser);
- assert.equal(normalizeCopy(normalizeModels(strip(withoutItemRunEntryActions))),normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
+ const withoutRunItemOrigin=text=>text
+  .replace("\n    const lifeFromRun = view === 'itemlife' && st.lifeFrom === 'run';",'')
+  .replace(' && !lifeFromRun);',');')
+  .replace("\n      const fromRun = st.lifeFrom === 'run';",'')
+  .replace(/        backLabel:[\s\S]*?\n        showBranchBadge:/, '        ITEM_LIFE_NAVIGATION\n        showBranchBadge:')
+  .replace("\n            const itemId = meta[0] || (rec.id.replace(/[^a-f0-9]/g, '') + String(k).padStart(2, '0')).slice(0, 32);",'')
+  .replace('              id: itemId,',"              id: meta[0] || (rec.id.replace(/[^a-f0-9]/g, '') + String(k).padStart(2, '0')).slice(0, 32),")
+  .replace(/              rowCursor:[\s\S]*?\n              noAction:/,'              RUN_ITEM_DETAIL_ENTRY\n              noAction:');
+ const businessActual=withoutRunItemOrigin(normalizeCopy(normalizeModels(strip(withoutItemRunEntryActions))));
+ const businessExpected=withoutRunItemOrigin(normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
+ assert.equal(businessActual,businessExpected);
 });
 test('Pipeline checkbox aria state follows enable and disable without opening details',()=>{
  const c=vm.runInContext('new Component()',ctx);
@@ -236,11 +259,12 @@ test('pending case actions make rework primary, approval secondary and selected 
  assert.match(built,/data-case=good\]\{--case-color:var\(--pm-success\);--case-soft:var\(--pm-success-soft\)/);
  assert.match(built,/data-case=bad\]\{--case-color:var\(--pm-danger\);--case-soft:var\(--pm-danger-soft\)/);
 });
-test('billing keeps the complete filters and renders the required stacked distribution',()=>{
+test('billing keeps one set of chart controls and renders the required stacked distribution',()=>{
  assert.match(built,/\.forge-postman \.forge-billing-metrics>div\{border:0;border-radius:0;padding:0 20px;background:transparent\}/);
  assert.match(built,/\.forge-postman \.forge-billing-cost-bar\{background:var\(--pm-focus\)\}/);
- assert.match(built,/<div class="forge-billing-filters">/);
  assert.match(built,/id="forge-billing-calendar"/);
+ assert.doesNotMatch(built,/<div class="forge-billing-filters">/);
+ assert.match(built,/class="forge-billing-custom-time"[^>]*aria-controls="forge-billing-calendar"/);
  assert.doesNotMatch(built,/forge-billing-metrics-meta|forge-billing-definition|计费说明/);
  assert.match(built,/class="pm-metric-help" data-forge-tooltip="\{\{ metric\.help \}\}"/);
  assert.match(built,/class="forge-billing-stack"/);
@@ -468,8 +492,9 @@ test('delivery drafts are removed while unsaved-form protection remains',()=>{
 
 test('Item explorer scopes evidence to the exact Item and Run and preserves tabs',()=>{
  const c=vm.runInContext('new Component()',ctx), id='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f',runId='20260825-034505-c19f2a';
- Object.assign(c.state,{view:'itemlife',lifeItem:id,lifeRun:runId,sheetKey:'ant200'});
+ Object.assign(c.state,{view:'itemlife',lifeItem:id,lifeRun:runId,lifeRunIndex:21,lifeFrom:'run',sheetKey:'ant200'});
  let e=c.pmItemExplorerValues({id}); assert(e.demo); assert.equal(e.fileCount,4); assert(e.hasPrompts);assert(e.hasEvents);
+ assert(e.hasRunOverview);assert.equal(e.runState,'失败');assert.equal(e.runProgress,'8 / 18');assert.equal(e.runNode,'ref_search');assert.match(e.pipelineLabel,/web3d-gen-build-eval-v3/);assert.equal(e.trajectoryLabel,'4 个事件');
  assert.deepEqual(Array.from(e.nodes,n=>n.name),Array.from(c.pipeData().find(p=>p.name==='web3d-gen-build-eval-v3').dag,n=>n.split('/')[0]));
  e.tabs.find(t=>t.key==='pipeline').pick();e.nodes[1].pick();e=c.pmItemExplorerValues({id});
  assert(e.pipelineTab);assert.equal(e.node.name,'build');assert(e.node.hasConfig);assert(e.node.hasResult);
@@ -488,11 +513,23 @@ test('Pipeline inspector prefers versioned configuration over marked mock defaul
 });
 
 test('Item view links retain the selected tab and scope after reload',()=>{
- const route=ctx.codec.read('/items/b3d81c4e77af4a5c9e2f1a6b8c0d3e5f?run=20260825-034505-c19f2a&sheet=ant200&tab=files');
+ const route=ctx.codec.read('/items/b3d81c4e77af4a5c9e2f1a6b8c0d3e5f?run=20260825-034505-c19f2a&itemIndex=21&sheet=ant200&tab=files&from=run');
  assert.equal(route.patch.pmItemTab,'files');
  const restored=ctx.codec.read(ctx.codec.write(route.patch));
- assert.equal(restored.patch.pmItemTab,'files');assert.equal(restored.patch.lifeRun,route.patch.lifeRun);
+ assert.equal(restored.patch.pmItemTab,'files');assert.equal(restored.patch.lifeRun,route.patch.lifeRun);assert.equal(restored.patch.lifeRunIndex,21);assert.equal(restored.patch.lifeFrom,'run');
  assert.equal(ctx.codec.read('/items/b3d81c4e77af4a5c9e2f1a6b8c0d3e5f?tab=invalid').patch.pmItemTab,'history');
+});
+
+test('every Run Item opens its scoped detail while row actions remain separate',()=>{
+ const c=vm.runInContext('new Component()',ctx),runId='20260825-034505-c19f2a';
+ Object.assign(c.state,{view:'run',activeRun:runId,runItem:null});
+ let values=c.renderVals(), failed=values.run.items.find(item=>item.id==='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f'&&item.state==='失败');
+ assert(failed);assert.equal(failed.rowCursor,'pointer');
+ failed.open({target:{closest:()=>null},preventDefault(){},stopPropagation(){}});
+ assert.equal(c.state.view,'itemlife');assert.equal(c.state.lifeItem,failed.id);assert.equal(c.state.lifeRun,runId);assert.equal(c.state.lifeRunIndex,21);assert.equal(c.state.lifeFrom,'run');assert.equal(c.state.pmItemTab,'history');
+ values=c.renderVals();assert.equal(values.life.backLabel,'返回运行详情');values.life.back();assert.equal(c.state.view,'run');assert.equal(c.state.activeRun,runId);
+ const success=c.renderVals().run.items.find(item=>item.state==='待审核');
+ success.keyOpen({key:'Enter',target:null,currentTarget:null,preventDefault(){}});assert.equal(c.state.view,'itemlife');assert.equal(c.state.lifeItem,success.id);
 });
 
 test('Pipeline owner guards apply on direct editor links, viewer routes and stale callbacks',()=>{

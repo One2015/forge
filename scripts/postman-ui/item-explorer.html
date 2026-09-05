@@ -1,3 +1,16 @@
+<sc-if value="{{ explorer.hasRunOverview }}">
+ <section class="pm-item-run-overview" aria-labelledby="pm-item-run-overview-title">
+  <h2 id="pm-item-run-overview-title" data-pm-no-permalink>本轮运行</h2>
+  <dl>
+   <div><dt>本轮状态</dt><dd><span class="pm-item-run-status" data-state="{{ explorer.runStateKey }}">{{ explorer.runState }}</span></dd></div>
+   <div><dt>Pipeline</dt><dd><a href="{{ explorer.pipelineHref }}" data-forge-route>{{ explorer.pipelineLabel }}</a></dd></div>
+   <div><dt>当前节点</dt><dd><code>{{ explorer.runNode }}</code></dd></div>
+   <div><dt>节点进度</dt><dd>{{ explorer.runProgress }}</dd></div>
+   <div><dt>Trajectory</dt><dd>{{ explorer.trajectoryLabel }}</dd></div>
+   <div><dt>成本 / 耗时</dt><dd>{{ explorer.runCostTime }}</dd></div>
+  </dl>
+ </section>
+</sc-if>
 <nav class="pm-item-tabs" data-pm-tabs="primary" aria-label="Item 详情视图">
  <sc-for list="{{ explorer.tabs }}" as="tab"><button type="button" aria-pressed="{{ tab.selected }}" sc-camel-on-click="{{ tab.pick }}">{{ tab.label }}</button></sc-for>
 </nav>

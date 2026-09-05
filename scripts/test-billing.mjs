@@ -33,7 +33,10 @@ test('time granularity is a secondary unfilled control while metrics retain thei
   assert(template.includes('class="forge-billing-granularity" role="group" aria-label="时间粒度"'));
   assert(template.includes('class="forge-billing-segment" role="group" aria-label="趋势指标"'));
   assert.match(template, /<\/header>\s*<div class="forge-billing-chart-controls">/);
-  assert.match(template, /class="forge-billing-custom-time"[^>]*aria-label="选择自定义时间范围"/);
+  assert.match(template, /class="forge-billing-custom-time"[^>]*aria-haspopup="dialog"[^>]*aria-controls="forge-billing-calendar"[^>]*aria-label="选择自定义时间范围"/);
+  assert.doesNotMatch(template, /class="forge-billing-filters"|class="forge-billing-date-trigger"/);
+  assert.match(template, /\.forge-billing-custom-time\{anchor-name:--billing-calendar\}/);
+  assert.match(template, /#forge-billing-calendar\{position-anchor:--billing-calendar;top:anchor\(bottom\);left:auto;right:anchor\(right\)/);
   assert.match(template, /\.forge-billing-chart-controls\{[^}]*justify-content:flex-start[^}]*width:100%[^}]*margin-bottom:12px/);
   assert.match(template, /\.forge-billing-chart-controls>\.forge-billing-granularity\{margin-left:auto\}/);
   assert.match(template, /\.forge-billing-chart-controls\{flex-direction:column;align-items:stretch;gap:8px\}\.forge-billing-granularity\{align-self:flex-end\}/);
@@ -229,7 +232,7 @@ test('semantic charts, native calendars, labelled demo, focus states and updater
   assert.match(html, /<strong>示例数据<\/strong>/); assert.match(html, /forge-billing-metric-detail/); assert.doesNotMatch(html, /forge-billing-composition/);
   assert.match(html, /showOverviewSummary[^]*forge-billing-metrics/); assert.match(html, /showOverviewSummary[^]*billing-anomaly-title[^]*billing-change-title/);
   assert.match(html, /data-forge-tooltip="\{\{ metric\.help \}\}"/); assert.doesNotMatch(html, /forge-billing-metrics-meta|forge-billing-definition|计费说明/);
-  assert.match(template, /\.forge-billing-filters\{display:grid;grid-template-columns:[^}]* auto;/); assert.match(template, /\.forge-billing-metrics>div\{[^}]*background:transparent/);
+  assert.doesNotMatch(html, /class="forge-billing-filters"/); assert.match(template, /\.forge-billing-metrics>div\{[^}]*background:transparent/);
   const methods = fs.readFileSync(new URL('./templates/billing-methods.js', import.meta.url), 'utf8'); assert(!/fetch\(|XMLHttpRequest|localStorage|sessionStorage/.test(methods));
   assert.equal(updateBilling(source), source); assert.equal(updateModelStatus(source), source);
 });

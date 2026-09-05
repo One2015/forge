@@ -42,6 +42,22 @@
     };
   }
 
+  pmRunItemSnapshot(run, itemId, indexHint = null) {
+    if (!run || !itemId) return null;
+    const hinted = Number.isInteger(indexHint) && indexHint >= 0 && indexHint < run.n && this.taskRunItem(run,indexHint).itemId===itemId ? indexHint : null;
+    const index = hinted ?? Array.from({length:run.n}, (_,i)=>i).find(i=>this.taskRunItem(run,i).itemId===itemId);
+    if (index == null) return null;
+    const tech = this.state.runItemTech?.[run.id + ':' + index] || {};
+    const status = tech.status || (index < run.done ? 'success' : index < run.done + run.running ? 'running' : index < run.done + run.running + run.failed ? 'failed' : 'queued');
+    const fallbackProgress = status === 'success' ? 18 : status === 'running' ? Math.max(1, 5 - (index % 4)) : status === 'failed' || status === 'stopped' ? 7 + (index % 5) : 0;
+    const progress = tech.stoppedAtStep ?? tech.progress ?? fallbackProgress;
+    const nodeNames = ['build_product','ref_search','prep_task','dcc_block','runtime'];
+    const node = ['queued','cancelled'].includes(status) ? '未开始' : tech.stoppedAtNode || tech.node || nodeNames[index % nodeNames.length];
+    const cost = tech.stoppedAtCost || tech.cost || run.itemCosts?.[index] || (['queued','cancelled'].includes(status) ? '—' : '\u0024' + (status === 'success' ? 54 + index * 3 : 12.4 + index * 2.6).toFixed(2));
+    const elapsed = tech.stoppedAtTime || tech.elapsed || (['queued','cancelled'].includes(status) ? '—' : (6 + index) + 'm ' + String(12 + index * 7).padStart(2,'0') + 's');
+    return {index,status,label:({success:'待审核',running:'运行中',failed:'失败',queued:'排队中',stopping:'停止中',stopped:'已停止',cancelled:'已取消'})[status] || '状态未知',progress,node,cost,elapsed};
+  }
+
   pmItemExplorerValues(life) {
     const state = this.state, id = life?.id || state.lifeItem;
     const source = this.deliveryData().flatMap(group=>group.sheets).flatMap(sheet=>this.sheetRows(sheet)).find(row=>row[2]===id);
@@ -71,6 +87,8 @@
     const ds = this.dsData().find(ds=>(ds.items || []).some(item=>item[0]===id));
     const input = ds?.items?.find(item=>item[0]===id);
     const events = (Array.isArray(evidence.events) ? evidence.events : []).map((event,index)=>({id:String(index),label:event.label || event.type || '事件',node:event.node || '',time:event.time || '',detail:typeof event.detail==='string' ? event.detail : JSON.stringify(event.detail ?? {},null,2)}));
+    const runItem = this.pmRunItemSnapshot(run,id,state.lifeFrom==='run' ? state.lifeRunIndex : null);
+    const pipelineLabel = [pipelineName,version].filter(Boolean).join(' ') || '未关联 Pipeline';
     const nodes = (pipeline?.dag || []).map((declared,index)=>{
       const [name,kind] = typeof declared==='string' ? declared.split('/') : [declared.name,declared.kind];
       return {name,kind,kindLabel:this.pmNodeKindLabel(kind),index:index+1,selected:stored.node===name,status:evidence.nodes?.[name]?.status || '未提供执行状态',pick:()=>update({node:name}),hasEdge:index < pipeline.dag.length-1};
@@ -81,7 +99,10 @@
       tabs:[['history','完整记录'],['pipeline','Pipeline'],['files','文件'],['prompt','查看 Prompt'],['trace','轨迹']].map(([key,label])=>({key,label,selected:tab===key,pick:()=>update({tab:key})})),
       history:tab==='history',pipelineTab:tab==='pipeline',filesTab:tab==='files',promptTab:tab==='prompt',traceTab:tab==='trace',
       showContext:tab!=='history' && tab!=='pipeline',
-      runId:runId || '未关联运行',pipelineLabel:[pipelineName,version].filter(Boolean).join(' ') || '未关联 Pipeline',
+      hasRunOverview:!!runItem,
+      runState:runItem?.label || '状态未知',runStateKey:runItem?.status || 'unknown',runNode:runItem?.node || '—',runProgress:runItem ? runItem.progress + ' / 18' : '—',
+      runCostTime:runItem ? runItem.cost + ' · ' + runItem.elapsed : '—',trajectoryLabel:events.length ? events.length + ' 个事件' : '暂无轨迹记录',
+      runId:runId || '未关联运行',pipelineLabel,
       pipelineHref:ForgeRoutes.write({view:'pipeedit',editPipe:pipelineName,pmPipelineView:true}),
       pipelineEditHref:ForgeRoutes.write({view:'pipeedit',editPipe:pipelineName,pmPipelineView:false}),
       canEditPipeline:!!current && this.pmCanEditPipeline(),
