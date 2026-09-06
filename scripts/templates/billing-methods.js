@@ -315,7 +315,20 @@
     const runValues=Array.from(runGroups.values()),runAverage=runValues.length?runValues.reduce((n,row)=>n+row.cost,0)/runValues.length:0;
     const abnormalRuns=runValues.filter(row=>row.cost>runAverage*1.05||row.reasons.size).map(row=>({id:row.id,runId:row.id,task:row.task,cost:this.billingMoney(row.cost),deviation:runAverage?'+'+Math.round((row.cost/runAverage-1)*100)+'%':'—',reason:Array.from(row.reasons)[0]||'成本高于同范围 Run 平均值',href:'?view=run&activeRun='+encodeURIComponent(row.id),open:event=>{event?.preventDefault?.();this.setState({view:'run',activeRun:row.id,runItem:null,runsQuery:''});}})).sort((a,b)=>Number(b.deviation.replace(/[^\d.-]/g,''))-Number(a.deviation.replace(/[^\d.-]/g,''))).slice(0,5);
     const costTone = (value, baseline) => !comparisonKnown || value === baseline ? 'neutral' : value < baseline ? 'success' : 'danger';
-    const metric = (label, value, note, help, tone = 'neutral') => ({ label, value: ready ? value : '—', note, help, tone });
+    const metric = (label, value, note, help, tone = 'neutral') => {
+      let noteLabel = note, noteValue = '', noteSuffix = '';
+      if (tone !== 'neutral') {
+        const suffix = ' · USD / 次';
+        const comparison = String(note).endsWith(suffix) ? String(note).slice(0, -suffix.length) : String(note);
+        const match = comparison.match(/^(较前日|较上一周期)\s+(.+)$/);
+        if (match) {
+          noteLabel = match[1];
+          noteValue = match[2];
+          noteSuffix = comparison === note ? '' : suffix;
+        }
+      }
+      return { label, value: ready ? value : '—', note, noteLabel, noteValue, noteSuffix, help, tone };
+    };
     const presets = [['yesterday', '昨日'], ['week', '近 7 天'], ['month', '本月'], ['year', '近 12 个月'], ['years', '近 3 年'], ['custom', '自定义']].map(([id, name]) => ({ id, name, selected: s.preset === id }));
     const period = s.start === s.end ? s.start : s.start + ' — ' + s.end, presetName = presets.find(p => p.selected)?.name || '自定义';
     const chips = [['project', s.project, projects], ['provider', s.provider, providers], ['model', s.model, models]].filter(([, id]) => id).map(([key, id, options]) => ({ name: options.find(o => o.id === id)?.name || id, clear: () => this.updateBilling({ [key]: '', trail: [] }) }));

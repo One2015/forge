@@ -7,6 +7,7 @@ import { updateModelStatus } from './update-model-status.mjs';
 
 const source = fs.readFileSync(new URL('./templates/forge-base.html', import.meta.url), 'utf8');
 const themeTokens = fs.readFileSync(new URL('../public/postman-ui/tokens.css', import.meta.url), 'utf8');
+const forgeSystem = fs.readFileSync(new URL('../public/postman-ui/forge-system.css', import.meta.url), 'utf8');
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const NOW = Date.parse('2026-09-03T12:00:00+08:00');
@@ -233,6 +234,8 @@ test('semantic charts, native calendars, hidden demo banner, focus states and up
   assert.doesNotMatch(html, /forge-billing-metric-detail|metric\.detail/); assert.doesNotMatch(html, /forge-billing-composition/);
   assert.match(html, /showOverviewSummary[^]*forge-billing-metrics/); assert.match(html, /showOverviewSummary[^]*billing-anomaly-title[^]*billing-change-title/);
   assert.match(html, /data-forge-tooltip="\{\{ metric\.help \}\}"/); assert.doesNotMatch(html, /forge-billing-metrics-meta|forge-billing-definition|计费说明/);
+  assert.match(html, /class="forge-billing-metric-note"><span>\{\{ metric\.noteLabel \}\}<\/span><sc-if value="\{\{ metric\.noteValue \}\}"><strong class="forge-metric-delta-tag" data-tone="\{\{ metric\.tone \}\}">\{\{ metric\.noteValue \}\}<\/strong>/);
+  assert.match(forgeSystem, /\.forge-postman \.forge-metric-delta-tag\{[^}]*display:inline-block[^}]*padding:4px[^}]*border-radius:var\(--radius-xs\)[^}]*line-height:16px/);
   assert.doesNotMatch(html, /class="forge-billing-filters"/); assert.match(template, /\.forge-billing-metrics>div\{[^}]*background:transparent/);
   const methods = fs.readFileSync(new URL('./templates/billing-methods.js', import.meta.url), 'utf8'); assert(!/fetch\(|XMLHttpRequest|localStorage|sessionStorage/.test(methods));
   assert.equal(updateBilling(source), source); assert.equal(updateModelStatus(source), source);
@@ -245,6 +248,8 @@ test('four nonredundant KPIs compare equal periods with consistent scope and dis
   const v = c.billingValues();
   assert.deepEqual(Array.from(v.metrics, m => m.label), ['昨日成本', '总 Tokens', '调用次数', '平均调用成本']);
   assert.equal(v.metrics[0].value, '$10.00'); assert.match(v.metrics[0].note, /\+300.0%/); assert.equal(v.metrics[0].tone, 'danger'); assert.equal(v.metrics[0].detail, undefined);
+  assert.equal(v.metrics[0].noteLabel, '较前日'); assert.equal(v.metrics[0].noteValue, '+$7.50 · +300.0%'); assert.equal(v.metrics[0].noteSuffix, '');
+  assert.equal(v.metrics[3].noteLabel, '较上一周期'); assert.equal(v.metrics[3].noteValue, '+100.0%'); assert.equal(v.metrics[3].noteSuffix, ' · USD / 次');
   assert.equal(v.metrics[2].value, '2'); assert.equal(v.metrics[3].value, '$5.00');
   assert.match(v.metrics[0].help, /UTC\+8/); assert.match(v.metrics[1].help, /输入 Tokens 与输出 Tokens 之和/); assert.match(v.metrics[2].help, /调用记录数/); assert.match(v.metrics[3].help, /总费用 ÷ 调用次数/);
   assert.match(v.insight, /调用量变化贡献 \+\$2.50/); assert.match(v.insight, /模型组合变化贡献 \+\$5.00/);

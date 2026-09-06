@@ -144,6 +144,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .forge-model-overview-metrics>div[data-tone=success] dd{color:var(--status-success)!important}
 .forge-postman .forge-model-overview-metrics>div[data-tone=warning] dd{color:var(--status-warning)!important}
 .forge-postman .forge-model-overview-metrics>div[data-tone=danger] dd{color:var(--status-danger)!important}
+.forge-postman .forge-metric-delta-tag{display:inline-block;padding:4px;border:0;border-radius:var(--radius-xs);font-weight:var(--weight-semibold);line-height:16px;font-variant-numeric:tabular-nums}
 
 /* Page-specific alignment without changing product structure. */
 .forge-postman .pm-delivery-browser-toolbar{padding:0!important;margin-bottom:var(--space-4)!important;background:transparent!important;border:0!important}

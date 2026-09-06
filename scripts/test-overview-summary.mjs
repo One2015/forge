@@ -38,6 +38,7 @@ test('overview keeps six equal summary cards in one group with exact destination
 });
 
 test('overview metric deltas render as compact semantic tags', () => {
+  assert.match(template, /class="forge-metric-delta-tag" data-tone="\{\{ s\.auxiliaryTone \}\}"/);
   assert.match(
     template,
     /\.forge-summary-auxiliary strong\{[^}]*display:inline-block[^}]*padding:4px[^}]*border-radius:var\(--radius-xs\)[^}]*line-height:16px/,
