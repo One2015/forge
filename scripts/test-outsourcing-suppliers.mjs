@@ -129,6 +129,8 @@ test('frequent issues are an aggregate percentage list with an expert filter', (
 test('management tab exposes all required fields and adds an in-memory expert team', () => {
   const c = component(); c.openOutsourcingSuppliers('management'); let v = c.outsourcingSupplierValues();
   assert(v.managementTab); assert.match(page, /专家团队名称 \*/); assert.match(page, /联系人/); assert.match(page, /联系方式/); assert.match(page, /任务类型/); assert.match(page, /目标产能/); assert.doesNotMatch(page, /默认产能/); assert.match(page, /合作状态/); assert.match(page, /备注/);
+  assert.match(page, /<header class="forge-outsourcing-block-heading"><h2 id="outsourcing-management">专家管理<\/h2>[\s\S]*?<\/header><section class="forge-outsourcing-section" aria-labelledby="outsourcing-management">/);
+  assert.doesNotMatch(page, /维护外部专家团队，与模型 API 供应商分开管理/);
   assert.match(page, /list="forge-outsourcing-task-types"/); assert.match(page, /placeholder="输入或选择任务类型"/); assert.match(page, /<option value="Web3D"><\/option>/); assert.match(page, /<option value="质量复核"><\/option>/);
   assert.deepEqual(Array.from(v.managementRows, row => row.name), ['维象制作', '灵犀三维', '观澜质检']);
   v.openAdd(); v = c.outsourcingSupplierValues(); assert(v.addOpen); assert(!v.canAdd);
@@ -142,6 +144,7 @@ test('supplier generator is idempotent and responsive CSS uses shared tokens', (
   assert.match(css, /\.forge-outsourcing-column-filter select\{[^}]*width:100%[^}]*border:1px solid transparent!important[^}]*text-overflow:ellipsis/);
   assert.match(css, /\.forge-outsourcing-column-filter\[data-filter-active="true"\] select\{[^}]*border-color:var\(--pm-focus\)!important[^}]*background-color:var\(--pm-selected\)!important/);
   assert.match(css, /@media\(hover:hover\)\{\.forge-outsourcing-column-filter select:hover/);
+  assert.match(css, /\.forge-outsourcing-block-heading>button,\.forge-outsourcing-section header>button/);
   assert.match(css, /@media\(max-width:1000px\)/); assert.match(css, /@media\(max-width:640px\)/);
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}|rgba?\(/i);
   for (const token of ['--forge-border', '--forge-panel', '--pm-brand', '--pm-chart-1']) assert(css.includes('var(' + token + ')'));
