@@ -131,8 +131,18 @@ test('management tab exposes all required fields and adds an in-memory expert te
   assert(v.managementTab); assert.match(page, /专家团队名称 \*/); assert.match(page, /联系人/); assert.match(page, /联系方式/); assert.match(page, /任务类型/); assert.match(page, /目标产能/); assert.doesNotMatch(page, /默认产能/); assert.match(page, /合作状态/); assert.match(page, /备注/);
   assert.match(page, /<header class="forge-outsourcing-block-heading"><h2 id="outsourcing-management">专家管理<\/h2>[\s\S]*?<\/header><section class="forge-outsourcing-section" aria-labelledby="outsourcing-management">/);
   assert.doesNotMatch(page, /维护外部专家团队，与模型 API 供应商分开管理/);
+  const managementTable = page.slice(page.indexOf('forge-outsourcing-management-table'));
+  const managementHeader = managementTable.match(/<div role="row" class="forge-outsourcing-table-head"[\s\S]*?<\/div>/)[0];
+  assert.equal((managementHeader.match(/class="forge-outsourcing-column-filter"/g) || []).length, 7);
+  for (const label of ['筛选管理专家团队', '筛选联系人', '筛选合作状态', '筛选擅长任务', '目标产能排序', '质量排序', '筛选管理风险']) assert(managementHeader.includes('aria-label="' + label + '"'), label);
   assert.match(page, /list="forge-outsourcing-task-types"/); assert.match(page, /placeholder="输入或选择任务类型"/); assert.match(page, /<option value="Web3D"><\/option>/); assert.match(page, /<option value="质量复核"><\/option>/);
   assert.deepEqual(Array.from(v.managementRows, row => row.name), ['维象制作', '灵犀三维', '观澜质检']);
+  v.onManagementStatus({ target: { value: '合作中' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.managementRows, row => row.id), ['stepfun', 'ant']);
+  v.onManagementSpecialty({ target: { value: '动画' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.managementRows, row => row.id), ['ant']);
+  v.onManagementStatus({ target: { value: '' } }); v.onManagementSpecialty({ target: { value: '' } }); v.onManagementRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.managementRows, row => row.id), ['internal']);
+  v.onManagementRisk({ target: { value: '' } }); v.onManagementSort({ target: { value: 'capacity-asc' } }); v = c.outsourcingSupplierValues(); assert.equal(v.managementCapacityOrder, 'capacity-asc'); assert.deepEqual(Array.from(v.managementRows, row => row.id), ['internal', 'ant', 'stepfun']);
+  v.onManagementSort({ target: { value: 'quality-desc' } }); v = c.outsourcingSupplierValues(); assert.equal(v.managementQualityOrder, 'quality-desc'); assert.deepEqual(Array.from(v.managementRows, row => row.id), ['ant', 'internal', 'stepfun']);
+  v.onManagementSupplier({ target: { value: 'missing' } }); v = c.outsourcingSupplierValues(); assert.equal(v.managementHasRows, false); assert.match(managementTable, /!outsourcingSuppliers\.managementHasRows/);
   v.openAdd(); v = c.outsourcingSupplierValues(); assert(v.addOpen); assert(!v.canAdd);
   v.onName({ target: { value: '北辰制作' } }); v.onTaskTypes({ target: { value: 'Web3D' } }); v = c.outsourcingSupplierValues(); assert(v.canAdd); v.add();
   v = c.outsourcingSupplierValues(); assert.equal(v.managementRows.at(-1).name, '北辰制作'); assert.equal(v.managementRows.at(-1).specialties, 'Web3D'); assert(!v.addOpen);
