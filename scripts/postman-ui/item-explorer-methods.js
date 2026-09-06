@@ -98,7 +98,6 @@
       demo:!!manifest.demo,
       tabs:[['history','完整记录'],['pipeline','Pipeline'],['files','文件'],['prompt','查看 Prompt'],['trace','轨迹']].map(([key,label])=>({key,label,selected:tab===key,pick:()=>update({tab:key})})),
       history:tab==='history',pipelineTab:tab==='pipeline',filesTab:tab==='files',promptTab:tab==='prompt',traceTab:tab==='trace',
-      showContext:tab!=='history' && tab!=='pipeline',
       hasRunOverview:!!runItem,
       runState:runItem?.label || '状态未知',runStateKey:runItem?.status || 'unknown',runNode:runItem?.node || '—',runProgress:runItem ? runItem.progress + ' / 18' : '—',
       runCostTime:runItem ? runItem.cost + ' · ' + runItem.elapsed : '—',trajectoryLabel:events.length ? events.length + ' 个事件' : '暂无轨迹记录',

@@ -14,9 +14,6 @@
 <nav class="pm-item-tabs" data-pm-tabs="primary" aria-label="Item 详情视图">
  <sc-for list="{{ explorer.tabs }}" as="tab"><button type="button" aria-pressed="{{ tab.selected }}" sc-camel-on-click="{{ tab.pick }}">{{ tab.label }}</button></sc-for>
 </nav>
-<sc-if value="{{ explorer.showContext }}">
- <div class="pm-explorer-context"><a href="{{ explorer.pipelineHref }}" data-forge-route>{{ explorer.pipelineLabel }}</a><code>Run · {{ explorer.runId }}</code></div>
-</sc-if>
 <sc-if value="{{ explorer.pipelineTab }}">
  <section class="pm-item-pipeline" aria-label="Item Pipeline">
   <header class="pm-pipeline-context"><div><a href="{{ explorer.pipelineHref }}" data-forge-route>{{ explorer.pipelineLabel }}</a><code>Run · {{ explorer.runId }}</code></div><sc-if value="{{ explorer.canEditPipeline }}"><a class="pm-pipeline-edit-link" href="{{ explorer.pipelineEditHref }}" data-forge-route>编辑 Pipeline</a></sc-if></header>

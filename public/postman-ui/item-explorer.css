@@ -15,14 +15,12 @@
 .forge-postman .pm-item-run-status[data-state=running]::before{background:var(--pm-warning,#c8912f)}
 .forge-postman .pm-item-run-status:is([data-state=failed],[data-state=stopped])::before{background:var(--pm-danger,#a5321f)}
 .forge-postman .pm-item-tabs{margin:22px 0 0}
-.forge-postman .pm-explorer-context{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:16px 0;color:var(--pm-muted);font-size:12px;overflow-wrap:anywhere}
-.forge-postman .pm-explorer-context code{font-size:11px;min-width:0;overflow-wrap:anywhere}
 html:has(.pm-page-itemlife){scrollbar-gutter:stable}
 .forge-postman .pm-page-itemlife{box-sizing:border-box;min-width:0;width:100%;max-width:100%}
 .forge-postman .pm-item-pipeline{margin-top:16px}
 .forge-postman .pm-pipeline-context{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;border-bottom:1px solid var(--pm-border);flex-wrap:wrap}
 .forge-postman .pm-pipeline-context>div{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;min-width:0}
-.forge-postman :is(.pm-pipeline-context,.pm-explorer-context) a{color:var(--pm-link);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.forge-postman .pm-pipeline-context a{color:var(--pm-link);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
 .forge-postman .pm-pipeline-context code{font:11px/1.6 var(--pm-mono);color:var(--pm-muted);overflow-wrap:anywhere}
 .forge-postman .pm-pipeline-context .pm-pipeline-edit-link{font-weight:400;white-space:nowrap}
 .forge-postman .pm-node-kind{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--pm-control);background:var(--pm-subtle);border-radius:4px;padding:3px 7px;font:500 11px/16px var(--pm-font);color:var(--pm-muted)}

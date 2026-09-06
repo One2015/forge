@@ -574,6 +574,7 @@ test('Item explorer scopes evidence to the exact Item and Run and preserves tabs
  Object.assign(c.state,{view:'itemlife',lifeItem:id,lifeRun:runId,lifeRunIndex:21,lifeFrom:'run',sheetKey:'ant200'});
  let e=c.pmItemExplorerValues({id}); assert(e.demo); assert.equal(e.fileCount,4); assert(e.hasPrompts);assert(e.hasEvents);
  assert(e.hasRunOverview);assert.equal(e.runState,'失败');assert.equal(e.runProgress,'8 / 18');assert.equal(e.runNode,'ref_search');assert.match(e.pipelineLabel,/web3d-gen-build-eval-v3/);assert.equal(e.trajectoryLabel,'4 个事件');
+ assert.equal(e.showContext,undefined);assert.doesNotMatch(built,/pm-explorer-context/);
  assert.deepEqual(Array.from(e.nodes,n=>n.name),Array.from(c.pipeData().find(p=>p.name==='web3d-gen-build-eval-v3').dag,n=>n.split('/')[0]));
  e.tabs.find(t=>t.key==='pipeline').pick();e.nodes[1].pick();e=c.pmItemExplorerValues({id});
  assert(e.pipelineTab);assert.equal(e.node.name,'build');assert(e.node.hasConfig);assert(e.node.hasResult);
