@@ -24,26 +24,17 @@ function initialTheme() {
 function initialDensity() {
   const requested = query.get('density');
   if (allowedDensities.has(requested)) return requested;
-  const saved = storage.get('forge-density');
-  if (allowedDensities.has(saved)) return saved;
   return 'comfortable';
 }
 
 function updatePreferenceControls() {
   const dark = root.dataset.forgeTheme === 'dark';
-  const compact = root.dataset.forgeDensity === 'compact';
   const themeButton = document.querySelector('#forge-theme-toggle');
-  const densityButton = document.querySelector('#forge-density-toggle');
   if (themeButton) {
     themeButton.setAttribute('aria-pressed', String(dark));
     themeButton.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
     themeButton.querySelector('[data-forge-theme-label]').textContent = dark ? '浅色' : '深色';
     themeButton.querySelector('[data-forge-theme-icon]').dataset.mode = dark ? 'light' : 'dark';
-  }
-  if (densityButton) {
-    densityButton.setAttribute('aria-pressed', String(compact));
-    densityButton.setAttribute('aria-label', compact ? '切换到舒适密度' : '切换到紧凑密度');
-    densityButton.querySelector('[data-forge-density-label]').textContent = compact ? '舒适' : '紧凑';
   }
 }
 
@@ -52,13 +43,6 @@ function setTheme(theme, persist = true) {
   if (persist) storage.set('forge-theme', theme);
   updatePreferenceControls();
   dispatchEvent(new CustomEvent('forge:preference-change', { detail: { theme, density: root.dataset.forgeDensity } }));
-}
-
-function setDensity(density, persist = true) {
-  root.dataset.forgeDensity = density;
-  if (persist) storage.set('forge-density', density);
-  updatePreferenceControls();
-  dispatchEvent(new CustomEvent('forge:preference-change', { detail: { theme: root.dataset.forgeTheme, density } }));
 }
 
 /* Internal adapters for AI-native surfaces. They intentionally do not expose a
@@ -88,9 +72,6 @@ function installForgePreferences() {
 
   document.querySelector('#forge-theme-toggle')?.addEventListener('click', () => {
     setTheme(root.dataset.forgeTheme === 'dark' ? 'light' : 'dark');
-  });
-  document.querySelector('#forge-density-toggle')?.addEventListener('click', () => {
-    setDensity(root.dataset.forgeDensity === 'compact' ? 'comfortable' : 'compact');
   });
 
   const observer = new MutationObserver(records => {

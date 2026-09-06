@@ -44,7 +44,7 @@ import {installUtilityPanels} from './utility-panels.mjs';
 const root=new URL('../../',import.meta.url);
 export function buildPostman(source){
  const icon=name=>fs.readFileSync(new URL('assets/phosphor/regular/'+name+'.svg',root),'utf8').replace('<svg ','<svg class="forge-icon" width="16" height="16" aria-hidden="true" focusable="false" ');
- const densityIcon=icon('arrows-down-up'),themeIcon=icon('circle-half');
+ const themeIcon=icon('circle-half');
  const opening='<script type="__bundler/template">', closing='\n</script>\n</body>\n</html>';
  const start=source.indexOf(opening),end=source.lastIndexOf(closing);
  if(start<0||end<0)throw Error('Missing prototype template boundary');
@@ -53,7 +53,7 @@ export function buildPostman(source){
  replace('<html><head>','<html lang="zh-CN"><head><title>Forge · Postman UI 优化版</title>');
  t=t.replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>');
  t=t.replace('<body','<body class="forge-postman forge-rbac-prototype"');
- replace('<main class="forge-main"',`<header class="pm-topbar"><span class="pm-brand-mark" aria-hidden="true">F</span><strong>Forge</strong><span class="pm-workspace-name">生产与交付工作台</span><div class="pm-topbar-actions" role="group" aria-label="界面偏好"><button type="button" id="forge-density-toggle" class="pm-preference-control" aria-pressed="false"><span aria-hidden="true">${densityIcon}</span><span data-forge-density-label>紧凑</span></button><button type="button" id="forge-theme-toggle" class="pm-preference-control" aria-pressed="false"><span aria-hidden="true" data-forge-theme-icon data-mode="dark">${themeIcon}</span><span data-forge-theme-label>深色</span></button></div></header>\n<main class="forge-main"`);
+ replace('<main class="forge-main"',`<header class="pm-topbar"><span class="pm-brand-mark" aria-hidden="true">F</span><strong>Forge</strong><span class="pm-workspace-name">生产与交付工作台</span><div class="pm-topbar-actions" role="group" aria-label="界面偏好"><button type="button" id="forge-theme-toggle" class="pm-preference-control" aria-pressed="false"><span aria-hidden="true" data-forge-theme-icon data-mode="dark">${themeIcon}</span><span data-forge-theme-label>深色</span></button></div></header>\n<main class="forge-main"`);
  const deliveryStart=t.indexOf('<sc-if value="{{ isDelivery }}"');
  const deliveryEnd=t.indexOf('<sc-if value="{{ isSheet }}"',deliveryStart);
  let delivery=t.slice(deliveryStart,deliveryEnd);

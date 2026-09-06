@@ -22,12 +22,13 @@ test('Forge exposes semantic light, dark and density tokens', () => {
   assert.match(tokens, /--radius-xs:\.375rem; --radius-control:\.5rem; --radius-surface:\.75rem/);
 });
 
-test('theme and density controls are native, labelled and isolated from business state', () => {
-  assert.match(built, /id="forge-density-toggle"[^>]*aria-pressed="false"/);
+test('theme control is native while density remains URL-configurable without a user toggle', () => {
+  assert.doesNotMatch(built, /forge-density-toggle|data-forge-density-label|>紧凑</);
   assert.match(built, /id="forge-theme-toggle"[^>]*aria-pressed="false"/);
   assert.match(built, /src="\/postman-ui\/forge-system\.mjs"/);
   assert.match(behavior, /storage\.get\('forge-theme'\)/);
-  assert.match(behavior, /storage\.get\('forge-density'\)/);
+  assert.match(behavior, /query\.get\('density'\)/);
+  assert.doesNotMatch(behavior, /storage\.(?:get|set)\('forge-density'\)|setDensity|forge-density-toggle/);
   assert.match(behavior, /forge:preference-change/);
   assert.doesNotMatch(behavior, /setState|DCLogic|fetch\(/);
 });
