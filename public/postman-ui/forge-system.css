@@ -193,7 +193,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .pm-overview-delivery-section{border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;overflow:hidden}
 .forge-postman .pm-overview-delivery-section>div:first-child{min-height:3.25rem;padding:.875rem var(--space-5)!important;border-bottom:1px solid var(--border-subtle);background:var(--surface-raised)!important}
 .forge-postman .pm-overview-delivery-columns{min-height:2.5rem;padding:.625rem var(--space-5);background:var(--surface-subtle)!important;border-bottom-color:var(--border-subtle)}
-.forge-postman .pm-overview-delivery-row{min-height:4.25rem;padding:.75rem var(--space-5)!important;border-bottom-color:var(--border-subtle)!important}
+.forge-postman .pm-overview-delivery-row{width:100%;min-height:4.25rem;padding:.75rem var(--space-5)!important;border-radius:0!important;border-bottom-color:var(--border-subtle)!important;background:var(--surface-raised)!important;box-shadow:none!important}
 .forge-postman .pm-overview-delivery-row:last-child{border-bottom:0!important}
 
 /* Dense workspaces -------------------------------------------------------- */

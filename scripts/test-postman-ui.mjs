@@ -166,7 +166,9 @@ test('overview delivery progress is a flat section without a sheet-count label',
  assert.match(section,/class="pm-overview-delivery-date"[\s\S]*\{\{ r\.deliveryDate \}\}/);
  const c=vm.runInContext('new Component()',ctx); c.state.view='overview';
  assert(c.renderVals().over.groups[0].rows.every(row=>/^\d+ 天后$/.test(row.deliveryDate)));
- assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border-radius:0[^}]*box-shadow:none!important/);
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border-radius:var\(--radius-surface\)!important[^}]*overflow:hidden/);
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-row\{[^}]*width:100%[^}]*border-radius:0!important[^}]*background:var\(--surface-raised\)!important[^}]*box-shadow:none!important/);
+ assert.match(built,/@media\(hover:hover\)\{\.forge-postman :is\([^}]*\.pm-overview-delivery-row\):hover\{background:var\(--surface-hover\)!important\}\}/);
 });
 test('delivery browser replaces the result count with search and list or folder views',()=>{
  const page=built.slice(built.indexOf('<sc-if value="{{ isDelivery }}"'),built.indexOf('<sc-if value="{{ isSheet }}"'));
