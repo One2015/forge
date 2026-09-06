@@ -49,7 +49,7 @@
 .forge-postman .pm-delivery-view-toggle button[aria-pressed=true]{background:var(--pm-selected);color:var(--pm-text);font-weight:600}
 .forge-postman .pm-delivery-sort{position:relative;flex:none}
 .forge-postman .pm-delivery-sort-trigger{display:flex;align-items:center;gap:7px;height:var(--pm-control-height);padding:0 11px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer}
-.forge-postman .pm-delivery-sort .forge-motion-menu{--forge-menu-origin:top right;position:absolute;top:calc(100% + 6px);right:0;z-index:30;display:grid;min-width:128px;padding:4px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.forge-postman .pm-delivery-sort .forge-motion-menu{--forge-menu-origin:top right;position:absolute;top:calc(100% + 6px);right:0;z-index:30;display:grid;width:92px;min-width:0;padding:4px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .forge-postman .pm-delivery-sort .forge-motion-menu button{display:grid;grid-template-columns:16px 1fr;gap:6px;align-items:center;width:100%;padding:6px 8px;border:0;border-radius:3px;text-align:left;color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer}
 .forge-postman .pm-delivery-results{display:block}
 .forge-postman .pm-delivery-groups{display:flex;flex-direction:column;gap:20px}
