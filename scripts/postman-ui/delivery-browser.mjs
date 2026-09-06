@@ -20,6 +20,9 @@ export function installDeliveryBrowser(t) {
   const deliveryEnd = t.indexOf('<sc-if value="{{ isSheet }}"', deliveryStart);
   if (deliveryStart < 0 || deliveryEnd < deliveryStart) throw Error('Delivery browser page boundary changed');
   let page = t.slice(deliveryStart, deliveryEnd);
+  const subtitle = '          <div style="margin-top:7px;font-size:14px;color:var(--forge-muted)">{{ delivery.subtitle }}</div>\n';
+  if (!page.includes(subtitle)) throw Error('Delivery browser subtitle boundary changed');
+  page = page.replace(subtitle, '');
   const toolbarStart = page.indexOf('      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">');
   const resultsStart = page.indexOf('      <div style="display:flex;flex-direction:column;gap:20px">', toolbarStart);
   const resultsClose = page.lastIndexOf('      </div>\n    </div>\n  </sc-if>');

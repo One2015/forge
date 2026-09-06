@@ -39,11 +39,11 @@
 .forge-postman .forge-delivery-customer-name{font-size:13px}
 .forge-postman .forge-delivery-customer-logo{width:22px;height:22px}
 .forge-postman .pm-delivery-page>div:last-child{gap:18px!important}
-.forge-postman .pm-delivery-browser-toolbar{display:grid;gap:12px;margin-bottom:16px}
+.forge-postman .pm-delivery-browser-toolbar{display:flex;align-items:center;gap:12px;margin:0;padding:8px 12px;border-block:1px solid var(--pm-border);background:var(--pm-table-heading)}
 .forge-postman .pm-delivery-category-row{display:flex;gap:2px;max-width:100%;overflow-x:auto;padding:3px;background:var(--pm-border);border-radius:6px;scrollbar-width:none}
 .forge-postman .pm-delivery-category-row::-webkit-scrollbar{display:none}
 .forge-postman .pm-delivery-category-row button{flex:none;min-height:30px;padding:5px 12px;border:0;border-radius:4px;font:13px/20px var(--pm-font);cursor:pointer;white-space:nowrap}
-.forge-postman .pm-delivery-browser-controls{display:flex;align-items:center;gap:10px}
+.forge-postman .pm-delivery-browser-controls{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:1;min-width:0;margin-left:auto}
 .forge-postman .pm-delivery-search{display:flex;align-items:center;gap:8px;min-width:240px;max-width:420px;flex:1;height:var(--pm-control-height);min-height:var(--pm-control-height);padding:0 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-muted)}
 .forge-postman .pm-delivery-search:focus-within{border-color:var(--pm-focus);box-shadow:0 0 0 1px var(--pm-focus)}
 .forge-postman .pm-delivery-search input{min-width:0;flex:1;height:100%;padding:0;border:0;background:transparent;color:var(--pm-text);font:13px/20px var(--pm-font)}
@@ -64,6 +64,8 @@
  .forge-postman .pm-delivery-category-row button:hover,.forge-postman .pm-delivery-sort .forge-motion-menu button:hover{background:var(--pm-hover)!important}
 }
 @media(max-width:760px){
+ .forge-postman .pm-delivery-browser-toolbar{align-items:stretch;flex-wrap:wrap;padding:8px}
+ .forge-postman .pm-delivery-category-row{width:100%}
  .forge-postman .pm-delivery-browser-controls{flex-wrap:wrap}
  .forge-postman .pm-delivery-search{order:1;min-width:100%;max-width:none}
  .forge-postman .pm-delivery-sort{order:2;margin-left:auto}
