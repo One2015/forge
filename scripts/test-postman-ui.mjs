@@ -55,6 +55,7 @@ test('workspace typography and page rhythm map to semantic Forge tokens',()=>{
  assert.match(built,/--type-body-size:\.875rem; --type-body-leading:1\.375rem/);
  assert.match(built,/--pm-page-gutter:var\(--page-gutter\); --pm-page-top:var\(--page-block-start\); --pm-page-bottom:var\(--page-block-end\)/);
  assert.match(built,/--content-inset:var\(--space-5\); --content-inset-compact:var\(--space-4\); --content-inset-mobile:var\(--space-3\)/);
+ assert.match(built,/:root\[data-forge-density="compact"\] body\.forge-postman \.forge-app-shell,[\s\S]*--density-control-height:var\(--size-control-sm\)/);
  assert.match(built,/\.forge-postman \.forge-page,\.forge-postman \.fg-runs\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
  assert.match(built,/\.forge-postman \.pm-review-queue\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
  assert.match(built,/\.pm-review-queue \.pq-heading h1\{[^}]*font-size:var\(--pm-title-size\)[^}]*line-height:var\(--pm-title-leading\)/);
@@ -361,8 +362,10 @@ test('review scope is a filter beneath status tabs and completed tasks retain re
  assert.match(built,/aria-label="审核范围"/);
  assert.match(built,/class="pq-tabs" role="tablist"/);
  assert.match(built,/role="table" aria-label="审核任务列表"/);
+ assert.match(built,/\.pm-review-queue \.pq-filters \.pq-search\{[^}]*height:var\(--pm-control-height\)/);
  assert.match(built,/\.pm-review-queue \.pq-search>\.forge-icon\{[^}]*inset-inline-start:12px[^}]*top:50%[^}]*transform:translateY\(-50%\)[^}]*pointer-events:none/);
  assert.match(built,/\.forge-postman \.pm-review-queue \.pq-search input\{[^}]*padding-block:5px[^}]*padding-inline:36px 10px/);
+ assert.match(built,/\.pm-review-queue \.pq-reset\{height:var\(--pm-control-height\)/);
  assert.doesNotMatch(built,/<span class="pm-preview-label">/);
 });
 

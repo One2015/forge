@@ -23,10 +23,10 @@
 .pm-review-queue .pq-filters{display:flex;gap:10px 12px;flex-wrap:wrap;align-items:flex-end;padding:12px 0}
 .pm-review-queue .pq-filters label{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:var(--pm-meta-size);line-height:var(--pm-meta-leading);color:var(--pm-muted)}
 .pm-review-queue .pq-filters select{height:var(--pm-control-height);min-width:110px;padding:4px 9px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);font-size:var(--pm-body-size);color:var(--pm-text)}
-.pm-review-queue .pq-filters .pq-search{display:flex;flex-direction:row;align-items:center;position:relative;flex:1 1 220px;width:auto;height:32px;gap:0}
+.pm-review-queue .pq-filters .pq-search{display:flex;flex-direction:row;align-items:center;position:relative;flex:1 1 220px;width:auto;height:var(--pm-control-height);gap:0}
 .pm-review-queue .pq-search>.forge-icon{position:absolute;inset-inline-start:12px;top:50%;z-index:1;color:var(--pm-muted);transform:translateY(-50%);pointer-events:none}
 .forge-postman .pm-review-queue .pq-search input{box-sizing:border-box;height:var(--pm-control-height);width:100%;padding-block:5px;padding-inline:36px 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);font-size:var(--pm-body-size)}
-.pm-review-queue .pq-reset{height:32px;padding:4px 5px}
+.pm-review-queue .pq-reset{height:var(--pm-control-height);padding:4px 5px}
 .pm-review-queue .pq-date-filter{display:flex;align-items:center;gap:6px;font-size:12px;margin:0 0 10px;color:var(--pm-muted)}
 .pm-review-queue .pq-date-filter button{border:0;background:transparent;color:inherit}
 .pm-review-queue .pq-table-scroll{overflow-x:auto;max-height:none;min-height:120px;border-bottom:1px solid var(--pm-border);scrollbar-width:thin;scrollbar-color:var(--pm-control) transparent}

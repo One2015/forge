@@ -137,7 +137,9 @@ body.forge-postman .fg-theme {
   --pm-action:var(--accent-solid); --pm-action-hover:var(--accent-solid-hover); --pm-action-pressed:var(--accent-solid-pressed); --pm-action-border:var(--accent-solid); --pm-nav:var(--text-primary);
 }
 
-:root[data-forge-density="compact"] {
+:root[data-forge-density="compact"],
+:root[data-forge-density="compact"] body.forge-postman .forge-app-shell,
+:root[data-forge-density="compact"] body.forge-postman .fg-theme {
   --density-control-height:var(--size-control-sm);
   --density-row-height:2.25rem;
   --density-section-gap:var(--space-6);
