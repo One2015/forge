@@ -361,6 +361,8 @@ test('review scope is a filter beneath status tabs and completed tasks retain re
  assert.match(built,/aria-label="审核范围"/);
  assert.match(built,/class="pq-tabs" role="tablist"/);
  assert.match(built,/role="table" aria-label="审核任务列表"/);
+ assert.match(built,/\.pm-review-queue \.pq-search>\.forge-icon\{[^}]*inset-inline-start:12px[^}]*top:50%[^}]*transform:translateY\(-50%\)[^}]*pointer-events:none/);
+ assert.match(built,/\.forge-postman \.pm-review-queue \.pq-search input\{[^}]*padding-block:5px[^}]*padding-inline:36px 10px/);
  assert.doesNotMatch(built,/<span class="pm-preview-label">/);
 });
 
