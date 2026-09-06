@@ -24,8 +24,10 @@ test('all data-table headers and values use the same left alignment', () => {
   assert.match(billing, /\.forge-billing-share\{[^}]*margin:5px auto 0 0/);
   assert.match(wizard, /\.forge-wizard-table-row \[role="cell"\]:nth-child\(2\)\{text-align:left\}/);
   assert.doesNotMatch(model, /\.forge-model-table[^}]*text-align:right/);
-  assert.match(pages, /\.forge-postman \.forge-model-routes-table \[role="row"\]\{grid-template-columns:104px 120px 150px 132px 90px 100px 130px 130px 90px 130px 170px\}/);
-  assert.match(pages, /\.forge-postman \.forge-model-routes-table\{min-width:1470px\}/);
+  const routeColumns = pages.match(/\.forge-postman \.forge-model-routes-table \[role="row"\]\{grid-template-columns:([^}]+)\}/)[1].trim().split(/\s+/);
+  assert.equal(routeColumns.length, 12);
+  assert.deepEqual(routeColumns, ['104px', '120px', '150px', '200px', '90px', '100px', '90px', '160px', '130px', '90px', '130px', '170px']);
+  assert.match(pages, /\.forge-postman \.forge-model-routes-table\{min-width:1680px\}/);
   assert.match(pages, /forge-model-comparison-table\) \[role="row"\]>\*\{text-align:left\}/);
 });
 
