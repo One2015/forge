@@ -1,5 +1,5 @@
+<div class="forge-delivery-section-heading pm-assignment-heading"><h3>审核分配</h3><span>已分配 {{ deliveryEditor.reviewAssignment.assigned }} / {{ deliveryEditor.reviewAssignment.count }}</span></div>
 <section class="forge-delivery-review-assignments pm-assignment" aria-label="审核分配">
-  <div class="forge-delivery-section-heading"><h3>审核分配</h3><span>已分配 {{ deliveryEditor.reviewAssignment.assigned }} / {{ deliveryEditor.reviewAssignment.count }}</span></div>
   <div class="pm-assignment-toolbar">
     <input type="search" aria-label="搜索审核分配对象" placeholder="搜索名称或 Item ID" value="{{ deliveryEditor.reviewAssignment.query }}" sc-camel-on-input="{{ deliveryEditor.reviewAssignment.onQuery }}" />
     <select aria-label="筛选审核人" value="{{ deliveryEditor.reviewAssignment.personFilter }}" sc-camel-on-change="{{ deliveryEditor.reviewAssignment.onPersonFilter }}"><option value="">全部审核人</option><option value="__unassigned">未分配</option><sc-for list="{{ deliveryEditor.reviewAssignment.reviewerOptions }}" as="person"><option value="{{ person.accountName }}" label="{{ person.label }}">{{ person.label }}</option></sc-for></select>
@@ -19,5 +19,4 @@
     <sc-if value="{{ deliveryEditor.reviewAssignment.empty }}"><p class="pm-assignment-empty">关联 Item 后，可在这里分配审核人。</p></sc-if>
     <sc-if value="{{ deliveryEditor.reviewAssignment.noMatches }}"><p class="pm-assignment-empty">没有匹配的 Item，请调整搜索或筛选。</p></sc-if>
   </div>
-  <sc-if value="{{ deliveryEditor.reviewAssignment.readonly }}"><p class="forge-delivery-help">仅所有者、所属项目负责人或 Lead 可修改分配。</p></sc-if>
 </section>
