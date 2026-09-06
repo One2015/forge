@@ -158,6 +158,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .forge-model-error-action,.forge-postman :is(.forge-billing-link,.forge-outsourcing-link){color:var(--text-link)!important}
 .forge-postman .forge-outsourcing-filters{padding:var(--content-inset)!important;border:1px solid var(--border-subtle)!important}
 .forge-postman .forge-outsourcing-section{border:1px solid var(--border-subtle)!important}
+.forge-postman .forge-billing-section-header{margin:var(--space-5) 0 var(--space-3)!important;padding:0!important;border:0!important;background:transparent!important}
 .forge-postman .forge-billing-chart{border:1px solid var(--border-subtle)!important;padding:var(--content-inset)!important}
 .forge-postman :is(.forge-billing-cost-bar,.forge-billing-contributor-bar i,.forge-billing-share i){background:var(--accent-primary)!important}
 .forge-postman .rbac-prototype-tag{border-radius:var(--radius-xs)!important;background:var(--accent-soft)!important;color:var(--accent-primary)!important}

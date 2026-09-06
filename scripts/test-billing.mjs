@@ -33,7 +33,7 @@ test('billing chart uses the centralized Forge chart sequence', () => {
 test('time granularity is a secondary unfilled control while metrics retain their segment', () => {
   assert(template.includes('class="forge-billing-granularity" role="group" aria-label="时间粒度"'));
   assert(template.includes('class="forge-billing-segment" role="group" aria-label="趋势指标"'));
-  assert.match(template, /<section class="forge-billing-distribution"[^>]*>\s*<header><h2[^>]*>\{\{ billing\.chartTitle \}\}<\/h2><\/header>\s*<div class="forge-billing-chart">\s*<div class="forge-billing-chart-controls">/);
+  assert.match(template, /<section class="forge-billing-distribution"[^>]*>\s*<header class="forge-billing-section-header"><h2[^>]*>\{\{ billing\.chartTitle \}\}<\/h2><\/header>\s*<div class="forge-billing-chart">\s*<div class="forge-billing-chart-controls">/);
   assert.doesNotMatch(template, /<small>\{\{ billing\.period \}\} · \{\{ billing\.unit \}\}<\/small>/);
   assert.match(template, /class="forge-billing-custom-time"[^>]*aria-haspopup="dialog"[^>]*aria-controls="forge-billing-calendar"[^>]*aria-label="选择自定义时间范围"/);
   assert.doesNotMatch(template, /class="forge-billing-custom-time"[^>]*aria-pressed/);
@@ -44,7 +44,7 @@ test('time granularity is a secondary unfilled control while metrics retain thei
   assert.match(template, /\.forge-billing-chart-controls\{[^}]*justify-content:flex-start[^}]*width:100%[^}]*margin-bottom:12px/);
   assert.match(template, /\.forge-billing-chart-controls>\.forge-billing-granularity\{margin-left:auto\}/);
   assert.match(template, /\.forge-billing-chart-controls\{flex-direction:column;align-items:stretch;gap:8px\}\.forge-billing-granularity\{align-self:flex-end\}/);
-  assert.match(template, /\.forge-billing-distribution>header\{display:block;margin-bottom:8px\}/);
+  assert.match(template, /\.forge-billing-section-header\{display:block;margin:18px 0 8px;background:transparent;border:0;padding:0\}/);
   assert.match(template, /\.forge-billing-granularity\{[^}]*background:transparent/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\{[^}]*background:transparent;box-shadow:none/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\[aria-pressed="true"\]\{[^}]*text-decoration:underline/);
