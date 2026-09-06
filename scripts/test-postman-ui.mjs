@@ -358,10 +358,13 @@ test('resources keeps its page-level create action in the shared primary tier',(
  assert.match(button,/data-pm-primary="true"/);
  assert.doesNotMatch(button,/data-pm-secondary=/);
 });
-test('review scope is a filter beneath status tabs and completed tasks retain result actions',()=>{
+test('review summary replaces redundant tabs and filters live in their table columns',()=>{
  assert.match(built,/aria-label="审核范围"/);
- assert.match(built,/class="pq-tabs" role="tablist"/);
+ assert.doesNotMatch(built,/class="pq-tabs" role="tablist"/);
  assert.match(built,/role="table" aria-label="审核任务列表"/);
+ for(const label of ['按审核类型筛选','按审核轮次筛选','review.queue.timeHeading }}排序'])assert.match(built,new RegExp(label));
+ assert.match(built,/sc-camel-on-change="\{\{ review\.queue\.setPerson \}\}"/);
+ assert.match(built,/\.pm-review-queue \.pq-table-head\{[^}]*font-weight:var\(--weight-semibold\)/);
  assert.match(built,/\.pm-review-queue \.pq-filters \.pq-search\{[^}]*height:var\(--pm-control-height\)/);
  assert.match(built,/\.pm-review-queue \.pq-search>\.forge-icon\{[^}]*inset-inline-start:12px[^}]*top:50%[^}]*transform:translateY\(-50%\)[^}]*pointer-events:none/);
  assert.match(built,/\.forge-postman \.pm-review-queue \.pq-search input\{[^}]*padding-block:5px[^}]*padding-inline:36px 10px/);

@@ -21,17 +21,6 @@ function enhance(){
 let queued=false;
 new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;enhance();});}).observe(document.documentElement,{childList:true,subtree:true});
 enhance();
-// Roving focus for the queue's two status tabs; native selects retain their
-// built-in arrow-key behavior and submission/change semantics.
-document.addEventListener('keydown',event=>{
- const current=event.target.closest?.('.pq-tabs [role=tab]');
- if(!current||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
- const tabs=[...current.parentElement.querySelectorAll('[role=tab]')];
- const index=tabs.indexOf(current);
- const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
- event.preventDefault();tabs[next].focus();tabs[next].click();
-});
-
 // Full-screen Item workspaces advertise these keys in their toolbar. Keep the
 // visible hints and actual behavior wired to the same native controls.
 document.addEventListener('keydown',event=>{

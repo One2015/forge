@@ -65,6 +65,9 @@
 }
 
 @container pm-review (max-width:980px){
+ .forge-postman .pm-review-queue .pq-mobile-column-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;flex:1 1 100%}
+ .forge-postman .pm-review-queue .pq-mobile-column-filters label{display:block}
+ .forge-postman .pm-review-queue .pq-mobile-column-filters select{width:100%;min-width:0}
  .forge-postman .pm-review-queue .pq-table-scroll{max-height:none;overflow:visible}
  .forge-postman .pm-review-queue .pq-table{min-width:0}
  .forge-postman .pm-review-queue .pq-table-head{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0;white-space:nowrap}
@@ -85,6 +88,7 @@
  .forge-postman .pm-review-queue .pq-actions{grid-column:3;grid-row:3;position:static;padding:0;box-shadow:none;background:transparent}
 }
 @container pm-review (max-width:600px){
+ .forge-postman .pm-review-queue .pq-mobile-column-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
  .forge-postman .pm-review-queue .pq-row{grid-template-columns:minmax(0,1fr) auto;gap:10px 12px}
  .forge-postman .pm-review-queue .pq-task-cell{grid-column:1/-1;grid-row:1}
  .forge-postman .pm-review-queue .pq-task{gap:10px}

@@ -21,11 +21,11 @@ test('summary derives counts from existing tasks and completed records',()=>{
  q().summary[2].pick();assert.equal(c.state.reviewPhase,'done');assert.equal(q().total,q().today);assert(q().rows.every(r=>r.actionLabel==='查看结果'));
  q().summary[0].pick();assert.equal(q().total,19);assert(!q().hasFilters);
 });
-test('scope, type, round, query and sorting combine and reset pagination',()=>{
+test('scope, column filters, query and sorting combine and reset pagination',()=>{
  const {c,q}=fixture();c.setState({queuePage:2});q().setType({target:{value:'rework'}});assert.equal(c.state.queuePage,1);
- q().setOwner({target:{value:'mine'}});q().setRound({target:{value:'3'}});q().onQuery({target:{value:'布达拉宫'}});
+ q().setOwner({target:{value:'mine'}});q().setRound({target:{value:'3'}});q().setPerson({target:{value:'yokiguan'}});q().onQuery({target:{value:'布达拉宫'}});
  assert.equal(q().total,1);assert.equal(q().rows[0].title,'布达拉宫');assert(q().hasFilters);
- q().reset();q().setSort({target:{value:'oldest'}});assert(q().rows[0].stamp<=q().rows.at(-1).stamp);
+ q().reset();assert.equal(q().person,'all');q().setSort({target:{value:'oldest'}});assert(q().rows[0].stamp<=q().rows.at(-1).stamp);
  q().onQuery({target:{value:'no-such-item'}});assert(q().empty);assert.equal(q().total,0);
  q().reset();q().onQuery({target:{value:q().rows[0].runId}});assert(q().rows.every(r=>r.runId===q().rows[0].runId));
 });
@@ -62,7 +62,7 @@ test('stale claims and action failures surface a toast without changing list con
 });
 test('completed decisions leave pending and results contain no review-entry CTA',()=>{
  const {c,q}=fixture();const row=q().rows[0];const today=q().today;c._queueClock=Date.now()-3600000;c.setState({reviewDecisions:{[row.key]:'pass'}});assert.equal(q().pending,18);assert.equal(q().today,today+1);
- q().tabs[1].pick();assert(q().done);assert(q().rows.every(r=>r.actionLabel==='查看结果'&&r.hasHistory));assert(q().rows.some(r=>r.badge==='请求修改')||q().pages>1);
+ q().summary[2].pick();q().clearToday();assert(q().done);assert(q().rows.every(r=>r.actionLabel==='查看结果'&&r.hasHistory));assert(q().rows.some(r=>r.badge==='请求修改')||q().pages>1);
  q().onQuery({target:{value:row.id}});assert(q().rows.some(r=>r.badge==='已通过'));
 });
 test('history with no timestamp is excluded from today and never invents a date',()=>{
@@ -70,8 +70,8 @@ test('history with no timestamp is excluded from today and never invents a date'
  q().summary[2].pick();assert(q().rows.every(r=>r.stamp!==null));
 });
 test('all new filters survive URL reload including run scoped review',()=>{
- const {codec}=fixture();const path='/review/results?run=20260825-093412-a4f7c1&owner=mine&type=rework&round=3&completed=today&page=2&size=20';
- const r=codec.read(path), back=codec.read(codec.write(r.patch));for(const key of ['reviewRun','reviewOwner','queueType','queueRound','queueToday','queuePage','queuePageSize'])assert.equal(back.patch[key],r.patch[key]);
+ const {codec}=fixture();const path='/review/results?run=20260825-093412-a4f7c1&owner=mine&type=rework&round=3&person=allen&completed=today&page=2&size=20';
+ const r=codec.read(path), back=codec.read(codec.write(r.patch));for(const key of ['reviewRun','reviewOwner','queueType','queueRound','queuePerson','queueToday','queuePage','queuePageSize'])assert.equal(back.patch[key],r.patch[key]);
 });
 test('thumbnail accepts only exact Item/Run images and failed images become placeholders',()=>{
  const {c,q}=fixture();const row=q().rows[0];const runs=c.runsData();const run=runs.find(x=>x.id===row.runId);
@@ -79,14 +79,19 @@ test('thumbnail accepts only exact Item/Run images and failed images become plac
  run.itemPreviews={[row.id]:'/real-item.png'};assert.equal(q().rows[0].preview,'/real-item.png');c.taskLinkImageError('/real-item.png');assert(q().rows[0].noPreview);
 });
 test('queue markup has six stable columns, semantic table, labels and no alarm design',()=>{
- const html=fs.readFileSync(new URL('./postman-ui/review-queue.html',import.meta.url),'utf8');const css=fs.readFileSync(new URL('../public/postman-ui/review-queue.css',import.meta.url),'utf8');assert.equal((html.match(/role="columnheader"/g)||[]).length,6);
+ const html=fs.readFileSync(new URL('./postman-ui/review-queue.html',import.meta.url),'utf8');const css=fs.readFileSync(new URL('../public/postman-ui/review-queue.css',import.meta.url),'utf8');const responsive=fs.readFileSync(new URL('../public/postman-ui/global-responsive.css',import.meta.url),'utf8');assert.equal((html.match(/role="columnheader"/g)||[]).length,6);
  assert.doesNotMatch(html,/超时|即将|SLA|截止|等待时间/);assert.doesNotMatch(html,/review\.owners|review-queue-card-header/);
  assert.match(html,/sc-camel-on-input/);assert.match(html,/aria-busy/);assert.match(html,/role="alert"/);
+ assert.doesNotMatch(html,/class="pq-tabs"|role="tablist"/);
+ for(const label of ['按审核类型筛选','按审核轮次筛选','review.queue.timeHeading }}排序'])assert(html.includes(label),label);
+ assert.match(html,/sc-camel-on-change="\{\{ review\.queue\.setPerson \}\}"/);
  assert.match(html,/Case \/ Item ID/);assert.match(html,/class="pq-thumb"/);assert.match(html,/class="pq-task-copy"><strong[^>]*>\{\{ task\.title \}\}<\/strong><code[^>]*>\{\{ task\.id \}\}<\/code>/);
  assert.doesNotMatch(html,/pq-context|pq-issue|task\.dataset|task\.issue|data-owned/);
  assert.doesNotMatch(css,/pq-row\[data-owned/);
  assert.match(css,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*border-left:0!important/);
- assert.match(css,/\.pq-table-head>\[role=columnheader\]\{text-align:left\}/);
+ assert.match(css,/\.pq-table-head>\[role=columnheader\]\{[^}]*text-align:left[^}]*font-weight:var\(--weight-semibold\)/);
+ assert.match(css,/\.pq-column-filter\{[^}]*position:relative[^}]*height:var\(--pm-control-height\)/);
+ assert.match(responsive,/\.pq-mobile-column-filters\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(css,/\.pq-task-copy\{[^}]*flex-direction:column[^}]*align-items:flex-start[^}]*gap:2px[^}]*text-align:left/);
  assert.match(css,/\.pq-person\{[^}]*justify-content:flex-start/);
  assert.match(css,/\.pq-time\{text-align:left/);

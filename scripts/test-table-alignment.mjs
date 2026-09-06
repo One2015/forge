@@ -17,7 +17,7 @@ test('all data-table headers and values use the same left alignment', () => {
   assert.match(runs, /\.rr-number\{text-align:left/);
   assert.doesNotMatch(responsive, /\.rr-person\{[^}]*text-align:right/);
   assert.doesNotMatch(responsive, /\.rr-row>\.rr-number[^}]*justify-content:flex-end/);
-  assert.match(review, /\.pq-table-head>\[role=columnheader\]\{text-align:left\}/);
+  assert.match(review, /\.pq-table-head>\[role=columnheader\]\{[^}]*text-align:left/);
   assert.doesNotMatch(responsive, /\.pq-round\{[^}]*text-align:right/);
   assert.match(billing, /\.forge-billing-table :is\([^}]+\)\{padding:[^}]*text-align:left/);
   assert.match(billing, /\.forge-billing-thead button\{[^}]*justify-content:flex-start/);

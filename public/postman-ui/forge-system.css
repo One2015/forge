@@ -164,8 +164,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 /* Review, records and engineering workspaces share the compact system. */
 .forge-postman :is(.pq-summary,.rr-summary){overflow:hidden;border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important}
 .forge-postman :is(.pq-summary,.rr-summary)>.forge-summary-card{background:transparent!important;border-color:var(--border-subtle)!important;box-shadow:none!important}
-.forge-postman :is(.pq-tabs,.rr-status-tabs){border-color:var(--border-subtle)!important;background:transparent!important}
-.forge-postman .pq-tabs button[aria-selected=true]{border-bottom-color:var(--accent-primary)!important;color:var(--text-primary)!important}
+.forge-postman .rr-status-tabs{border-color:var(--border-subtle)!important;background:transparent!important}
 .forge-postman .rr-status-tabs .fg-button[aria-pressed=true]{background:var(--surface-raised)!important;color:var(--text-primary)!important;box-shadow:inset 0 0 0 1px var(--border-default)!important}
 .forge-postman :is(.pq-table-scroll,.rr-scroll,.pm-dataset-split){border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;overflow:hidden}
 .forge-postman :is(.pq-table-head,.rr-heading){background:var(--surface-subtle)!important;color:var(--text-muted)!important;border-color:var(--border-subtle)!important}

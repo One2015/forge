@@ -26,6 +26,7 @@ const ForgeRoutes = {
     if(route.patch.view === 'review') Object.assign(route.patch, {
       queueType: ['first','rework'].includes(params.get('type')) ? params.get('type') : 'all',
       queueRound: ['1','2','3'].includes(params.get('round')) ? params.get('round') : 'all',
+      queuePerson: (params.get('person') || '').slice(0,80) || 'all',
       queueToday: params.get('completed') === 'today', queuePage: Math.max(1, Number(params.get('page')) || 1),
       queuePageSize: [10,20,50].includes(Number(params.get('size'))) ? Number(params.get('size')) : 10
     });
@@ -44,7 +45,7 @@ const ForgeRoutes = {
     let route=ForgeBaseRoutes.write(normalized);
     if(state.view === 'review') {
       const u = new URL(route, 'https://forge.invalid');
-      for(const [key,value,defaultValue] of [['type',state.queueType,'all'],['round',state.queueRound,'all'],['completed',state.queueToday?'today':'',''],['page',state.queuePage||1,1],['size',state.queuePageSize||10,10]]) {
+      for(const [key,value,defaultValue] of [['type',state.queueType,'all'],['round',state.queueRound,'all'],['person',state.queuePerson,'all'],['completed',state.queueToday?'today':'',''],['page',state.queuePage||1,1],['size',state.queuePageSize||10,10]]) {
         if(value != null && value !== defaultValue) u.searchParams.set(key,String(value));
       }
       route=u.pathname+u.search+u.hash;

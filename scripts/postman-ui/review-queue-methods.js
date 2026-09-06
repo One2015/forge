@@ -59,7 +59,7 @@
     const decided = st.reviewDecisions || {};
     const pending = rows.filter(r => !(decided[r.key] === 'pass' || decided[r.key] === 'rework' && st.reworkSent?.[r.key]));
     const patch = values => this.setState({ queuePage: 1, reviewOpen: null, deepReview: null, ...values });
-    const reset = () => patch({ reviewOwner: 'all', reviewQuery: '', reviewSort: 'newest', queueType: 'all', queueRound: 'all', queueToday: false });
+    const reset = () => patch({ reviewOwner: 'all', reviewQuery: '', reviewSort: 'newest', queueType: 'all', queueRound: 'all', queuePerson: 'all', queueToday: false });
     const type = ['first', 'rework'].includes(st.queueType) ? st.queueType : 'all';
     const round = ['1', '2', '3'].includes(String(st.queueRound)) ? String(st.queueRound) : 'all';
     const owner = st.reviewOwner === 'mine' ? 'mine' : 'all';
@@ -133,15 +133,20 @@
     }));
     const today = results.filter(r => r.stamp >= +todayStart && r.stamp <= now).length;
     const source = done ? results : list;
+    const people = Array.from(new Set(source.map(r => String(r.person || '').trim()).filter(Boolean)))
+      .sort((a, b) => a.localeCompare(b, 'zh-CN', { sensitivity: 'base' }))
+      .map(value => ({ value, label: value }));
+    const person = people.find(option => eq(option.value, st.queuePerson))?.value || 'all';
     const filtered = source.filter(r => (!query || [r.title, r.id, r.runId].join(' ').toLowerCase().includes(query))
       && (owner === 'all' || eq(r.assignee, me)) && (type === 'all' || r.type === type)
       && (round === 'all' || (round === '3' ? r.n >= 3 : r.n === Number(round)))
+      && (person === 'all' || eq(r.person, person))
       && (!done || !st.queueToday || r.stamp >= +todayStart && r.stamp <= now))
       .sort((a, b) => a.stamp === null ? 1 : b.stamp === null ? -1 : st.reviewSort === 'oldest' ? a.stamp - b.stamp : b.stamp - a.stamp);
     const size = [10,20,50].includes(Number(st.queuePageSize)) ? Number(st.queuePageSize) : 10;
     const pages = Math.max(1, Math.ceil(filtered.length / size));
     const page = Math.min(pages, Math.max(1, Number(st.queuePage) || 1));
-    const hasFilters = !!query || owner !== 'all' || type !== 'all' || round !== 'all' || st.reviewSort === 'oldest' || !!st.queueToday;
+    const hasFilters = !!query || owner !== 'all' || type !== 'all' || round !== 'all' || person !== 'all' || st.reviewSort === 'oldest' || !!st.queueToday;
     if (!done && review.focused) {
       const navigable = filtered.filter(r => r.actionTone !== 'progress' && (st.queuePreviewOnly || !r.actionDisabled));
       const index = navigable.findIndex(r => r.key === st.reviewOpen);
@@ -161,11 +166,10 @@
         { label: '返工后待审', description: '待审核队列中审核轮次大于 1 的条目。点击筛选这些条目。', value: list.filter(r => r.type === 'rework').length, selected: !done && type === 'rework', pick: () => { reset(); patch({reviewPhase:'pending',queueType:'rework'}); } },
         { label: '今日已审核', description: '今天已有审核结果的条目；无准确时间的历史记录不计入。点击查看今日审核结果。', value: today, selected: done && !!st.queueToday, pick: () => { reset(); patch({reviewPhase:'done',queueToday:true}); } }
       ],
-      tabs: [{ label:'待审核', count:list.length, showCount:true, selected:!done, pick:()=>patch({reviewPhase:'pending',queueToday:false}) },
-        { label:'已审核', count:results.length, showCount:false, selected:done, pick:()=>patch({reviewPhase:'done',queueToday:false}) }],
       done, todayOnly: done && !!st.queueToday, clearToday:()=>patch({queueToday:false}),
       query: st.reviewQuery || '', onQuery: e=>patch({reviewQuery:e.target.value}), owner, setOwner:e=>patch({reviewOwner:e.target.value}),
       type, setType:e=>patch({queueType:e.target.value}), round, setRound:e=>patch({queueRound:e.target.value}),
+      person, people, setPerson:e=>patch({queuePerson:e.target.value}),
       sort:st.reviewSort || 'newest', setSort:e=>patch({reviewSort:e.target.value}), hasFilters, reset,
       rows:filtered.slice((page-1)*size,page*size), total:filtered.length, empty:!filtered.length,
       emptyTitle:hasFilters ? '没有符合条件的任务' : done ? '还没有审核记录' : '当前任务已处理完',
