@@ -37,6 +37,14 @@ test('overview keeps six equal summary cards in one group with exact destination
   cards[5].go(); assert.equal(c.state.view, 'outsourcing-suppliers');
 });
 
+test('overview metric deltas render as compact semantic tags', () => {
+  const css = fs.readFileSync(new URL('./templates/overview-summary.css', import.meta.url), 'utf8');
+  assert.match(css, /\.forge-summary-auxiliary\{[^}]*display:flex[^}]*gap:6px[^}]*flex-wrap:wrap/);
+  assert.match(css, /\.forge-summary-auxiliary strong\{[^}]*display:inline-flex[^}]*padding:1px 6px[^}]*border:1px solid[^}]*border-radius:999px/);
+  assert.match(css, /strong\[data-tone="success"\]\{[^}]*background:#f2f7f1[^}]*border-color:#cbddcc/);
+  assert.match(css, /strong\[data-tone="danger"\]\{[^}]*background:#fdf3f0[^}]*border-color:#edd0c8/);
+});
+
 test('review and running metrics dedupe their own entities and exclude other states', () => {
   const c = component();
   c.assignmentOf = id => ({ mine: id !== 'other' });
