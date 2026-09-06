@@ -583,6 +583,15 @@ test('Item explorer scopes evidence to the exact Item and Run and preserves tabs
  e=c.pmItemExplorerValues({id});assert(!e.demo);assert.equal(e.fileCount,1);assert.equal(e.file.url,'');assert.equal(e.prompts[0].content,'actual prompt');
  c.state.lifeRun='unrelated-run';e=c.pmItemExplorerValues({id});assert(e.noFiles);assert(e.noPrompts);assert(e.noEvents);assert(e.noPipeline);
 });
+test('Item explorer shows a truthful related Pipeline graph when the historical snapshot is unavailable',()=>{
+ const c=vm.runInContext('new Component()',ctx),id='3a5588389c844037b7f85d62bb303bcf',runId='20260824-163805-814774';
+ Object.assign(c.state,{view:'itemlife',lifeItem:id,lifeRun:runId,lifeRunIndex:0,lifeFrom:'run',pmItemTab:'pipeline'});
+ const current=c.pipeData().find(pipe=>pipe.name==='web3d-car'),e=c.pmItemExplorerValues({id});
+ assert(current);assert(e.hasPipeline);assert(e.pipelineReference);assert(!e.noPipeline);
+ assert.equal(e.nodes.length,current.dag.length);assert.deepEqual(Array.from(e.nodes,node=>node.name),Array.from(current.dag,definition=>definition.split('/')[0]));
+ assert.match(e.definitionNote,new RegExp('当前 '+current.version));assert(e.nodes.every(node=>['当前定义','已停用'].includes(node.status)));
+ assert.match(built,/class="pm-pipeline-reference" role="note"/);assert.doesNotMatch(built,/\[\[icon:info:14\]\]/);
+});
 test('Pipeline inspector prefers versioned configuration over marked mock defaults',()=>{
  const c=vm.runInContext('new Component()',ctx),p=c.pipeData()[0];
  let d=c.pmNodeDetails(p,'task',null,true);assert(d.demo);assert(d.hasConfig);

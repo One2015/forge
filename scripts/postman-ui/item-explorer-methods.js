@@ -69,8 +69,12 @@
     const pipelineName = run?.pipe || run?.name?.split(' · ').at(-1)?.replace(/ v\d+$/,'');
     const current = this.pipeData().find(pipe=>pipe.name===pipelineName);
     const version = run?.ver || run?.pipelineVersion || '';
-    // Never present a current definition as the historical snapshot of a run.
-    const pipeline = evidence.pipeline || (current && (!version || version===current.version) ? current : null);
+    const savedVersion = version ? state.pmPipelineVersions?.[pipelineName]?.[version] : null;
+    const exactPipeline = evidence.pipeline || savedVersion || (current && (!version || version===current.version) ? current : null);
+    // Keep the related graph available when an old run has no snapshot, but label
+    // the current definition explicitly so it cannot be mistaken for run evidence.
+    const pipeline = exactPipeline || current || null;
+    const pipelineReference = !!pipeline && !exactPipeline;
     const stored = state.pmItemExplorer?.[id + ':' + runId] || {};
     const tab = ['history','pipeline','files','prompt','trace'].includes(state.pmItemTab) ? state.pmItemTab : 'history';
     const update = patch => this.setState({...(patch.tab ? {pmItemTab:patch.tab,routeAnchor:''} : {}),pmItemExplorer:{...this.state.pmItemExplorer,[id + ':' + runId]:{...this.state.pmItemExplorer?.[id + ':' + runId],...patch}}});
@@ -91,7 +95,8 @@
     const pipelineLabel = [pipelineName,version].filter(Boolean).join(' ') || '未关联 Pipeline';
     const nodes = (pipeline?.dag || []).map((declared,index)=>{
       const [name,kind] = typeof declared==='string' ? declared.split('/') : [declared.name,declared.kind];
-      return {name,kind,kindLabel:this.pmNodeKindLabel(kind),index:index+1,selected:stored.node===name,status:evidence.nodes?.[name]?.status || '未提供执行状态',pick:()=>update({node:name}),hasEdge:index < pipeline.dag.length-1};
+      const enabled = pipeline?.enabledNodes?.[name] !== false;
+      return {name,kind,kindLabel:this.pmNodeKindLabel(kind),index:index+1,selected:stored.node===name,status:pipelineReference ? (enabled ? '当前定义' : '已停用') : evidence.nodes?.[name]?.status || '未提供执行状态',pick:()=>update({node:name}),hasEdge:index < pipeline.dag.length-1};
     });
     const selected = nodes.find(node=>node.name===stored.node);
     return {
@@ -105,7 +110,8 @@
       pipelineHref:ForgeRoutes.write({view:'pipeedit',editPipe:pipelineName,pmPipelineView:true}),
       pipelineEditHref:ForgeRoutes.write({view:'pipeedit',editPipe:pipelineName,pmPipelineView:false}),
       canEditPipeline:!!current && this.pmCanEditPipeline(),
-      hasPipeline:!!pipeline,noPipeline:!pipeline,definitionNote:manifest.demo ? 'Mock Pipeline 配置与执行样例' : evidence.pipeline ? '本次运行的 Pipeline 快照' : '当前同版本定义 · 未提供运行时配置快照',
+      hasPipeline:!!pipeline,noPipeline:!pipeline,pipelineReference,
+      definitionNote:pipelineReference ? '未保存该 Run 使用的 '+version+' Pipeline 定义；以下展示同名 Pipeline 当前 '+current.version+' 的完整结构，仅供参考。' : '',
       nodes,hasNode:!!selected,node:selected ? this.pmNodeDetails(pipeline,selected.name,evidence.nodes?.[selected.name]) : {},closeNode:()=>update({node:null}),
       fileCount:allFiles.length,files,hasFiles:allFiles.length>0,noFiles:allFiles.length===0,noMatches:allFiles.length>0&&files.length===0,
       file:file ? {...file,hasUrl:!!file.url,showImage:file.image&&!!file.url,unavailable:!file.hasContent&&!(file.image&&file.url)} : {},hasFile:!!file,

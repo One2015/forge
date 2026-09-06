@@ -19,6 +19,7 @@
   <header class="pm-pipeline-context"><div><a href="{{ explorer.pipelineHref }}" data-forge-route>{{ explorer.pipelineLabel }}</a><code>Run · {{ explorer.runId }}</code></div><sc-if value="{{ explorer.canEditPipeline }}"><a class="pm-pipeline-edit-link" href="{{ explorer.pipelineEditHref }}" data-forge-route>编辑 Pipeline</a></sc-if></header>
   <sc-if value="{{ explorer.noPipeline }}"><p class="pm-explorer-empty">未提供该运行版本的 Pipeline 定义。</p></sc-if>
   <sc-if value="{{ explorer.hasPipeline }}">
+   <sc-if value="{{ explorer.pipelineReference }}"><p class="pm-pipeline-reference" role="note">{{ explorer.definitionNote }}</p></sc-if>
    <div class="pm-item-graph" tabindex="0" role="region" aria-label="Pipeline 节点，可横向滚动">
     <div class="pm-item-graph-track"><sc-for list="{{ explorer.nodes }}" as="node">
      <button class="pm-item-graph-node" type="button" aria-pressed="{{ node.selected }}" sc-camel-on-click="{{ node.pick }}"><span class="pm-node-kind" data-kind="{{ node.kind }}">{{ node.kindLabel }}</span><strong>{{ node.name }}</strong><small>{{ node.status }}</small></button>

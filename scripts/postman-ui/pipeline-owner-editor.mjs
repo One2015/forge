@@ -5,7 +5,6 @@ export const pipelineOwnerCopy = [
  ["return ['lead','project-owner'].includes(this.profileIdentity().key);", "return this.pmOwnsPipeline(this.state.editPipe);"],
  ['canEditPipeline:!!current && this.pmCanEditPipeline(),','canEditPipeline:!!current && this.pmCanEditPipelineNode(current.name),'],
  ["    const allowed = () => !this.state.pmPipelineView && this.pmCanEditPipeline();", "    const key=this.state.editPipe, actor=this.profileIdentity().accountName;\n    const allowed = () => this.state.editPipe===key && this.profileIdentity().accountName===actor && !this.state.pmPipelineView && this.pmCanEditPipeline();"],
- ["    const pipeline = evidence.pipeline || (current && (!version || version===current.version) ? current : null);", "    const pipeline = evidence.pipeline || this.state.pmPipelineVersions?.[pipelineName]?.[version] || (current && (!version || version===current.version) ? current : null);"],
  ["  selectRunPipeline(p, datasetName = null) {", "  selectRunPipeline(p, datasetName = null) {\n    if(!this.pipeData().some(pipe=>pipe.name===p?.name))return;"],
  ['    const canEdit = allowed();','    values = this.pmPipelineEditorActions(values);\n    const canEdit = allowed();'],
  ['const enabled = st.editNodes || {};','const enabled = st.editNodes || p.enabledNodes || {};'],

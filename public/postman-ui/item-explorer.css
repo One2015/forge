@@ -23,6 +23,7 @@ html:has(.pm-page-itemlife){scrollbar-gutter:stable}
 .forge-postman .pm-pipeline-context a{color:var(--pm-link);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
 .forge-postman .pm-pipeline-context code{font:11px/1.6 var(--pm-mono);color:var(--pm-muted);overflow-wrap:anywhere}
 .forge-postman .pm-pipeline-context .pm-pipeline-edit-link{font-weight:400;white-space:nowrap}
+.forge-postman .pm-pipeline-reference{margin:0;padding:11px 16px;border-bottom:1px solid var(--pm-border);background:var(--surface-subtle);color:var(--text-secondary);font-size:12px;line-height:18px;overflow-wrap:anywhere}
 .forge-postman .pm-node-kind{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--pm-control);background:var(--pm-subtle);border-radius:4px;padding:3px 7px;font:500 11px/16px var(--pm-font);color:var(--pm-muted)}
 .forge-postman .pm-node-kind::before{content:'ƒ';font:600 12px var(--pm-mono)}
 .forge-postman .pm-node-kind[data-kind=AGENT]::before{content:'✦'}
