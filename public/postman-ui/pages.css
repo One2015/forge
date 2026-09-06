@@ -452,7 +452,7 @@
 
 /* Preserve each analytics table's declared column contract after the shared model table rule. */
 .forge-postman .forge-model-overview-table [role="row"]{grid-template-columns:1.28fr .64fr .72fr .66fr .72fr .88fr .9fr .68fr .78fr}
-.forge-postman .forge-model-routes-table{min-width:1470px}
-.forge-postman .forge-model-routes-table [role="row"]{grid-template-columns:104px 120px 150px 132px 90px 100px 130px 130px 90px 130px 170px}
+.forge-postman .forge-model-routes-table{min-width:1600px}
+.forge-postman .forge-model-routes-table [role="row"]{grid-template-columns:104px 120px 150px 200px 90px 100px 90px 160px 130px 90px 130px 170px}
 .forge-postman .forge-model-comparison-table [role="row"]{grid-template-columns:1.2fr 1.6fr repeat(7,1fr)}
 .forge-postman :is(.forge-model-overview-table,.forge-model-routes-table,.forge-model-comparison-table) [role="row"]>*{text-align:left}
