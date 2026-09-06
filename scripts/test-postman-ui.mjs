@@ -74,6 +74,7 @@ test('workspace typography and page rhythm map to semantic Forge tokens',()=>{
  assert.match(built,/\.forge-postman :is\(td,\[role=cell\][^}]+font-size:var\(--type-component-size\)!important/);
  assert.match(built,/\.forge-postman :is\(kbd,\.forge-billing-y[^}]+font-size:var\(--type-micro-size\)!important/);
  assert.match(built,/#forge-rbac-root h3\{font:var\(--weight-medium\) var\(--type-subsection-size\)\/var\(--type-subsection-leading\) var\(--font-sans\)!important\}/);
+ assert.match(built,/\.forge-postman \.pm-pipeline-actions button\[title="导出这条 Pipeline 的最新版本定义"\]\{font-weight:var\(--weight-regular\)!important\}/);
  assert.doesNotMatch(built,/\.pm-delivery-row\{[^}]*padding:14px 4px/);
  assert.match(built,/\.forge-overview-summary\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
  assert.doesNotMatch(built,/class="forge-overview-signals"/);

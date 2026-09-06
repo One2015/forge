@@ -91,6 +91,7 @@
 .forge-postman .pm-pipeline-mode{flex:none;white-space:nowrap}
 .forge-postman .pm-pipeline-actions{grid-column:2;grid-row:1;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;min-width:0}
 .forge-postman .pm-pipeline-actions button{height:32px!important;padding-inline:10px!important}
+.forge-postman .pm-pipeline-actions button[title="导出这条 Pipeline 的最新版本定义"]{font-weight:var(--weight-regular)!important}
 .forge-postman .pm-pipeline-config{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;min-width:0}
 .forge-postman .pm-pipeline-config>div{order:0!important;min-width:0}
 .forge-postman .pm-pipeline-execution,.forge-postman .pm-pipeline-validation{height:32px!important;padding:0!important;background:transparent!important}
