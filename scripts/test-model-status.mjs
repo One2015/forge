@@ -105,7 +105,7 @@ test('overview presents mutually exclusive model availability without a duplicat
   assert.equal(Number(view.availabilityMetrics[3].value), view.unavailable);
   const html = template.match(/<!-- model-status:start -->[\s\S]*?<!-- model-status:end -->/)[0];
   assert.match(html, /aria-label="模型可用性"/); assert.doesNotMatch(html, /所选时段运行表现|调用指标按所选时段汇总/);
-  assert.match(html, /稳定模型 \+ 需关注模型 = 可用模型/); assert.match(html, /模型可用性按当前生产线路汇总/);
+  assert.doesNotMatch(html, /稳定模型 \+ 需关注模型 = 可用模型/); assert.match(html, /模型可用性按当前生产线路汇总/);
 });
 
 test('model overview uses explicit metrics, categorical quality and a working usage window', () => {
