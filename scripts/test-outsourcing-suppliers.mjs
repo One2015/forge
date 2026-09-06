@@ -97,6 +97,9 @@ test('frequent issues are grouped by expert team instead of repeating cards', ()
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
   assert.match(css, /\.forge-outsourcing-issue-groups\{[^}]*padding:0\}/);
   assert.match(css, /\.forge-outsourcing-issue-groups>section>div\{border:0;border-radius:0\}/);
+  assert.match(css, /\.forge-outsourcing-issue-groups article\{[^}]*display:grid;[^}]*grid-template-columns:minmax\(0,1fr\) 132px/);
+  assert.match(css, /\.forge-outsourcing-issue-groups article>div:last-child\{display:flex;min-width:0;flex-direction:column;align-items:flex-start;justify-self:stretch;text-align:left\}/);
+  assert.match(css, /\.forge-outsourcing-issue-groups article\{grid-template-columns:1fr;align-items:flex-start;gap:8px\}/);
 });
 
 test('management tab exposes all required fields and adds an in-memory expert team', () => {
