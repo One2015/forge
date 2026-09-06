@@ -181,8 +181,8 @@
 .rbac-skill-create-menu{position:relative}
 .rbac-skill-create-menu>summary{display:inline-flex;align-items:center;gap:9px;list-style:none;white-space:nowrap;cursor:pointer}
 .rbac-skill-create-menu>summary::-webkit-details-marker{display:none}
-.rbac-skill-create-menu>summary::after{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .15s ease-out}
-.rbac-skill-create-menu[open]>summary::after{transform:translateY(2px) rotate(225deg)}
+.rbac-skill-create-menu>summary .rbac-dock-caret{transition:transform .15s ease-out}
+.rbac-skill-create-menu[open]>summary .rbac-dock-caret{transform:rotate(180deg)}
 .rbac-skill-create-options{position:absolute;z-index:40;top:calc(100% + 6px);right:0;min-width:150px;padding:5px;border-radius:8px;background:#fff;box-shadow:0 10px 24px rgba(31,29,26,.16)}
 .rbac-skill-create-options button{display:flex;width:100%;min-height:34px;align-items:center;padding:7px 10px;border:0;border-radius:5px;background:transparent;color:var(--rbac-ink);text-align:left;white-space:nowrap}
 .rbac-skill-create-options button:hover{background:var(--rbac-soft)}
@@ -258,4 +258,4 @@
   .rbac-dock-row label{flex:1}.rbac-dock-row select{width:100%;max-width:none}
   #forge-rbac-toast{right:12px;bottom:116px;max-width:calc(100vw - 24px)}
 }
-@media(prefers-reduced-motion:reduce){#forge-rbac-toast,.rbac-avatar-control span,.rbac-skill-create-menu>summary::after,.rbac-skill-card{transition:none}.rbac-role-sheet{animation:none}}
+@media(prefers-reduced-motion:reduce){#forge-rbac-toast,.rbac-avatar-control span,.rbac-skill-create-menu>summary .rbac-dock-caret,.rbac-skill-card{transition:none}.rbac-role-sheet{animation:none}}

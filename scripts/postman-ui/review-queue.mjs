@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {renderPhosphorIcons} from './phosphor-icons.mjs';
 const read = name => fs.readFileSync(new URL(name, import.meta.url), 'utf8');
 export function installReviewQueue(t) {
   const start = t.indexOf('<div class="forge-page pm-page-review"');
@@ -23,10 +24,7 @@ export function installReviewQueue(t) {
       modal = modal.replace(before, after);
     }
   }
-  let page = read('review-queue.html').replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, (_, name, size) => {
-    const svg = fs.readFileSync(new URL('../../assets/phosphor/regular/' + name + '.svg', import.meta.url), 'utf8');
-    return svg.replace(/<svg[^>]*>/, '<svg class="forge-icon" data-phosphor="' + name + '" width="' + size + '" height="' + size + '" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">');
-  });
+  let page = renderPhosphorIcons(read('review-queue.html'));
   t = t.slice(0, start) + page + '\n' + modal + '\n</sc-if>\n\n' + t.slice(end);
   t = t.replace('class Component extends DCLogic {', 'class Component extends DCLogic {\n' + read('review-queue-methods.js'));
   t = t.replace('const mineRows = rows.filter(r => r.assignee === me);', 'const mineRows = rows.filter(r => (this.reviewQueueClaim(r) || r.assignee).toLowerCase() === me.toLowerCase()); // pm-review-queue-owner');

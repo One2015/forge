@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {phosphorIcon} from './phosphor-icons.mjs';
 
 export const pipelineVersionHistoryCopy = [
   [
@@ -24,7 +25,7 @@ export function installPipelineVersionHistory(t) {
   history = history.replace(/<div (style="font-size:12px;color:[^"]*;text-align:right;white-space:nowrap")>\{\{ v\.when \}\}<\/div>/, '<div class="pm-pipelines-version-time" $1>{{ v.when }}</div>');
   const rowEnd = history.lastIndexOf('</div>');
   if (!history.includes('<button type="button" class="pm-pipelines-version"') || !history.includes('pm-pipelines-version-time') || rowEnd < 0) throw Error('Pipeline version row anchor changed');
-  history = history.slice(0, rowEnd) + '<svg class="pm-pipelines-version-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>\n                              </button>' + history.slice(rowEnd + '</div>'.length);
+  history = history.slice(0, rowEnd) + phosphorIcon('arrow-right', 16, {className: 'pm-pipelines-version-arrow'}) + '\n                              </button>' + history.slice(rowEnd + '</div>'.length);
   t = t.slice(0, historyStart) + history + t.slice(historyEnd);
   const main = '<main class="forge-main"';
   const start = t.indexOf('>', t.indexOf(main)) + 1;

@@ -1,15 +1,8 @@
-import fs from 'node:fs';
+import {phosphorIcon} from './phosphor-icons.mjs';
 
 const replaceOnce = (source, from, to, label) => {
   if (!source.includes(from)) throw Error(label + ' anchor changed');
   return source.replace(from, to);
-};
-
-const icon = (name, size) => {
-  const source = fs.readFileSync(new URL('../../assets/phosphor/regular/' + name + '.svg', import.meta.url), 'utf8');
-  const body = source.match(/<svg\b[^>]*>([\s\S]*?)<\/svg>/)?.[1];
-  if (!body) throw Error('Missing utility icon: ' + name);
-  return `<svg class="forge-icon" data-phosphor="${name}" width="${size}" height="${size}" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false">${body}</svg>`;
 };
 
 export const utilityPanelLogicCopy = [
@@ -92,10 +85,10 @@ export function installUtilityPanels(t) {
   const iconStart = downloads.indexOf('                      <sc-if value="{{ d.isRunning }}"');
   const iconEnd = downloads.indexOf('                    </div>\n\n                    <div style="flex:1;min-width:0">', iconStart);
   if (iconStart < 0 || iconEnd < iconStart) throw Error('Download icon boundary changed');
-  const icons = `                      <sc-if value="{{ d.isPacking }}" hint-placeholder-val="{{ true }}">${icon('cube', 16)}</sc-if>
-                      <sc-if value="{{ d.isDownloading }}" hint-placeholder-val="{{ false }}">${icon('download-simple', 16)}</sc-if>
-                      <sc-if value="{{ d.isDone }}" hint-placeholder-val="{{ false }}">${icon('check', 16)}</sc-if>
-                      <sc-if value="{{ d.isFailed }}" hint-placeholder-val="{{ false }}">${icon('x', 12)}</sc-if>
+  const icons = `                      <sc-if value="{{ d.isPacking }}" hint-placeholder-val="{{ true }}">${phosphorIcon('cube', 16)}</sc-if>
+                      <sc-if value="{{ d.isDownloading }}" hint-placeholder-val="{{ false }}">${phosphorIcon('download-simple', 16)}</sc-if>
+                      <sc-if value="{{ d.isDone }}" hint-placeholder-val="{{ false }}">${phosphorIcon('check', 16)}</sc-if>
+                      <sc-if value="{{ d.isFailed }}" hint-placeholder-val="{{ false }}">${phosphorIcon('x', 12)}</sc-if>
 `;
   downloads = downloads.slice(0, iconStart) + icons + downloads.slice(iconEnd);
 

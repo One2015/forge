@@ -1,13 +1,13 @@
 import fs from 'node:fs';
+import {renderPhosphorIcons} from './phosphor-icons.mjs';
 const read=name=>fs.readFileSync(new URL(name,import.meta.url),'utf8');
-const icons=html=>html.replace(/\[\[icon:([\w-]+):(\d+)\]\]/g,(_,name,size)=>read('../../assets/phosphor/regular/'+name+'.svg').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="'+size+'" height="'+size+'" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
 export function installFeedbackRefinements(t){
  const sheetHint='<div class="forge-feedback-submit-context" id="forge-sheet-rework-hint"><strong>提交后创建本轮修复任务</strong><span>{{ sheet.pick.noteHint }}</span></div>';
  if(!t.includes(sheetHint))throw Error('Sheet rework hint boundary changed');
  t=t.replace(sheetHint,'').replace(' aria-describedby="forge-sheet-rework-hint"','');
  const slots=(view,id)=>{
   const html=read('photo-slots.html').replaceAll('VIEW',view).replaceAll('HELP_ID',id);
-  return icons(['sheet.pick.feedback','branch'].includes(view)?html.replaceAll('/6','/8').replace('最多 6 张','最多 8 张'):html);
+  return renderPhosphorIcons(['sheet.pick.feedback','branch'].includes(view)?html.replaceAll('/6','/8').replace('最多 6 张','最多 8 张'):html);
  };
  for(const [view,id] of [['sheet.pick.feedback','forge-sheet-rework-image-help'],['it.feedback','forge-rework-image-help']]){
   const field=t.indexOf('class="forge-feedback-image-heading"',t.indexOf('<!-- feedback-image-box:start -->'));
@@ -20,7 +20,7 @@ export function installFeedbackRefinements(t){
  const start=t.indexOf('<div class="forge-feedback-upload-row">',branch),end=t.indexOf('<sc-if value="{{ branch.hasError }}"',start);
  if(branch<0||start<0||end<start)throw Error('Branch upload boundary changed');
  t=t.slice(0,start)+slots('branch','forge-branch-image-help')+t.slice(end);
- const pickerMarkup=(type,prop,label,placeholder)=>icons(read('branch-item-search.html')
+ const pickerMarkup=(type,prop,label,placeholder)=>renderPhosphorIcons(read('branch-item-search.html')
   .replaceAll('PICKER_TYPE',type).replaceAll('PICKER_PROP',prop)
   .replaceAll('PICKER_SEARCH_LABEL','搜索'+label).replaceAll('PICKER_LIST_LABEL','可选'+label)
   .replaceAll('PICKER_PLACEHOLDER',placeholder));

@@ -3,7 +3,7 @@ const read=name=>fs.readFileSync(new URL(name,import.meta.url),'utf8');
 export function installRunRecords(t){
  const start=t.indexOf('<!-- forge-runs:start -->'),end=t.indexOf('<!-- forge-runs:end -->',start);
  if(start<0||end<start)throw Error('Run records template boundary changed');
- let html=read('run-records.html').replace(/\[\[icon:([\w-]+):(\d+)\]\]/g,(_,name,size)=>read('../../assets/phosphor/regular/'+name+'.svg').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="'+size+'" height="'+size+'" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
+ let html=read('run-records.html');
  t=t.slice(0,start)+'<!-- forge-runs:start -->\n'+html+t.slice(end);
  t=t.replace('class Component extends DCLogic {',()=>read('run-records-data.js')+'\nclass Component extends DCLogic {\n'+read('run-records-methods.js'));
  // Run pages report execution; association changes belong to Item detail pages.

@@ -1,12 +1,12 @@
 <sc-if value="{{ isPipeEdit }}"><sc-if value="{{ pe.drawerMounted }}">
   <aside id="pm-pipeline-node-details" class="pm-pipeline-inspector pm-pipeline-node-drawer" role="region" aria-label="节点详情" data-open="{{ pe.drawerOpen }}" data-motion="{{ pe.drawerMotion }}" aria-hidden="{{ pe.drawerHidden }}" inert="{{ pe.drawerInert }}">
-    <header class="pm-node-drawer-header"><h2 data-pm-no-permalink>节点详情</h2><button type="button" class="pm-node-drawer-close" aria-label="关闭节点详情" sc-camel-on-click="{{ pe.closeSel }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button></header>
+    <header class="pm-node-drawer-header"><h2 data-pm-no-permalink>节点详情</h2><button type="button" class="pm-node-drawer-close" aria-label="关闭节点详情" sc-camel-on-click="{{ pe.closeSel }}">[[icon:x:20]]</button></header>
     <div class="pm-node-drawer-body">
       <sc-if value="{{ pe.hasFailures }}"><section class="pm-node-failures" aria-label="节点失败详情"><h3 data-pm-no-permalink>失败详情</h3><sc-for list="{{ pe.failures }}" as="failure"><article class="pm-node-failure">
         <div class="pm-node-failure-heading"><span class="pm-node-failure-badge">{{ failure.statusLabel }}</span><button type="button" class="pm-node-issue-sync" disabled="{{ failure.syncDisabled }}" title="将此错误信息发送到飞书群" sc-camel-on-click="{{ failure.sync }}">{{ failure.syncLabel }}</button></div>
         <p class="pm-node-sync-target">{{ failure.syncTarget }}</p>
         <div class="pm-node-failure-alert" role="group" aria-label="失败原因">
-          <div class="pm-node-failure-alert-heading"><svg class="forge-icon" data-phosphor="x-circle" width="18" height="18" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg><strong>失败原因</strong></div>
+          <div class="pm-node-failure-alert-heading">[[icon:x-circle:20]]<strong>失败原因</strong></div>
           <sc-if value="{{ failure.hasCode }}"><p class="pm-node-failure-code">{{ failure.errorCode }}</p></sc-if>
           <pre>{{ failure.errorMessage }}</pre>
         </div>

@@ -213,10 +213,8 @@
 .forge-postman .pm-metric-help{display:inline-flex;flex:none;width:28px;height:28px;margin:-4px -4px -4px 0}
 .forge-postman .pm-metric-help .forge-summary-info{position:relative;min-height:28px;padding:0}
 .forge-postman .pm-metric-help .forge-summary-info>span{display:flex;align-items:center}
-.forge-postman .pm-metric-help .forge-summary-info::after{content:"";position:absolute;inset:6px;background:url('/postman-ui/info-filled.svg') center/16px 16px no-repeat;opacity:0;pointer-events:none}
-.forge-postman .pm-metric-help .forge-summary-info:is(:hover,:focus-visible,[data-state=delayed-open],[data-state=instant-open])::after{opacity:1}
-.forge-postman .pm-metric-help .forge-summary-info:is(:hover,:focus-visible,[data-state=delayed-open],[data-state=instant-open]) svg{visibility:hidden}
-@media(pointer:coarse){.forge-postman .pm-metric-help{width:44px;height:44px;margin-block:-4px}.forge-postman .pm-metric-help .forge-summary-info::after{inset:14px}}
+.forge-postman .pm-metric-help .forge-summary-info:is(:hover,:focus-visible,[data-state=delayed-open],[data-state=instant-open]){color:var(--pm-text)}
+@media(pointer:coarse){.forge-postman .pm-metric-help{width:44px;height:44px;margin-block:-4px}}
 .forge-postman .forge-billing-metrics>div+div{border-left:1px solid var(--pm-border)}
 .forge-postman .forge-billing-metrics dd{color:var(--pm-text);font-weight:600}
 .forge-postman .forge-billing-insight{background:transparent;border-radius:0}

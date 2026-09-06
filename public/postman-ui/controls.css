@@ -252,7 +252,8 @@
 .forge-postman .pm-task-tag-picker{position:relative;min-width:0;width:min(var(--pm-task-tag-width,140px),100%);max-width:280px;font-size:13px}
 .forge-postman .pm-task-tag-picker>summary{box-sizing:border-box;width:100%;list-style:none;cursor:pointer;min-height:32px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--pm-control);border-radius:4px;padding:4px 8px;background:var(--pm-canvas);color:var(--pm-text)}
 .forge-postman .pm-task-tag-picker>summary::-webkit-details-marker{display:none}
-.forge-postman .pm-task-tag-picker>summary::after{content:'';width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);flex:none;margin:0 3px 3px}
+.forge-postman .pm-task-tag-caret{flex:none;color:var(--pm-muted);transition:transform 140ms ease}
+.forge-postman .pm-task-tag-picker[open] .pm-task-tag-caret{transform:rotate(180deg)}
 .forge-postman .pm-task-tag-chips{display:flex;gap:4px;flex-wrap:wrap;min-width:0}
 .forge-postman .pm-task-tag-chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;background:color-mix(in srgb,var(--task-tag-bg,#64748b) 16%,white);border:1px solid color-mix(in srgb,var(--task-tag-bg,#64748b) 50%,white);color:color-mix(in srgb,var(--task-tag-bg,#64748b) 65%,#222);border-radius:4px;padding:2px 7px;font-size:12px;line-height:18px;font-weight:400;overflow-wrap:anywhere}
 .forge-postman .pm-task-tag-chip::before{content:'';display:block;flex:none;width:7px;height:7px;border-radius:50%;background:var(--task-tag-bg,#64748b)}

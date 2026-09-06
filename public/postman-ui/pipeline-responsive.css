@@ -58,8 +58,8 @@
 .forge-postman .pm-pipeline-version-node{border:1px solid var(--pm-border);border-radius:6px;background:var(--pm-canvas)}
 .forge-postman .pm-pipeline-version-node summary{display:grid;grid-template-columns:24px minmax(0,1fr) auto auto auto;gap:10px;align-items:center;min-height:44px;padding:7px 12px;box-sizing:border-box;cursor:pointer;list-style:none}
 .forge-postman .pm-pipeline-version-node summary::-webkit-details-marker{display:none}
-.forge-postman .pm-pipeline-version-node summary::after{content:'›';grid-column:5;color:var(--pm-muted);font-size:18px;transform:rotate(90deg);transition:transform 140ms ease}
-.forge-postman .pm-pipeline-version-node[open] summary::after{transform:rotate(-90deg)}
+.forge-postman .pm-pipeline-version-node-caret{grid-column:5;display:inline-flex;color:var(--pm-muted);transform:rotate(0deg);transition:transform 140ms ease}
+.forge-postman .pm-pipeline-version-node[open] .pm-pipeline-version-node-caret{transform:rotate(180deg)}
 .forge-postman .pm-pipeline-version-node-index{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--pm-subtle);color:var(--pm-muted);font-size:11px}
 .forge-postman .pm-pipeline-version-node code{min-width:0;overflow-wrap:anywhere;font:600 13px/20px var(--pm-mono)}
 .forge-postman .pm-pipeline-version-kind{padding:2px 6px;border-radius:3px;background:var(--pm-subtle);color:var(--pm-muted);font-size:10px;letter-spacing:.05em}
@@ -74,10 +74,10 @@
  .forge-postman .pm-pipeline-version-node summary{grid-template-columns:24px minmax(0,1fr) auto auto}
  .forge-postman .pm-pipeline-version-kind{grid-column:2}
  .forge-postman .pm-pipeline-version-node-status{grid-column:3;grid-row:1/-1}
- .forge-postman .pm-pipeline-version-node summary::after{grid-column:4;grid-row:1/-1}
+ .forge-postman .pm-pipeline-version-node-caret{grid-column:4;grid-row:1/-1}
  .forge-postman .pm-pipeline-version-close{width:44px;min-height:44px!important}
 }
-@media(prefers-reduced-motion:reduce){.forge-postman .pm-pipelines-version-arrow,.forge-postman .pm-pipeline-version-node summary::after{transition:none}}
+@media(prefers-reduced-motion:reduce){.forge-postman .pm-pipelines-version-arrow,.forge-postman .pm-pipeline-version-node-caret{transition:none}}
 /* The editor reserves a flexible canvas below its wrapping toolbar. */
 .forge-postman .pm-pipeline-editor{min-width:0;min-height:0!important;height:calc(100dvh - 40px)!important;overflow:hidden;container-type:inline-size}
 .forge-postman .pm-pipeline-editor>.pm-pipeline-toolbar{display:grid!important;grid-template-columns:minmax(240px,1fr) auto;gap:12px 20px!important;padding:12px 20px!important;min-width:0;box-sizing:border-box;position:relative;z-index:6}

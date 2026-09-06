@@ -144,7 +144,7 @@ test('Skill creation uses one dropdown for upload and form entry', () => {
   const styles = read('public/postman-ui/rbac-prototype.css');
   for (const contract of [
     'class="rbac-skill-create-menu"',
-    '<summary class="rbac-secondary">创建 Skill</summary>',
+    '<summary class="rbac-secondary">创建 Skill${dockCaretIcon}</summary>',
     'data-action="skill-upload-trigger">上传 Skill',
     'data-action="skill-form">填写 Skill',
   ]) {

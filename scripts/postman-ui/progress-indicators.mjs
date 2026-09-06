@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-const check = fs.readFileSync(new URL('../../assets/phosphor/regular/check.svg', import.meta.url),'utf8').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="14" height="14" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">');
+import {phosphorIcon} from './phosphor-icons.mjs';
+const check = phosphorIcon('check',14);
 export function installProgressIndicators(t) {
  const replace=(from,to)=>{if(!t.includes(from))throw Error('Progress anchor changed: '+from.slice(0,90));t=t.replace(from,()=>to);};
  const wizard=t.match(/<nav class="forge-wizard-steps"[\s\S]*?<\/nav>/)?.[0];

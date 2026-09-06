@@ -30,7 +30,8 @@ test('every interface SVG uses unmodified official Phosphor Regular geometry', (
   // Includes branch progress connectors, compact record actions, inline Tag removal,
   // supplier navigation/detail actions and the model error drill-down.
   assert.equal(icons.length, 205);
-  assert.equal(charts.length, 1); assert.match(charts[0][1], /data-chart="model-trend"/);
+  assert.equal(charts.length, 2);
+  assert.deepEqual(new Set(charts.map(([, attrs]) => attrs.match(/data-chart="([\w-]+)"/)?.[1])), new Set(['model-trend', 'outsourcing-trend']));
   const names = new Set();
   for (const [, attrs, geometry] of icons) {
     const name = attrs.match(/data-phosphor="([\w-]+)"/)?.[1];

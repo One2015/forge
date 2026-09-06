@@ -1,7 +1,7 @@
 import fs from 'node:fs';
+import {renderPhosphorIcons} from './phosphor-icons.mjs';
 
 const read = name => fs.readFileSync(new URL(name, import.meta.url), 'utf8');
-const icons = html => html.replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, (_, name, size) => read('../../assets/phosphor/regular/' + name + '.svg').replace(/<svg[^>]*>/, '<svg class="forge-icon" width="' + size + '" height="' + size + '" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
 
 export const deliveryBrowserCopy = [
   ["    const delSortKey = st.delSort || 'newest';\n    const delAll = [];", "    const delSortKey = st.delSort || 'newest';\n    const delStatus = st.delStatus === 'unmet' ? 'unmet' : 'all';\n    const delQuery = String(st.deliveryQuery || '').trim().toLocaleLowerCase();\n    const delView = st.deliveryView === 'folder' ? 'folder' : 'list';\n    const delAll = [];"],
@@ -30,6 +30,6 @@ export function installDeliveryBrowser(t) {
   const resultsStart = page.indexOf('      <div style="display:flex;flex-direction:column;gap:20px">', toolbarStart);
   const resultsClose = page.lastIndexOf('      </div>\n    </div>\n  </sc-if>');
   if (toolbarStart < 0 || resultsStart < toolbarStart || resultsClose < resultsStart) throw Error('Delivery browser content boundary changed');
-  page = page.slice(0, toolbarStart) + icons(read('delivery-browser-toolbar.html')) + '\n\n      ' + icons(read('delivery-browser-views.html')) + '\n' + page.slice(resultsClose + '      </div>\n'.length);
+  page = page.slice(0, toolbarStart) + renderPhosphorIcons(read('delivery-browser-toolbar.html')) + '\n\n      ' + renderPhosphorIcons(read('delivery-browser-views.html')) + '\n' + page.slice(resultsClose + '      </div>\n'.length);
   return t.slice(0, deliveryStart) + page + t.slice(deliveryEnd);
 }

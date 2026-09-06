@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {renderPhosphorIcons} from './phosphor-icons.mjs';
 export const profileSkillEditorCopy=[
  ["work = this.state.profileOpen ? this.profileTasks() : [], tasks = this.state.profileOpen ? this.profileDeliveryTasks(work) : [], skills =", "work = this.state.profileOpen ? this.profileTasks() : [], deliveryTasks = this.state.profileOpen ? this.profileDeliveryTasks(work) : [], tasks = this.pmProfileRelatedTasks(deliveryTasks,work), skills ="],
  ["taskHint: tasks.length + ' 份交付数据单 · 点击进入查看和审核'", "taskHint: tasks.length + ' 个相关任务 · 点击查看详情'"],
@@ -25,10 +26,10 @@ export function installProfileSkillEditor(t){
  t=t.replace(/<footer class="forge-profile-footer">\s*<p>本地演示 · 刷新后清空<\/p>\s*<\/footer>/,'');
  const toolbar=/<div class="forge-profile-skill-toolbar"><span>个人及数据单 Skill<\/span><label[\s\S]*?<\/label><\/div>/;
  if(!toolbar.test(t))throw Error('Profile Skill toolbar boundary changed');
- const renderIcons=value=>value.replace(/\[\[icon:([\w-]+):(\d+)\]\]/g,(_,name,size)=>fs.readFileSync(new URL('../../assets/phosphor/regular/'+name+'.svg',import.meta.url),'utf8').replace(/<svg[^>]*>/,'<svg class="forge-icon" width="'+size+'" height="'+size+'" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true">'));
+ const renderIcons=renderPhosphorIcons;
  const menu=renderIcons(fs.readFileSync(new URL('profile-skill-create-menu.html',import.meta.url),'utf8'));
  t=t.replace(toolbar,()=>menu);
- t=t.replace('<sc-if value="{{ profile.notice }}" hint-placeholder-val="{{ false }}"><p class="forge-profile-skill-notice" role="status">{{ profile.notice }}</p></sc-if>',()=>'<sc-if value="{{ profile.notice }}" hint-placeholder-val="{{ false }}"><div class="pm-profile-skill-confirmation" role="status">'+renderIcons('[[icon:check-circle:18]]')+'<div><p>{{ profile.notice }}</p><small>可从下方打开 Skill，查看详情与关联数据单。</small></div></div></sc-if>');
+ t=t.replace('<sc-if value="{{ profile.notice }}" hint-placeholder-val="{{ false }}"><p class="forge-profile-skill-notice" role="status">{{ profile.notice }}</p></sc-if>',()=>'<sc-if value="{{ profile.notice }}" hint-placeholder-val="{{ false }}"><div class="pm-profile-skill-confirmation" role="status">'+renderIcons('[[icon:check-circle:20]]')+'<div><p>{{ profile.notice }}</p><small>可从下方打开 Skill，查看详情与关联数据单。</small></div></div></sc-if>');
  t=t.replace('<div class="forge-profile-empty"><h3>还没有 Skill</h3><p>点击「上传 Skill」添加并命名，无需先关联任务。</p></div>','<div class="forge-profile-empty pm-profile-skill-empty"><img src="/postman-ui/illustrations/skill-library-empty.png" width="156" height="156" alt="" /><h3>还没有 Skill</h3><p>点击「创建 Skill」，填写指令或上传文件。</p></div>');
  const start=t.indexOf('<div class="forge-profile-skill-editor" role="group" aria-label="命名和关联 Skill">');
  const end=t.indexOf('\n        </sc-if>\n        <sc-if value="{{ profile.noSkills }}"',start);

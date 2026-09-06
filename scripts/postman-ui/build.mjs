@@ -41,10 +41,10 @@ import {installLoadingStates} from './loading-states.mjs';
 import {installCheckboxMotion} from './checkbox-motion.mjs';
 import {installNotificationToggle} from './notification-toggle.mjs';
 import {installUtilityPanels} from './utility-panels.mjs';
+import {phosphorIcon,renderPhosphorIcons} from './phosphor-icons.mjs';
 const root=new URL('../../',import.meta.url);
 export function buildPostman(source){
- const icon=name=>fs.readFileSync(new URL('assets/phosphor/regular/'+name+'.svg',root),'utf8').replace('<svg ','<svg class="forge-icon" width="16" height="16" aria-hidden="true" focusable="false" ');
- const themeIcon=icon('circle-half');
+ const themeIcon=phosphorIcon('circle-half',16);
  const opening='<script type="__bundler/template">', closing='\n</script>\n</body>\n</html>';
  const start=source.indexOf(opening),end=source.lastIndexOf(closing);
  if(start<0||end<0)throw Error('Missing prototype template boundary');
@@ -181,7 +181,7 @@ export function buildPostman(source){
  replace('<button type="button" class="forge-delivery-secondary" disabled="{{ deliveryEditor.workspace.locked }}" sc-camel-on-click="{{ deliveryEditor.workspace.back }}">返回列表</button>','');
  replace('返回列表会保留未完成内容；创建成功的 Skill 不随数据单取消而删除。','创建成功的 Skill 不随数据单取消而删除。');
  replace('<span class="review-workbench-ref-count" data-available="{{ it.hasReferences }}">{{ it.referenceCount }}</span>','');
- const skillDownloadIcon=fs.readFileSync(new URL('assets/phosphor/regular/download-simple.svg',root),'utf8').replace('<svg ','<svg width="18" height="18" aria-hidden="true" focusable="false" ');
+ const skillDownloadIcon=phosphorIcon('download-simple',20);
  t=t.replaceAll('aria-label="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">下载 .md</button>', 'aria-label="{{ relatedSkill.downloadLabel }}" title="{{ relatedSkill.downloadLabel }}" sc-camel-on-click="{{ relatedSkill.download }}">'+skillDownloadIcon+'</button>');
  t=installReviewReferenceSkills(t);
  t=installReviewPreviewPage(t);
@@ -190,6 +190,7 @@ export function buildPostman(source){
  replace('<div class="forge-wizard-layout">',wizardHeading+'\n<div class="forge-wizard-layout pm-wizard-aligned">');
  t=installNotificationToggle(t);
  t=installUtilityPanels(t);
+ t=renderPhosphorIcons(t);
  const logicStart=t.indexOf('<script type="text/x-dc"');
  let markup=t.slice(0,logicStart);
  markup=markup.replace(/<(div|span|button|input|select)\b[^>]*>/g,tag=>{

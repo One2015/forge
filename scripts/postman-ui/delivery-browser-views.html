@@ -25,7 +25,7 @@
                 <span class="pm-delivery-identity"><strong>{{ d.name }}</strong><span>{{ d.created }}</span><span class="pm-delivery-badge" style="color:{{ d.badgeFg }}">{{ d.badge }}</span></span>
                 <span class="pm-delivery-counts"><sc-for list="{{ d.funnel }}" as="f" hint-placeholder-count="4"><span><span>{{ f.k }}</span><strong style="color:{{ f.fg }}">{{ f.v }}</strong></span></sc-for></span>
                 <span class="pm-delivery-progress"><span class="pm-progress-bar" aria-hidden="true"><span style="width:{{ d.segPass }};background:var(--pm-success-mark)"></span><span style="width:{{ d.segReview }};background:var(--pm-warning-mark)"></span><span style="width:{{ d.segFail }};background:var(--pm-danger-mark)"></span></span><span>{{ d.hint }}</span></span>
-                <span class="pm-delivery-open">查看子项 <svg class="forge-icon" width="16" height="16" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span>
+                <span class="pm-delivery-open">查看子项 [[icon:arrow-right:16]]</span>
               </button>
             </sc-for>
           </div>
@@ -51,7 +51,7 @@
               <article class="pm-delivery-folder-card" data-flow-family="delivery" data-flow-row="{{ d.motionKey }}">
                 <div class="pm-delivery-folder-cover" data-has-cover="{{ d.hasCover }}">
                   <sc-if value="{{ d.hasCover }}" hint-placeholder-val="{{ false }}"><img src="{{ d.coverUrl }}" alt="{{ d.coverAlt }}" /></sc-if>
-                  <sc-if value="{{ d.noCover }}" hint-placeholder-val="{{ true }}"><div class="pm-delivery-folder-cover-empty">[[icon:folder-simple:30]]<span>添加封面</span></div></sc-if>
+                  <sc-if value="{{ d.noCover }}" hint-placeholder-val="{{ true }}"><div class="pm-delivery-folder-cover-empty">[[icon:folder-simple:24]]<span>添加封面</span></div></sc-if>
                   <label class="pm-delivery-folder-cover-action">
                     <input class="pm-delivery-cover-input" type="file" accept="image/png,image/jpeg,image/webp" aria-label="{{ d.coverLabel }}" sc-camel-on-change="{{ d.uploadCover }}" />
                     <span>{{ d.coverAction }}</span>
