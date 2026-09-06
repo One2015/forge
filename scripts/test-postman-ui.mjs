@@ -72,7 +72,7 @@ test('Forge v2 visual system uses a cool brand and covers every major product su
  assert.match(built,/--surface-canvas:#fcfcfd/);
  assert.match(built,/--accent-primary:#635bff/);
  assert.match(built,/--accent-solid:#635bff/);
- assert.match(built,/--surface-selected:#f1f1ff/);
+ assert.match(built,/--surface-selected:#fafafd/);
  assert.doesNotMatch(built,/--accent-primary:#(?:e34f24|ff714a)/);
  assert.match(built,/\.pm-brand-mark\{[^}]*background:var\(--accent-solid\)/);
  assert.match(built,/\.forge-postman \.forge-sidebar :is\([^}]+\)::before\{content:none!important\}/);
