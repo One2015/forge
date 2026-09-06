@@ -33,7 +33,8 @@ test('billing chart uses the centralized Forge chart sequence', () => {
 test('time granularity is a secondary unfilled control while metrics retain their segment', () => {
   assert(template.includes('class="forge-billing-granularity" role="group" aria-label="时间粒度"'));
   assert(template.includes('class="forge-billing-segment" role="group" aria-label="趋势指标"'));
-  assert.match(template, /<\/header>\s*<div class="forge-billing-chart-controls">/);
+  assert.match(template, /<section class="forge-billing-distribution"[^>]*>\s*<header><h2[^>]*>\{\{ billing\.chartTitle \}\}<\/h2><\/header>\s*<div class="forge-billing-chart">\s*<div class="forge-billing-chart-controls">/);
+  assert.doesNotMatch(template, /<small>\{\{ billing\.period \}\} · \{\{ billing\.unit \}\}<\/small>/);
   assert.match(template, /class="forge-billing-custom-time"[^>]*aria-haspopup="dialog"[^>]*aria-controls="forge-billing-calendar"[^>]*aria-label="选择自定义时间范围"/);
   assert.doesNotMatch(template, /\{\{ billing\.period \}\}<br>\{\{ billing\.timezoneLabel \}\} · 包含结束日期/);
   assert.doesNotMatch(template, /class="forge-billing-filters"|class="forge-billing-date-trigger"/);
@@ -42,6 +43,7 @@ test('time granularity is a secondary unfilled control while metrics retain thei
   assert.match(template, /\.forge-billing-chart-controls\{[^}]*justify-content:flex-start[^}]*width:100%[^}]*margin-bottom:12px/);
   assert.match(template, /\.forge-billing-chart-controls>\.forge-billing-granularity\{margin-left:auto\}/);
   assert.match(template, /\.forge-billing-chart-controls\{flex-direction:column;align-items:stretch;gap:8px\}\.forge-billing-granularity\{align-self:flex-end\}/);
+  assert.match(template, /\.forge-billing-distribution>header\{display:block;margin-bottom:8px\}/);
   assert.match(template, /\.forge-billing-granularity\{[^}]*background:transparent/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\{[^}]*background:transparent;box-shadow:none/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\[aria-pressed="true"\]\{[^}]*text-decoration:underline/);
@@ -304,7 +306,7 @@ test('stacked distribution, change reasons and abnormal runs are exposed without
   assert(v.abnormalRuns.some(row => row.runId === 'run-spike'));
   assert.match(html, /forge-billing-stack/); assert.match(html, /变化补充说明/); assert.match(html, /异常成本 Run/);
   assert.match(html, /<ul class="forge-billing-reasons"><sc-for[\s\S]*?<li>/);
-  assert.match(html, /<\/sc-if>\s*<\/section>\s*<section class="forge-billing-breakdown"/);
+  assert.match(html, /<\/sc-if>\s*<\/div>\s*<\/section>\s*<section class="forge-billing-breakdown"/);
   assert.match(html, /<section class="forge-billing-breakdown"[^>]*>\s*<header><div><h2 id="forge-billing-table-title"/);
   assert.match(html, /\{\{ billing\.tableLabel \}\}费用明细/);
   assert.doesNotMatch(html, /\{\{ billing\.groupCount \}\} 个\{\{ billing\.tableLabel \}\} · \{\{ billing\.callCount \}\} 条调用记录/);
