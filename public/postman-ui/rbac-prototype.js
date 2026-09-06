@@ -2,6 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'forge-rbac-prototype-v3';
+  const dockCaretIcon = '<svg class="forge-icon rbac-dock-caret" data-phosphor="caret-down" width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>';
   const ACTIONS = ['view', 'create', 'modify', 'remove'];
   const roleLabels = {
     'project-owner': 'Project Owner',
@@ -150,7 +151,7 @@
     permissionRole: 'project-owner', skillScope: 'platform', skillCreateMode: '', activeSkillId: '', skillEditMode: false, activeMemberId: '', activeMemberProject: 'ant-200',
     editingMemberPermissions: false, rolePermissions: clone(defaultPermissions), customPermissions: {}, projectAssignments: clone(initialProjectAssignments), customRoles: [],
     roleCreateOpen: false, roleDraftName: '', roleDraftDescription: '', roleDraftBase: 'member', roleDraftPermissions: clone(defaultPermissions.member), roleDraftError: '',
-    members: clone(initialMembers), invites: [], skills: clone(initialSkills), avatar: '', dockExpanded: false,
+    members: clone(initialMembers), invites: [], skills: clone(initialSkills), avatar: '', dockExpanded: false, dockCollapsed: false,
   };
   let state = loadState();
   let root;
@@ -625,10 +626,18 @@
     return `<div class="rbac-page"><header class="rbac-page-head"><div><h1>External Experts</h1><p>Fellow 外部协作身份</p></div><button class="rbac-secondary" type="button" data-action="close-workspace">返回工作台</button></header><div class="rbac-boundary"><div><strong>此角色不登录 Forge</strong><br>External Experts 在 Fellow 中接收由 Forge 同步的任务包、上传结果并处理返工。Forge 内部项目、备注、费用、模型状态和其他成员信息不会开放。</div></div><section class="rbac-section"><div class="rbac-section-head"><div><h2>联动状态</h2><p class="rbac-section-copy">用于体验角色边界，不代表 Fellow 已真实接通。</p></div></div><div class="rbac-card rbac-table-wrap"><table class="rbac-table"><thead><tr><th>任务包</th><th>Forge 状态</th><th>Fellow 状态</th><th>可访问内容</th></tr></thead><tbody><tr><td>蚂蚁 Web3D · Batch 04</td><td>已分配</td><td><span class="rbac-badge" data-tone="external">模拟同步</span></td><td>需求、参考文件、提交入口</td></tr></tbody></table></div></section></div>`;
   }
 
+  function setDockCollapsed(collapsed) {
+    update({ dockCollapsed: collapsed });
+    requestAnimationFrame(() => dock.querySelector(`[data-dock="${collapsed ? 'restore' : 'collapse'}"]`)?.focus());
+  }
+
   function renderDock() {
     dock.dataset.expanded = String(!!state.dockExpanded);
+    dock.dataset.collapsed = String(!!state.dockCollapsed);
     dock.dataset.hidden = String(!!state.roleCreateOpen);
-    dock.innerHTML = `<div class="rbac-dock-row"><span class="rbac-prototype-tag">Prototype</span><label>平台<select data-dock="platform"><option value="admin" ${state.platformRole === 'admin' ? 'selected' : ''}>Admin</option><option value="member" ${state.platformRole === 'member' ? 'selected' : ''}>Internal Member</option></select></label><label>项目<select data-dock="project">${roleEntries().map(([key, label]) => `<option value="${escapeHtml(key)}" ${state.projectRole === key ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label><button class="rbac-dock-info" type="button" data-dock="info" aria-label="查看体验模式说明" aria-expanded="${!!state.dockExpanded}">?</button></div><p class="rbac-dock-note">平台角色决定是否能管理 Member 和 Permission；项目角色决定具体 Forge 功能。Admin 始终拥有最高权限。External Experts 仅通过 Fellow 工作。</p>`;
+    dock.innerHTML = `<button class="rbac-dock-restore" type="button" data-dock="restore" aria-label="展开 Prototype 角色体验" aria-expanded="false" aria-controls="forge-rbac-role-dock-controls" title="展开 Prototype 角色体验">${dockCaretIcon}</button><div class="rbac-dock-content" id="forge-rbac-role-dock-controls"><div class="rbac-dock-row"><button class="rbac-prototype-tag rbac-dock-collapse" type="button" data-dock="collapse" aria-label="收起 Prototype 角色体验" aria-expanded="true" aria-controls="forge-rbac-role-dock-controls" title="收起 Prototype 角色体验"><span>Prototype</span>${dockCaretIcon}</button><label>平台<select data-dock="platform"><option value="admin" ${state.platformRole === 'admin' ? 'selected' : ''}>Admin</option><option value="member" ${state.platformRole === 'member' ? 'selected' : ''}>Internal Member</option></select></label><label>项目<select data-dock="project">${roleEntries().map(([key, label]) => `<option value="${escapeHtml(key)}" ${state.projectRole === key ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label><button class="rbac-dock-info" type="button" data-dock="info" aria-label="查看体验模式说明" aria-expanded="${!!state.dockExpanded}">?</button></div><p class="rbac-dock-note">平台角色决定是否能管理 Member 和 Permission；项目角色决定具体 Forge 功能。Admin 始终拥有最高权限。External Experts 仅通过 Fellow 工作。</p></div>`;
+    dock.querySelector('[data-dock="restore"]')?.addEventListener('click', () => setDockCollapsed(false));
+    dock.querySelector('[data-dock="collapse"]')?.addEventListener('click', () => setDockCollapsed(true));
     dock.querySelector('[data-dock="platform"]')?.addEventListener('change', event => {
       const platformRole = event.target.value;
       update({ platformRole, roleCreateOpen: false, roleDraftError: '', activeTab: platformRole === 'admin' ? state.activeTab : (['member', 'permission'].includes(state.activeTab) ? 'profile' : state.activeTab) });

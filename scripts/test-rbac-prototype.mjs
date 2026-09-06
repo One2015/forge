@@ -21,6 +21,25 @@ test('RBAC prototype keeps platform and project roles separate', () => {
   assert.match(source, /customPermissions/);
 });
 
+test('Prototype role dock collapses to an accessible persistent restore control', () => {
+  const source = read('public/postman-ui/rbac-prototype.js');
+  const styles = read('public/postman-ui/rbac-prototype.css');
+  for (const contract of [
+    'dockCollapsed: false',
+    'dock.dataset.collapsed = String(!!state.dockCollapsed)',
+    'data-dock="collapse" aria-label="收起 Prototype 角色体验" aria-expanded="true"',
+    'data-dock="restore" aria-label="展开 Prototype 角色体验" aria-expanded="false"',
+    "update({ dockCollapsed: collapsed })",
+    "requestAnimationFrame(() => dock.querySelector(`[data-dock=\"${collapsed ? 'restore' : 'collapse'}\"]`)?.focus())",
+  ]) {
+    assert.ok(source.includes(contract), `missing dock collapse contract: ${contract}`);
+  }
+  assert.match(source, /data-phosphor="caret-down"/);
+  assert.match(styles, /#forge-rbac-role-dock\[data-collapsed="true"\]\{width:40px\}/);
+  assert.match(styles, /#forge-rbac-role-dock\[data-collapsed="true"\] \.rbac-dock-content\{display:none\}/);
+  assert.match(styles, /\.rbac-dock-restore\{[^}]*width:40px[^}]*height:40px/);
+});
+
 test('RBAC prototype includes profile, member, permission, skill and invitation flows', () => {
   const source = read('public/postman-ui/rbac-prototype.js');
   for (const feature of ['基础信息', 'Member', 'Permission', 'Skill', '用户邮箱', '飞书模拟通知']) {
