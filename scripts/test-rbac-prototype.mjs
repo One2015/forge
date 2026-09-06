@@ -27,6 +27,7 @@ test('Prototype role dock collapses to an accessible persistent restore control'
   for (const contract of [
     'dockCollapsed: false',
     'dock.dataset.collapsed = String(!!state.dockCollapsed)',
+    '<span class="rbac-prototype-tag">Prototype</span>',
     'data-dock="collapse" aria-label="收起 Prototype 角色体验" aria-expanded="true"',
     'data-dock="restore" aria-label="展开 Prototype 角色体验" aria-expanded="false"',
     "update({ dockCollapsed: collapsed })",
@@ -38,6 +39,7 @@ test('Prototype role dock collapses to an accessible persistent restore control'
   assert.match(styles, /#forge-rbac-role-dock\[data-collapsed="true"\]\{width:40px\}/);
   assert.match(styles, /#forge-rbac-role-dock\[data-collapsed="true"\] \.rbac-dock-content\{display:none\}/);
   assert.match(styles, /\.rbac-dock-restore\{[^}]*width:40px[^}]*height:40px/);
+  assert.match(styles, /\.rbac-dock-collapse\{[^}]*width:30px[^}]*height:30px[^}]*border:1px solid var\(--rbac-line\)/);
 });
 
 test('RBAC prototype includes profile, member, permission, skill and invitation flows', () => {

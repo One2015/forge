@@ -216,13 +216,13 @@
 .rbac-dock-restore .rbac-dock-caret{transform:rotate(180deg)}
 .rbac-dock-row{display:flex;align-items:center;gap:10px;padding:10px 12px}
 .rbac-prototype-tag{display:inline-flex;align-items:center;min-height:22px;padding:2px 7px;border-radius:5px;background:var(--rbac-accent-soft);color:#a03817;font-size:11px;font-weight:650;letter-spacing:.02em}
-.rbac-dock-collapse{justify-content:center;gap:4px;border:0;cursor:pointer}
+.rbac-dock-collapse{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid var(--rbac-line);border-radius:6px;background:var(--rbac-soft);color:var(--rbac-muted);cursor:pointer}
 .rbac-dock-row label{display:flex;align-items:center;gap:6px;color:var(--rbac-muted);white-space:nowrap}
 .rbac-dock-row select{height:30px;max-width:150px;border:1px solid var(--rbac-line);border-radius:5px;background:#fff;color:var(--rbac-ink);padding:3px 25px 3px 7px}
 .rbac-dock-info{margin-left:auto;border:0;background:transparent;color:var(--rbac-muted);width:30px;height:30px;border-radius:5px}
 .rbac-dock-note{display:none;margin:0;padding:9px 12px;border-top:1px solid var(--rbac-line);color:var(--rbac-muted);font-size:12px}
 #forge-rbac-role-dock[data-expanded="true"] .rbac-dock-note{display:block}
-@media(hover:hover){.rbac-dock-restore:hover{background:var(--rbac-soft);color:var(--rbac-ink)}.rbac-dock-collapse:hover{color:var(--rbac-ink)}}
+@media(hover:hover){.rbac-dock-restore:hover{background:var(--rbac-soft);color:var(--rbac-ink)}.rbac-dock-collapse:hover{border-color:var(--rbac-muted);background:var(--rbac-panel);color:var(--rbac-ink)}}
 
 #forge-rbac-toast{position:fixed;z-index:800;right:18px;bottom:92px;max-width:min(420px,calc(100vw - 36px));padding:11px 14px;border:1px solid #bfdcc9;border-radius:8px;background:#f2fbf5;color:#236341;box-shadow:0 8px 22px rgba(31,29,26,.12);font:13px/1.5 var(--forge-font,sans-serif);opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .16s ease,transform .16s ease}
 #forge-rbac-toast[data-show="true"]{opacity:1;transform:translateY(0)}
