@@ -170,6 +170,9 @@
 .forge-postman .forge-delivery-field>label{font-size:12px;font-weight:500}
 .forge-postman .forge-delivery-editor-footer{padding:12px 20px;background:var(--pm-subtle);border-top:1px solid var(--pm-border)}
 .forge-postman .forge-delivery-member-row{min-height:44px}
+.forge-postman .forge-delivery-member-row .forge-delivery-person-copy{display:flex;align-items:baseline;gap:6px;white-space:nowrap;overflow:hidden}
+.forge-postman .forge-delivery-member-row .forge-delivery-person-copy>strong{flex:none}
+.forge-postman .forge-delivery-member-row .forge-delivery-person-copy>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .forge-postman .forge-delivery-member-row:has(>select):not(:has(>.forge-delivery-icon-button))::after{content:'';width:28px;height:1px;flex:none}
 @media(pointer:coarse){.forge-postman .forge-delivery-member-row:has(>select):not(:has(>.forge-delivery-icon-button))::after{width:44px}}
 .forge-postman .forge-delivery-library-row{border-bottom:1px solid var(--pm-border);border-radius:0}
