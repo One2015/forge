@@ -93,9 +93,11 @@ test('frequent issues are an aggregate percentage list with an expert filter', (
   v.onIssueSupplier({ target: { value: 'stepfun' } }); v = c.outsourcingSupplierValues();
   assert.equal(v.issueTotal, 22); assert.deepEqual(Array.from(v.issueRows, row => [row.name, row.percentage]), [['材质与参考图不一致', '63.6%'], ['交互热点缺失', '36.4%']]);
   assert.match(page, /aria-label="高频问题专家团队"/); assert.match(page, /forge-outsourcing-issue-list/); assert.match(page, /issue\.percentage/);
+  assert.match(page, /class="forge-outsourcing-issue-track"/); assert.doesNotMatch(page, /最近出现|issue\.recent/);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
-  assert.match(css, /\.forge-outsourcing-issue-list article\{[^}]*grid-template-columns:minmax\(0,1fr\) auto/);
-  assert.match(css, /\.forge-outsourcing-issue-bar\{[^}]*position:absolute/);
+  assert.match(css, /\.forge-outsourcing-issue-list article\{[^}]*grid-template-columns:minmax\(220px,\.9fr\) minmax\(180px,1\.3fr\) 72px/);
+  assert.match(css, /\.forge-outsourcing-issue-track\{[^}]*height:36px[^}]*background:var\(--pm-subtle\)/);
+  assert.match(css, /\.forge-outsourcing-issue-bar\{[^}]*display:block[^}]*height:100%/);
 });
 
 test('management tab exposes all required fields and adds an in-memory expert team', () => {
