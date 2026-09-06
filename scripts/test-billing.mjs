@@ -36,6 +36,7 @@ test('time granularity is a secondary unfilled control while metrics retain thei
   assert.match(template, /<section class="forge-billing-distribution"[^>]*>\s*<header><h2[^>]*>\{\{ billing\.chartTitle \}\}<\/h2><\/header>\s*<div class="forge-billing-chart">\s*<div class="forge-billing-chart-controls">/);
   assert.doesNotMatch(template, /<small>\{\{ billing\.period \}\} · \{\{ billing\.unit \}\}<\/small>/);
   assert.match(template, /class="forge-billing-custom-time"[^>]*aria-haspopup="dialog"[^>]*aria-controls="forge-billing-calendar"[^>]*aria-label="选择自定义时间范围"/);
+  assert.doesNotMatch(template, /class="forge-billing-custom-time"[^>]*aria-pressed/);
   assert.doesNotMatch(template, /\{\{ billing\.period \}\}<br>\{\{ billing\.timezoneLabel \}\} · 包含结束日期/);
   assert.doesNotMatch(template, /class="forge-billing-filters"|class="forge-billing-date-trigger"/);
   assert.match(template, /\.forge-billing-custom-time\{anchor-name:--billing-calendar\}/);
@@ -47,6 +48,7 @@ test('time granularity is a secondary unfilled control while metrics retain thei
   assert.match(template, /\.forge-billing-granularity\{[^}]*background:transparent/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\{[^}]*background:transparent;box-shadow:none/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\[aria-pressed="true"\]\{[^}]*text-decoration:underline/);
+  assert.match(template, /\.forge-billing \.forge-billing-granularity button\.forge-billing-custom-time\{[^}]*color:var\(--forge-muted\);font-weight:400;text-decoration:none/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button:is\(:hover,:active\)\{background:transparent/);
 });
 
