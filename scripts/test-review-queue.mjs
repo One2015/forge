@@ -93,7 +93,10 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.match(css,/\.forge-postman \.pm-review-queue \.pq-filters select\{[^}]*border-radius:var\(--radius-control\)!important[^}]*background:var\(--surface-raised\)[^}]*text-overflow:ellipsis[^}]*white-space:nowrap/);
  assert.match(css,/\.forge-postman \.pm-review-queue \.pq-search input\{[^}]*padding-inline:36px 10px!important[^}]*border-radius:var\(--radius-control\)!important[^}]*background:var\(--surface-raised\)/);
  assert.match(css,/\.pq-table-head>\[role=columnheader\]\{[^}]*text-align:left[^}]*font-weight:var\(--weight-semibold\)/);
+ assert.match(css,/\.pq-table\{min-width:1010px\}/);
+ assert.match(css,/\.pq-columns\{[^}]*grid-template-columns:minmax\(400px,1fr\) 96px 72px 108px 152px 112px/);
  assert.match(css,/\.pq-column-filter\{[^}]*position:relative[^}]*height:var\(--pm-control-height\)/);
+ assert.match(css,/\.forge-postman \.pm-review-queue \.pq-column-filter select\{[^}]*padding:4px 28px 4px 10px!important[^}]*border-radius:var\(--radius-control\)!important[^}]*font-weight:var\(--weight-regular\)!important/);
  assert.match(responsive,/\.pq-mobile-column-filters\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(css,/\.pq-task-copy\{[^}]*flex-direction:column[^}]*align-items:flex-start[^}]*gap:2px[^}]*text-align:left/);
  assert.match(css,/\.pq-person\{[^}]*justify-content:flex-start/);
