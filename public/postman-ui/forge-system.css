@@ -44,9 +44,9 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .forge-sidebar{top:var(--topbar-height);height:calc(100dvh - var(--topbar-height));background:var(--surface-raised)!important;border-color:var(--border-subtle)!important}
 .forge-postman .forge-sidebar-header{height:3.5rem;padding:0 var(--space-3);border-bottom-color:var(--border-subtle)}
 .forge-postman .forge-sidebar-logo{width:1.625rem;height:1.625rem;border-radius:var(--radius-xs);background:var(--accent-soft)!important;color:var(--accent-primary)!important;font-size:.75rem;font-weight:700}
-.forge-postman .forge-sidebar-wordmark{font-size:.8125rem;font-weight:var(--weight-semibold);letter-spacing:-.01em}
+.forge-postman .forge-sidebar-wordmark{font-size:var(--type-component-size);font-weight:var(--weight-semibold);letter-spacing:-.01em}
 .forge-postman .forge-sidebar-nav{padding:var(--space-3) var(--space-2);gap:2px}
-.forge-postman .forge-sidebar-link{min-height:2.375rem;padding:.5rem .625rem;gap:.625rem;border-radius:var(--radius-control);font-size:.8125rem;line-height:1.375rem;color:var(--text-secondary);transition:color var(--motion-fast) var(--ease-standard),background-color var(--motion-fast) var(--ease-standard)}
+.forge-postman .forge-sidebar-link{min-height:2.375rem;padding:.5rem .625rem;gap:.625rem;border-radius:var(--radius-control);font-size:var(--type-component-size);line-height:var(--type-component-leading);color:var(--text-secondary);transition:color var(--motion-fast) var(--ease-standard),background-color var(--motion-fast) var(--ease-standard)}
 .forge-postman .forge-sidebar-link>.forge-icon{width:1.125rem;height:1.125rem;color:var(--text-muted)}
 .forge-postman .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile){border-radius:var(--radius-control)}
 .forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true]){background:var(--surface-selected)!important;color:var(--accent-primary)!important;font-weight:var(--weight-medium)}
@@ -62,7 +62,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman :is(.forge-page,.fg-runs){width:100%;max-width:var(--page-max)!important;padding:var(--page-block-start) var(--page-gutter) var(--page-block-end)!important;margin-inline:auto}
 .forge-postman :is(.forge-page,.fg-page-header,.forge-billing-heading,.forge-model-heading) h1{margin:0;color:var(--text-primary);font:var(--weight-semibold) var(--type-page-size)/var(--type-page-leading) var(--font-sans)!important;letter-spacing:-.022em!important}
 .forge-postman :is(h2,.forge-delivery-section-heading h2){color:var(--text-primary);font:var(--weight-semibold) var(--type-section-size)/var(--type-section-leading) var(--font-sans)!important;letter-spacing:-.012em}
-.forge-postman h3{color:var(--text-primary);font-weight:var(--weight-medium)}
+.forge-postman h3{color:var(--text-primary);font:var(--weight-medium) var(--type-subsection-size)/var(--type-subsection-leading) var(--font-sans)!important}
 .forge-postman :is(.forge-page,.fg-runs)>.pm-production-page-heading{min-height:auto;margin-bottom:var(--density-section-gap)!important;gap:var(--space-6)!important}
 .forge-postman .pm-production-page-heading>div:first-child>:is(p,div){max-width:72ch;margin-top:var(--space-1)!important;color:var(--text-secondary)!important;font-size:var(--type-body-size)!important;line-height:var(--type-body-leading)!important}
 
@@ -205,7 +205,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .pm-overview-delivery-row:last-child{border-bottom:0!important}
 
 /* Dense workspaces -------------------------------------------------------- */
-:root[data-forge-density=compact] .forge-postman :is(.pm-page-datasets,.pm-page-resources,.pm-page-review,.pm-page-run,.pm-page-pipeedit,.pm-item-page){--type-body-size:.75rem;--type-body-leading:1.125rem;--type-caption-size:.6875rem}
+:root[data-forge-density=compact] .forge-postman :is(.pm-page-datasets,.pm-page-resources,.pm-page-review,.pm-page-run,.pm-page-pipeedit,.pm-item-page){--type-body-size:.875rem;--type-body-leading:1.25rem;--type-component-size:.8125rem;--type-component-leading:1.125rem;--type-caption-size:.75rem;--type-caption-leading:1rem}
 .forge-postman :is(.pm-page-datasets,.pm-page-resources,.pm-page-review,.pm-page-run,.pm-page-pipeedit,.pm-item-page) :is([data-flow-family=sheetItems],.pm-delivery-row,tbody tr){min-height:var(--density-row-height)}
 .forge-postman .pm-pipeline-canvas{background-color:var(--surface-canvas)!important;background-image:radial-gradient(var(--border-default) .75px,transparent .75px)!important;background-size:20px 20px!important}
 .forge-postman .pm-pipeline-node{border:1px solid var(--border-default)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;box-shadow:none!important;transform:none!important}
@@ -257,6 +257,28 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 #forge-rbac-root .rbac-badge,#forge-rbac-root .rbac-skill-create-options{background:var(--surface-raised)!important;border-color:var(--border-default)!important;color:var(--text-primary)!important}
 #forge-rbac-root .rbac-role-sheet{border-radius:var(--radius-dialog) 0 0 var(--radius-dialog)!important}
 #forge-rbac-role-dock{right:var(--space-4);bottom:var(--space-4);box-shadow:var(--shadow-overlay)}
+
+/* Global type roles ------------------------------------------------------- */
+.forge-postman :is(button,.fg-button,[role=button][data-pm-click=true]),
+#forge-rbac-root :is(button,.rbac-primary,.rbac-secondary,.rbac-tertiary,.rbac-danger,.rbac-danger-secondary){font-size:var(--type-component-size)!important;line-height:var(--type-component-leading)!important}
+.forge-postman :is(input:not([type=checkbox],[type=radio],[type=file]),select,textarea),
+#forge-rbac-root :is(input:not([type=checkbox],[type=radio],[type=file]),select,textarea){font-size:var(--type-body-size)!important;line-height:var(--type-body-leading)!important}
+.forge-postman :is(label,legend,dt),#forge-rbac-root :is(label,legend,dt){font-size:var(--type-component-size)!important;line-height:var(--type-component-leading)!important}
+.forge-postman :is(small,.forge-delivery-help),#forge-rbac-root small{font-size:var(--type-caption-size)!important;line-height:var(--type-caption-leading)!important}
+.forge-postman :not(pre)>code{font-size:var(--type-caption-size)!important;line-height:var(--type-caption-leading)!important}
+.forge-postman :is(th,[role=columnheader],[data-pm-table-heading=true],.pq-table-head,.rr-heading,.forge-model-table-head,.forge-billing-thead,.forge-outsourcing-table-head),
+#forge-rbac-root .rbac-table th{font-size:var(--type-caption-size)!important;line-height:var(--type-caption-leading)!important;font-weight:var(--weight-semibold)!important}
+.forge-postman [role=columnheader] :is(button,select){font-size:inherit!important;line-height:inherit!important;font-weight:inherit!important}
+.forge-postman :is(td,[role=cell],.pq-row,.rr-row,.forge-model-table-row,.forge-billing-tbody [role=row],.forge-outsourcing-table-row),
+#forge-rbac-root .rbac-table td{font-size:var(--type-component-size)!important;line-height:var(--type-component-leading)!important}
+.forge-postman :is(.fg-badge,.pm-delivery-badge,.pq-badge,.rr-status,.forge-model-badge,.forge-wizard-status,.review-queue-card-status,.forge-outsourcing-status,.forge-metric-delta-tag),
+#forge-rbac-root :is(.rbac-badge,.rbac-prototype-tag){font-size:var(--type-caption-size)!important;line-height:var(--type-caption-leading)!important}
+.forge-postman :is(kbd,.forge-billing-y,.forge-billing-zero,.forge-billing-x,.forge-outsourcing-target-line,.forge-outsourcing-trend-cards footer,.forge-model-chart-readout,.forge-model-chart-baseline span,.pm-pipeline-version-kind,.pm-pipeline-node-kind){font-size:var(--type-micro-size)!important;line-height:var(--type-micro-leading)!important}
+.forge-postman :is(.pm-allocation-item-id,.pm-list-identity span,.pq-person,.pm-sheet-item-identity>span,.pm-item-graph-node>span,.pm-artifact-dependencies,.pm-delivery-folder-title>span,.pm-photo-help,.pm-photo-loading,.pm-pipeline-version-node-index,.pm-preview-label,.forge-model-readonly){font-size:var(--type-caption-size)!important;line-height:var(--type-caption-leading)!important}
+#forge-rbac-root .rbac-page{font-size:var(--type-body-size)!important;line-height:var(--type-body-leading)!important}
+#forge-rbac-root h1{font:var(--weight-semibold) var(--type-page-size)/var(--type-page-leading) var(--font-sans)!important}
+#forge-rbac-root h2{font:var(--weight-semibold) var(--type-section-size)/var(--type-section-leading) var(--font-sans)!important}
+#forge-rbac-root h3{font:var(--weight-medium) var(--type-subsection-size)/var(--type-subsection-leading) var(--font-sans)!important}
 
 /* Dark theme also neutralizes legacy inline light surfaces. */
 :root[data-forge-theme=dark] body.forge-postman :is([style*="background:#fff"],[style*="background: #fff"],[style*="background:#ffffff"],[style*="background: #ffffff"]):not(.forge-artifact-preview):not(.forge-sheet-preview){background:var(--surface-raised)!important}

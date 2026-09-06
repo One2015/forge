@@ -51,11 +51,17 @@ test('sidebar utility counts follow the label and use the Forge accent',()=>{
  assert.match(built,/--pm-utility-badge:var\(--pm-brand\)/);
 });
 test('workspace typography and page rhythm map to semantic Forge tokens',()=>{
- assert.match(built,/--type-page-size:1\.5rem; --type-page-leading:2rem/);
- assert.match(built,/--type-body-size:\.875rem; --type-body-leading:1\.375rem/);
+ assert.match(built,/--type-page-size:1\.625rem; --type-page-leading:2\.125rem/);
+ assert.match(built,/--type-section-size:1\.125rem; --type-section-leading:1\.625rem/);
+ assert.match(built,/--type-subsection-size:1rem; --type-subsection-leading:1\.5rem/);
+ assert.match(built,/--type-body-size:\.9375rem; --type-body-leading:1\.5rem/);
+ assert.match(built,/--type-caption-size:\.8125rem; --type-caption-leading:1\.25rem/);
+ assert.match(built,/--type-micro-size:\.75rem; --type-micro-leading:1rem/);
  assert.match(built,/--pm-page-gutter:var\(--page-gutter\); --pm-page-top:var\(--page-block-start\); --pm-page-bottom:var\(--page-block-end\)/);
  assert.match(built,/--content-inset:var\(--space-5\); --content-inset-compact:var\(--space-4\); --content-inset-mobile:var\(--space-3\)/);
  assert.match(built,/:root\[data-forge-density="compact"\] body\.forge-postman \.forge-app-shell,[\s\S]*--density-control-height:var\(--size-control-sm\)/);
+ assert.match(built,/:root\[data-forge-density=compact\] \.forge-postman :is\([^}]+\)\{--type-body-size:\.875rem;[^}]*--type-caption-size:\.75rem/);
+ assert.doesNotMatch(built,/:root\[data-forge-density=compact\][^}]*--type-body-size:\.75rem/);
  assert.match(built,/\.forge-postman \.forge-page,\.forge-postman \.fg-runs\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
  assert.match(built,/\.forge-postman \.pm-review-queue\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
  assert.match(built,/\.pm-review-queue \.pq-heading h1\{[^}]*font-size:var\(--pm-title-size\)[^}]*line-height:var\(--pm-title-leading\)/);
@@ -63,6 +69,11 @@ test('workspace typography and page rhythm map to semantic Forge tokens',()=>{
  assert.match(built,/\.forge-postman \.pm-delivery-search\{[^}]*height:var\(--pm-control-height\)/);
  assert.match(built,/\.pm-delivery-row\{[^}]*padding:16px var\(--content-inset-compact\)/);
  assert.match(built,/\.forge-postman \.forge-billing-chart\{[^}]*padding:14px var\(--content-inset\) 8px/);
+ assert.match(built,/\/\* Global type roles [\s-]*\*\//);
+ assert.match(built,/\.forge-postman :is\(th,\[role=columnheader\][^}]+font-size:var\(--type-caption-size\)!important/);
+ assert.match(built,/\.forge-postman :is\(td,\[role=cell\][^}]+font-size:var\(--type-component-size\)!important/);
+ assert.match(built,/\.forge-postman :is\(kbd,\.forge-billing-y[^}]+font-size:var\(--type-micro-size\)!important/);
+ assert.match(built,/#forge-rbac-root h3\{font:var\(--weight-medium\) var\(--type-subsection-size\)\/var\(--type-subsection-leading\) var\(--font-sans\)!important\}/);
  assert.doesNotMatch(built,/\.pm-delivery-row\{[^}]*padding:14px 4px/);
  assert.match(built,/\.forge-overview-summary\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
  assert.doesNotMatch(built,/class="forge-overview-signals"/);

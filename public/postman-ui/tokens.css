@@ -29,11 +29,13 @@ body.forge-postman .fg-theme {
   --font-sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
   --type-display-size:clamp(2rem,3vw,2.75rem); --type-display-leading:1.12;
-  --type-page-size:1.5rem; --type-page-leading:2rem;
-  --type-section-size:1rem; --type-section-leading:1.5rem;
+  --type-page-size:1.625rem; --type-page-leading:2.125rem;
+  --type-section-size:1.125rem; --type-section-leading:1.625rem;
+  --type-subsection-size:1rem; --type-subsection-leading:1.5rem;
+  --type-body-size:.9375rem; --type-body-leading:1.5rem;
   --type-component-size:.875rem; --type-component-leading:1.25rem;
-  --type-body-size:.875rem; --type-body-leading:1.375rem;
-  --type-caption-size:.75rem; --type-caption-leading:1.125rem;
+  --type-caption-size:.8125rem; --type-caption-leading:1.25rem;
+  --type-micro-size:.75rem; --type-micro-leading:1rem;
   --weight-regular:400; --weight-medium:550; --weight-semibold:650;
 
   /* Space */
