@@ -29,6 +29,10 @@
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button{flex:1;min-height:28px!important;height:28px!important;padding:3px 10px!important;border-radius:3px!important;font-size:13px!important}
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button[aria-pressed=true],.forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button[aria-pressed=true]:hover{background:var(--pm-selected)!important;color:var(--pm-text)!important;font-weight:600;box-shadow:inset 0 0 0 1px var(--pm-border)!important}
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button:not([aria-pressed=true]):hover{background:var(--pm-pressed)!important;color:var(--pm-text)!important}
+.forge-postman .pm-sheet-status-filter{display:flex;align-items:center;min-width:0}
+.forge-postman .pm-sheet-status-filter select{width:100%;min-width:0;height:28px;padding:0 2px;border:0;background:transparent;color:var(--pm-muted);font:500 12px var(--pm-font);cursor:pointer}
+.forge-postman .pm-sheet-status-filter select:focus-visible{outline:2px solid var(--pm-focus);outline-offset:2px}
+@container pm-sheet-list (max-width:860px){.forge-postman .pm-sheet-columns{display:flex!important;justify-content:flex-end;min-width:0;padding:8px 16px}.forge-postman .pm-sheet-columns>span{display:none}.forge-postman .pm-sheet-status-filter{width:132px}}
 .pm-sheet-help{display:inline-flex;align-items:center;gap:4px;color:var(--pm-muted);font-size:12px;white-space:nowrap}
 .pm-sheet-help>span{display:inline-flex}
 .forge-postman .forge-review-skill-downloads .forge-review-skill-download{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;padding:0;border:0;border-radius:4px}

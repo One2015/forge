@@ -82,7 +82,10 @@ export function buildPostman(source){
  const tipEnd=sheet.indexOf('</sc-if>',tipStart);
  if(tipStart<0||tipEnd<tipStart)throw Error('Sheet help boundary changed');
  sheet=sheet.slice(0,tipStart)+sheet.slice(tipEnd+'</sc-if>'.length);
- sheet=sheet.replace('<div data-forge-segmented="pill" role="group"', '<div class="pm-sheet-filters" data-forge-segmented="pill" role="group" aria-label="子项状态筛选"');
+ const sheetFilterStart=sheet.indexOf('<div data-forge-segmented="pill" role="group"');
+ const sheetFilterEnd=sheet.indexOf('</div>',sheetFilterStart);
+ if(sheetFilterStart<0||sheetFilterEnd<sheetFilterStart)throw Error('Sheet status filter boundary changed');
+ sheet=sheet.slice(0,sheetFilterStart)+sheet.slice(sheetFilterEnd+'</div>'.length);
  sheet=sheet.replace('<div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--forge-border);flex-wrap:wrap">', '<div class="pm-sheet-toolbar" style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--forge-border);flex-wrap:wrap">');
  sheet=sheet.replace('{{ sheet.count }}</div>', '{{ sheet.count }}</div><span class="pm-sheet-help">操作说明<span data-forge-tooltip="点击子项查看产物、相关 Skill 与审核记录。在详情页中使用 ↑ / ↓ 切换子项，Esc 关闭。" data-tooltip-label="子项操作说明"></span></span>');
  sheet=sheet.replace('class="forge-sheet-scroll" style="grid-column:2;grid-row:1;','class="forge-sheet-scroll pm-item-details-panel" style="grid-column:2;grid-row:1;');
@@ -93,6 +96,8 @@ export function buildPostman(source){
  .replace('<div style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">','<div class="pm-sheet-list" style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">')
  .replace('<div style="display:grid;grid-template-columns:52px','<div class="pm-sheet-columns" style="display:grid;grid-template-columns:52px');
  t=t.slice(0,sheetStart)+sheet+t.slice(sheetEnd);
+ replace("        filters: [['all', '全部'], ['passed', null], ['review', null], ['failed', null]].map(x => {", "        filterValue: sf,\n        onFilter: e => this.setState({ sheetFilter: e.target.value }),\n        filters: [['all', '全部'], ['passed', null], ['review', null], ['failed', null]].map(x => {");
+ replace("          return {\n            label, bg: on ? '#fff' : 'transparent'", "          return {\n            key: x[0], columnLabel: '状态 · ' + label,\n            label, bg: on ? '#fff' : 'transparent'");
  // Stable semantic hooks survive DCLogic's normalized runtime style attributes.
  t=t.replace('<div style="display:flex;flex-direction:column;height:calc(100vh - 56px)">','<div class="pm-pipeline-editor pm-page-pipeedit" style="display:flex;flex-direction:column;height:calc(100vh - 56px)">');
  t=t.replace('<div style="flex:1;min-height:0;position:relative;overflow:auto;background-color:#faf8f5;background-image:radial-gradient(#e6e0d6 1px,transparent 1px);background-size:22px 22px">','<div class="pm-pipeline-canvas" style="flex:1;min-height:0;position:relative;overflow:auto;background-color:#faf8f5;background-image:radial-gradient(#e6e0d6 1px,transparent 1px);background-size:22px 22px">');
