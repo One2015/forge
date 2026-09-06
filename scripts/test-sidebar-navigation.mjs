@@ -135,6 +135,10 @@ test('download, messages and actual profile live in the sidebar with no top tool
   assert(sidebar.indexOf('class="forge-sidebar-utilities"') > sidebar.indexOf('</nav>'));
   assert(utilities.includes('class="forge-sidebar-profile"'));
   assert(utilities.includes('{{ sidebar.userName }}'));
+  assert(utilities.includes('sc-camel-on-click="{{ sidebar.goProfile }}"'));
+  assert(utilities.includes('aria-current="{{ sidebar.profileCurrent }}"'));
+  const profileTrigger = utilities.match(/<button[^>]+class="forge-sidebar-profile"[^>]*>/)?.[0] || '';
+  assert(!profileTrigger.includes('popovertarget="forge-profile-panel"'));
   for (const [name, action] of [['dl', 'toggleDownloads'], ['notif', 'toggleMessages']]) {
     assert.match(utilities, new RegExp('<button[^>]+sc-camel-on-click="{{ sidebar\\.' + action + ' }}"'));
     const before = c.renderVals()[name].open;
@@ -145,6 +149,10 @@ test('download, messages and actual profile live in the sidebar with no top tool
   assert.equal(c.renderVals().notif.open, true);
   c.renderVals().sidebar.closeUtility();
   assert.equal(c.renderVals().notif.open, false);
+  c.renderVals().sidebar.goProfile(click);
+  assert.equal(c.state.view, 'profile');
+  assert.equal(c.renderVals().sidebar.profileCurrent, 'page');
+  assert.equal(c.renderVals().sidebar.productionCurrent, 'false');
 });
 
 test('utility panels follow the rail and collapse it on narrow screens without losing drafts', () => {

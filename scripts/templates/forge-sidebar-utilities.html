@@ -8,7 +8,7 @@
     [[icon:bell:20]]<span class="forge-sidebar-tool-label">消息</span>
     <sc-if value="{{ notif.hasUnread }}" hint-placeholder-val="{{ true }}"><span class="forge-sidebar-tool-count forge-sidebar-tool-count-unread" aria-hidden="true">{{ notif.unread }}</span></sc-if>
   </button>
-  <button type="button" class="forge-sidebar-profile" popovertarget="forge-profile-panel" aria-label="个人资料 · {{ sidebar.userName }}" title="{{ sidebar.userName }} · {{ profile.roleLabel }}" aria-expanded="{{ profile.open }}" aria-controls="forge-profile-panel">
+  <button type="button" class="forge-sidebar-profile" sc-camel-on-click="{{ sidebar.goProfile }}" aria-label="个人资料 · {{ sidebar.userName }}" title="{{ sidebar.userName }} · {{ profile.roleLabel }}" aria-current="{{ sidebar.profileCurrent }}">
     <span class="forge-sidebar-avatar" aria-hidden="true">{{ sidebar.userInitial }}</span>
     <span class="forge-sidebar-profile-copy"><span class="forge-sidebar-username">{{ sidebar.userName }}</span><span class="forge-sidebar-profile-label">{{ profile.roleLabel }}</span></span>
   </button>

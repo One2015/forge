@@ -106,8 +106,12 @@ const ForgeRoutes = (() => {
         patch.view = 'outsourcing-suppliers'; patch.supplierVendor = parts[1] || get('supplier');
         patch.supplierTab = oneOf(get('tab'), ['performance', 'management'], 'performance'); patch.supplierSheet = get('sheet');
         patch.supplierRisk = oneOf(get('risk'), ['critical', 'high', 'medium', 'low'], ''); patch.supplierCycle = oneOf(get('cycle'), ['all', '7d', '30d', 'quarter'], 'all');
+      } else if (parts[0] === 'profile' && parts.length === 1) {
+        patch.view = 'profile';
       } else throw Error('route');
-      patch.profileOpen = get('panel') === 'profile'; patch.profileTab = get('profile') === 'skills' ? 'skills' : 'tasks';
+      // Legacy profile-panel links now resolve to the first-class Profile page.
+      if (get('panel') === 'profile') patch.view = 'profile';
+      patch.profileOpen = false; patch.profileTab = get('profile') === 'skills' ? 'skills' : 'tasks';
       patch.dlOpen = get('panel') === 'downloads'; patch.notifOpen = get('panel') === 'notifications';
       return result;
     } catch {
@@ -141,11 +145,11 @@ const ForgeRoutes = (() => {
       case 'billing': path = '/billing/' + (s.billing?.tab === 'projects' ? 'overview' : s.billing?.tab || 'overview'); for (const key of ['preset', 'start', 'end', 'grain', 'project', 'provider', 'model', 'bin']) set(key, s.billing?.[key]); set('sort', s.billing?.sort, 'cost'); set('direction', s.billing?.direction, 'desc'); set('metric', s.billing?.metric, 'cost'); set('search', s.billing?.query); set('page', s.billing?.page, '1'); set('pageSize', s.billing?.pageSize, '10'); break;
       case 'models': path = '/models'; set('q', s.modelQuery); set('provider', s.modelProvider); set('model', s.modelModel); set('line', s.modelLine); set('status', s.modelFilter, 'production'); set('dimension', s.modelDimension, 'providers'); set('selection', s.modelSelection); set('route', s.modelRoute); set('source', s.modelSource); set('sort', s.modelSort, 'impact'); set('period', s.modelTimeRange, 'all'); if (s.modelTimeRange === 'custom') { set('from', s.modelTimeStart); set('to', s.modelTimeEnd); } set('drawer', s.modelDrawerMode); set('metric', s.modelChartMetric, 'ttft'); set('tab', s.modelPageTab, 'overview'); set('window', s.modelOverviewWindow, '1h'); break;
       case 'outsourcing-suppliers': path = '/outsourcing-suppliers' + (s.supplierVendor ? '/' + enc(s.supplierVendor) : ''); set('tab', s.supplierTab, 'performance'); set('sheet', s.supplierSheet); set('risk', s.supplierRisk); set('cycle', s.supplierCycle, 'all'); break;
+      case 'profile': path = '/profile'; break;
       case 'route-error': return s.routeMissingUrl || '/not-found';
     }
     if (s.deliveryEditor?.key) { path = '/delivery/' + enc(s.deliveryEditor.key) + '/edit'; anchor = anchor || s.deliveryEditor.tab || 'basic'; }
-    if (s.profileOpen) { set('panel', 'profile'); set('profile', s.profileTab || 'tasks'); }
-    else if (s.dlOpen) set('panel', 'downloads'); else if (s.notifOpen) set('panel', 'notifications');
+    if (s.dlOpen) set('panel', 'downloads'); else if (s.notifOpen) set('panel', 'notifications');
     return path + (q.size ? '?' + q.toString() : '') + (anchor ? '#' + enc(anchor) : '');
   }
   return { read, write, defaults };

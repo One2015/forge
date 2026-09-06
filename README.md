@@ -13,6 +13,21 @@ npm run dev:postman
 
 打开 http://127.0.0.1:3011 。`app/page.tsx` 是外层页面，当前界面来自 `public/forge-postman.html`，由 `scripts/postman-ui/build.mjs` 生成。
 
+### Role-based Access Prototype
+
+独立权限原型不会替换默认 Forge。运行：
+
+```sh
+npm run dev:rbac
+```
+
+打开 http://127.0.0.1:3008 。页面右下角 Prototype 控件把平台角色（Admin / Internal Member）与项目角色（Project Owner / Member / External Experts）分开切换，并会同步改变 Forge 导航与访问状态。Admin 可在 Profile → Permission 新增自定义项目角色、复制并调整默认权限；创建后会立即进入成员分配和 Prototype 角色切换。Profile 中的 Member、Permission、邮箱邀请及飞书模拟同步只在该入口启用；飞书尚未连接真实 API。
+
+```sh
+node --test scripts/test-rbac-prototype.mjs
+npm run build:rbac
+```
+
 ```sh
 node --test scripts/test-postman-ui.mjs scripts/test-artifact-preview.mjs
 npm run build:postman

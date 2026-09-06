@@ -51,7 +51,7 @@ export function buildPostman(source){
  const replace=(a,b)=>{if(!t.includes(a))throw Error('Prototype anchor changed: '+a.slice(0,100));t=t.replace(a,b);};
  replace('<html><head>','<html lang="zh-CN"><head><title>Forge · Postman UI 优化版</title>');
  t=t.replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>');
- t=t.replace('<body','<body class="forge-postman"');
+ t=t.replace('<body','<body class="forge-postman forge-rbac-prototype"');
  replace('<main class="forge-main"',`<header class="pm-topbar"><span class="pm-brand-dot" aria-hidden="true"></span><strong>Forge</strong><span class="pm-workspace-name">生产与交付工作台</span></header>\n<main class="forge-main"`);
  const deliveryStart=t.indexOf('<sc-if value="{{ isDelivery }}"');
  const deliveryEnd=t.indexOf('<sc-if value="{{ isSheet }}"',deliveryStart);
@@ -249,8 +249,17 @@ export function buildPostman(source){
  t=installCheckboxMotion(t);
  const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css','loading.css','checkbox-motion.css','empty-states.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
  const itemPipelineCss=fs.readFileSync(new URL('public/postman-ui/item-pipeline-view.css',root),'utf8');
+ const rbacAssetVersion=createHash('sha256')
+  .update(fs.readFileSync(new URL('public/postman-ui/rbac-prototype.css',root)))
+  .update(fs.readFileSync(new URL('public/postman-ui/rbac-prototype.js',root)))
+  .digest('hex').slice(0,12);
  replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+itemPipelineCss+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n</style>');
- replace('</head>','<script type="module" src="/postman-ui/behavior.mjs"></script>\n</head>');
+ replace('</head>',[
+  '<script type="module" src="/postman-ui/behavior.mjs"></script>',
+  '<link rel="stylesheet" href="/postman-ui/rbac-prototype.css?v='+rbacAssetVersion+'">',
+  '<script src="/postman-ui/rbac-prototype.js?v='+rbacAssetVersion+'" defer></script>',
+  '</head>',
+ ].join('\n'));
  const logic=t.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)?.[1];new Function(logic);
  return source.slice(0,start+opening.length).replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>')+'\n'+JSON.stringify(t).replaceAll('</script>','<\\u002Fscript>')+closing;
 }

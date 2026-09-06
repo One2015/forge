@@ -40,12 +40,28 @@ const utilityPanel = (name, id, label) => {
   }
   return panel;
 };
+const alreadyHasSidebar = template.includes('<!-- forge-sidebar:start -->');
+const existingFloating = template.match(/<!-- forge-sidebar-floating-panels:start -->([\s\S]*?)<!-- forge-sidebar-floating-panels:end -->/)?.[1] || '';
+const takeConditional = (source, offset = 0) => {
+  const start = source.indexOf('<sc-if', offset);
+  if (start < 0) return { value: '', end: offset };
+  const rest = source.slice(start); let depth = 0;
+  for (const match of rest.matchAll(/<\/?sc-if\b[^>]*>/g)) {
+    depth += match[0].startsWith('</') ? -1 : 1;
+    if (depth === 0) return { value: rest.slice(0, match.index + match[0].length), end: start + match.index + match[0].length };
+  }
+  return { value: '', end: offset };
+};
+const existingDownload = takeConditional(existingFloating);
+const existingNotification = takeConditional(existingFloating, existingDownload.end);
+const existingDownloadPanel = existingDownload.value;
+const existingNotificationPanel = existingNotification.value;
 const utilities = fs.readFileSync(new URL('./templates/forge-sidebar-utilities.html', import.meta.url), 'utf8')
   .replace('[[profile-panel]]', () => fs.readFileSync(new URL('./templates/forge-profile.html', import.meta.url), 'utf8'));
 const sidebar = fs.readFileSync(new URL('./templates/forge-sidebar.html', import.meta.url), 'utf8')
   .replace('[[sidebar-utilities]]', utilities.trim())
-  .replace('[[download-panel]]', utilityPanel('dl', 'forge-download-panel', '下载任务'))
-  .replace('[[notification-panel]]', utilityPanel('notif', 'forge-notification-panel', '消息通知'))
+  .replace('[[download-panel]]', alreadyHasSidebar ? existingDownloadPanel : utilityPanel('dl', 'forge-download-panel', '下载任务'))
+  .replace('[[notification-panel]]', alreadyHasSidebar ? existingNotificationPanel : utilityPanel('notif', 'forge-notification-panel', '消息通知'))
   .replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, icon);
 const css = fs.readFileSync(new URL('./templates/forge-sidebar.css', import.meta.url), 'utf8');
 
@@ -104,7 +120,8 @@ if (!template.includes('// collapsible-sidebar:start')) {
         goOverview: e => this.navigateFromSidebar('goOverview', e),
         goRuns: e => this.navigateFromSidebar('goRuns', e),
         goReview: e => this.navigateFromSidebar('goReview', e),
-        goDelivery: e => this.navigateFromSidebar('goDelivery', e),`);
+        goDelivery: e => this.navigateFromSidebar('goDelivery', e),
+        goProfile: e => this.navigateFromSidebar('goProfile', e),`);
   swap('  componentDidMount() {', `  // collapsible-sidebar:start
   closeSidebar() {
     this.setState({ sidebarCollapsed: true });
@@ -148,6 +165,17 @@ if (!template.includes('// sidebar-utilities:start')) {
       }
       if (e.key === 'Escape' && !this.state.sidebarCollapsed`);
 }
+if (!template.includes("goProfile: e => this.navigateFromSidebar('goProfile', e)")) {
+  swap("        goDelivery: e => this.navigateFromSidebar('goDelivery', e),", "        goDelivery: e => this.navigateFromSidebar('goDelivery', e),\n        goProfile: e => this.navigateFromSidebar('goProfile', e),");
+}
+if (!template.includes("profileCurrent: view === 'profile' ? 'page' : 'false'")) {
+  swap("        deliveryCurrent: onDelivery ? 'page' : 'false',", "        deliveryCurrent: onDelivery ? 'page' : 'false',\n        profileCurrent: view === 'profile' ? 'page' : 'false',");
+}
+if (!template.includes("goProfile: () => this.setState({ view: 'profile'")) {
+  swap("      goOverview: () => this.setState({ view: 'overview' }),", "      goProfile: () => this.setState({ view: 'profile', profileOpen: false }),\n      goOverview: () => this.setState({ view: 'overview' }),");
+}
+template = template.replace("'billing', 'outsourcing-suppliers', 'pipeedit'].indexOf(view) < 0", "'billing', 'outsourcing-suppliers', 'pipeedit', 'profile'].indexOf(view) < 0")
+  .replace("view !== 'billing' && view !== 'outsourcing-suppliers' ? 'page' : 'false'", "view !== 'billing' && view !== 'outsourcing-suppliers' && view !== 'profile' ? 'page' : 'false'");
 if (template.includes('/* forge-sidebar:start */')) {
   template = template.replace(/\/\* forge-sidebar:start \*\/[\s\S]*?\/\* forge-sidebar:end \*\//, css.trim());
 } else swap('</style>', css + '\n</style>');
