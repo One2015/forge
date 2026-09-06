@@ -95,11 +95,11 @@
       const issue = n > 1 ? r.history?.[r.history.length - 1]?.note || '' : '';
       return { key: r.key, id, title, dataset: r.ds?.name || '未关联数据集', runId: r.rec.id, n, stamp,
         type: n > 1 ? 'rework' : 'first', assignee: claim || r.assignee, person: r.author, initial: Array.from(r.author)[0].toUpperCase(),
-        badge: reviewing ? '审核中' : n > 1 ? '返工复审' : '首次审核', tone: reviewing ? 'working' : n > 1 ? 'rework' : 'neutral',
+        badge: reviewing ? '审核中' : n > 1 ? '请求修改' : '待审核', tone: reviewing ? 'working' : n > 1 ? 'rework' : 'neutral',
         roundLabel: '第 ' + n + ' 轮', timeLabel: time(stamp), timeFull: fullTime(stamp),
         issue: issue ? '上次问题：' + issue : '', hasIssue: !!issue,
         preview, hasPreview: !!preview, noPreview: !preview, imageError:()=>this.taskLinkImageError(preview), is3D: !!r.ds?.web3d, isWeb: !r.ds?.web3d,
-        owned: mine, actionTone: mode, actionLabel: st.queueBusy === r.key ? '打开中…' : ({start:'人工审核', reviewing:'审核中', progress:'查看进度'})[mode],
+        owned: mine, actionTone: mode, actionLabel: st.queueBusy === r.key ? '打开中…' : mode === 'start' && n > 1 ? '去审核' : ({start:'人工审核', reviewing:'审核中', progress:'查看进度'})[mode],
         busy: st.queueBusy === r.key, actionDisabled: reviewing || st.queueBusy === r.key, action: this.reviewQueueAction(r, mode), open: reviewing ? this.reviewQueuePreview(r) : this.reviewQueueAction(r, mode),
         hasHistory: false, history: details(id, r.rec.id, r.ds?.name), claimLabel: reviewing ? (claim || '当前用户') + ' 正在审核' : blocked ? '产物尚不可审核，可查看运行进度' : '尚未领取' };
     });
@@ -170,7 +170,7 @@
       rows:filtered.slice((page-1)*size,page*size), total:filtered.length, empty:!filtered.length,
       emptyTitle:hasFilters ? '没有符合条件的任务' : done ? '还没有审核记录' : '当前任务已处理完',
       emptyHint:hasFilters ? '试试减少筛选条件，或换个关键词。' : done ? '完成审核后，结果与轮次会记录在这里。' : '新的产物提交后会出现在这里。',
-      statusHeading:done?'审核结果':'审核类型', personHeading:done?'审核人':'提交人', timeHeading:done?'审核时间':'提交时间',
+      statusHeading:done?'审核结果':'状态', personHeading:done?'审核人':'提交人', timeHeading:done?'审核时间':'提交时间',
       page, pages, size, range:filtered.length ? ((page-1)*size+1)+'–'+Math.min(page*size,filtered.length) : '0',
       pageNumbers:Array.from({length:pages},(_,i)=>({label:i+1,selected:page===i+1,pick:()=>this.setState({queuePage:i+1})})),
       first:page===1, last:page===pages, prev:()=>this.setState({queuePage:Math.max(1,page-1)}), next:()=>this.setState({queuePage:Math.min(pages,page+1)}),

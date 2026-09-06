@@ -36,24 +36,24 @@ test('pagination counts and page sizes use the filtered collection',()=>{
 });
 test('claimed reviews can preview without claiming or changing review drafts',async()=>{
  const {c,q,flush}=fixture();q().setSize({target:{value:'50'}});
- const actions=new Set(q().rows.map(r=>r.actionLabel));for(const label of ['人工审核','审核中','查看进度'])assert(actions.has(label),label);
- const rework=q().rows.find(r=>r.type==='rework'&&r.actionTone==='start');assert(rework);assert.equal(rework.actionLabel,'人工审核');assert(!actions.has('复审'));
+ const actions=new Set(q().rows.map(r=>r.actionLabel));for(const label of ['去审核','审核中','查看进度'])assert(actions.has(label),label);
+ const rework=q().rows.find(r=>r.type==='rework'&&r.actionTone==='start');assert(rework);assert.equal(rework.badge,'请求修改');assert.equal(rework.actionLabel,'去审核');assert(!actions.has('复审'));
  for(const title of ['天坛','布达拉宫']){const claimed=q().rows.find(r=>r.title===title);assert.equal(claimed.actionLabel,'审核中');assert(claimed.actionDisabled);await claimed.action();assert.equal(c.state.reviewOpen,null);const claims=JSON.stringify(c.state.reviewClaims);await claimed.open();assert.equal(c.state.reviewOpen,claimed.key);assert(c.state.queuePreviewOnly);assert.equal(JSON.stringify(c.state.reviewClaims),claims);const focused=c.renderVals().review.items.find(item=>item.expanded);assert(focused);assert(focused.pending);assert(focused.actionsDisabled);assert(!focused.needsNote);await focused.pass();assert(!c.state.passAsk);c.closeReviewFocus();assert(!c.state.queueBusy);}
  const preview=q().rows.find(r=>r.title==='天坛');await preview.open();assert(!c.renderVals().review.positionLabel.startsWith('0 /'));const savedClaims=JSON.stringify(c.state.reviewClaims);await c.renderVals().review.next();assert(c.state.queuePreviewOnly);assert.equal(JSON.stringify(c.state.reviewClaims),savedClaims);const nextFocused=c.renderVals().review.items.find(item=>item.expanded);assert(nextFocused.pending);assert(nextFocused.actionsDisabled);c.closeReviewFocus();
  const progressRow=q().rows.find(r=>r.actionLabel==='查看进度');assert(!progressRow.actionDisabled);const progress=progressRow.action();flush();await progress;assert.equal(c.state.view,'run');
- c.setState({view:'review'});const row=q().rows.find(r=>r.actionLabel==='人工审核');const opening=row.action();assert.equal(c.state.queueBusy,row.key);flush();await opening;assert.equal(c.state.reviewOpen,row.key);assert.equal(c.state.reviewClaims[row.key],'一万');assert.equal(c.state.queuePreviewOnly,false);
+ c.setState({view:'review'});const row=q().rows.find(r=>r.actionTone==='start');const opening=row.action();assert.equal(c.state.queueBusy,row.key);flush();await opening;assert.equal(c.state.reviewOpen,row.key);assert.equal(c.state.reviewClaims[row.key],'一万');assert.equal(c.state.queuePreviewOnly,false);
  c.setState({reviewOpen:null});assert.equal(q().rows.find(r=>r.key===row.key).actionLabel,'审核中');assert(q().rows.find(r=>r.key===row.key).actionDisabled);
- const draft=q().rows.find(r=>r.actionLabel==='人工审核');c.setState({reworkDrafts:{[draft.key]:{text:'未完成'}}});const drafted=q().rows.find(r=>r.key===draft.key);assert.equal(drafted.badge,'审核中');assert(drafted.actionDisabled);const before=JSON.stringify(c.state.reworkDrafts);await drafted.open();assert.equal(c.state.reviewOpen,drafted.key);assert.equal(JSON.stringify(c.state.reworkDrafts),before);assert(!c.renderVals().review.items.find(item=>item.expanded).needsNote);
+ const draft=q().rows.find(r=>r.actionTone==='start');c.setState({reworkDrafts:{[draft.key]:{text:'未完成'}}});const drafted=q().rows.find(r=>r.key===draft.key);assert.equal(drafted.badge,'审核中');assert(drafted.actionDisabled);const before=JSON.stringify(c.state.reworkDrafts);await drafted.open();assert.equal(c.state.reviewOpen,drafted.key);assert.equal(JSON.stringify(c.state.reworkDrafts),before);assert(!c.renderVals().review.items.find(item=>item.expanded).needsNote);
 });
 test('direct links keep existing claims read-only while a claim from this session remains actionable',()=>{
  const {c,q}=fixture();q().setSize({target:{value:'50'}});
  const claimed=q().rows.find(r=>r.title==='布达拉宫');c.openReview(claimed.runId,{deepReview:{runId:claimed.runId,itemId:claimed.id}});
  let item=c.renderVals().review.items.find(row=>row.expanded);assert(item.pending);assert(item.actionsDisabled);item.pass();assert(!c.state.passAsk);
- c.closeReviewFocus();const available=q().rows.find(r=>r.actionLabel==='人工审核');c.setState({reviewClaims:{[available.key]:'一万'},reviewOpen:available.key,queuePreviewOnly:false});
+ c.closeReviewFocus();const available=q().rows.find(r=>r.actionTone==='start');c.setState({reviewClaims:{[available.key]:'一万'},reviewOpen:available.key,queuePreviewOnly:false});
  item=c.renderVals().review.items.find(row=>row.expanded);assert(item.pending);assert.equal(item.actionsDisabled,false);item.pass({stopPropagation(){}});assert.equal(c.state.passAsk,available.key);
 });
 test('stale claims and action failures surface a toast without changing list contents',async()=>{
- const {c,q,flush}=fixture();const row=q().rows.find(r=>r.type==='rework'&&r.actionLabel==='人工审核');c.setState({reviewClaims:{[row.key]:'allen'}});
+ const {c,q,flush}=fixture();const row=q().rows.find(r=>r.type==='rework'&&r.actionLabel==='去审核');c.setState({reviewClaims:{[row.key]:'allen'}});
  const action=row.action();flush();await action;assert(q().hasError);assert.match(q().error,/已由 allen 领取/);assert.equal(q().total,19);assert(!c.state.queueBusy);
  q().dismissError();assert(!q().hasError);
  const refresh=q().refresh, original=c.runsData;
@@ -83,9 +83,12 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.doesNotMatch(html,/超时|即将|SLA|截止|等待时间/);assert.doesNotMatch(html,/review\.owners|review-queue-card-header/);
  assert.match(html,/sc-camel-on-input/);assert.match(html,/aria-busy/);assert.match(html,/role="alert"/);
  assert.match(html,/Case \/ Item ID/);assert.match(html,/class="pq-thumb"/);assert.match(html,/class="pq-task-copy"><strong[^>]*>\{\{ task\.title \}\}<\/strong><code[^>]*>\{\{ task\.id \}\}<\/code>/);
+ assert.match(html,/class="pq-section-title">运行记录<\/h2>/);assert.match(html,/<option value="all">全部轮次<\/option>/);
  assert.doesNotMatch(html,/pq-context|pq-issue|task\.dataset|task\.issue|data-owned/);
  assert.doesNotMatch(css,/pq-row\[data-owned/);
  assert.match(css,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*border-left:0!important/);
+ assert.match(css,/\.pq-table-scroll\{[^}]*border:1px solid var\(--pm-border\)[^}]*border-radius:6px/);
+ assert.match(css,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*min-height:64px/);
  assert.match(css,/\.pq-table-head>\[role=columnheader\]\{text-align:left\}/);
  assert.match(css,/\.pq-task-copy\{[^}]*flex-direction:column[^}]*align-items:flex-start[^}]*gap:2px[^}]*text-align:left/);
  assert.match(css,/\.pq-person\{[^}]*justify-content:flex-start/);
