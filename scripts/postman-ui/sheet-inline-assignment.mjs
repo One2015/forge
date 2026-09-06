@@ -18,7 +18,7 @@ export function installSheetInlineAssignment(t) {
  const toolbarStart=t.indexOf('<div class="pm-sheet-toolbar"',listStart);
  const columnsStart=t.indexOf('<div class="pm-sheet-columns pm-sheet-assignment-grid"',toolbarStart);
  if(listStart<0||toolbarStart<listStart||columnsStart<toolbarStart)throw Error('Sheet toolbar boundaries changed');
- const toolbar=t.slice(toolbarStart,columnsStart).trim();
+ const toolbar=t.slice(toolbarStart,columnsStart).replace(/<span class="pm-sheet-help">[\s\S]*?<\/span><\/span>/,'').trim();
  t=t.slice(0,toolbarStart)+t.slice(columnsStart);
  const heading='<div class="pm-sheet-section-heading"><h2 id="pm-sheet-items-title">子项清单</h2></div>\n';
  t=t.slice(0,listStart)+heading+toolbar+'\n'+t.slice(listStart);

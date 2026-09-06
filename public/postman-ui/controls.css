@@ -47,8 +47,6 @@
  .forge-postman .pm-sheet-columns>span{display:none}
  .forge-postman .pm-sheet-status-filter{width:132px;height:32px;white-space:nowrap}
 }
-.pm-sheet-help{display:inline-flex;align-items:center;gap:4px;color:var(--pm-muted);font-size:12px;white-space:nowrap}
-.pm-sheet-help>span{display:inline-flex}
 .forge-postman .forge-review-skill-downloads .forge-review-skill-download{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;padding:0;border:0;border-radius:4px}
 .forge-postman .forge-review-skill-download svg{display:block;width:18px;height:18px}
 .forge-postman .pm-wizard-edit-link{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;cursor:pointer}
