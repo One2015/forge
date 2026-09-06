@@ -49,7 +49,8 @@ test('performance page keeps the required section order without exposing fixture
   assert(v.demo); assert.deepEqual(Array.from(v.metrics, row => row.label), ['总交付目标', '已分配任务量', '最终有效交付量', '整体完成率', '整体质检通过率', '风险专家团队']);
   assert.equal(v.metrics[0].value, 620); assert.equal(v.metrics[1].value, 602); assert.equal(v.metrics[0].value - v.metrics[1].value, 18);
   assert.match(page, /class="forge-outsourcing-table-filters" role="group" aria-label="专家交付筛选"/);
-  assert.doesNotMatch(page, /forge-outsourcing-filters|外部专家表现筛选器/);
+  assert.doesNotMatch(page, /forge-outsourcing-filters|外部专家表现筛选器|当前筛选范围的交付与风险汇总|点击专家团队名称查看履约、质量与风险详情|汇总重复出现 3 次及以上的问题|forge-outsourcing-issue-total/);
+  for (const id of ['outsourcing-overall', 'outsourcing-delivery', 'outsourcing-trend', 'outsourcing-issues']) assert.match(page, new RegExp('forge-outsourcing-block-heading[^>]*>[\\s\\S]*?id="' + id + '"[\\s\\S]*?</header>\\s*<section class="forge-outsourcing-section" aria-labelledby="' + id + '"'));
   assert(v.hasRows); assert(v.hasTrend); assert(v.hasIssues);
 });
 
@@ -71,10 +72,12 @@ test('supplier trend can focus one labelled series with accessible points', () =
   assert.match(v.trendCompletionLine, /^0,32 25,26 50,19 75,14 100,9$/);
   assert.deepEqual(Array.from(v.trendCards, card => card.label), ['任务完成率', '有效交付率', '质检通过率']);
   assert.equal(v.trendCards[0].current, '91%'); assert.equal(v.trendCards[0].change, '较上周 +5 个百分点');
-  assert.equal(v.trendMetric, 'all'); assert.equal(v.singleTrend, false);
+  assert.equal(v.trendMetric, 'all'); assert.equal(v.trendWindow, '5w'); assert.equal(v.trendRangeLabel, '近 5 周'); assert.equal(v.singleTrend, false);
+  v.onTrendWindow({ target: { value: '3w' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.trendWeeks), ['2 周前', '上周', '本周']); assert.equal(v.trendCompletion.length, 3); assert.match(v.trendCompletionLine, /^0,19 50,14 100,9$/);
   v.onTrendMetric({ target: { value: 'quality' } }); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.trendCards, card => card.label), ['质检通过率']); assert.equal(v.trendCards[0].current, '94%'); assert.equal(v.singleTrend, true); assert.equal(v.trendAriaLabel, '质检通过率趋势');
-  assert.match(page, /aria-label="趋势指标"/); assert.match(page, /data-single="\{\{ outsourcingSuppliers\.singleTrend \}\}"/); assert.match(page, /forge-outsourcing-mini-chart/); assert.match(page, /目标 90%/);
+  assert.match(page, /aria-label="趋势指标"/); assert.match(page, /aria-label="趋势时间范围"/); assert.match(page, /data-single="\{\{ outsourcingSuppliers\.singleTrend \}\}"/); assert.match(page, /forge-outsourcing-mini-chart/); assert.match(page, /目标 90%/);
   assert.match(page, /data-forge-chart-tooltip="\{\{ point\.title \}\}"/); assert.match(page, /data-series="\{\{ series\.series \}\}"/);
 });
 
@@ -94,7 +97,9 @@ test('frequent issues are an aggregate percentage list with an expert filter', (
   assert.deepEqual(Array.from(v.issueRows, row => [row.name, row.count, row.percentage]), [['材质与参考图不一致', 14, '50%'], ['交互热点缺失', 8, '28.6%'], ['命名规范不一致', 6, '21.4%']]);
   v.onIssueSupplier({ target: { value: 'stepfun' } }); v = c.outsourcingSupplierValues();
   assert.equal(v.issueTotal, 22); assert.deepEqual(Array.from(v.issueRows, row => [row.name, row.percentage]), [['材质与参考图不一致', '63.6%'], ['交互热点缺失', '36.4%']]);
-  assert.match(page, /aria-label="高频问题专家团队"/); assert.match(page, /forge-outsourcing-issue-list/); assert.match(page, /issue\.percentage/);
+  v.onIssueSupplier({ target: { value: '' } }); v.onIssueWindow({ target: { value: '7d' } }); v = c.outsourcingSupplierValues();
+  assert.equal(v.issueWindow, '7d'); assert.equal(v.issueTotal, 15); assert.deepEqual(Array.from(v.issueRows, row => row.count), [8, 4, 3]);
+  assert.match(page, /aria-label="高频问题专家团队"/); assert.match(page, /aria-label="高频问题时间范围"/); assert.match(page, /forge-outsourcing-issue-list/); assert.match(page, /issue\.percentage/);
   assert.match(page, /class="forge-outsourcing-issue-track"/); assert.doesNotMatch(page, /最近出现|issue\.recent/);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
   assert.match(css, /\.forge-outsourcing-issue-list article\{[^}]*grid-template-columns:minmax\(220px,\.9fr\) minmax\(180px,1\.3fr\) 72px/);
