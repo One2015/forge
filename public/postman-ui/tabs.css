@@ -1,6 +1,7 @@
 /* Shared tab tiers. Repeated attribute specificity bridges the legacy per-page
    rules; this final layer owns tab appearance while source markup owns behavior. */
-.forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs]{display:flex;align-items:center;flex-wrap:nowrap!important;max-width:100%;min-width:0;overflow-x:auto;scrollbar-width:thin;isolation:isolate}
+.forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs]{display:flex;align-items:center;flex-wrap:nowrap!important;max-width:100%;min-width:0;overflow-x:auto;scrollbar-width:none;isolation:isolate}
+.forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs]::-webkit-scrollbar{display:none}
 .forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs]::before{display:none!important}
 .forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs] button{position:relative;flex:none!important;display:inline-flex;align-items:center;justify-content:center;gap:7px;margin:0;box-sizing:border-box;font-family:var(--pm-font);font-size:13px!important;line-height:20px;font-weight:400;white-space:nowrap;box-shadow:none!important;color:var(--pm-muted)!important;cursor:pointer}
 .forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs] button[data-motion-label]::after{display:none!important}
