@@ -79,7 +79,7 @@
       return line;
     });
     const filter = state.modelFilter || 'production', provider = state.modelProvider || '', model = state.modelModel || '', route = state.modelLine || '';
-    const query = String(state.modelQuery || '').trim().toLowerCase(), businessOnly = !!state.modelBusinessOnly;
+    const query = String(state.modelQuery || '').trim().toLowerCase();
     const timeRangeDefs = [['all', '全部问题时间'], ['1h', '近 1 小时'], ['24h', '近 24 小时'], ['7d', '近 7 天'], ['30d', '近 30 天'], ['custom', '自定义时间段']];
     const timeRange = timeRangeDefs.some(([id]) => id === state.modelTimeRange) ? state.modelTimeRange : 'all';
     const timeStart = String(state.modelTimeStart || ''), timeEnd = String(state.modelTimeEnd || '');
@@ -89,7 +89,7 @@
     const timeRangeInvalid = timeRange === 'custom' && timeFrom != null && timeTo != null && timeFrom > timeTo;
     const matchesTime = line => timeRange === 'all' || !timeRangeInvalid && (timeFrom == null || line.observedAt != null && line.observedAt >= timeFrom) && (timeTo == null || line.observedAt != null && line.observedAt <= timeTo);
     const matchesStatus = line => filter === 'production' ? line.active || line.uncertain : filter === 'attention' ? ['severe', 'failed', 'billing', 'performance', 'quality', 'confirm'].includes(line.statusKey) : filter === 'severe' ? line.statusKey === 'severe' || line.statusKey === 'failed' || line.statusKey === 'billing' : filter === 'performance' || filter === 'slow' ? line.statusKey === 'performance' || line.statusKey === 'severe' : filter === 'quality' ? ['quality', 'confirm'].includes(line.statusKey) : filter === 'billing' ? line.statusKey === 'billing' : filter === 'normal' ? line.statusKey === 'normal' : filter === 'available' ? line.active && line.result === 'passed' : filter === 'failed' ? line.statusKey === 'failed' : filter === 'unknown' ? ['unknown', 'confirm'].includes(line.statusKey) : filter === 'inactive' ? line.statusKey === 'inactive' : true;
-    let visible = lines.filter(line => (!query || (line.provider + ' ' + line.model + ' ' + line.line + ' ' + line.status + ' ' + line.alertReason).toLowerCase().includes(query)) && (!provider || line.providerId === provider) && (!model || line.modelId === model) && (!route || line.id === route) && (!businessOnly || line.impact.tasks > 0 || /失败|DDL|耗尽/.test(line.impactMain + line.impactSub)) && matchesTime(line) && (Object.hasOwn(alertReasonLabels, filter) ? line.alertReasons.includes(filter) : matchesStatus(line)));
+    let visible = lines.filter(line => (!query || (line.provider + ' ' + line.model + ' ' + line.line + ' ' + line.status + ' ' + line.alertReason).toLowerCase().includes(query)) && (!provider || line.providerId === provider) && (!model || line.modelId === model) && (!route || line.id === route) && matchesTime(line) && (Object.hasOwn(alertReasonLabels, filter) ? line.alertReasons.includes(filter) : matchesStatus(line)));
     const sort = state.modelSort || 'impact';
     const compare = {
       impact: (a, b) => b.businessScore - a.businessScore,
@@ -186,7 +186,7 @@
     }));
     const errorValues=Array.from(errorMap.values()).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'zh-CN')),errorTotal=errorValues.reduce((n,row)=>n+row.count,0);
     const errorOverviewRows=errorValues.map((row,index)=>({...row,count:num(row.count,0),percentage:errorTotal?percent(row.count/errorTotal*100):'—',barStyle:'width:'+(errorTotal?Math.max(4,row.count*100/errorTotal):0)+'%',tone:String(index%4+1),open:()=>{
-      this.setState({modelPageTab:'lines',modelQuery:'',modelProvider:errorProvider,modelModel:'',modelLine:'',modelFilter:row.id,modelBusinessOnly:false,modelSelection:'',modelRoute:'',modelDrawerMode:'',modelChartPoint:null});
+      this.setState({modelPageTab:'lines',modelQuery:'',modelProvider:errorProvider,modelModel:'',modelLine:'',modelFilter:row.id,modelSelection:'',modelRoute:'',modelDrawerMode:'',modelChartPoint:null});
       setTimeout(()=>{if(typeof document!=='undefined')document.getElementById('forge-model-table-title')?.focus();},0);
     }}));
     const activeLines=lines.filter(line=>line.active);
@@ -235,9 +235,10 @@
       refresh: () => { if (isDemo) this.setState({ modelDemoAt: Date.now(), modelRetestMessage: '示例快照已刷新；未请求真实监控。', modelChartPoint: null }); },
       runDiagnosis: () => { const line = lines.find(item => item.statusKey === 'severe') || lines[0]; if (line) openLine(line, 'test'); },
       chips, lines: visible, allLines: lines, groups: legacyGroups, groupCount: visible.length + ' 条线路', resultCount: visible.length + ' 条线路', hasRows: visible.length > 0,
-      providerOptions, modelOptions, lineOptions, query: state.modelQuery || '', provider, model, line: route, filter, businessOnly, sort,
+      providerOptions, modelOptions, lineOptions, query: state.modelQuery || '', provider, model, line: route, filter, sort,
+      providerActive: !!provider, modelActive: !!model, lineActive: !!route, statusActive: filter !== 'production', timeActive: timeRange !== 'all' || !!timeStart || !!timeEnd,
       timeRange, timeStart, timeEnd, timeRangeOptions: timeRangeDefs.map(([id, label]) => ({ id, label })), customTimeRange: timeRange === 'custom', timeRangeInvalid,
-      hasFilters: !!(query || provider || model || route || businessOnly || filter !== 'production' || sort !== 'impact' || timeRange !== 'all' || timeStart || timeEnd),
+      hasFilters: !!(query || provider || model || route || filter !== 'production' || sort !== 'impact' || timeRange !== 'all' || timeStart || timeEnd),
       onQuery: event => this.setState({ modelQuery: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onProvider: event => this.setState({ modelProvider: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onModel: event => this.setState({ modelModel: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
@@ -246,9 +247,8 @@
       onTimeRange: event => this.setState({ modelTimeRange: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onTimeStart: event => this.setState({ modelTimeStart: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onTimeEnd: event => this.setState({ modelTimeEnd: event.target.value, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
-      onBusiness: event => this.setState({ modelBusinessOnly: !!event.target.checked, modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       onSort: event => this.setState({ modelSort: event.target.value }),
-      reset: () => this.setState({ modelQuery: '', modelProvider: '', modelModel: '', modelLine: '', modelFilter: 'production', modelBusinessOnly: false, modelSort: 'impact', modelTimeRange: 'all', modelTimeStart: '', modelTimeEnd: '', modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
+      reset: () => this.setState({ modelQuery: '', modelProvider: '', modelModel: '', modelLine: '', modelFilter: 'production', modelSort: 'impact', modelTimeRange: 'all', modelTimeStart: '', modelTimeEnd: '', modelSelection: '', modelRoute: '', modelDrawerMode: '' }),
       anomalySummary: isDemo ? '4 条线路存在异常 · 5 个待处理问题' : issueLines.length + ' 条线路存在异常 · ' + issueLines.length + ' 个待处理问题',
       urgentText: '云桥 / Claude Sonnet 4.5 的 P95 TTFT 升至基线 3.5×；Anthropic 账户预计 6 小时后耗尽。',
       issueCount: isDemo ? 5 : issueLines.length,

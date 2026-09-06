@@ -424,9 +424,8 @@ for (const scope of ['sheet', 'branch']) test(scope+' accepts eight reference im
 
 test('model line filters remain explicit, compose without clearing scope, and expose a dismissible risk notice',()=>{
  const c=vm.runInContext('new Component()',ctx);
- Object.assign(c.state,ctx.codec.read('/models?model=claude-sonnet').patch,{modelBusinessOnly:true});
+ Object.assign(c.state,ctx.codec.read('/models?model=claude-sonnet').patch);
  let view=c.modelStatusValues();
- assert.equal(view.businessOnly,true);
  assert(view.lines.every(line=>line.modelId==='claude-sonnet'));
  assert(view.riskVisible); view.dismissRisk(); view=c.modelStatusValues(); assert(!view.riskVisible);
  view.onFilter({target:{value:'attention'}}); view=c.modelStatusValues();
@@ -439,7 +438,7 @@ test('model line filters remain explicit, compose without clearing scope, and ex
  const linesSection=built.match(/<section class="forge-model-table-section forge-model-lines-section">[\s\S]*?<\/section>/)[0];
  assert(linesSection.indexOf('class="forge-model-filters"')<linesSection.indexOf('class="forge-model-table-scroll"'));
  assert.doesNotMatch(linesSection,/aria-label="筛选(?:状态|模型供应商|模型|线路)"/);
- assert.match(built,/class="forge-model-impact-filter"/);
+ assert.doesNotMatch(built,/class="forge-model-impact-filter"|仅看有业务影响|modelStatus\.onBusiness/);
  assert.match(built,/运行概览/); assert.doesNotMatch(built,/Benchmark 结果|forge-model-line-comparison|modelStatus\.comparisonRows|modelStatus\.compareTab/);
  const overviewGrid=built.match(/\.forge-postman \.forge-model-overview-table \[role="row"\]\{grid-template-columns:([^}]+)\}/)[1].trim().split(/\s+/);
  assert.equal(overviewGrid.length,9);

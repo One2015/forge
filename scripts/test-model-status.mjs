@@ -260,7 +260,7 @@ test('overview sections use a consistent vertical rhythm', () => {
   assert.match(modelStyles, /\.forge-model-error-summary\{margin-top:28px\}/);
   assert.match(modelStyles, /\.forge-model-error-list button\{[^}]*grid-template-columns:minmax\(0,1fr\) auto/);
   assert.match(modelStyles, /\.forge-model-error-bar\{[^}]*position:absolute/);
-  assert.match(modelStyles, /\.forge-model-lines-section\{margin-top:24px\}/);
+  assert.match(modelStyles, /\.forge-model-lines-section\{margin-top:24px;container:forge-model-lines\/inline-size\}/);
   assert.match(modelStyles, /\.forge-model-lines-section>\.forge-model-filters\{margin:0 0 14px\}/);
 });
 
@@ -352,21 +352,20 @@ test('synthetic line table keeps performance, quality, billing and business evid
   assert.equal(billing.status, '余额不足'); assert.equal(billing.action, '去充值');
 });
 
-test('issue, supplier, model, line, business and query filters work together', () => {
+test('issue, supplier, model, line and query filters work together', () => {
   const { c } = component(); c.openModelStatus(); let view = c.modelStatusValues();
   view.chips.find(v => v.id === 'performance').select(); view = c.modelStatusValues();
   assert.equal(view.rows.length, 2); assert(!view.drawerOpen);
   view.onQuery({ target: { value: 'missing' } }); view = c.modelStatusValues();
   assert(!view.hasRows && !view.hasSelection);
   view.reset(); view = c.modelStatusValues(); view.onProvider({ target: { value: 'qinghe' } });
-  assert.equal(c.modelStatusValues().rows.length, 2);
+  assert.equal(c.modelStatusValues().rows.length, 2); assert(c.modelStatusValues().providerActive);
   c.modelStatusValues().onFilter({ target: { value: 'quality' } });
   view = c.modelStatusValues(); assert.equal(view.rows.length, 1); assert.equal(view.rows[0].id, 'proxy-03');
   view.rows[0].select(); view = c.modelStatusValues(); assert(view.drawerOpen); assert.equal(view.selected.id, 'proxy-03');
   view.closeDrawer(); view = c.modelStatusValues(); view.reset(); view = c.modelStatusValues();
-  view.onModel({ target: { value: 'gpt-41' } }); assert.equal(c.modelStatusValues().rows.length, 2);
-  c.modelStatusValues().onLine({ target: { value: 'official-gpt' } }); assert.equal(c.modelStatusValues().rows.length, 1);
-  c.modelStatusValues().reset(); c.modelStatusValues().onBusiness({ target: { checked: true } }); assert.equal(c.modelStatusValues().rows.length, 7);
+  view.onModel({ target: { value: 'gpt-41' } }); assert.equal(c.modelStatusValues().rows.length, 2); assert(c.modelStatusValues().modelActive);
+  c.modelStatusValues().onLine({ target: { value: 'official-gpt' } }); assert.equal(c.modelStatusValues().rows.length, 1); assert(c.modelStatusValues().lineActive);
 });
 
 test('risk notice is dismissible and line filters sit below a static table heading', () => {
@@ -384,20 +383,24 @@ test('risk notice is dismissible and line filters sit below a static table headi
   assert(linesSection.includes('<span>线路 / 标记</span>'));
 });
 
-test('line filters use a full-width search and content-sized select controls', () => {
-  assert.match(modelStyles, /\.forge-model-search\{[^}]*flex:1 0 100%[^}]*width:100%[^}]*max-width:none/);
-  assert.match(modelStyles, /\.forge-model-filters select\{[^}]*width:auto[^}]*field-sizing:content/);
+test('line filters use a stable responsive grid and full-width select controls', () => {
+  assert.match(modelStyles, /\.forge-model-filters\{[^}]*display:grid[^}]*grid-template-columns:/);
+  assert.match(modelStyles, /\.forge-model-search\{[^}]*grid-column:1\/-1[^}]*width:100%[^}]*max-width:none/);
+  assert.match(modelStyles, /\.forge-model-filters select\{[^}]*flex:1[^}]*width:100%[^}]*text-overflow:ellipsis/);
   for (const selector of ['provider', 'model', 'line', 'status']) assert(!modelStyles.includes('.forge-model-' + selector + '-filter select{width:'));
+  assert.match(modelStyles, /@container forge-model-lines \(max-width:1080px\)\{\.forge-model-filters\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\}\}/);
+  assert.match(modelStyles, /@container forge-model-lines \(max-width:680px\)\{\.forge-model-filters\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}\}/);
   assert.match(modelStyles, /\.forge-model-link:disabled\{[^}]*cursor:not-allowed/);
   assert.match(template, /id="forge-model-time-filter" aria-label="问题时间筛选"/);
   assert.match(template, /type="datetime-local" aria-label="问题开始时间"/);
   assert.match(template, /type="datetime-local" aria-label="问题结束时间"/);
+  assert.doesNotMatch(template, /仅看有业务影响|modelStatus\.onBusiness|modelStatus\.businessOnly/);
 });
 
 test('problem-time presets and custom bounds narrow lines by first observation and reset cleanly', () => {
   const { c } = component(); c.openModelStatus(); let view = c.modelStatusValues();
-  view.onFilter({ target: { value: 'attention' } }); view = c.modelStatusValues(); assert.equal(view.rows.length, 5);
-  view.onTimeRange({ target: { value: '1h' } }); view = c.modelStatusValues(); assert.equal(view.rows.length, 1); assert.equal(view.rows[0].id, 'official-opus');
+  view.onFilter({ target: { value: 'attention' } }); view = c.modelStatusValues(); assert.equal(view.rows.length, 5); assert(view.statusActive);
+  view.onTimeRange({ target: { value: '1h' } }); view = c.modelStatusValues(); assert.equal(view.rows.length, 1); assert.equal(view.rows[0].id, 'official-opus'); assert(view.timeActive);
   view.onTimeRange({ target: { value: '24h' } }); view = c.modelStatusValues(); assert.equal(view.rows.length, 5);
   view.onTimeRange({ target: { value: 'custom' } }); view.onTimeStart({ target: { value: '2026-09-03T10:00' } }); view = c.modelStatusValues(); view.onTimeEnd({ target: { value: '2026-09-02T10:00' } }); view = c.modelStatusValues();
   assert(view.timeRangeInvalid); assert.equal(view.rows.length, 0); assert(view.hasFilters);
@@ -412,11 +415,10 @@ test('model filters intersect in any selection order without clearing other dime
   for (const sequence of permute(controls)) {
     c.modelStatusValues().reset();
     c.modelStatusValues().onQuery({ target: { value: 'Claude' } });
-    c.modelStatusValues().onBusiness({ target: { checked: true } });
     for (const [control, value] of sequence) c.modelStatusValues()[control]({ target: { value } });
     const view = c.modelStatusValues();
     assert.equal(view.line, target.id); assert.equal(view.model, target.modelId); assert.equal(view.provider, target.providerId); assert.equal(view.filter, 'severe');
-    assert.equal(view.query, 'Claude'); assert(view.businessOnly); assert.equal(view.rows.length, 1); assert.equal(view.rows[0].id, target.id);
+    assert.equal(view.query, 'Claude'); assert.equal(view.rows.length, 1); assert.equal(view.rows[0].id, target.id);
   }
 });
 
@@ -445,7 +447,7 @@ test('combined model filters survive URL round trips, including a selected diagn
   c.modelStatusValues().onFilter({ target: { value: 'severe' } }); c.modelStatusValues().onTimeRange({ target: { value: '24h' } }); c.modelStatusValues().rows[0].select();
   const route = codec.write(c.state), parsed = codec.read(route);
   assert.equal(parsed.error, ''); const { c: restored } = component(); restored.setState(parsed.patch);
-  const view = restored.modelStatusValues(); assert.equal(view.rows.length, 1); assert.equal(view.line, target.id); assert.equal(view.provider, target.providerId); assert.equal(view.model, target.modelId); assert.equal(view.filter, 'severe'); assert.equal(view.timeRange, '24h'); assert.equal(view.overviewWindow, '7d'); assert.match(route, /period=24h/); assert.match(route, /window=7d/); assert(view.drawerOpen);
+  const view = restored.modelStatusValues(); assert.equal(view.rows.length, 1); assert.equal(view.line, target.id); assert.equal(view.provider, target.providerId); assert.equal(view.model, target.modelId); assert.equal(view.filter, 'severe'); assert.equal(view.timeRange, '24h'); assert.equal(view.overviewWindow, '7d'); assert.match(route, /period=24h/); assert.match(route, /window=7d/); assert.doesNotMatch(route, /[?&]impact=/); assert.equal(Object.hasOwn(codec.read('/models?impact=1').patch, 'modelBusinessOnly'), false); assert(view.drawerOpen);
 });
 
 test('alert reasons filter explicit current failures and remain independent of severity', () => {
@@ -526,9 +528,9 @@ test('two-tab information architecture keeps route comparison evidence in the li
     for (const label of ['运行概览', '模型线路', '线路 / 标记', '稳定性']) assert(html.includes(label));
     assert(!html.includes('modelStatus.compareTab'));
     assert(!html.includes('Benchmark 结果'));
-    assert(html.includes('仅看有业务影响')); assert(!html.includes('forge-model-sort')); assert(!html.includes('modelStatus.onSort'));
+    assert(!html.includes('仅看有业务影响')); assert(!html.includes('forge-model-sort')); assert(!html.includes('modelStatus.onSort'));
     for (const control of ['onProvider', 'onModel', 'onLine', 'onFilter', 'onQuery']) assert(html.includes('modelStatus.' + control));
-    assert(html.includes('modelStatus.onBusiness'));
+    assert(!html.includes('modelStatus.onBusiness'));
     for (const term of ['Forge Canary v3', 'Prompt', '参数', '并发', '超时', '重试策略']) assert(html.includes(term));
     assert(html.includes('不会自动切换生产线路'));
     const css = variant.match(/\/\* model-status:start \*\/[\s\S]*?\/\* model-status:end \*\//)[0];
@@ -536,7 +538,7 @@ test('two-tab information architecture keeps route comparison evidence in the li
     assert.match(navigation, /display:grid/); assert.match(navigation, /repeat\(6,minmax\(0,1fr\)\)/); assert.match(navigation, /overflow:visible/);
     assert.match(css, /@container forge-model-health \(max-width:760px\)\{\.forge-model-issue-filters\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\}/);
     assert.match(css, /@container forge-model-health \(max-width:420px\)\{\.forge-model-issue-filters\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
-    assert.match(css, /\.forge-model-filters\{[^}]*flex-wrap:wrap/);
+    assert.match(css, /\.forge-model-filters\{[^}]*display:grid[^}]*grid-template-columns:/);
     assert.doesNotMatch(css, /\.forge-model-issue-filters[^{}]*\{[^}]*(?:overflow(?:-x|-y)?:auto|scrollbar-width|min-width:(?:112|120)px)/);
   }
 });
