@@ -98,6 +98,7 @@ test('supplier trend can focus one labelled series with accessible points', () =
   v.onTrendMetric({ target: { value: 'quality' } }); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.trendCards, card => card.label), ['质检通过率']); assert.equal(v.trendCards[0].current, '96%'); assert.equal(v.singleTrend, true); assert.equal(v.trendAriaLabel, '质检通过率趋势');
   assert.match(page, /aria-label="趋势指标"/); assert.match(page, /aria-label="趋势时间范围"/); assert.match(page, /data-single="\{\{ outsourcingSuppliers\.singleTrend \}\}"/); assert.match(page, /forge-outsourcing-mini-chart/); assert.match(page, /目标 90%/);
+  assert.match(page, /forge-outsourcing-trend-filter-metric/); assert.match(page, /forge-outsourcing-trend-filter-window/);
   assert.match(page, /data-forge-chart-tooltip="\{\{ point\.title \}\}"/); assert.match(page, /data-series="\{\{ series\.series \}\}"/);
 });
 
@@ -162,6 +163,9 @@ test('supplier generator is idempotent and responsive CSS uses shared tokens', (
   assert.match(css, /transition-property:scale,background-color,border-color,color,box-shadow[^}]*transition-duration:150ms[^}]*ease-out/);
   assert.match(css, /:active:not\(:disabled\)\{scale:\.96\}/); assert.doesNotMatch(css, /transition:\s*all/);
   assert.match(css, /forge-outsourcing-trend-cards>article\{[^}]*box-shadow:var\(--outsourcing-raised-shadow\)/);
+  assert.match(css, /\.forge-outsourcing-trend-filter-metric\{width:136px\}/);
+  assert.match(css, /\.forge-outsourcing-trend-filter-window\{width:104px\}/);
+  assert.match(css, /\.forge-outsourcing-trend-filter,\.forge-outsourcing-issue-filter\{width:100%;min-width:0\}/);
   assert.match(css, /@media\(max-width:1000px\)/); assert.match(css, /@media\(max-width:640px\)/);
   assert.match(css, /@container forge-suppliers \(max-width:760px\)/); assert.match(css, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)!important/);
   assert.match(page, /sc-camel-on-key-down="\{\{ outsourcingSuppliers\.onDetailKeyDown \}\}"/); assert.doesNotMatch(page, /<button role="row"/);
