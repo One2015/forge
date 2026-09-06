@@ -41,10 +41,10 @@ test('overview card and sidebar open the single external expert destination', ()
 });
 
 test('performance page keeps the required section order without exposing fixture labels', () => {
-  const labels = ['外部专家整体表现', '外部专家表现筛选器', '单个专家团队交付情况', '外部专家达标趋势', '高频问题'];
+  const labels = ['外部专家整体表现', '单个专家团队交付情况', '外部专家达标趋势', '高频问题'];
   let cursor = -1;
   for (const label of labels) { const next = page.indexOf(label); assert(next > cursor, label); cursor = next; }
-  assert.doesNotMatch(page, /Mock 数据|履约明细与风险评估/); assert.match(page, /与模型 API 供应商分开管理/);
+  assert.doesNotMatch(page, /Mock 数据|履约明细与风险评估|外部专家表现筛选器/); assert.match(page, /与模型 API 供应商分开管理/);
   const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
   assert(v.demo); assert.deepEqual(Array.from(v.metrics, row => row.label), ['总交付目标', '已分配任务量', '最终有效交付量', '整体完成率', '整体质检通过率', '风险专家团队']);
   assert.equal(v.metrics[0].value, 620); assert.equal(v.metrics[1].value, 602); assert.equal(v.metrics[0].value - v.metrics[1].value, 18);
@@ -75,8 +75,10 @@ test('supplier trend is a labelled three-series line chart with accessible point
 
 test('delivery table is concise and supplier names open the merged detail drawer', () => {
   const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
-  for (const label of ['分配量', '已完成', '有效交付', '完成率', '质检通过率', '交付日期', '风险', '数据单']) assert(page.includes('<span>' + label + '</span>') || page.includes('<time') || page.includes(label));
-  assert.doesNotMatch(page, /目标 \/ 分配|生产 \/ 上传|<span>计划<\/span>/);
+  for (const label of ['分配量', '已完成', '有效交付', '完成率', '质检通过率']) assert(page.includes('<span role="columnheader">' + label + '</span>'));
+  for (const label of ['按专家团队筛选', '按交付日期筛选', '按风险等级筛选', '按关联数据单筛选']) assert(page.includes('aria-label="' + label + '"'));
+  assert.match(page, /class="forge-outsourcing-delivery-section"[^>]*><header><h2[^>]*>单个专家团队交付情况<\/h2><button[^>]*>重置筛选<\/button><\/header><div class="forge-outsourcing-delivery-surface">/);
+  assert.doesNotMatch(page, /forge-outsourcing-filters|点击专家团队名称查看履约、质量与风险详情|目标 \/ 分配|生产 \/ 上传|<span>计划<\/span>/);
   assert.match(page, /class="forge-outsourcing-supplier-trigger"/); assert.match(page, /class="forge-outsourcing-drawer" role="dialog"/);
   v.detailRows[0].openDetail(); v = c.outsourcingSupplierValues();
   assert(v.detailOpen); assert.equal(v.detail.name, '维象制作'); assert.equal(v.detail.uploaded, 254); assert.equal(v.detail.cycleP95, 61); assert.equal(v.detail.riskLabel, '高风险');
@@ -107,6 +109,8 @@ test('supplier generator is idempotent and responsive CSS uses shared tokens', (
   assert.equal(updateOutsourcingSuppliers(source), source);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
   assert.match(page, /class="forge-outsourcing-reset" disabled="\{\{ outsourcingSuppliers\.resetDisabled \}\}"/);
+  assert.match(css, /\.forge-outsourcing-delivery-surface\{[^}]*border:1px solid var\(--forge-border\);[^}]*border-radius:var\(--pm-radius\)/);
+  assert.match(css, /\.forge-outsourcing-column-filter select\{[^}]*border:0;[^}]*background:transparent;[^}]*font-weight:600/);
   assert.match(css, /\.forge-outsourcing-reset\{[^}]*border:0;[^}]*background:transparent;[^}]*color:var\(--pm-brand\)/);
   assert.match(css, /\.forge-outsourcing-reset:disabled\{[^}]*color:var\(--forge-muted\)/);
   assert.match(css, /@media\(max-width:1000px\)/); assert.match(css, /@media\(max-width:640px\)/);
