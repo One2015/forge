@@ -16,10 +16,6 @@
 .forge-postman .pq-summary .forge-summary-value strong{font-variant-numeric:tabular-nums}
 @media(max-width:760px){.forge-postman .pq-summary.forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.forge-postman .pq-summary .forge-summary-card:last-child{grid-column:1/-1}}
 
-.pm-review-queue .pq-tabs{display:flex;gap:24px;border-bottom:1px solid var(--pm-border)}
-.pm-review-queue .pq-tabs button{display:flex;align-items:center;gap:7px;padding:9px 0 10px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--pm-muted);font-size:13px;margin-bottom:-1px}
-.pm-review-queue .pq-tabs button[aria-selected=true]{border-bottom-color:var(--pm-brand);color:var(--pm-text);font-weight:600}
-.pm-review-queue .pq-tabs button span{font-variant-numeric:tabular-nums;color:var(--pm-muted);font-size:12px}
 .pm-review-queue .pq-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 0}
 .pm-review-queue .pq-filters label{min-width:0;font-size:var(--pm-meta-size);line-height:var(--pm-meta-leading);color:var(--pm-muted)}
 .pm-review-queue .pq-filter{display:inline-flex;align-items:center;gap:3px;height:34px;padding-left:9px;border:1px solid var(--pm-control);border-radius:5px;background:var(--pm-canvas);white-space:nowrap}

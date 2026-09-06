@@ -255,9 +255,9 @@ test('resources keeps its page-level create action in the shared primary tier',(
  assert.match(button,/data-pm-primary="true"/);
  assert.doesNotMatch(button,/data-pm-secondary=/);
 });
-test('review scope is a filter beneath status tabs and completed tasks retain result actions',()=>{
+test('review scope remains a filter and completed tasks retain result actions',()=>{
  assert.match(built,/aria-label="审核范围"/);
- assert.match(built,/class="pq-tabs" role="tablist"/);
+ assert.doesNotMatch(built,/aria-label="审核状态"/);
  assert.match(built,/role="table" aria-label="审核任务列表"/);
  assert.doesNotMatch(built,/<span class="pm-preview-label">/);
 });
