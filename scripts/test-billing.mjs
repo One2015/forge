@@ -35,6 +35,7 @@ test('time granularity is a secondary unfilled control while metrics retain thei
   assert(template.includes('class="forge-billing-segment" role="group" aria-label="趋势指标"'));
   assert.match(template, /<\/header>\s*<div class="forge-billing-chart-controls">/);
   assert.match(template, /class="forge-billing-custom-time"[^>]*aria-haspopup="dialog"[^>]*aria-controls="forge-billing-calendar"[^>]*aria-label="选择自定义时间范围"/);
+  assert.doesNotMatch(template, /\{\{ billing\.period \}\}<br>\{\{ billing\.timezoneLabel \}\} · 包含结束日期/);
   assert.doesNotMatch(template, /class="forge-billing-filters"|class="forge-billing-date-trigger"/);
   assert.match(template, /\.forge-billing-custom-time\{anchor-name:--billing-calendar\}/);
   assert.match(template, /#forge-billing-calendar\{position-anchor:--billing-calendar;top:anchor\(bottom\);left:auto;right:anchor\(right\)/);
