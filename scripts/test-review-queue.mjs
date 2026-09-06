@@ -89,7 +89,9 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.match(css,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*border-left:0!important/);
  assert.match(css,/\.pq-table-scroll\{[^}]*border:1px solid var\(--pm-border\)[^}]*border-radius:6px/);
  assert.match(css,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*min-height:64px/);
- assert.match(css,/\.pq-filter\{[^}]*padding-left:0/);assert.match(css,/\.pq-filter select\{[^}]*padding:4px 22px 4px 10px/);
+ assert.match(css,/\.pq-filter\{[^}]*box-sizing:border-box[^}]*height:36px[^}]*min-height:36px[^}]*max-height:36px[^}]*padding-left:0/);
+ assert.match(css,/\.pq-filter select\{[^}]*box-sizing:border-box[^}]*height:34px!important[^}]*min-height:34px!important[^}]*max-height:34px[^}]*padding:4px 22px 4px 10px/);
+ assert.match(css,/\.pq-search input\{[^}]*box-sizing:border-box[^}]*height:36px!important[^}]*min-height:36px!important[^}]*max-height:36px/);
  assert.match(css,/\.pq-table-head>\[role=columnheader\]\{text-align:left\}/);
  assert.match(css,/\.pq-task-copy\{[^}]*flex-direction:column[^}]*align-items:flex-start[^}]*gap:2px[^}]*text-align:left/);
  assert.match(css,/\.pq-person\{[^}]*justify-content:flex-start/);
