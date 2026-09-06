@@ -174,6 +174,10 @@ export function buildPostman(source){
  t=installItemPreviewPage(t);
  t=installSheetReviewHistory(t);
  t=installProgressIndicators(t);
+ replace(
+  "kind: n.kind, title: n.title, badge: n.badge, badgeFg: bfg, badgeBorder: bborder, dot: bdot,",
+  "kind: n.kind, title: n.title, badge: n.badge, badgeFg: bfg, badgeBorder: bborder, dot: String(n.badge).includes('失败') ? 'var(--forge-danger)' : bdot,"
+ );
  replace('<p>仅用于案例沉淀，不影响审核结论。</p>','');
  replace('<button type="button" class="forge-delivery-secondary" disabled="{{ deliveryEditor.workspace.locked }}" sc-camel-on-click="{{ deliveryEditor.workspace.back }}">返回列表</button>','');
  replace('返回列表会保留未完成内容；创建成功的 Skill 不随数据单取消而删除。','创建成功的 Skill 不随数据单取消而删除。');
