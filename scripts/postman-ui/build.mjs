@@ -96,6 +96,7 @@ export function buildPostman(source){
  .replace('<div style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">','<div class="pm-sheet-list" style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">')
  .replace('<div style="display:grid;grid-template-columns:52px','<div class="pm-sheet-columns" style="display:grid;grid-template-columns:52px');
  t=t.slice(0,sheetStart)+sheet+t.slice(sheetEnd);
+ replace("    const delPal = new Proxy({}, { get: (_, k) => {\n      const v = this.statusOf('item', delMap[k] || 'pending');", "    const delPal = new Proxy({}, { get: (_, k) => {\n      const v = k === 'failed' ? this.statusOf('run', 'failed') : this.statusOf('item', delMap[k] || 'pending');");
  replace("        filters: [['all', '全部'], ['passed', null], ['review', null], ['failed', null]].map(x => {", "        filterValue: sf,\n        onFilter: e => this.setState({ sheetFilter: e.target.value }),\n        filters: [['all', '全部'], ['passed', null], ['review', null], ['failed', null]].map(x => {");
  replace("          return {\n            label, bg: on ? '#fff' : 'transparent'", "          return {\n            key: x[0], columnLabel: '状态 · ' + label,\n            label, bg: on ? '#fff' : 'transparent'");
  // Stable semantic hooks survive DCLogic's normalized runtime style attributes.

@@ -40,4 +40,15 @@ test('Vision2Web sheet exposes child items matching its aggregate progress', () 
   assert.equal(values.empty, false);
   assert.equal(values.rows.length, 84);
   assert.equal(values.count, '84 / 80 个子项');
+  assert.deepEqual(
+    Array.from(values.filters, filter => [filter.key, filter.label]),
+    [['all', '全部'], ['passed', '可交付'], ['review', '待审核'], ['failed', '失败']]
+  );
+
+  component.setState({ sheetFilter: 'failed' });
+  const failed = component.renderVals().sheet;
+  assert.equal(failed.empty, false);
+  assert.equal(failed.rows.length, 5);
+  assert.equal(failed.count, '5 / 80 个子项');
+  assert.ok(failed.rows.every(row => row.state === '失败'));
 });

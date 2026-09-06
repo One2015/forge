@@ -29,17 +29,19 @@
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button{flex:1;min-height:28px!important;height:28px!important;padding:3px 10px!important;border-radius:3px!important;font-size:13px!important}
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button[aria-pressed=true],.forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button[aria-pressed=true]:hover{background:var(--pm-selected)!important;color:var(--pm-text)!important;font-weight:600;box-shadow:inset 0 0 0 1px var(--pm-border)!important}
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button:not([aria-pressed=true]):hover{background:var(--pm-pressed)!important;color:var(--pm-text)!important}
-.forge-postman .pm-sheet-status-filter{display:inline-flex;align-items:center;gap:5px;min-width:0;color:var(--pm-muted);font:500 12px/20px var(--pm-font)}
-.forge-postman .pm-sheet-status-filter>span{flex:none}
-.forge-postman .pm-sheet-status-filter select{width:auto;max-width:100%;min-width:0;height:26px;padding:2px 18px 2px 5px;border:0!important;border-radius:3px!important;background:transparent!important;color:var(--pm-muted)!important;font:500 12px/20px var(--pm-font);cursor:pointer;box-shadow:none!important;field-sizing:content}
-.forge-postman .pm-sheet-status-filter[data-filter-active=true] select{background:var(--pm-selected)!important;color:var(--pm-text)!important;font-weight:600}
-.forge-postman .pm-sheet-status-filter select:is(:open,:focus-visible){background:var(--pm-selected)!important;color:var(--pm-text)!important;outline:1px solid var(--pm-focus)!important;outline-offset:0!important}
-@media(hover:hover){.forge-postman .pm-sheet-status-filter select:hover{background:var(--pm-hover)!important;color:var(--pm-text)!important}}
+.forge-postman .pm-sheet-assignment-grid{grid-template-columns:44px minmax(170px,1.3fr) minmax(140px,1fr) 132px 116px 114px}
+.forge-postman .pm-sheet-status-filter{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:7px;width:100%;min-width:0;height:32px;padding:0 28px 0 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-muted);font:500 12px/20px var(--pm-font);cursor:pointer}
+.forge-postman .pm-sheet-status-filter::after{content:"";position:absolute;right:10px;top:50%;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--pm-muted);translate:0 -35%;pointer-events:none}
+.forge-postman .pm-sheet-status-filter>span{flex:none;white-space:nowrap}
+.forge-postman .pm-sheet-status-filter select{appearance:none!important;-webkit-appearance:none!important;width:100%;min-width:0;height:30px;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--pm-text)!important;font:500 12px/20px var(--pm-font);cursor:pointer;box-shadow:none!important;outline:0!important;field-sizing:fixed}
+.forge-postman .pm-sheet-status-filter[data-filter-active=true]{background:var(--pm-selected);border-color:var(--pm-hover-border)}
+.forge-postman .pm-sheet-status-filter[data-filter-active=true] select{font-weight:600}
+.forge-postman .pm-sheet-status-filter:focus-within{border-color:var(--pm-focus);outline:2px solid var(--pm-focus);outline-offset:1px}
+@media(hover:hover){.forge-postman .pm-sheet-status-filter:hover{background:var(--pm-hover);border-color:var(--pm-hover-border)}}
 @container pm-sheet-list (max-width:860px){
  .forge-postman .pm-sheet-columns{display:flex!important;justify-content:flex-start;width:auto;min-width:0!important;padding:6px 16px!important;background:var(--pm-table-heading)!important}
  .forge-postman .pm-sheet-columns>span{display:none}
- .forge-postman .pm-sheet-status-filter{height:32px;white-space:nowrap}
- .forge-postman .pm-sheet-status-filter select{height:30px}
+ .forge-postman .pm-sheet-status-filter{width:132px;height:32px;white-space:nowrap}
 }
 .pm-sheet-help{display:inline-flex;align-items:center;gap:4px;color:var(--pm-muted);font-size:12px;white-space:nowrap}
 .pm-sheet-help>span{display:inline-flex}
