@@ -9,7 +9,7 @@ body.forge-postman .fg-theme {
   color-scheme: light;
 
   /* Color */
-  --surface-canvas:#ffffff; --surface-subtle:#f6f7fa; --surface-raised:#ffffff;
+  --surface-canvas:#fcfcfd; --surface-subtle:#f6f7fa; --surface-raised:#ffffff;
   --surface-overlay:#ffffff; --surface-inset:#f1f3f7; --surface-hover:#f7f8fa;
   --surface-pressed:#eef1f5; --surface-selected:#fafafd; --surface-scrim:rgb(23 27 45 / 36%);
   --text-primary:#1a1f36; --text-secondary:#4f566b; --text-muted:#697386;

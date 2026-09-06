@@ -82,7 +82,7 @@ test('workspace typography and page rhythm map to semantic Forge tokens',()=>{
  assert.doesNotMatch(built,/class="forge-supplier-performance"/);
 });
 test('Forge v2 visual system uses a cool brand and covers every major product surface',()=>{
- assert.match(built,/--surface-canvas:#ffffff/);
+ assert.match(built,/--surface-canvas:#fcfcfd/);
  assert.match(built,/--accent-primary:#635bff/);
  assert.match(built,/--accent-solid:#635bff/);
  assert.match(built,/--surface-selected:#fafafd/);

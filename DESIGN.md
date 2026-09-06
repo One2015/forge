@@ -11,7 +11,7 @@ Forge uses one visual language across the product: precise, quiet SaaS surfaces 
 - Typography uses the system UI stack plus a dedicated system monospace stack. Titles stay compact; code, IDs, timestamps, costs and counts use tabular or monospace treatment where appropriate.
 - Spacing follows a 4px base scale. Comfortable density is the default for dashboards, settings and AI interaction; compact density reduces control and row height for tables, logs, files and workbenches.
 - Radius tokens are 6px for small controls, 8px for controls, 12px for surfaces/popovers and 16px for dialogs. Pills use a full radius. Nested surfaces step down one radius size.
-- Persistent surfaces use borders and background steps by default. When the canvas and raised surface are both white, a top-level work surface may use `shadow-surface` instead of an outer border; rows and nested surfaces remain flat. Overlays use the stronger raised/overlay shadow tokens.
+- Persistent surfaces use borders and background steps by default. A top-level work surface may use the restrained `shadow-surface` token instead of an outer border; rows and nested surfaces remain flat. Overlays use the stronger raised/overlay shadow tokens.
 
 ## Semantic color contract
 

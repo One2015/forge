@@ -64,7 +64,7 @@ test('sticky production tabs are opaque over scrolling page content', () => {
   assert.match(system, /\.forge-postman \.forge-production-tabs\{background:var\(--surface-canvas\)!important\}/);
 });
 
-test('light canvas is white and run work surfaces use restrained elevation', () => {
-  assert.match(tokens, /--surface-canvas:#ffffff/);
+test('light canvas is softly tinted and run work surfaces use restrained elevation', () => {
+  assert.match(tokens, /--surface-canvas:#fcfcfd/);
   assert.match(system, /\.pm-page-run>div:nth-of-type\(3\),\.forge-postman \.pm-page-run>div:nth-of-type\(4\)\{[^}]*border:0!important[^}]*box-shadow:var\(--shadow-surface\)!important/);
 });
