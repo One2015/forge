@@ -9,13 +9,19 @@ const template=JSON.parse(source.slice(source.indexOf(opening)+opening.length,so
 const built=installItemPipelineView(template);
 const css=fs.readFileSync(new URL('../public/postman-ui/item-pipeline-view.css',import.meta.url),'utf8');
 
-test('Item Pipeline reuses colored node types and explicit execution states',()=>{
+test('Item Pipeline follows production node colors and preserves execution states',()=>{
  assert.match(built,/class="pm-item-flow-node"/);
  assert.match(built,/data-node-kind="\{\{ node\.kind \}\}" data-node-state="\{\{ node\.statusKey \}\}"/);
  assert.match(built,/pmItemPipelineNodeStatus\(execution,index,nodeNames,runContext\)/);
  assert.match(built,/statusKey:'passed'/);
  assert.doesNotMatch(built,/>\{\{ node\.status \}\}<\/small>/);
- assert.match(css,/border-left:4px solid var\(--pm-node-accent\)/);
+ assert.match(css,/border:1px solid var\(--pm-control\);border-radius:4px;background:var\(--pm-canvas\);box-shadow:none/);
+ assert.match(css,/data-node-kind=FUNCTION[^}]*pm-item-node-heading>i\{background:var\(--pm-data-3\)\}/);
+ assert.match(css,/data-node-kind=AGENT[^}]*pm-item-node-heading>i\{background:var\(--pm-data-1\)\}/);
+ assert.match(css,/data-node-kind=REVIEW[^}]*pm-item-node-heading>i\{background:var\(--pm-brand\)\}/);
+ assert.match(css,/pm-item-node-heading>i\{[^}]*background:var\(--pm-node-accent\)/);
+ assert.match(css,/data-node-state=failed[^}]*pm-item-node-heading>i\{background:var\(--pm-danger\)\}/);
+ assert.doesNotMatch(css,/border-left:4px solid var\(--pm-node-accent\)/);
 });
 
 test('full Pipeline opens as a large dialog with selectable node details',()=>{
