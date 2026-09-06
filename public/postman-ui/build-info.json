@@ -3,5 +3,5 @@
   "source": "scripts/templates/forge-base.html",
   "sourceSha256": "3b1667609320d855e8599f05a0353f694d36afc75e27b4e7e52c58220673122e",
   "output": "public/forge-postman.html",
-  "outputSha256": "dfa505980dec914cb6533e91ce9b7ab23257c8d5c84f8f78d50440fc263c7923"
+  "outputSha256": "bca29b5ef84dd5f771aae741fc45cfbbc9a1bd4f68ba409e7a19397ddb8201ed"
 }
