@@ -123,7 +123,7 @@ test('Admin can create a custom project role with feature-linked permissions', (
   assert.doesNotMatch(styles, /input\[type="checkbox"\][^{]*\{[^}]*accent-color:var\(--rbac-accent\)/);
 });
 
-test('Permission role selector uses the same underline tab language as Profile navigation', () => {
+test('Profile and permission tabs share a rounded neutral selected state', () => {
   const source = read('public/postman-ui/rbac-prototype.js');
   const styles = read('public/postman-ui/rbac-prototype.css');
   assert.match(source, /class="rbac-permission-role-tabs" role="tablist" aria-label="选择项目角色"/);
@@ -131,8 +131,11 @@ test('Permission role selector uses the same underline tab language as Profile n
   assert.match(source, /aria-selected="\$\{selected === key\}"/);
   assert.match(source, /\['ArrowLeft', 'ArrowRight', 'Home', 'End'\]/);
   assert.doesNotMatch(source, /data-permission-role="\$\{escapeHtml\(key\)\}" aria-pressed=/);
-  assert.match(styles, /\.rbac-permission-role-tabs\{[^}]*border-bottom:1px solid var\(--rbac-line\)[^}]*overflow-x:auto/);
-  assert.match(styles, /\.rbac-permission-role-tabs button\[aria-selected="true"\]\{border-bottom-color:var\(--rbac-accent\);color:var\(--rbac-ink\);font-weight:600\}/);
+  assert.match(styles, /\.rbac-tab\{[^}]*padding:7px 12px[^}]*border-radius:var\(--radius-control,8px\)/);
+  assert.match(styles, /\.rbac-tab\[aria-selected="true"\]\{background:var\(--surface-pressed,var\(--rbac-soft\)\);color:var\(--rbac-ink\);font-weight:600\}/);
+  assert.match(styles, /\.rbac-permission-role-tabs\{[^}]*gap:4px[^}]*border-bottom:1px solid var\(--rbac-line\)[^}]*overflow-x:auto/);
+  assert.match(styles, /\.rbac-permission-role-tabs button\{[^}]*padding:7px 12px[^}]*border-radius:var\(--radius-control,8px\)/);
+  assert.match(styles, /\.rbac-permission-role-tabs button\[aria-selected="true"\]\{background:var\(--surface-pressed,var\(--rbac-soft\)\);color:var\(--rbac-ink\);font-weight:600\}/);
   assert.doesNotMatch(styles, /\.rbac-permission-role-tabs button\[aria-(?:pressed|selected)="true"\][^{]*\{[^}]*background:var\(--rbac-ink\)/);
 });
 
