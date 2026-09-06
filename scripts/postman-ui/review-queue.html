@@ -10,7 +10,7 @@
       </article>
     </sc-for>
   </div>
-  <div id="queue-panel" role="tabpanel" aria-label="审核任务">
+  <section id="queue-panel" aria-label="审核任务">
     <div class="pq-filters" role="search" aria-label="搜索和筛选审核任务">
       <label class="pq-search"><span class="pq-sr">搜索任务</span>[[icon:magnifying-glass:16]]<input type="search" aria-label="搜索 Item 名称、Item ID、Run ID" placeholder="搜索 Item 名称、ID、Run ID" value="{{ review.queue.query }}" sc-camel-on-input="{{ review.queue.onQuery }}" /></label>
       <label class="pq-filter" data-filter-active="{{ review.queue.owner !== 'all' }}"><span>范围</span><select aria-label="审核范围" value="{{ review.queue.owner }}" sc-camel-on-change="{{ review.queue.setOwner }}"><option value="all">全部</option><option value="mine">我的任务</option></select></label>
@@ -51,6 +51,6 @@
     <sc-if value="{{ !review.queue.empty }}">
     <footer class="pq-pagination"><span role="status" aria-live="polite">共 {{ review.queue.total }} 条<span class="pq-range"> · {{ review.queue.range }}</span></span><div class="pq-pagination-controls"><label>每页<select aria-label="每页记录数" value="{{ review.queue.size }}" sc-camel-on-change="{{ review.queue.setSize }}"><option value="10">10 条</option><option value="20">20 条</option><option value="50">50 条</option></select></label><button type="button" disabled="{{ review.queue.first }}" sc-camel-on-click="{{ review.queue.prev }}" aria-label="上一页">[[icon:arrow-left:14]]</button><sc-for list="{{ review.queue.pageNumbers }}" as="p"><button type="button" aria-label="第 {{ p.label }} 页" aria-current="{{ p.selected ? 'page' : 'false' }}" sc-camel-on-click="{{ p.pick }}">{{ p.label }}</button></sc-for><button type="button" disabled="{{ review.queue.last }}" sc-camel-on-click="{{ review.queue.next }}" aria-label="下一页">[[icon:arrow-right:14]]</button></div></footer>
     </sc-if>
-  </div>
+  </section>
   <sc-if value="{{ review.queue.hasError }}"><div class="pq-error" role="alert"><span>{{ review.queue.error }}</span><button type="button" sc-camel-on-click="{{ review.queue.refresh }}">重试</button><button type="button" sc-camel-on-click="{{ review.queue.dismissError }}" aria-label="关闭错误提示">[[icon:x:16]]</button></div></sc-if>
 </section>
