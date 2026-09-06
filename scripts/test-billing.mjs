@@ -304,7 +304,8 @@ test('stacked distribution, change reasons and abnormal runs are exposed without
   assert(v.abnormalRuns.some(row => row.runId === 'run-spike'));
   assert.match(html, /forge-billing-stack/); assert.match(html, /变化补充说明/); assert.match(html, /异常成本 Run/);
   assert.match(html, /<ul class="forge-billing-reasons"><sc-for[\s\S]*?<li>/);
-  assert.match(html, /forge-billing-chart[\s\S]*forge-billing-breakdown[\s\S]*billing-anomaly-title/);
+  assert.match(html, /<\/sc-if>\s*<\/section>\s*<section class="forge-billing-breakdown"/);
+  assert.match(html, /<section class="forge-billing-breakdown"[^>]*>\s*<header><div><h2 id="forge-billing-table-title"/);
   assert.match(html, /\{\{ billing\.tableLabel \}\}费用明细/);
   assert.doesNotMatch(html, /\{\{ billing\.groupCount \}\} 个\{\{ billing\.tableLabel \}\} · \{\{ billing\.callCount \}\} 条调用记录/);
   assert.match(html, /<a class="forge-billing-run-link" href="\{\{ run\.href \}\}"[^>]*>查看详情<\/a>/);
