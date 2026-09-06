@@ -51,7 +51,7 @@ test('performance page keeps the required section order without exposing fixture
   assert.equal(v.metrics[0].value, 620); assert.equal(v.metrics[1].value, 602); assert.equal(v.metrics[0].value - v.metrics[1].value, 18);
   assert.match(page, /class="forge-outsourcing-table-head" aria-label="专家交付筛选与排序"/);
   assert.doesNotMatch(page, /forge-outsourcing-delivery-header|forge-outsourcing-table-filters|forge-outsourcing-filters|外部专家表现筛选器|当前筛选范围的交付与风险汇总|点击专家团队名称查看履约、质量与风险详情|汇总重复出现 3 次及以上的问题|forge-outsourcing-issue-total/);
-  for (const id of ['outsourcing-overall', 'outsourcing-delivery', 'outsourcing-trend', 'outsourcing-issues']) assert.match(page, new RegExp('forge-outsourcing-block-heading[^>]*>[\\s\\S]*?id="' + id + '"[\\s\\S]*?</header>\\s*<section class="forge-outsourcing-section" aria-labelledby="' + id + '"'));
+  for (const id of ['outsourcing-overall', 'outsourcing-delivery', 'outsourcing-trend', 'outsourcing-issues']) assert.match(page, new RegExp('forge-outsourcing-block-heading[^>]*>[\\s\\S]*?id="' + id + '"[\\s\\S]*?</header>\\s*<section class="forge-outsourcing-section(?: [^"]*)?" aria-labelledby="' + id + '"'));
   assert(v.hasRows); assert(v.hasTrend); assert(v.hasIssues);
 });
 
@@ -124,8 +124,8 @@ test('frequent issues are an aggregate percentage list with an expert filter', (
   assert.match(page, /class="forge-outsourcing-issue-track"/); assert.doesNotMatch(page, /最近出现|issue\.recent/);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
   assert.match(css, /\.forge-outsourcing-issue-list article\{[^}]*grid-template-columns:minmax\(220px,\.9fr\) minmax\(180px,1\.3fr\) 72px/);
-  assert.match(css, /\.forge-outsourcing-issue-track\{[^}]*height:36px[^}]*background:var\(--pm-subtle\)/);
-  assert.match(css, /\.forge-outsourcing-issue-bar\{[^}]*display:block[^}]*height:100%/);
+  assert.match(css, /\.forge-outsourcing-issue-track\{[^}]*height:8px[^}]*border-radius:999px[^}]*background:var\(--pm-subtle\)/);
+  assert.match(css, /\.forge-outsourcing-issue-bar\{[^}]*display:block[^}]*height:100%[^}]*border-radius:inherit/);
 });
 
 test('management tab exposes all required fields and adds an in-memory expert team', () => {
@@ -154,15 +154,19 @@ test('management tab exposes all required fields and adds an in-memory expert te
 test('supplier generator is idempotent and responsive CSS uses shared tokens', () => {
   assert.equal(updateOutsourcingSuppliers(source), source);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
-  assert.match(css, /\.forge-outsourcing-column-filter select\{[^}]*width:100%[^}]*border:1px solid transparent!important[^}]*text-overflow:ellipsis/);
-  assert.match(css, /\.forge-outsourcing-column-filter\[data-filter-active="true"\] select\{[^}]*border-color:var\(--pm-focus\)!important[^}]*background-color:var\(--pm-selected\)!important/);
-  assert.match(css, /box-shadow:inset 2px 0 var\(--pm-brand\)!important[^}]*color:var\(--forge-text\)!important[^}]*font-weight:600/);
-  assert.match(css, /@media\(hover:hover\)\{\.forge-outsourcing-column-filter select:hover/);
+  const controls = fs.readFileSync(new URL('../public/postman-ui/controls.css', import.meta.url), 'utf8');
+  assert.match(css, /\.forge-outsourcing-column-filter select\{[^}]*appearance:none[^}]*width:100%[^}]*border:0!important[^}]*background:transparent!important[^}]*text-overflow:ellipsis/);
+  assert.match(css, /\.forge-outsourcing-column-filter:after\{[^}]*border-right:1\.5px solid currentColor[^}]*transform:rotate\(45deg\)/);
+  assert.match(css, /\.forge-outsourcing-column-filter\[data-filter-active="true"\]\{[^}]*box-shadow:inset 0 -2px var\(--pm-brand\)[^}]*color:var\(--forge-text\)/);
+  assert.match(css, /@media\(hover:hover\)\{\.forge-outsourcing-column-filter:hover/);
+  assert.match(controls, /\.forge-postman \.forge-outsourcing-column-filter select:not\(\[multiple\],\[size\]\)\{appearance:none!important;-webkit-appearance:none!important;background:transparent!important;border:0!important/);
   assert.match(css, /\.forge-outsourcing-block-heading>button,\.forge-outsourcing-block-actions button,\.forge-outsourcing-section header>button/);
   assert.match(css, /data-tone="success"\][^{]*\{[^}]*background:var\(--outsourcing-status-success-bg\)[^}]*color:var\(--pm-success\)/);
   assert.match(css, /transition-property:scale,background-color,border-color,color,box-shadow[^}]*transition-duration:150ms[^}]*ease-out/);
   assert.match(css, /:active:not\(:disabled\)\{scale:\.96\}/); assert.doesNotMatch(css, /transition:\s*all/);
   assert.match(css, /forge-outsourcing-trend-cards>article\{[^}]*box-shadow:var\(--outsourcing-raised-shadow\)/);
+  assert.match(css, /\.forge-outsourcing-trend-section\{[^}]*border:0[^}]*background:transparent/);
+  assert.match(page, /class="forge-outsourcing-section forge-outsourcing-trend-section"/);
   assert.match(css, /\.forge-outsourcing-trend-filter-metric\{width:136px\}/);
   assert.match(css, /\.forge-outsourcing-trend-filter-window\{width:104px\}/);
   assert.match(css, /\.forge-outsourcing-trend-filter,\.forge-outsourcing-issue-filter\{width:100%;min-width:0\}/);

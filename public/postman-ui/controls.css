@@ -96,6 +96,12 @@
   .forge-postman select:not([multiple],[size]) option::checkmark{order:1;margin-inline-start:auto;color:var(--pm-focus)}
   .forge-postman select:not([multiple],[size]):disabled,
   .forge-postman select:not([multiple],[size]) option:disabled{background:var(--forge-disabled-bg)!important;color:var(--forge-disabled-text)!important;cursor:not-allowed}
+  /* Table headers read as column labels. Keep the native picker interaction,
+     while removing the filled input treatment from its compact trigger. */
+  .forge-postman .forge-outsourcing-column-filter select:not([multiple],[size]){appearance:none!important;-webkit-appearance:none!important;background:transparent!important;border:0!important;color:inherit!important;outline:0!important;box-shadow:none!important}
+  .forge-postman .forge-outsourcing-column-filter select:not([multiple],[size]):hover:not(:disabled){background:transparent!important;border-color:transparent!important}
+  .forge-postman .forge-outsourcing-column-filter select:not([multiple],[size]):is(:open,:focus-visible){background:transparent!important;border-color:transparent!important;outline:2px solid var(--pm-focus)!important;outline-offset:2px!important}
+  .forge-postman .forge-outsourcing-column-filter select:not([multiple],[size])::picker-icon{display:none}
   @media(pointer:coarse){.forge-postman select:not([multiple],[size]) option{min-height:44px;font-size:16px}}
 }
 
