@@ -316,7 +316,7 @@ test('stacked distribution, change reasons and abnormal runs are exposed without
   assert.match(template, /\.forge-billing-chart\{[^}]*border-bottom:0/);
   assert.doesNotMatch(template, /\.forge-billing-breakdown header span\{/);
   assert.match(template, /\.forge-postman \.forge-billing \.forge-billing-search input\{padding-inline-start:32px!important\}/);
-  assert.match(template, /\.forge-billing-analysis\[aria-labelledby="billing-change-title"\]\{border-top:0\}/);
+  assert.match(template, /\.forge-billing-analysis\[aria-labelledby="billing-anomaly-title"\],\.forge-billing-analysis\[aria-labelledby="billing-change-title"\]\{border-top:0\}/);
   assert.doesNotMatch(html, /treemap|line-chart/i);
 });
 
