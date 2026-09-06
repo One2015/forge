@@ -45,6 +45,7 @@ test('performance page keeps the required section order without exposing fixture
   let cursor = -1;
   for (const label of labels) { const next = page.indexOf(label); assert(next > cursor, label); cursor = next; }
   assert.doesNotMatch(page, /Mock 数据|履约明细与风险评估/); assert.match(page, /与模型 API 供应商分开管理/);
+  assert.match(page, /class="forge-outsourcing-demo" role="status"/); assert.match(page, /示例数据/);
   const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
   assert(v.demo); assert.deepEqual(Array.from(v.metrics, row => row.label), ['总交付目标', '已分配任务量', '最终有效交付量', '整体完成率', '整体质检通过率', '风险专家团队']);
   assert.equal(v.metrics[0].value, 620); assert.equal(v.metrics[1].value, 602); assert.equal(v.metrics[0].value - v.metrics[1].value, 18);
@@ -88,14 +89,14 @@ test('supplier trend can focus one labelled series with accessible points', () =
   const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.trendWeeks), ['4 周前', '3 周前', '2 周前', '上周', '本周']);
   assert.equal(v.trendCompletion.length, 5); assert.equal(v.trendEffective.length, 5); assert.equal(v.trendQuality.length, 5);
-  assert.match(v.trendCompletionLine, /^0,32 25,26 50,19 75,14 100,9$/);
+  assert.match(v.trendCompletionLine, /^0,27 25,21 50,15 75,10 100,6$/);
   assert.deepEqual(Array.from(v.trendCards, card => card.label), ['任务完成率', '有效交付率', '质检通过率']);
-  assert.equal(v.trendCards[0].current, '91%'); assert.equal(v.trendCards[0].change, '较上周 +5 个百分点');
+  assert.equal(v.trendSupplier, '全部专家团队'); assert.equal(v.trendCards[0].current, '94%'); assert.equal(v.trendCards[0].change, '较上周 +4 个百分点');
   assert.equal(v.trendMetric, 'all'); assert.equal(v.trendWindow, '5w'); assert.equal(v.trendRangeLabel, '近 5 周'); assert.equal(v.singleTrend, false);
   v.onTrendWindow({ target: { value: '3w' } }); v = c.outsourcingSupplierValues();
-  assert.deepEqual(Array.from(v.trendWeeks), ['2 周前', '上周', '本周']); assert.equal(v.trendCompletion.length, 3); assert.match(v.trendCompletionLine, /^0,19 50,14 100,9$/);
+  assert.deepEqual(Array.from(v.trendWeeks), ['2 周前', '上周', '本周']); assert.equal(v.trendCompletion.length, 3); assert.match(v.trendCompletionLine, /^0,15 50,10 100,6$/);
   v.onTrendMetric({ target: { value: 'quality' } }); v = c.outsourcingSupplierValues();
-  assert.deepEqual(Array.from(v.trendCards, card => card.label), ['质检通过率']); assert.equal(v.trendCards[0].current, '94%'); assert.equal(v.singleTrend, true); assert.equal(v.trendAriaLabel, '质检通过率趋势');
+  assert.deepEqual(Array.from(v.trendCards, card => card.label), ['质检通过率']); assert.equal(v.trendCards[0].current, '96%'); assert.equal(v.singleTrend, true); assert.equal(v.trendAriaLabel, '质检通过率趋势');
   assert.match(page, /aria-label="趋势指标"/); assert.match(page, /aria-label="趋势时间范围"/); assert.match(page, /data-single="\{\{ outsourcingSuppliers\.singleTrend \}\}"/); assert.match(page, /forge-outsourcing-mini-chart/); assert.match(page, /目标 90%/);
   assert.match(page, /data-forge-chart-tooltip="\{\{ point\.title \}\}"/); assert.match(page, /data-series="\{\{ series\.series \}\}"/);
 });
@@ -129,7 +130,7 @@ test('frequent issues are an aggregate percentage list with an expert filter', (
 test('management tab exposes all required fields and adds an in-memory expert team', () => {
   const c = component(); c.openOutsourcingSuppliers('management'); let v = c.outsourcingSupplierValues();
   assert(v.managementTab); assert.match(page, /专家团队名称 \*/); assert.match(page, /联系人/); assert.match(page, /联系方式/); assert.match(page, /任务类型/); assert.match(page, /目标产能/); assert.doesNotMatch(page, /默认产能/); assert.match(page, /合作状态/); assert.match(page, /备注/);
-  assert.match(page, /<header class="forge-outsourcing-block-heading"><h2 id="outsourcing-management">专家管理<\/h2>[\s\S]*?<\/header><section class="forge-outsourcing-section" aria-labelledby="outsourcing-management">/);
+  assert.match(page, /<header class="forge-outsourcing-block-heading"><h2 id="outsourcing-management">专家管理<\/h2>[\s\S]*?<\/header>\s*<section class="forge-outsourcing-section" aria-labelledby="outsourcing-management">/);
   assert.doesNotMatch(page, /维护外部专家团队，与模型 API 供应商分开管理/);
   const managementTable = page.slice(page.indexOf('forge-outsourcing-management-table'));
   const managementHeader = managementTable.match(/<div role="row" class="forge-outsourcing-table-head"[\s\S]*?<\/div>/)[0];
@@ -138,6 +139,7 @@ test('management tab exposes all required fields and adds an in-memory expert te
   assert.match(page, /list="forge-outsourcing-task-types"/); assert.match(page, /placeholder="输入或选择任务类型"/); assert.match(page, /<option value="Web3D"><\/option>/); assert.match(page, /<option value="质量复核"><\/option>/);
   assert.deepEqual(Array.from(v.managementRows, row => row.name), ['维象制作', '灵犀三维', '观澜质检']);
   v.onManagementStatus({ target: { value: '合作中' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.managementRows, row => row.id), ['stepfun', 'ant']);
+  assert.equal(v.managementResetDisabled, false); assert.match(v.managementSummary, /显示 2 \/ 3 家/); v.resetManagement(); v = c.outsourcingSupplierValues(); assert.equal(v.managementResetDisabled, true);
   v.onManagementSpecialty({ target: { value: '动画' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.managementRows, row => row.id), ['ant']);
   v.onManagementStatus({ target: { value: '' } }); v.onManagementSpecialty({ target: { value: '' } }); v.onManagementRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.managementRows, row => row.id), ['internal']);
   v.onManagementRisk({ target: { value: '' } }); v.onManagementSort({ target: { value: 'capacity-asc' } }); v = c.outsourcingSupplierValues(); assert.equal(v.managementCapacityOrder, 'capacity-asc'); assert.deepEqual(Array.from(v.managementRows, row => row.id), ['internal', 'ant', 'stepfun']);
@@ -154,8 +156,10 @@ test('supplier generator is idempotent and responsive CSS uses shared tokens', (
   assert.match(css, /\.forge-outsourcing-column-filter select\{[^}]*width:100%[^}]*border:1px solid transparent!important[^}]*text-overflow:ellipsis/);
   assert.match(css, /\.forge-outsourcing-column-filter\[data-filter-active="true"\] select\{[^}]*border-color:var\(--pm-focus\)!important[^}]*background-color:var\(--pm-selected\)!important/);
   assert.match(css, /@media\(hover:hover\)\{\.forge-outsourcing-column-filter select:hover/);
-  assert.match(css, /\.forge-outsourcing-block-heading>button,\.forge-outsourcing-section header>button/);
+  assert.match(css, /\.forge-outsourcing-block-heading>button,\.forge-outsourcing-block-actions button,\.forge-outsourcing-section header>button/);
   assert.match(css, /@media\(max-width:1000px\)/); assert.match(css, /@media\(max-width:640px\)/);
+  assert.match(css, /@container forge-suppliers \(max-width:760px\)/); assert.match(css, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)!important/);
+  assert.match(page, /sc-camel-on-key-down="\{\{ outsourcingSuppliers\.onDetailKeyDown \}\}"/); assert.doesNotMatch(page, /<button role="row"/);
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}|rgba?\(/i);
   for (const token of ['--forge-border', '--forge-panel', '--pm-brand', '--pm-chart-1']) assert(css.includes('var(' + token + ')'));
 });
