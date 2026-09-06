@@ -24,7 +24,7 @@ const ledger = (events = [event('one')]) => ({ status: 'ready', currency: 'USD',
 const values = input => { const c = component(input); c.openBilling(); return c; };
 
 test('billing chart uses the centralized Forge chart sequence', () => {
-  const expected = ['#f06442', '#5f8fc7', '#4fa69a', '#8b7fc0', '#cf7184', '#7f8d9b'];
+  const expected = ['#635bff', '#4384d8', '#2f9788', '#8b6bc0', '#c66a8b', '#728096'];
   expected.forEach((color, index) => assert(themeTokens.includes(`--pm-chart-${index + 1}:${color}`)));
   assert.match(template, /const colors=\['var\(--pm-chart-1\)'[\s\S]*'var\(--pm-chart-6\)'\]/);
 });

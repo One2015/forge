@@ -52,7 +52,7 @@ test('sidebar utility counts follow the label and use the Forge accent',()=>{
 });
 test('workspace typography and page rhythm map to semantic Forge tokens',()=>{
  assert.match(built,/--type-page-size:1\.5rem; --type-page-leading:2rem/);
- assert.match(built,/--type-body-size:\.8125rem; --type-body-leading:1\.25rem/);
+ assert.match(built,/--type-body-size:\.875rem; --type-body-leading:1\.375rem/);
  assert.match(built,/--pm-page-gutter:var\(--page-gutter\); --pm-page-top:var\(--page-block-start\); --pm-page-bottom:var\(--page-block-end\)/);
  assert.match(built,/--content-inset:var\(--space-5\); --content-inset-compact:var\(--space-4\); --content-inset-mobile:var\(--space-3\)/);
  assert.match(built,/\.forge-postman \.forge-page,\.forge-postman \.fg-runs\{[^}]*padding:var\(--pm-page-top\) var\(--pm-page-gutter\) var\(--pm-page-bottom\)!important/);
@@ -67,6 +67,22 @@ test('workspace typography and page rhythm map to semantic Forge tokens',()=>{
  assert.doesNotMatch(built,/class="forge-overview-signals"/);
  assert.doesNotMatch(built,/>错误类型</);
  assert.doesNotMatch(built,/class="forge-supplier-performance"/);
+});
+test('Forge v2 visual system uses a cool brand and covers every major product surface',()=>{
+ assert.match(built,/--accent-primary:#635bff/);
+ assert.match(built,/--accent-solid:#635bff/);
+ assert.match(built,/--surface-selected:#eeefff/);
+ assert.doesNotMatch(built,/--accent-primary:#(?:e34f24|ff714a)/);
+ assert.match(built,/\.pm-brand-mark\{[^}]*background:var\(--accent-solid\)/);
+ assert.match(built,/\.forge-postman \.forge-sidebar :is\([^}]+\)::before\{content:none!important\}/);
+ for(const selector of ['forge-production-tabs','forge-model-page-tabs','forge-billing-tabs','forge-outsourcing-tabs'])assert(built.includes('.'+selector),selector);
+ for(const selector of ['pm-delivery-customer-group','forge-wizard-card','forge-model-overview-metrics','forge-billing-chart','forge-outsourcing-section'])assert(built.includes('.'+selector),selector);
+ assert.match(built,/\.forge-postman \.forge-model-overview-metrics>div:is\(\[data-tone=success\],\[data-tone=warning\],\[data-tone=danger\]\)\{background:transparent!important\}/);
+ const topbar=built.slice(built.indexOf('<header class="pm-topbar">'),built.indexOf('</header>',built.indexOf('<header class="pm-topbar">')));
+ assert.match(topbar,/arrows-down-up|<svg class="forge-icon"/);
+ assert.doesNotMatch(topbar,/[↕◐☼]/);
+ assert.match(built,/\[data-pm-tabs\]\[data-pm-tabs\]\{scrollbar-width:none!important\}/);
+ assert.doesNotMatch(built,/\.pm-pipeline-node\{[^}]*border-left:3px/);
 });
 test('production list pages share one stable title and primary-action grid',()=>{
  const headings=Array.from(built.matchAll(/<(?:header|div) class="[^"]*\bpm-production-page-heading\b[^"]*"/g),match=>match[0]);

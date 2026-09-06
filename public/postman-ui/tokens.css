@@ -1,5 +1,5 @@
 /* Forge Design Tokens
- * Stripe-inspired product discipline with a Forge-specific ember accent.
+ * Stripe-inspired product discipline with a Forge-specific electric-indigo accent.
  * The semantic layer is public; pm/forge/fg aliases keep the DCLogic runtime stable.
  */
 :root,
@@ -9,20 +9,21 @@ body.forge-postman .fg-theme {
   color-scheme: light;
 
   /* Color */
-  --surface-canvas:#f7f8fa; --surface-subtle:#f2f4f7; --surface-raised:#ffffff;
-  --surface-overlay:#ffffff; --surface-inset:#eceff3; --surface-hover:#f4f5f7;
-  --surface-pressed:#eceef2; --surface-selected:#fff7f3; --surface-scrim:rgb(23 27 36 / 34%);
-  --text-primary:#20242c; --text-secondary:#505866; --text-muted:#737b88;
-  --text-disabled:#9aa1ac; --text-inverse:#ffffff; --text-link:#394150; --text-link-hover:#20242c;
-  --border-default:#dfe3e8; --border-subtle:#e9ecf0; --border-strong:#c5cbd3;
-  --accent-primary:#e34f24; --accent-primary-hover:#c9411b; --accent-primary-pressed:#ad3614;
-  --accent-soft:#fff0e9; --accent-soft-hover:#ffe7dc; --focus-ring:#6b73ff; --focus-ring-offset:#ffffff;
-  --status-success:#18794e; --status-success-soft:#eaf7f0; --status-success-border:#b9dec9;
-  --status-warning:#946200; --status-warning-soft:#fff6d8; --status-warning-border:#ead28a;
-  --status-danger:#c62f45; --status-danger-hover:#aa2438; --status-danger-soft:#fff0f2; --status-danger-border:#edb8c0;
-  --status-info:#3569a8; --status-info-soft:#edf5ff; --status-info-border:#bfd4ef;
-  --data-1:#e35a31; --data-2:#547db8; --data-3:#298b7d;
-  --data-4:#7668ad; --data-5:#b85d73; --data-6:#667280;
+  --surface-canvas:#f6f8fb; --surface-subtle:#f3f5f8; --surface-raised:#ffffff;
+  --surface-overlay:#ffffff; --surface-inset:#edf0f5; --surface-hover:#f4f6fa;
+  --surface-pressed:#e9edf3; --surface-selected:#eeefff; --surface-scrim:rgb(23 27 45 / 36%);
+  --text-primary:#1a1f36; --text-secondary:#4f566b; --text-muted:#697386;
+  --text-disabled:#98a2b3; --text-inverse:#ffffff; --text-link:#4f46d8; --text-link-hover:#3d35b5;
+  --border-default:#d8dee8; --border-subtle:#e7ebf1; --border-strong:#bdc6d4;
+  --accent-primary:#635bff; --accent-primary-hover:#5147e8; --accent-primary-pressed:#4439cf;
+  --accent-solid:#635bff; --accent-solid-hover:#5147e8; --accent-solid-pressed:#4439cf;
+  --accent-soft:#eeecff; --accent-soft-hover:#e4e1ff; --focus-ring:#635bff; --focus-ring-offset:#ffffff;
+  --status-success:#0e6245; --status-success-soft:#e9f7f1; --status-success-border:#abd9c7;
+  --status-warning:#8a6116; --status-warning-soft:#fff7df; --status-warning-border:#e8d08d;
+  --status-danger:#b4233c; --status-danger-hover:#971b31; --status-danger-soft:#fff0f3; --status-danger-border:#eab3bd;
+  --status-info:#3167c6; --status-info-soft:#edf4ff; --status-info-border:#bdd0ef;
+  --data-1:#635bff; --data-2:#3f7edb; --data-3:#168477;
+  --data-4:#8a67c8; --data-5:#c15f83; --data-6:#667085;
 
   /* Typography */
   --font-sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
@@ -31,7 +32,7 @@ body.forge-postman .fg-theme {
   --type-page-size:1.5rem; --type-page-leading:2rem;
   --type-section-size:1rem; --type-section-leading:1.5rem;
   --type-component-size:.875rem; --type-component-leading:1.25rem;
-  --type-body-size:.8125rem; --type-body-leading:1.25rem;
+  --type-body-size:.875rem; --type-body-leading:1.375rem;
   --type-caption-size:.75rem; --type-caption-leading:1.125rem;
   --weight-regular:400; --weight-medium:550; --weight-semibold:650;
 
@@ -48,7 +49,7 @@ body.forge-postman .fg-theme {
   --shadow-dialog:0 24px 64px rgb(22 27 36 / 18%),0 3px 12px rgb(22 27 36 / 8%);
 
   /* Size and density */
-  --size-control-sm:1.75rem; --size-control-md:2rem; --size-control-lg:2.5rem; --size-touch:2.75rem;
+  --size-control-sm:2rem; --size-control-md:2.25rem; --size-control-lg:2.5rem; --size-touch:2.75rem;
   --sidebar-width:13rem; --sidebar-width-collapsed:4rem; --topbar-height:3rem;
   --page-max:96rem; --page-gutter:clamp(1.25rem,2.4vw,2.5rem);
   --page-block-start:clamp(1.75rem,3vw,3rem); --page-block-end:4rem;
@@ -66,23 +67,23 @@ body.forge-postman .fg-theme {
   --pm-text:var(--text-primary); --pm-muted:var(--text-secondary); --pm-faint:var(--text-muted);
   --pm-hover:var(--surface-hover); --pm-selected:var(--surface-raised); --pm-pressed:var(--surface-pressed);
   --pm-table-heading:var(--surface-subtle); --pm-tab-indicator:var(--accent-primary);
-  --pm-action:var(--text-primary); --pm-action-hover:#343a46; --pm-action-pressed:#151920;
-  --pm-on-action:var(--text-inverse); --pm-action-border:var(--text-primary);
+  --pm-action:var(--accent-solid); --pm-action-hover:var(--accent-solid-hover); --pm-action-pressed:var(--accent-solid-pressed);
+  --pm-on-action:var(--text-inverse); --pm-action-border:var(--accent-solid);
   --pm-focus:var(--focus-ring); --pm-focus-width:2px;
   --pm-nav:var(--text-primary); --pm-nav-soft:var(--surface-selected); --pm-brand-soft:var(--accent-soft);
   --pm-link:var(--text-link); --pm-link-hover:var(--text-link-hover); --pm-info:var(--status-info);
-  --pm-info-soft:var(--status-info-soft); --pm-link-accent:var(--status-info); --pm-link-accent-hover:#285682;
+  --pm-info-soft:var(--status-info-soft); --pm-link-accent:var(--text-link); --pm-link-accent-hover:var(--text-link-hover);
   --pm-action-soft:var(--surface-raised); --pm-brand:var(--accent-primary); --pm-utility-badge:var(--pm-brand);
   --pm-utility-unread:var(--surface-selected); --pm-brand-deep:var(--accent-primary-pressed);
-  --pm-brand-mid:#ee7956; --pm-brand-light:#f7ad96; --pm-brand-pale:#ffd4c7;
+  --pm-brand-mid:#817aff; --pm-brand-light:#aaa5ff; --pm-brand-pale:#d5d2ff;
   --pm-success:var(--status-success); --pm-success-soft:var(--status-success-soft); --pm-success-mark:#31a46c;
   --pm-warning:var(--status-warning); --pm-warning-soft:var(--status-warning-soft); --pm-warning-mark:#d99d20;
   --pm-danger:var(--status-danger); --pm-danger-soft:var(--status-danger-soft); --pm-danger-mark:#e5484d;
   --pm-success-border:var(--status-success-border); --pm-warning-border:var(--status-warning-border); --pm-danger-border:var(--status-danger-border);
   --pm-data-1:var(--data-1); --pm-data-2:var(--data-2); --pm-data-3:var(--data-3); --pm-data-4:var(--data-4);
   --pm-data-soft:var(--surface-subtle); --pm-data-ink:var(--status-success); --pm-data-line:var(--data-3); --pm-data-line-alt:var(--data-2);
-  --pm-chart-1:#f06442; --pm-chart-2:#5f8fc7; --pm-chart-3:#4fa69a;
-  --pm-chart-4:#8b7fc0; --pm-chart-5:#cf7184; --pm-chart-6:#7f8d9b;
+  --pm-chart-1:#635bff; --pm-chart-2:#4384d8; --pm-chart-3:#2f9788;
+  --pm-chart-4:#8b6bc0; --pm-chart-5:#c66a8b; --pm-chart-6:#728096;
   --pm-font:var(--font-sans); --pm-mono:var(--font-mono); --pm-control-height:var(--density-control-height);
   --pm-radius:var(--radius-control); --pm-overlay-radius:var(--radius-surface);
   --pm-title-size:var(--type-page-size); --pm-title-leading:var(--type-page-leading);
@@ -91,7 +92,7 @@ body.forge-postman .fg-theme {
   --pm-page-gutter:var(--page-gutter); --pm-page-top:var(--page-block-start); --pm-page-bottom:var(--page-block-end);
   --pm-space-1:var(--space-1); --pm-space-2:var(--space-2); --pm-space-3:var(--space-3); --pm-space-4:var(--space-4); --pm-space-6:var(--space-6);
   --forge-font:var(--font-sans); --forge-text:var(--text-primary); --forge-muted:var(--text-secondary);
-  --forge-accent:var(--text-link); --forge-accent-hover:var(--text-link-hover); --forge-accent-soft:var(--accent-soft);
+  --forge-accent:var(--accent-primary); --forge-accent-hover:var(--accent-primary-hover); --forge-accent-soft:var(--accent-soft);
   --forge-bg:var(--surface-canvas); --forge-subtle:var(--surface-subtle); --forge-panel:var(--surface-raised);
   --forge-border:var(--border-subtle); --forge-control-border:var(--border-default);
   --forge-surface:var(--surface-raised); --forge-surface-soft:var(--surface-subtle); --forge-soft:var(--surface-hover);
@@ -118,13 +119,14 @@ body.forge-postman .fg-theme {
 :root[data-forge-theme="dark"] body.forge-postman .forge-app-shell,
 :root[data-forge-theme="dark"] body.forge-postman .fg-theme {
   color-scheme:dark;
-  --surface-canvas:#111318; --surface-subtle:#181b21; --surface-raised:#1d2027; --surface-overlay:#23272f;
-  --surface-inset:#15181e; --surface-hover:#252932; --surface-pressed:#2d323c; --surface-selected:#2a211e; --surface-scrim:rgb(0 0 0 / 58%);
-  --text-primary:#f1f3f5; --text-secondary:#b9c0ca; --text-muted:#929ba8; --text-disabled:#676f7b;
-  --text-inverse:#15171b; --text-link:#e2e6eb; --text-link-hover:#ffffff;
-  --border-default:#3b414c; --border-subtle:#2c313a; --border-strong:#545c69;
-  --accent-primary:#ff714a; --accent-primary-hover:#ff8868; --accent-primary-pressed:#e95d36;
-  --accent-soft:#3b241d; --accent-soft-hover:#4a2a21; --focus-ring:#9ba3ff; --focus-ring-offset:#111318;
+  --surface-canvas:#10121a; --surface-subtle:#181b26; --surface-raised:#1d202c; --surface-overlay:#242836;
+  --surface-inset:#151822; --surface-hover:#252a38; --surface-pressed:#2d3344; --surface-selected:#29284b; --surface-scrim:rgb(0 0 0 / 60%);
+  --text-primary:#f3f4f8; --text-secondary:#c0c5d0; --text-muted:#969eae; --text-disabled:#697284;
+  --text-inverse:#ffffff; --text-link:#aaa5ff; --text-link-hover:#c5c1ff;
+  --border-default:#3b4252; --border-subtle:#2d3341; --border-strong:#596174;
+  --accent-primary:#aaa5ff; --accent-primary-hover:#c2beff; --accent-primary-pressed:#8c85ff;
+  --accent-solid:#675ee8; --accent-solid-hover:#5a51d6; --accent-solid-pressed:#4d44bd;
+  --accent-soft:#2d2b55; --accent-soft-hover:#39366c; --focus-ring:#aaa5ff; --focus-ring-offset:#10121a;
   --status-success:#5fd39a; --status-success-soft:#173329; --status-success-border:#2d664d;
   --status-warning:#f2c45d; --status-warning-soft:#372c16; --status-warning-border:#675222;
   --status-danger:#ff7a8d; --status-danger-hover:#ff9dac; --status-danger-soft:#3c2027; --status-danger-border:#713441;
@@ -132,7 +134,7 @@ body.forge-postman .fg-theme {
   --shadow-raised:0 1px 2px rgb(0 0 0 / 22%),0 8px 24px rgb(0 0 0 / 16%);
   --shadow-overlay:0 14px 40px rgb(0 0 0 / 38%),0 2px 8px rgb(0 0 0 / 24%);
   --shadow-dialog:0 28px 72px rgb(0 0 0 / 52%),0 3px 12px rgb(0 0 0 / 30%);
-  --pm-action:#f2f4f7; --pm-action-hover:#ffffff; --pm-action-pressed:#dce0e5; --pm-action-border:#f2f4f7; --pm-nav:#ffffff;
+  --pm-action:var(--accent-solid); --pm-action-hover:var(--accent-solid-hover); --pm-action-pressed:var(--accent-solid-pressed); --pm-action-border:var(--accent-solid); --pm-nav:var(--text-primary);
 }
 
 :root[data-forge-density="compact"] {

@@ -26,31 +26,32 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 /* Product shell ----------------------------------------------------------- */
 .pm-topbar{
   height:var(--topbar-height);padding:0 var(--space-4);gap:var(--space-2);
-  background:color-mix(in srgb,var(--surface-raised) 96%,transparent);
+  background:var(--surface-raised);
   border-bottom:1px solid var(--border-subtle);z-index:var(--z-topbar);
-  font-size:var(--type-caption-size);backdrop-filter:saturate(.8) blur(8px);
+  font-size:var(--type-caption-size);backdrop-filter:none;
 }
-.pm-brand-mark{display:grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:var(--radius-xs);background:var(--accent-primary);color:#fff;font-size:.6875rem;font-weight:750;line-height:1;box-shadow:inset 0 0 0 1px rgb(98 24 5 / 12%)}
+.pm-brand-mark{display:grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:var(--radius-xs);background:var(--accent-solid);color:#fff;font-size:.6875rem;font-weight:750;line-height:1;box-shadow:none}
 .pm-topbar strong{font-size:.875rem;font-weight:var(--weight-semibold);letter-spacing:-.01em;color:var(--text-primary)}
 .pm-topbar .pm-workspace-name{margin-left:var(--space-1);padding-left:var(--space-3);border-left-color:var(--border-default);color:var(--text-muted)}
 .pm-topbar-actions{display:flex;align-items:center;gap:var(--space-1);margin-left:auto}
 .pm-preference-control{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);height:1.75rem;min-width:4.25rem;padding:0 var(--space-2);border:1px solid transparent;border-radius:var(--radius-xs);background:transparent;color:var(--text-secondary);font:var(--type-caption-size)/1 var(--font-sans);cursor:pointer;transition:color var(--motion-fast) var(--ease-standard),background-color var(--motion-fast) var(--ease-standard),border-color var(--motion-fast) var(--ease-standard)}
 .pm-preference-control>span:first-child{display:grid;place-items:center;width:1rem;color:var(--text-muted);font-size:.875rem}
+.pm-preference-control .forge-icon{width:1rem;height:1rem;stroke-width:1.75}
 @media(hover:hover){.pm-preference-control:hover{border-color:var(--border-subtle);background:var(--surface-hover);color:var(--text-primary)}}
 .pm-preference-control:active{background:var(--surface-pressed);transform:translateY(1px)}
 .pm-preference-control[aria-pressed=true]{background:var(--surface-subtle);color:var(--text-primary)}
 
 .forge-postman .forge-sidebar{top:var(--topbar-height);height:calc(100dvh - var(--topbar-height));background:var(--surface-raised)!important;border-color:var(--border-subtle)!important}
 .forge-postman .forge-sidebar-header{height:3.5rem;padding:0 var(--space-3);border-bottom-color:var(--border-subtle)}
-.forge-postman .forge-sidebar-logo{width:1.625rem;height:1.625rem;border-radius:var(--radius-xs);background:var(--surface-subtle)!important;color:var(--text-secondary);font-size:.75rem}
+.forge-postman .forge-sidebar-logo{width:1.625rem;height:1.625rem;border-radius:var(--radius-xs);background:var(--accent-soft)!important;color:var(--accent-primary)!important;font-size:.75rem;font-weight:700}
 .forge-postman .forge-sidebar-wordmark{font-size:.8125rem;font-weight:var(--weight-semibold);letter-spacing:-.01em}
 .forge-postman .forge-sidebar-nav{padding:var(--space-3) var(--space-2);gap:2px}
 .forge-postman .forge-sidebar-link{min-height:2.375rem;padding:.5rem .625rem;gap:.625rem;border-radius:var(--radius-control);font-size:.8125rem;line-height:1.375rem;color:var(--text-secondary);transition:color var(--motion-fast) var(--ease-standard),background-color var(--motion-fast) var(--ease-standard)}
 .forge-postman .forge-sidebar-link>.forge-icon{width:1.125rem;height:1.125rem;color:var(--text-muted)}
 .forge-postman .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile){border-radius:var(--radius-control)}
-.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true]){background:var(--surface-selected)!important;color:var(--text-primary)!important;font-weight:var(--weight-medium)}
+.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true]){background:var(--surface-selected)!important;color:var(--accent-primary)!important;font-weight:var(--weight-medium)}
 .forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true])>.forge-icon{color:var(--accent-primary)}
-.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true])::before{left:-.5rem;top:.5rem;bottom:.5rem;width:2px;border-radius:0 var(--radius-pill) var(--radius-pill) 0;background:var(--accent-primary)}
+.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true])::before{content:none!important}
 .forge-postman .forge-sidebar-utilities{padding:var(--space-2);gap:2px;border-top:1px solid var(--border-subtle)}
 .forge-postman .forge-sidebar-tool{min-height:2.25rem;padding:.4375rem .625rem;border-radius:var(--radius-control);color:var(--text-secondary)}
 .forge-postman .forge-sidebar-profile{min-height:3rem;margin-top:var(--space-1)}
@@ -112,7 +113,70 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman :is(th,td){border-color:var(--border-subtle)!important}
 .forge-postman :is(tbody tr,[data-pm-row=true],.pm-delivery-row,.pm-overview-delivery-row){transition:background-color var(--motion-fast) var(--ease-standard)}
 @media(hover:hover){.forge-postman :is(tbody tr,[data-pm-row=true],.pm-delivery-row,.pm-overview-delivery-row):hover{background:var(--surface-hover)!important}}
-.forge-postman :is([aria-selected=true],[data-selected=true]):not(.forge-summary-card){--selected-edge:inset 3px 0 var(--accent-primary);box-shadow:var(--selected-edge)}
+.forge-postman :is([aria-selected=true],[data-selected=true]):not(.forge-summary-card){--selected-edge:inset 1px 0 var(--accent-primary);box-shadow:var(--selected-edge)}
+
+/* Shared navigation tiers ------------------------------------------------- */
+.forge-postman :is(.forge-production-tabs,.forge-model-page-tabs,.forge-billing-tabs,.forge-outsourcing-tabs){border-bottom:1px solid var(--border-subtle)!important;background:transparent!important;box-shadow:none!important}
+.forge-postman :is(.forge-model-page-tabs,.forge-billing-tabs,.forge-outsourcing-tabs){display:flex;gap:var(--space-6);margin-block:var(--space-5) var(--space-6)}
+.forge-postman :is(.forge-production-tabs,.forge-model-page-tabs,.forge-billing-tabs,.forge-outsourcing-tabs) button{min-height:2.5rem!important;padding-inline:var(--space-1)!important;border:0!important;border-bottom:2px solid transparent!important;border-radius:0!important;background:transparent!important;color:var(--text-secondary)!important;font-weight:var(--weight-regular)!important;box-shadow:none!important}
+.forge-postman :is(.forge-production-tabs,.forge-model-page-tabs,.forge-billing-tabs,.forge-outsourcing-tabs) button:is([aria-current=page],[aria-pressed=true],[aria-selected=true]){border-bottom-color:var(--accent-primary)!important;background:transparent!important;color:var(--text-primary)!important;font-weight:var(--weight-medium)!important}
+@media(hover:hover){.forge-postman :is(.forge-production-tabs,.forge-model-page-tabs,.forge-billing-tabs,.forge-outsourcing-tabs) button:not([aria-current=page],[aria-pressed=true],[aria-selected=true]):hover{background:transparent!important;color:var(--text-primary)!important}}
+
+/* Compact filters are quiet selection tools, not branded banners. */
+.forge-postman :is(.pm-delivery-category-row,.pm-delivery-view-toggle,.forge-billing-segment,.forge-wizard-categories){gap:var(--space-1)!important;background:transparent!important;border:0!important;box-shadow:none!important;scrollbar-width:none}
+.forge-postman :is(.pm-delivery-category-row,.pm-delivery-view-toggle,.forge-billing-segment,.forge-wizard-categories)::-webkit-scrollbar{display:none}
+.forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs]{scrollbar-width:none!important}
+.forge-postman .forge-app-shell [data-pm-tabs][data-pm-tabs]::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+.forge-postman :is(.pm-delivery-category-row,.pm-delivery-view-toggle,.forge-billing-segment,.forge-wizard-categories) button{border:1px solid transparent!important;border-radius:var(--radius-control)!important;background:transparent!important;color:var(--text-secondary)!important;box-shadow:none!important}
+.forge-postman :is(.pm-delivery-category-row,.pm-delivery-view-toggle,.forge-billing-segment,.forge-wizard-categories) button:is([aria-pressed=true],[aria-selected=true],[data-active=true]){border-color:var(--border-default)!important;background:var(--surface-raised)!important;color:var(--text-primary)!important;font-weight:var(--weight-medium)!important;box-shadow:0 1px 2px rgb(26 31 54 / 6%)!important}
+
+/* Cross-page Stripe-style content surfaces ------------------------------- */
+.forge-postman :is(.pm-delivery-customer-group,.forge-wizard-card,.forge-wizard-summary-desktop,.forge-model-overview-metrics,.forge-model-table-scroll,.forge-model-error-cards button,.forge-billing-chart,.forge-billing-table-scroll,.forge-billing-run-table,.forge-outsourcing-section,.forge-outsourcing-filters,.forge-outsourcing-table-scroll){border-color:var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;box-shadow:none!important}
+.forge-postman :is(.forge-model-table-scroll,.forge-billing-table-scroll,.forge-outsourcing-table-scroll){overflow:auto;border:1px solid var(--border-subtle)!important}
+.forge-postman :is(.forge-model-table-head,.forge-billing-thead,.forge-outsourcing-table-head){background:var(--surface-subtle)!important;color:var(--text-muted)!important;border-color:var(--border-subtle)!important}
+.forge-postman :is(.forge-model-table-row,.forge-billing-tbody [role=row],.forge-outsourcing-table-row){border-color:var(--border-subtle)!important;background:transparent!important}
+@media(hover:hover){.forge-postman :is(.forge-model-table-row,.forge-billing-tbody [role=row],.forge-outsourcing-table-row):hover{background:var(--surface-hover)!important}}
+
+/* Summary bands use typography and rules; status color stays local. */
+.forge-postman :is(.forge-model-overview-metrics,.forge-outsourcing-metrics,.forge-billing-metrics){overflow:hidden;border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important}
+.forge-postman :is(.forge-model-overview-metrics,.forge-outsourcing-metrics,.forge-billing-metrics)>div{background:transparent!important;border-color:var(--border-subtle)!important}
+.forge-postman .forge-model-overview-metrics>div:is([data-tone=success],[data-tone=warning],[data-tone=danger]){background:transparent!important}
+.forge-postman .forge-model-overview-metrics>div[data-tone=success] dd{color:var(--status-success)!important}
+.forge-postman .forge-model-overview-metrics>div[data-tone=warning] dd{color:var(--status-warning)!important}
+.forge-postman .forge-model-overview-metrics>div[data-tone=danger] dd{color:var(--status-danger)!important}
+
+/* Page-specific alignment without changing product structure. */
+.forge-postman .pm-delivery-browser-toolbar{padding:0!important;margin-bottom:var(--space-4)!important;background:transparent!important;border:0!important}
+.forge-postman .pm-delivery-customer-group{overflow:hidden;margin-bottom:var(--space-4)!important;border:1px solid var(--border-subtle)!important}
+.forge-postman .forge-delivery-customer-heading{background:var(--surface-subtle)!important;border-bottom:1px solid var(--border-subtle)!important}
+.forge-postman .pm-delivery-row:last-child{border-bottom:0!important}
+.forge-postman .forge-wizard-steps{border-color:var(--border-subtle)!important}
+.forge-postman .forge-wizard-step-number{background:var(--surface-raised)!important;border-color:var(--border-default)!important;color:var(--text-secondary)!important;box-shadow:none!important}
+.forge-postman .forge-wizard-steps button[aria-current=step] .forge-wizard-step-number{background:var(--accent-solid)!important;border-color:var(--accent-solid)!important;color:var(--text-inverse)!important}
+.forge-postman .forge-model-error-cards button{border:1px solid var(--border-subtle)!important}
+.forge-postman .forge-model-error-action,.forge-postman :is(.forge-billing-link,.forge-outsourcing-link){color:var(--text-link)!important}
+.forge-postman .forge-outsourcing-filters{padding:var(--content-inset)!important;border:1px solid var(--border-subtle)!important}
+.forge-postman .forge-outsourcing-section{border:1px solid var(--border-subtle)!important}
+.forge-postman .forge-billing-chart{border:1px solid var(--border-subtle)!important;padding:var(--content-inset)!important}
+.forge-postman :is(.forge-billing-cost-bar,.forge-billing-contributor-bar i,.forge-billing-share i){background:var(--accent-primary)!important}
+.forge-postman .rbac-prototype-tag{border-radius:var(--radius-xs)!important;background:var(--accent-soft)!important;color:var(--accent-primary)!important}
+
+/* Review, records and engineering workspaces share the compact system. */
+.forge-postman :is(.pq-summary,.rr-summary){overflow:hidden;border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important}
+.forge-postman :is(.pq-summary,.rr-summary)>.forge-summary-card{background:transparent!important;border-color:var(--border-subtle)!important;box-shadow:none!important}
+.forge-postman :is(.pq-tabs,.rr-status-tabs){border-color:var(--border-subtle)!important;background:transparent!important}
+.forge-postman .pq-tabs button[aria-selected=true]{border-bottom-color:var(--accent-primary)!important;color:var(--text-primary)!important}
+.forge-postman .rr-status-tabs .fg-button[aria-pressed=true]{background:var(--surface-raised)!important;color:var(--text-primary)!important;box-shadow:inset 0 0 0 1px var(--border-default)!important}
+.forge-postman :is(.pq-table-scroll,.rr-scroll,.pm-dataset-split){border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;overflow:hidden}
+.forge-postman :is(.pq-table-head,.rr-heading){background:var(--surface-subtle)!important;color:var(--text-muted)!important;border-color:var(--border-subtle)!important}
+.forge-postman :is(.pq-row,.rr-row){background:var(--surface-raised)!important;border-color:var(--border-subtle)!important}
+@media(hover:hover){.forge-postman :is(.pq-row,.rr-row):hover{background:var(--surface-hover)!important}}
+.forge-postman :is(.rr-action,.rr-pagination button,.rr-pagination select){border-color:var(--border-default)!important;border-radius:var(--radius-control)!important;background:var(--surface-raised)!important;color:var(--text-secondary)!important}
+.forge-postman .pm-dataset-split{border-radius:var(--radius-surface)!important}
+.forge-postman .pm-dataset-split>*{border-color:var(--border-subtle)!important}
+.forge-postman .pm-pipeline-node{border-left:1px solid var(--border-default)!important;box-shadow:none!important}
+.forge-postman .pm-pipeline-node:is([aria-selected=true],[data-selected=true]){border-color:var(--accent-primary)!important;box-shadow:0 0 0 1px var(--accent-primary)!important}
+.forge-postman .forge-app-shell .forge-sidebar-logo{background:var(--accent-soft)!important;color:var(--accent-primary)!important}
 
 /* Overview: a calm report surface, not a row of dashboard cards. */
 .forge-postman .pm-page-overview{max-width:88rem!important}
@@ -136,7 +200,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 :root[data-forge-density=compact] .forge-postman :is(.pm-page-datasets,.pm-page-resources,.pm-page-review,.pm-page-run,.pm-page-pipeedit,.pm-item-page){--type-body-size:.75rem;--type-body-leading:1.125rem;--type-caption-size:.6875rem}
 .forge-postman :is(.pm-page-datasets,.pm-page-resources,.pm-page-review,.pm-page-run,.pm-page-pipeedit,.pm-item-page) :is([data-flow-family=sheetItems],.pm-delivery-row,tbody tr){min-height:var(--density-row-height)}
 .forge-postman .pm-pipeline-canvas{background-color:var(--surface-canvas)!important;background-image:radial-gradient(var(--border-default) .75px,transparent .75px)!important;background-size:20px 20px!important}
-.forge-postman .pm-pipeline-node{border:1px solid var(--border-default)!important;border-left:3px solid var(--node-accent,var(--accent-primary))!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;box-shadow:var(--shadow-raised)!important;transform:none!important}
+.forge-postman .pm-pipeline-node{border:1px solid var(--border-default)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;box-shadow:none!important;transform:none!important}
 .forge-postman .pm-pipeline-node-mark{border-radius:2px!important;transform:none!important}
 .forge-postman .pm-pipeline-node-kind{border-radius:var(--radius-xs)!important;letter-spacing:.035em!important}
 .forge-postman :is(pre,.pm-artifact-text){tab-size:2;scrollbar-color:var(--border-strong) transparent}

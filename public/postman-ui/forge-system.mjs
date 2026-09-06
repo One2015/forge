@@ -38,7 +38,7 @@ function updatePreferenceControls() {
     themeButton.setAttribute('aria-pressed', String(dark));
     themeButton.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
     themeButton.querySelector('[data-forge-theme-label]').textContent = dark ? '浅色' : '深色';
-    themeButton.querySelector('[data-forge-theme-icon]').textContent = dark ? '☼' : '◐';
+    themeButton.querySelector('[data-forge-theme-icon]').dataset.mode = dark ? 'light' : 'dark';
   }
   if (densityButton) {
     densityButton.setAttribute('aria-pressed', String(compact));
