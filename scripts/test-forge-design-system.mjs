@@ -12,7 +12,7 @@ const built = JSON.parse(buildPostman(source).split('<script type="__bundler/tem
 
 test('Forge exposes semantic light, dark and density tokens', () => {
   for (const token of [
-    'surface-canvas', 'surface-subtle', 'surface-raised', 'surface-overlay',
+    'surface-canvas', 'surface-subtle', 'surface-raised', 'surface-overlay', 'shadow-surface',
     'text-primary', 'text-secondary', 'text-muted', 'border-default',
     'border-subtle', 'accent-primary', 'status-success', 'status-warning',
     'status-danger', 'focus-ring', 'motion-control', 'z-dialog',
@@ -62,4 +62,9 @@ test('responsive system prevents global horizontal overflow by construction', ()
 
 test('sticky production tabs are opaque over scrolling page content', () => {
   assert.match(system, /\.forge-postman \.forge-production-tabs\{background:var\(--surface-canvas\)!important\}/);
+});
+
+test('light canvas is white and run work surfaces use restrained elevation', () => {
+  assert.match(tokens, /--surface-canvas:#ffffff/);
+  assert.match(system, /\.pm-page-run>div:nth-of-type\(3\),\.forge-postman \.pm-page-run>div:nth-of-type\(4\)\{[^}]*border:0!important[^}]*box-shadow:var\(--shadow-surface\)!important/);
 });
