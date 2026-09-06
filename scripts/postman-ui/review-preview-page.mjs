@@ -11,9 +11,9 @@ export function installReviewPreviewPage(template) {
   backAction: 'review.closeFocus', backLabel: '返回审核队列', backClass: 'review-workbench-back',
   navigation: `<nav class="pm-item-shortcuts" aria-label="预览导航">
    <span class="forge-artifact-sr-only" aria-live="polite">{{ review.positionLabel }}</span>
-   <button type="button" sc-camel-on-click="{{ review.previous }}" disabled="{{ review.cannotSwitch }}" aria-label="上一项"><kbd>↑</kbd> 上一项</button>
-   <button type="button" sc-camel-on-click="{{ review.next }}" disabled="{{ review.cannotSwitch }}" aria-label="下一项"><kbd>↓</kbd> 下一项</button>
-   <button type="button" sc-camel-on-click="{{ review.closeFocus }}" aria-label="关闭预览"><kbd>Esc</kbd> 关闭</button>
+   <button type="button" sc-camel-on-click="{{ review.previous }}" disabled="{{ review.cannotSwitch }}" aria-label="上一项" aria-keyshortcuts="ArrowUp"><kbd>↑</kbd> 上一项</button>
+   <button type="button" sc-camel-on-click="{{ review.next }}" disabled="{{ review.cannotSwitch }}" aria-label="下一项" aria-keyshortcuts="ArrowDown"><kbd>↓</kbd> 下一项</button>
+   <button type="button" sc-camel-on-click="{{ review.closeFocus }}" aria-label="关闭预览" aria-keyshortcuts="Escape"><kbd>Esc</kbd> 关闭</button>
   </nav>`
  }));
  page = page.replace('<h2>审核对象</h2>', '<h2 class="pm-review-item-title" aria-label="审核对象">{{ it.shortName }}</h2>');

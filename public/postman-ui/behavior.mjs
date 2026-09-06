@@ -32,6 +32,18 @@ document.addEventListener('keydown',event=>{
  event.preventDefault();tabs[next].focus();tabs[next].click();
 });
 
+// Full-screen Item workspaces advertise these keys in their toolbar. Keep the
+// visible hints and actual behavior wired to the same native controls.
+document.addEventListener('keydown',event=>{
+ if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+ if(!['ArrowUp','ArrowDown','Escape'].includes(event.key))return;
+ if(event.target.closest?.('input,textarea,select,[contenteditable="true"]'))return;
+ const overlay=document.querySelector('.pm-item-page-overlay[data-motion-open=true]');
+ const control=overlay?.querySelector(`.pm-item-shortcuts [aria-keyshortcuts="${event.key}"]`);
+ if(!control||control.disabled||control.getAttribute('aria-disabled')==='true')return;
+ event.preventDefault();control.click();
+});
+
 // Native details provide accessible disclosure semantics. Add light-dismiss so
 // task Tag pickers close when the user continues elsewhere on the page.
 document.addEventListener('click',event=>{

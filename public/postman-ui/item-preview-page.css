@@ -1,6 +1,6 @@
 /* Full-page Item workspace; retain the existing detail, navigation and review flows. */
 html:has(.pm-item-page-overlay[data-motion-open=true]),body:has(.pm-item-page-overlay[data-motion-open=true]){overflow:hidden}
-.forge-postman .forge-main .pm-item-page-overlay{padding:0!important;background:var(--pm-canvas)!important;backdrop-filter:none!important}
+.forge-postman .forge-main .pm-item-page-overlay{z-index:var(--z-fullscreen)!important;padding:0!important;background:var(--pm-canvas)!important;backdrop-filter:none!important}
 .forge-postman .forge-main .pm-item-page{display:flex;flex-direction:column;width:100vw!important;max-width:none;height:100dvh!important;border:0!important;border-radius:0!important;box-shadow:none!important}
 .pm-item-page-header{display:grid;grid-template-columns:minmax(140px,1fr) minmax(0,auto) minmax(260px,1fr);align-items:center;gap:16px;flex:none;min-height:58px;padding:8px 20px;background:var(--pm-canvas);border-bottom:1px solid var(--pm-border);color:var(--pm-text);z-index:7}
 .pm-item-back{display:inline-flex;align-items:center;gap:8px;justify-self:start;border:0;background:transparent;color:var(--pm-muted);padding:6px 0;min-height:32px;cursor:pointer;font:inherit;font-size:13px}
@@ -107,7 +107,7 @@ html:has(.pm-item-page-overlay[data-motion-open=true]),body:has(.pm-item-page-ov
 .forge-postman .pm-item-page :is(.forge-sheet-grid,.review-workbench-body){grid-template-columns:minmax(0,1fr) var(--pm-preview-panel-width)}
 .forge-postman .pm-item-page .pm-item-back{min-height:32px;padding:6px 0;gap:8px;color:var(--pm-muted);font-size:13px;background:transparent}
 .forge-postman .pm-item-page .pm-item-back:hover{color:var(--pm-link-accent);background:transparent}
-.forge-postman .pm-item-page .pm-item-shortcuts button{min-height:32px;padding:0;gap:5px;background:transparent;color:var(--pm-muted);font-size:12px;white-space:nowrap}
+.forge-postman .pm-item-page .pm-item-shortcuts button{min-height:32px;padding:0;gap:5px;border:0!important;background:transparent;color:var(--pm-muted);font-size:12px;white-space:nowrap}
 .forge-postman .pm-item-page .pm-item-shortcuts button:hover:not(:disabled){color:var(--pm-link-accent);background:transparent}
 .forge-postman .pm-item-page .pm-item-shortcuts button:disabled{background:transparent!important}
 .forge-postman .pm-item-page .pm-item-original a{font-size:12px;color:var(--pm-muted)}

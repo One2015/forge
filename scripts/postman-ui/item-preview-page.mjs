@@ -12,7 +12,11 @@ export function itemPreviewHeader({ backAction, backLabel, backClass = '', navig
  return `<header class="pm-item-page-header">
  <button type="button" class="pm-item-back ${backClass}" sc-camel-on-click="{{ ${backAction} }}" aria-label="${backLabel}">← <span>${backLabel}</span></button>
  <div class="pm-item-page-title"><div data-pm-artifact-toolbar></div></div>
- ${navigation || '<p class="pm-item-shortcuts" aria-label="快捷键说明"><span><kbd>↑</kbd> 上一项</span><span><kbd>↓</kbd> 下一项</span><span><kbd>Esc</kbd> 关闭</span></p>'}
+ ${navigation || `<nav class="pm-item-shortcuts" aria-label="Item 导航">
+  <button type="button" sc-camel-on-click="{{ sheet.prev }}" disabled="{{ sheet.cannotPrev }}" aria-label="上一项" aria-keyshortcuts="ArrowUp"><kbd>↑</kbd> 上一项</button>
+  <button type="button" sc-camel-on-click="{{ sheet.next }}" disabled="{{ sheet.cannotNext }}" aria-label="下一项" aria-keyshortcuts="ArrowDown"><kbd>↓</kbd> 下一项</button>
+  <button type="button" sc-camel-on-click="{{ sheet.closePick }}" aria-label="关闭 Item 详情" aria-keyshortcuts="Escape"><kbd>Esc</kbd> 关闭</button>
+ </nav>`}
  <div class="pm-item-original" data-pm-artifact-link></div>
  </header>`;
 }

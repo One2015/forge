@@ -85,6 +85,22 @@ test('Forge v2 visual system uses a cool brand and covers every major product su
  assert.match(built,/\[data-pm-tabs\]\[data-pm-tabs\]\{scrollbar-width:none!important\}/);
  assert.doesNotMatch(built,/\.pm-pipeline-node\{[^}]*border-left:3px/);
 });
+test('Item workspace header stays above the product shell and exposes view and shortcut guidance',()=>{
+ assert.match(built,/--z-fullscreen:1000/);
+ assert.match(built,/\.forge-postman \.forge-main \.pm-item-page-overlay\{z-index:var\(--z-fullscreen\)!important/);
+ const start=built.indexOf('<header class="pm-item-page-header">');
+ const end=built.indexOf('</header>',start);
+ const header=built.slice(start,end);
+ assert(start>=0);
+ assert.match(header,/data-pm-artifact-toolbar/);
+ assert.match(header,/aria-label="Item 导航"/);
+ assert.match(header,/aria-label="上一项" aria-keyshortcuts="ArrowUp"><kbd>↑<\/kbd> 上一项/);
+ assert.match(header,/aria-label="下一项" aria-keyshortcuts="ArrowDown"><kbd>↓<\/kbd> 下一项/);
+ assert.match(header,/aria-label="关闭 Item 详情" aria-keyshortcuts="Escape"><kbd>Esc<\/kbd> 关闭/);
+ assert.match(behaviorSource,/\.pm-item-page-overlay\[data-motion-open=true\]/);
+ assert.match(behaviorSource,/\['ArrowUp','ArrowDown','Escape'\]\.includes\(event\.key\)/);
+ assert.match(behaviorSource,/event\.preventDefault\(\);control\.click\(\)/);
+});
 test('production list pages share one stable title and primary-action grid',()=>{
  const headings=Array.from(built.matchAll(/<(?:header|div) class="[^"]*\bpm-production-page-heading\b[^"]*"/g),match=>match[0]);
  assert.equal(headings.length,4);
