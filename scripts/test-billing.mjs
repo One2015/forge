@@ -144,6 +144,9 @@ test('hour/day/month/year boundaries aggregate without changing totals', () => {
   }
   c.updateBilling({ start: '2024-02-28', end: '2024-03-01', grain: 'day' });
   assert.equal(c.billingValues().bars.length, 3); assert(c.billingValues().bars.some(b => b.key === '2024-02-29'));
+  c.updateBilling({ start: '2026-01-01', end: '2026-01-01', grain: 'year' });
+  const singleYear = c.billingValues(); assert.equal(singleYear.bars.length, 1); assert.equal(singleYear.bars[0].axis, '2026');
+  assert.match(template, /\.forge-billing-bar-slot:only-child \.forge-billing-x\{text-align:center;position:static;left:auto;width:auto;min-width:0\}/);
 });
 
 test('invalid ranges, future end dates and excessive resolution fail with recovery', () => {
