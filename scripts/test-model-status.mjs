@@ -258,8 +258,9 @@ test('benchmark-only evidence is consolidated into the model-lines table', () =>
 test('overview sections use a consistent vertical rhythm', () => {
   assert.match(modelStyles, /\.forge-model-overview\+\.forge-model-table-section\{margin-top:28px\}/);
   assert.match(modelStyles, /\.forge-model-error-summary\{margin-top:28px\}/);
-  assert.match(modelStyles, /\.forge-model-error-list button\{[^}]*grid-template-columns:minmax\(0,1fr\) auto/);
-  assert.match(modelStyles, /\.forge-model-error-bar\{[^}]*position:absolute/);
+  assert.match(modelStyles, /\.forge-model-error-list button\{[^}]*grid-template-columns:minmax\(220px,\.9fr\) minmax\(180px,1\.3fr\) 72px/);
+  assert.match(modelStyles, /\.forge-model-error-track\{[^}]*height:8px[^}]*border-radius:999px/);
+  assert.match(modelStyles, /\.forge-model-error-bar\{[^}]*height:100%[^}]*opacity:\.4/);
   assert.match(modelStyles, /\.forge-model-lines-section\{margin-top:24px;container:forge-model-lines\/inline-size\}/);
   assert.match(modelStyles, /\.forge-model-lines-section>\.forge-model-filters\{margin:0 0 14px\}/);
 });
