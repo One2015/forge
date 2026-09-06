@@ -41,14 +41,14 @@ test('overview card and sidebar open the single external expert destination', ()
 });
 
 test('performance page keeps the required section order without exposing fixture labels', () => {
-  const labels = ['外部专家整体表现', '单个专家团队交付情况', '外部专家达标趋势', '高频问题'];
+  const labels = ['外部专家整体表现', '专家交付情况', '外部专家达标趋势', '高频问题'];
   let cursor = -1;
   for (const label of labels) { const next = page.indexOf(label); assert(next > cursor, label); cursor = next; }
   assert.doesNotMatch(page, /Mock 数据|履约明细与风险评估/); assert.match(page, /与模型 API 供应商分开管理/);
   const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
   assert(v.demo); assert.deepEqual(Array.from(v.metrics, row => row.label), ['总交付目标', '已分配任务量', '最终有效交付量', '整体完成率', '整体质检通过率', '风险专家团队']);
   assert.equal(v.metrics[0].value, 620); assert.equal(v.metrics[1].value, 602); assert.equal(v.metrics[0].value - v.metrics[1].value, 18);
-  assert.match(page, /class="forge-outsourcing-table-filters" role="group" aria-label="单个专家团队交付筛选"/);
+  assert.match(page, /class="forge-outsourcing-table-filters" role="group" aria-label="专家交付筛选"/);
   assert.doesNotMatch(page, /forge-outsourcing-filters|外部专家表现筛选器/);
   assert(v.hasRows); assert(v.hasTrend); assert(v.hasIssues);
 });
