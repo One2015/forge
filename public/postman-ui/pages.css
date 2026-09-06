@@ -39,16 +39,13 @@
 .forge-postman .pm-delivery-category-row::-webkit-scrollbar{display:none}
 .forge-postman .pm-delivery-category-row button{flex:none;min-height:30px;padding:5px 12px;border:0;border-radius:4px;font:13px/20px var(--pm-font);cursor:pointer;white-space:nowrap}
 .forge-postman .pm-delivery-browser-controls{display:flex;align-items:center;gap:10px}
-.forge-postman .pm-delivery-search{display:flex;align-items:center;gap:8px;min-width:240px;max-width:420px;flex:1;height:var(--pm-control-height);padding:0 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-muted)}
+.forge-postman .pm-delivery-search{display:flex;align-items:center;gap:8px;min-width:240px;max-width:420px;flex:1;height:var(--pm-control-height);min-height:var(--pm-control-height);padding:0 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-muted)}
 .forge-postman .pm-delivery-search:focus-within{border-color:var(--pm-focus);box-shadow:0 0 0 1px var(--pm-focus)}
 .forge-postman .pm-delivery-search input{min-width:0;flex:1;height:100%;padding:0;border:0;background:transparent;color:var(--pm-text);font:13px/20px var(--pm-font)}
 .forge-postman .pm-delivery-search input:focus{outline:0}
 .forge-postman .pm-delivery-search>button{min-height:26px;padding:0 4px;border:0;background:transparent;color:var(--pm-link);font:12px/18px var(--pm-font);cursor:pointer}
-.forge-postman .pm-delivery-view-toggle{display:flex;align-items:center;padding:3px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas)}
-.forge-postman .pm-delivery-view-toggle button{height:28px;padding:0 10px;border:0;border-radius:3px;background:transparent;color:var(--pm-muted);font:12px/18px var(--pm-font);cursor:pointer}
-.forge-postman .pm-delivery-view-toggle button[aria-pressed=true]{background:var(--pm-selected);color:var(--pm-text);font-weight:600}
 .forge-postman .pm-delivery-sort{position:relative;flex:none}
-.forge-postman .pm-delivery-sort-trigger{display:flex;align-items:center;gap:7px;height:var(--pm-control-height);padding:0 11px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer}
+.forge-postman .pm-delivery-sort-trigger{display:flex;align-items:center;gap:7px;height:var(--pm-control-height);min-height:var(--pm-control-height);padding:0 11px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer}
 .forge-postman .pm-delivery-sort .forge-motion-menu{--forge-menu-origin:top right;position:absolute;top:calc(100% + 6px);right:0;z-index:30;display:grid;width:92px;min-width:0;padding:4px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .forge-postman .pm-delivery-sort .forge-motion-menu button{display:grid;grid-template-columns:16px 1fr;gap:6px;align-items:center;width:100%;padding:6px 8px;border:0;border-radius:3px;text-align:left;color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer}
 .forge-postman .pm-delivery-results{display:block}
@@ -57,30 +54,13 @@
 .forge-postman .pm-delivery-empty{display:grid;justify-items:center;gap:6px;padding:48px 20px;border-block:1px solid var(--pm-border);color:var(--pm-muted);font-size:13px;text-align:center}
 .forge-postman .pm-delivery-empty strong{color:var(--pm-text);font-size:14px}
 .forge-postman .pm-delivery-empty button{margin-top:6px;height:30px;padding:0 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);cursor:pointer}
-.forge-postman .pm-delivery-folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:12px}
-.forge-postman .pm-delivery-folder-card{min-width:0;overflow:hidden;border:1px solid var(--pm-border);border-radius:6px;background:var(--pm-canvas);box-shadow:none}
-.forge-postman .pm-delivery-folder-cover{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:16/8;overflow:hidden;border-bottom:1px solid var(--pm-border);background:var(--pm-subtle)}
-.forge-postman .pm-delivery-folder-cover>img{width:100%;height:100%;object-fit:cover}
-.forge-postman .pm-delivery-folder-cover-empty{display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--pm-muted);font-size:12px}
-.forge-postman .pm-delivery-folder-cover-action{position:absolute;right:8px;bottom:8px;display:inline-flex;align-items:center;height:28px;padding:0 9px;border:1px solid var(--pm-control);border-radius:4px;background:rgba(255,255,255,.94);color:var(--pm-text);font:12px/18px var(--pm-font);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.forge-postman .pm-delivery-cover-input{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-.forge-postman .pm-delivery-folder-copy{display:flex;flex-direction:column;align-items:stretch;width:100%;padding:12px;border:0;background:transparent;color:var(--pm-text);text-align:left;cursor:pointer}
-.forge-postman .pm-delivery-folder-title{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
-.forge-postman .pm-delivery-folder-title strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:600}
-.forge-postman .pm-delivery-folder-title>span{flex:none;font-size:11px}
-.forge-postman .pm-delivery-folder-meta,.forge-postman .pm-delivery-folder-hint{margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--pm-muted);font-size:12px}
-.forge-postman .pm-delivery-folder-copy>.pm-progress-bar{margin-top:12px}
-.forge-postman .pm-delivery-folder-error{margin:0;padding:0 12px 10px;color:var(--pm-danger);font-size:12px;line-height:18px}
 @media(hover:hover) and (pointer:fine){
- .forge-postman .pm-delivery-category-row button:hover,.forge-postman .pm-delivery-view-toggle button:hover,.forge-postman .pm-delivery-sort .forge-motion-menu button:hover{background:var(--pm-hover)!important}
- .forge-postman .pm-delivery-folder-card:hover{border-color:var(--pm-hover-border)}
+ .forge-postman .pm-delivery-category-row button:hover,.forge-postman .pm-delivery-sort .forge-motion-menu button:hover{background:var(--pm-hover)!important}
 }
 @media(max-width:760px){
  .forge-postman .pm-delivery-browser-controls{flex-wrap:wrap}
  .forge-postman .pm-delivery-search{order:1;min-width:100%;max-width:none}
- .forge-postman .pm-delivery-view-toggle{order:2}
- .forge-postman .pm-delivery-sort{order:3;margin-left:auto}
- .forge-postman .pm-delivery-folder-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+ .forge-postman .pm-delivery-sort{order:2;margin-left:auto}
 }
 .pm-delivery-list{border-bottom:1px solid var(--pm-border)}
 .pm-delivery-row{width:100%;border:0;border-bottom:1px solid var(--pm-border);background:var(--pm-canvas);padding:16px 12px;display:grid;grid-template-columns:minmax(230px,1.5fr) minmax(220px,1.25fr) minmax(170px,1fr) 82px;gap:24px;text-align:left;align-items:center;color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer;transform:none!important}

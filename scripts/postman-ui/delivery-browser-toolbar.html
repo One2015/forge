@@ -11,11 +11,6 @@
       <input id="pm-delivery-search" type="search" value="{{ delivery.query }}" placeholder="搜索数据单、客户或负责人" aria-label="搜索交付数据单" sc-camel-on-change="{{ delivery.onQuery }}" />
       <sc-if value="{{ delivery.hasQuery }}" hint-placeholder-val="{{ false }}"><button type="button" aria-label="清除交付搜索" sc-camel-on-click="{{ delivery.clearQuery }}">清除</button></sc-if>
     </label>
-    <div class="pm-delivery-view-toggle" role="group" aria-label="交付列表视图">
-      <sc-for list="{{ delivery.views }}" as="mode" hint-placeholder-count="2">
-        <button type="button" aria-pressed="{{ mode.selected }}" sc-camel-on-click="{{ mode.pick }}">{{ mode.label }}</button>
-      </sc-for>
-    </div>
     <div class="pm-delivery-sort">
       <button type="button" class="pm-delivery-sort-trigger" aria-haspopup="menu" aria-expanded="{{ delivery.sortOpen }}" sc-camel-on-click="{{ delivery.toggleSort }}">
         {{ delivery.sortLabel }}

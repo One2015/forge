@@ -133,39 +133,23 @@ test('overview delivery progress is a flat section without a sheet-count label',
  assert(c.renderVals().over.groups[0].rows.every(row=>/^\d+ 天后$/.test(row.deliveryDate)));
  assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border-radius:0[^}]*box-shadow:none!important/);
 });
-test('delivery browser replaces the result count with search and list or folder views',()=>{
+test('delivery browser keeps one compact list view with aligned controls',()=>{
  const page=built.slice(built.indexOf('<sc-if value="{{ isDelivery }}"'),built.indexOf('<sc-if value="{{ isSheet }}"'));
  assert.match(page,/id="pm-delivery-search"[^>]*placeholder="搜索数据单、客户或负责人"/);
- assert.match(page,/class="pm-delivery-view-toggle"[^>]*aria-label="交付列表视图"/);
- assert.match(page,/\{\{ delivery\.listView \}\}/);
- assert.match(page,/\{\{ delivery\.folderView \}\}/);
+ assert.doesNotMatch(page,/pm-delivery-view-toggle|delivery\.folderView|pm-delivery-folder-card/);
  assert.doesNotMatch(page,/\{\{ delivery\.count \}\}/);
+ assert.match(built,/\.forge-postman \.pm-delivery-search\{[^}]*height:var\(--pm-control-height\)[^}]*min-height:var\(--pm-control-height\)/);
+ assert.match(built,/\.forge-postman \.pm-delivery-sort-trigger\{[^}]*height:var\(--pm-control-height\)[^}]*min-height:var\(--pm-control-height\)/);
 
  const c=vm.runInContext('new Component()',ctx);
  c.state.view='delivery';
  let view=c.renderVals().delivery;
- assert(view.listView&&!view.folderView);
- view.views.find(option=>option.key==='folder').pick();
- view=c.renderVals().delivery;
- assert(view.folderView&&!view.listView);
  view.onQuery({target:{value:'yokiguan'}});
  view=c.renderVals().delivery;
  assert.equal(view.customers.reduce((count,customer)=>count+customer.sheets.length,0),1);
  assert.equal(view.customers[0].sheets[0].name,'WebDev 美学评测 150 条');
  view.onQuery({target:{value:'不存在的交付'}});
  assert(c.renderVals().delivery.empty);
-});
-test('folder covers validate images and preview a successful upload',()=>{
- const c=vm.runInContext('new Component()',ctx); c.state.view='delivery'; c.state.deliveryView='folder';
- let sheet=c.renderVals().delivery.customers[0].sheets[0];
- assert(sheet.noCover&&!sheet.hasCover);
- sheet.uploadCover({target:{files:[{name:'bad.gif',type:'image/gif',size:10}],value:'bad'}});
- sheet=c.renderVals().delivery.customers[0].sheets[0];
- assert.match(sheet.coverError,/PNG、JPG 或 WebP/);
- ctx.FileReader=class{readAsDataURL(){this.result='data:image/png;base64,Y292ZXI=';this.onload();}};
- sheet.uploadCover({target:{files:[{name:'cover.png',type:'image/png',size:128}],value:'cover'}});
- sheet=c.renderVals().delivery.customers[0].sheets[0];
- assert(sheet.hasCover&&!sheet.noCover); assert.equal(sheet.coverUrl,'data:image/png;base64,Y292ZXI='); assert.equal(sheet.coverError,'');
 });
 test('branch configuration uses three searchable single-select pickers with clean collapsed values',()=>{
  const branch=built.slice(built.indexOf('<!-- branch-dialog:start -->'),built.indexOf('<!-- branch-dialog:end -->'));
