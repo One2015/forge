@@ -176,8 +176,12 @@ test('overview delivery progress is a flat section without a sheet-count label',
  assert(start>=0&&end>start);
  const section=built.slice(start,end);
  assert.match(section,/aria-labelledby="forge-overview-delivery-heading"/);
- assert.match(section,/id="forge-overview-delivery-heading"[^>]*>\{\{ g\.title \}\}<\/h2>/);
+ assert.match(section,/id="forge-overview-delivery-heading" class="pm-overview-delivery-heading"[^>]*>\{\{ g\.title \}\}<\/h2>/);
  assert.doesNotMatch(section,/\{\{ g\.count \}\}/);
+ const headingIndex=section.indexOf('id="forge-overview-delivery-heading"');
+ const tableIndex=section.indexOf('class="pm-overview-delivery-table"');
+ assert(headingIndex>=0&&tableIndex>headingIndex);
+ assert.doesNotMatch(section.slice(tableIndex),/id="forge-overview-delivery-heading"/);
  assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span>项目负责人<\/span><span class="pm-overview-delivery-sort-column" role="columnheader" aria-sort="\{\{ g\.sortAria \}\}">/);
  assert.match(section,/<button[^>]*type="button"[^>]*class="pm-overview-delivery-sort"[^>]*sc-camel-on-click="\{\{ g\.toggleSort \}\}"[^>]*aria-label="\{\{ g\.sortActionLabel \}\}"/);
  assert.match(section,/class="pm-overview-delivery-sort-icons" aria-hidden="true"/);
@@ -197,7 +201,9 @@ test('overview delivery progress is a flat section without a sheet-count label',
  assert.deepEqual(Array.from(group.rows,row=>row.deliveryDays),[19,16,13,10,7]);
  group.toggleSort();
  assert.deepEqual(Array.from(c.renderVals().over.groups[0].rows,row=>row.deliveryDays),[7,10,13,16,19]);
- assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border-radius:var\(--radius-surface\)!important[^}]*overflow:hidden/);
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{background:transparent\}/);
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-heading\{[^}]*margin:0 0 var\(--space-3\)/);
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-table\{[^}]*border:1px solid var\(--border-subtle\)[^}]*border-radius:var\(--radius-surface\)[^}]*overflow:hidden/);
  assert.match(built,/\.forge-postman \.pm-overview-delivery-sort\{[^}]*width:100%[^}]*min-height:2\.5rem[^}]*border-radius:0[^}]*background:transparent!important/);
  assert.match(built,/\.forge-postman \.pm-overview-delivery-sort\[data-direction=ascending\] \.pm-overview-delivery-sort-icon-ascending[^}]*opacity:1/);
  assert.match(built,/\.forge-postman \.pm-overview-delivery-sort:focus-visible\{outline:2px solid var\(--focus-ring\)[^}]*outline-offset:-2px/);

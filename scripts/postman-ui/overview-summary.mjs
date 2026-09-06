@@ -21,18 +21,17 @@ export function refineOverviewSummary(t) {
   const deliverySection='<div style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">';
   if(!t.includes(deliverySection))throw Error('Overview delivery section anchor changed');
   t=t.replace(deliverySection,'<section class="pm-overview-delivery-section" aria-labelledby="forge-overview-delivery-heading">');
-  const deliveryHeading='<h2 data-forge-route-section="delivery-progress" style="margin:0;font-size:15px;font-weight:600">{{ g.title }}</h2>';
+  const deliveryHeading=`            <div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--forge-border)">
+              <h2 data-forge-route-section="delivery-progress" style="margin:0;font-size:15px;font-weight:600">{{ g.title }}</h2>
+              <div style="font-size:12px;color:var(--forge-muted)">{{ g.count }}</div>
+              <div style="flex:1"></div>
+              <div sc-camel-on-click="{{ g.go }}" style="font-size:13px;color:var(--forge-accent);cursor:pointer;white-space:nowrap">{{ g.linkLabel }}</div>
+            </div>`;
   if(!t.includes(deliveryHeading))throw Error('Overview delivery heading anchor changed');
-  t=t.replace(deliveryHeading,'<h2 id="forge-overview-delivery-heading" data-forge-route-section="delivery-progress" style="margin:0;font-size:15px;font-weight:600">{{ g.title }}</h2>');
-  const deliveryCount='<div style="font-size:12px;color:var(--forge-muted)">{{ g.count }}</div>';
-  if(!t.includes(deliveryCount))throw Error('Overview delivery count anchor changed');
-  t=t.replace(deliveryCount,'');
+  t=t.replace(deliveryHeading,'          <h2 id="forge-overview-delivery-heading" class="pm-overview-delivery-heading" data-forge-route-section="delivery-progress">{{ g.title }}</h2>\n          <div class="pm-overview-delivery-table">');
   const deliverySectionEnd='            </sc-if>\n          </div>\n        </sc-for>';
   if(!t.includes(deliverySectionEnd))throw Error('Overview delivery section end anchor changed');
-  t=t.replace(deliverySectionEnd,'            </sc-if>\n          </section>\n        </sc-for>');
-  const deliveryLink='<div sc-camel-on-click="{{ g.go }}" style="font-size:13px;color:var(--forge-accent);cursor:pointer;white-space:nowrap">{{ g.linkLabel }}</div>';
-  if(!t.includes(deliveryLink))throw Error('Overview delivery link anchor changed');
-  t=t.replace(deliveryLink,'');
+  t=t.replace(deliverySectionEnd,'            </sc-if>\n          </div>\n          </section>\n        </sc-for>');
   const rowsStart=t.indexOf('<sc-for list="{{ g.rows }}"');
   const rowsEnd=t.indexOf('</sc-for>',rowsStart)+'</sc-for>'.length;
   if(rowsStart<0||rowsEnd<rowsStart)throw Error('Overview delivery rows anchor changed');
