@@ -17,6 +17,20 @@ test('legacy summary metrics do not filter runs; real model usage overrides the 
  const models=c.runModelSummary(run);assert.equal(models.names.length,1);assert.equal(models.names[0].name,'Actual model');assert(!models.mock);
 });
 test('one primary action per row opens existing detail, failure item or review flow',()=>{const {c,q}=fixture();const partial=q().rows.find(r=>r.counts.failed&&r.state==='completed');assert.equal(partial.actionLabel,'查看失败项');partial.action();assert.equal(c.state.view,'run');assert.equal(c.state.activeRun,partial.id);assert.equal(c.state.runItem,partial.id+':21');c.state.view='runs';const review=q().rows.find(r=>r.actionLabel==='去审核');review.action();assert.equal(c.state.view,'review');assert.equal(c.state.reviewRun,review.id);});
+test('every run Item row, including failures, opens lifecycle detail',()=>{
+ const {c,codec}=fixture(),runId='20260824-215530-2c2f09';
+ Object.assign(c.state,codec.read('/production/runs/'+runId).patch);
+ const items=c.renderVals().run.items,failedIndex=items.findIndex(item=>item.state==='失败'),failed=items[failedIndex],review=items.find(item=>item.state==='待审核');
+ assert(failed);assert(review);assert(items.every(item=>item.rowCursor==='pointer'&&item.rowTitle==='查看 Item 详情'&&typeof item.open==='function'&&typeof item.keyOpen==='function'));
+ failed.open({target:{closest:()=>null},preventDefault(){},stopPropagation(){}});
+ assert.equal(c.state.view,'itemlife');assert.equal(c.state.lifeItem,failed.id);assert.equal(c.state.lifeRun,runId);assert.equal(c.state.lifeRunIndex,failedIndex);assert.equal(c.state.pmItemTab,'history');
+ const detail=c.renderVals();assert(detail.explorer.hasRunOverview);assert.equal(detail.explorer.runState,'失败');assert.equal(detail.explorer.runProgress,'11 / 18');assert.equal(detail.explorer.runNode,'runtime');assert.equal(detail.explorer.runCostTime,'$35.80 · 16m 15s');assert.equal(detail.life.backLabel,'返回运行详情');
+ const restored=codec.read(codec.write(c.state));assert.equal(restored.patch.lifeFrom,'run');assert.equal(restored.patch.lifeRunIndex,failedIndex);
+ detail.life.back();assert.equal(c.state.view,'run');assert.equal(c.state.activeRun,runId);
+ c.state.view='run';failed.open({target:{closest:()=>({})}});assert.equal(c.state.view,'run');
+ let prevented=false;c.state.view='run';review.keyOpen({target:null,currentTarget:null,key:'Enter',preventDefault(){prevented=true;}});assert(prevented);assert.equal(c.state.view,'itemlife');assert.equal(c.state.lifeItem,review.id);
+ assert.match(built,/role="link" tabindex="0" aria-label="查看 Item \{\{ it\.id \}\} 详情"/);
+});
 test('copy succeeds and errors produce truthful feedback without navigation',async()=>{const {c,q,copied,navigator}=fixture();await c.copyRunRecordId(q().rows[0].id);assert.equal(copied.length,1);assert.match(c.state.runsNotice,/已复制/);assert.equal(c.state.view,'runs');navigator.clipboard.writeText=async()=>{throw Error('denied')};await c.copyRunRecordId('test');assert.match(c.state.runsNotice,/复制失败/);});
 test('pagination and URLs preserve all list filters',()=>{const {c,q,codec}=fixture();const rows=c.runsData();c.runsData=()=>Array.from({length:23},(_,i)=>({...rows[i%rows.length],id:'r'+i}));assert.equal(q().pages,3);q().next();assert.equal(q().page,2);q().setSize({target:{value:'20'}});assert.equal(q().page,1);assert.equal(q().rows.length,20);for(const status of ['queued','cancelled','completed','failed']){const a=codec.read('/production/runs?status='+status+'&metric=cost&page=2&size=20&owner=mine&q=car');const b=codec.read(codec.write(a.patch));for(const key of ['runsFilter','runsMetric','runsPage','runsPageSize','runsMine','runsQuery'])assert.equal(b.patch[key],a.patch[key]);}});
 test('review decisions and item overrides preserve separate progress counts',()=>{const {api}=fixture();const row={id:'r',n:4,done:2,running:1,failed:1,status:'partial',itemIds:['a','b','c','d']};const out=api.calculate([row],{decisions:{'r:a':'pass'},itemTech:{'r:2':{status:'queued'}}});assert.equal(out.review,1);assert.equal(out.rows[0].counts.passed,1);assert.equal(out.rows[0].counts.queued,1);assert.equal(out.rows[0].state,'completed');assert.equal(out.failed,0);});
