@@ -2,8 +2,10 @@ import fs from 'node:fs';
 
 // Delivery progress presentation refinements. KPI copy and calculations live in
 // the overview templates so the generated runtime has one source of truth.
-const deliverySortIcon = fs.readFileSync(new URL('../../assets/phosphor/regular/arrow-up.svg', import.meta.url), 'utf8')
-  .replace('<svg ', '<svg class="forge-icon pm-overview-delivery-sort-icon" data-phosphor="arrow-up" width="14" height="14" aria-hidden="true" focusable="false" ');
+const deliverySortIcon = '<span class="pm-overview-delivery-sort-icons" aria-hidden="true">' +
+  ['arrow-up', 'arrow-down'].map(name => fs.readFileSync(new URL(`../../assets/phosphor/regular/${name}.svg`, import.meta.url), 'utf8')
+    .replace('<svg ', `<svg class="forge-icon pm-overview-delivery-sort-icon pm-overview-delivery-sort-icon-${name === 'arrow-up' ? 'ascending' : 'descending'}" data-phosphor="${name}" width="10" height="10" focusable="false" `)).join('') +
+  '</span>';
 
 export const overviewSummaryCopy = [
   ["title: '交付进度', count: flat.length", "title: '相关交付进度', count: flat.length"],

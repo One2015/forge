@@ -180,7 +180,9 @@ test('overview delivery progress is a flat section without a sheet-count label',
  assert.doesNotMatch(section,/\{\{ g\.count \}\}/);
  assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span>项目负责人<\/span><span class="pm-overview-delivery-sort-column" role="columnheader" aria-sort="\{\{ g\.sortAria \}\}">/);
  assert.match(section,/<button[^>]*type="button"[^>]*class="pm-overview-delivery-sort"[^>]*sc-camel-on-click="\{\{ g\.toggleSort \}\}"[^>]*aria-label="\{\{ g\.sortActionLabel \}\}"/);
+ assert.match(section,/class="pm-overview-delivery-sort-icons" aria-hidden="true"/);
  assert.match(section,/data-phosphor="arrow-up"/);
+ assert.match(section,/data-phosphor="arrow-down"/);
  assert.match(section,/class="pm-overview-delivery-date"[\s\S]*\{\{ r\.deliveryDate \}\}/);
  const c=vm.runInContext('new Component()',ctx); c.state.view='overview';
  let group=c.renderVals().over.groups[0];
@@ -196,8 +198,9 @@ test('overview delivery progress is a flat section without a sheet-count label',
  group.toggleSort();
  assert.deepEqual(Array.from(c.renderVals().over.groups[0].rows,row=>row.deliveryDays),[7,10,13,16,19]);
  assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border-radius:var\(--radius-surface\)!important[^}]*overflow:hidden/);
- assert.match(built,/\.forge-postman \.pm-overview-delivery-sort\{[^}]*min-height:1\.75rem[^}]*border-radius:var\(--radius-xs\)/);
- assert.match(built,/\.forge-postman \.pm-overview-delivery-sort:focus-visible\{outline:2px solid var\(--focus-ring\)/);
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-sort\{[^}]*width:100%[^}]*min-height:2\.5rem[^}]*border-radius:0[^}]*background:transparent!important/);
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-sort\[data-direction=ascending\] \.pm-overview-delivery-sort-icon-ascending[^}]*opacity:1/);
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-sort:focus-visible\{outline:2px solid var\(--focus-ring\)[^}]*outline-offset:-2px/);
  assert.match(built,/@media\(max-width:760px\)\{[\s\S]*\.forge-postman \.pm-overview-delivery-columns\{display:flex!important/);
  assert.match(built,/\.forge-postman \.pm-overview-delivery-row\{[^}]*width:100%[^}]*border-radius:0!important[^}]*background:var\(--surface-raised\)!important[^}]*box-shadow:none!important/);
  assert.match(built,/@media\(hover:hover\)\{\.forge-postman :is\([^}]*\.pm-overview-delivery-row\):hover\{background:var\(--surface-hover\)!important\}\}/);
