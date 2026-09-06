@@ -89,6 +89,9 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.doesNotMatch(html,/pq-context|pq-issue|task\.dataset|task\.issue|data-owned/);
  assert.doesNotMatch(css,/pq-row\[data-owned/);
  assert.match(css,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*border-left:0!important/);
+ assert.match(css,/\.pm-review-queue \.pq-filters\{[^}]*padding:var\(--space-3\)[^}]*border:1px solid var\(--border-subtle\)[^}]*border-radius:var\(--radius-surface\)[^}]*background:var\(--surface-subtle\)[^}]*box-shadow:none/);
+ assert.match(css,/\.forge-postman \.pm-review-queue \.pq-filters select\{[^}]*border-radius:var\(--radius-control\)!important[^}]*background:var\(--surface-raised\)[^}]*text-overflow:ellipsis[^}]*white-space:nowrap/);
+ assert.match(css,/\.forge-postman \.pm-review-queue \.pq-search input\{[^}]*padding-inline:36px 10px!important[^}]*border-radius:var\(--radius-control\)!important[^}]*background:var\(--surface-raised\)/);
  assert.match(css,/\.pq-table-head>\[role=columnheader\]\{[^}]*text-align:left[^}]*font-weight:var\(--weight-semibold\)/);
  assert.match(css,/\.pq-column-filter\{[^}]*position:relative[^}]*height:var\(--pm-control-height\)/);
  assert.match(responsive,/\.pq-mobile-column-filters\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
