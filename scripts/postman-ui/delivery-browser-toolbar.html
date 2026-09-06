@@ -19,7 +19,7 @@
       <div class="forge-motion-menu" data-motion-menu="deliverySort" data-motion-open="{{ delivery.sortOpen }}" role="menu">
         <sc-for list="{{ delivery.sorts }}" as="o" hint-placeholder-count="2">
           <button type="button" role="menuitem" sc-camel-on-click="{{ o.pick }}" style="background:{{ o.bg }};color:{{ o.fg }}">
-            <span aria-hidden="true">{{ o.mark }}</span><span>{{ o.label }}</span>
+            <span>{{ o.label }}</span><span aria-hidden="true">{{ o.mark }}</span>
           </button>
         </sc-for>
       </div>

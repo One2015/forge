@@ -45,9 +45,10 @@
 .forge-postman .pm-delivery-search input:focus{outline:0}
 .forge-postman .pm-delivery-search>button{min-height:26px;padding:0 4px;border:0;background:transparent;color:var(--pm-link);font:12px/18px var(--pm-font);cursor:pointer}
 .forge-postman .pm-delivery-sort{position:relative;flex:none}
-.forge-postman .pm-delivery-sort-trigger{display:flex;align-items:center;gap:7px;height:var(--pm-control-height);min-height:var(--pm-control-height);padding:0 11px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer}
-.forge-postman .pm-delivery-sort .forge-motion-menu{--forge-menu-origin:top right;position:absolute;top:calc(100% + 6px);right:0;z-index:30;display:grid;width:92px;min-width:0;padding:4px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.forge-postman .pm-delivery-sort .forge-motion-menu button{display:grid;grid-template-columns:16px 1fr;gap:6px;align-items:center;width:100%;padding:6px 8px;border:0;border-radius:3px;text-align:left;color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer}
+.forge-postman .pm-delivery-sort-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:max-content;height:var(--pm-control-height);min-height:var(--pm-control-height);padding:0 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer;white-space:nowrap}
+.forge-postman .pm-delivery-sort .forge-motion-menu{--forge-menu-origin:top right;position:absolute;top:calc(100% + 6px);right:0;z-index:30;display:grid;width:max-content;min-width:100%;padding:4px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.forge-postman .pm-delivery-sort .forge-motion-menu button{display:grid;grid-template-columns:max-content 14px;justify-content:space-between;gap:10px;align-items:center;min-width:100%;padding:6px 8px;border:0;border-radius:3px;text-align:left;color:var(--pm-text);font:13px/20px var(--pm-font);cursor:pointer;white-space:nowrap}
+.forge-postman .pm-delivery-sort .forge-motion-menu button>span:last-child{justify-self:end;text-align:right}
 .forge-postman .pm-delivery-results{display:block}
 .forge-postman .pm-delivery-groups{display:flex;flex-direction:column;gap:20px}
 .forge-postman .pm-delivery-customer-group{min-width:0}

@@ -140,6 +140,9 @@ test('delivery browser keeps one compact list view with aligned controls',()=>{
  assert.doesNotMatch(page,/\{\{ delivery\.count \}\}/);
  assert.match(built,/\.forge-postman \.pm-delivery-search\{[^}]*height:var\(--pm-control-height\)[^}]*min-height:var\(--pm-control-height\)/);
  assert.match(built,/\.forge-postman \.pm-delivery-sort-trigger\{[^}]*height:var\(--pm-control-height\)[^}]*min-height:var\(--pm-control-height\)/);
+ assert.match(page,/<span>\{\{ o\.label \}\}<\/span><span aria-hidden="true">\{\{ o\.mark \}\}<\/span>/);
+ assert.match(built,/\.forge-postman \.pm-delivery-sort \.forge-motion-menu\{[^}]*width:max-content[^}]*min-width:100%/);
+ assert.match(built,/\.forge-postman \.pm-delivery-sort \.forge-motion-menu button\{[^}]*grid-template-columns:max-content 14px[^}]*justify-content:space-between/);
 
  const c=vm.runInContext('new Component()',ctx);
  c.state.view='delivery';
