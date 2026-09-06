@@ -253,7 +253,7 @@ test('four nonredundant KPIs compare equal periods with consistent scope and dis
   const v = c.billingValues();
   assert.deepEqual(Array.from(v.metrics, m => m.label), ['昨日成本', '总 Tokens', '调用次数', '平均调用成本']);
   assert.equal(v.metrics[0].value, '$10.00'); assert.match(v.metrics[0].note, /\+300.0%/); assert.equal(v.metrics[0].tone, 'danger'); assert.equal(v.metrics[0].detail, undefined);
-  assert.equal(v.metrics[0].noteLabel, '较前日'); assert.equal(v.metrics[0].noteValue, '+$7.50 · +300.0%'); assert.equal(v.metrics[0].noteSuffix, '');
+  assert.equal(v.metrics[0].noteLabel, '较前日'); assert.equal(v.metrics[0].noteValue, '+300.0%'); assert.equal(v.metrics[0].noteSuffix, '');
   assert.equal(v.metrics[3].noteLabel, '较上一周期'); assert.equal(v.metrics[3].noteValue, '+100.0%'); assert.equal(v.metrics[3].noteSuffix, ' · USD / 次');
   assert.equal(v.metrics[2].value, '2'); assert.equal(v.metrics[3].value, '$5.00');
   assert.match(v.metrics[0].help, /UTC\+8/); assert.match(v.metrics[1].help, /输入 Tokens 与输出 Tokens 之和/); assert.match(v.metrics[2].help, /调用记录数/); assert.match(v.metrics[3].help, /总费用 ÷ 调用次数/);
