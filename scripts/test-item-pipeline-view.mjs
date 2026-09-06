@@ -19,10 +19,16 @@ test('Item Pipeline reuses colored node types and explicit execution states',()=
 });
 
 test('full Pipeline opens as a large dialog with selectable node details',()=>{
- assert.match(built,/>查看完整 Pipeline<\/button>/);
+ assert.match(built,/aria-label="打开完整 Pipeline"/);
+ assert.match(built,/data-phosphor="arrows-out-simple"/);
+ assert.match(built,/class="pm-item-graph pm-item-pipeline-thumbnail"/);
  assert.match(built,/role="dialog" aria-modal="true" aria-labelledby="pm-full-pipeline-title"/);
  assert.match(built,/aria-label="节点具体信息"/);
  assert.match(built,/pipelineSummary/);
+ assert.match(built,/pipelineCounts\.skipped/);
+ assert.match(built,/aria-label="Pipeline 缩放"/);
+ assert.match(built,/pipelineZoomLabel:pipelineZoom\+'%'/);
+ assert.match(built,/zoomIn:\(\)=>update/);
  assert.match(built,/>执行尝试<\/h4>/);
  assert.match(built,/>执行结果<\/h4>/);
  assert.match(built,/openFullPipeline:\(\)=>update\(\{fullPipeline:true,node:/);
@@ -36,6 +42,10 @@ test('failed historical web3d-car run includes a complete versioned Pipeline sna
  assert.match(demo,/GLB_EXPORT_TIMEOUT/);
  assert.match(demo,/build_product\/AGENT/);
  assert.match(demo,/review\/REVIEW/);
+ assert.match(demo,/34a2c04af93d44908f4fe96f7845e183/);
+ assert.match(demo,/20260824-215530-2c2f09/);
+ assert.match(demo,/RUNTIME_HEALTHCHECK_FAILED/);
+ assert.match(demo,/startsWith\('runtime\/'\)/);
 });
 
 test('failed nodes show a banner and a direct Forge alert-group action',()=>{

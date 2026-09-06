@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const read = name => fs.readFileSync(new URL(name, import.meta.url), 'utf8').trimEnd();
+const icons = html => html.replace(/\[\[icon:([\w-]+):(\d+)\]\]/g, (_, name, size) => read('../../assets/phosphor/regular/' + name + '.svg').replace(/<svg[^>]*>/, '<svg class="forge-icon" data-phosphor="' + name + '" width="' + size + '" height="' + size + '" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false">'));
 
 export function installItemPipelineView(t) {
   if (t.includes('<!-- pm-item-pipeline-view:start -->')) return t;
@@ -8,7 +9,7 @@ export function installItemPipelineView(t) {
   const start = t.indexOf('<sc-if value="{{ explorer.pipelineTab }}">');
   const end = t.indexOf('<sc-if value="{{ explorer.filesTab }}">', start);
   if (start < 0 || end < start) throw new Error('Item Pipeline boundary changed');
-  t = t.slice(0, start) + read('item-pipeline-view.html') + '\n' + t.slice(end);
+  t = t.slice(0, start) + icons(read('item-pipeline-view.html')) + '\n' + t.slice(end);
 
   const nodesBefore = `    const nodes = (pipeline?.dag || []).map((declared,index)=>{
       const [name,kind] = typeof declared==='string' ? declared.split('/') : [declared.name,declared.kind];
@@ -35,14 +36,17 @@ export function installItemPipelineView(t) {
     const selected = nodes.find(node=>node.name===stored.node);
     const failedNode = nodes.find(node=>node.statusKey==='failed');
     const pipelineCounts = nodes.reduce((counts,node)=>({...counts,[node.statusKey]:(counts[node.statusKey] || 0)+1}),{});
-    const pipelineSummary = [nodes.length+' 个节点',pipelineCounts.passed ? pipelineCounts.passed+' 已通过' : '',pipelineCounts.running ? pipelineCounts.running+' 运行中' : '',pipelineCounts.failed ? pipelineCounts.failed+' 失败' : '',pipelineCounts.pending ? pipelineCounts.pending+' 待执行' : ''].filter(Boolean).join(' · ');`;
+    const pipelineSummary = [nodes.length+' 个节点',pipelineCounts.passed ? pipelineCounts.passed+' 已通过' : '',pipelineCounts.skipped ? pipelineCounts.skipped+' 已跳过' : '',pipelineCounts.running ? pipelineCounts.running+' 运行中' : '',pipelineCounts.failed ? pipelineCounts.failed+' 失败' : '',pipelineCounts.pending ? pipelineCounts.pending+' 待执行' : ''].filter(Boolean).join(' · ');
+    const pipelineZoom = Math.max(50,Math.min(150,Number(stored.pipelineZoom) || 100));`;
   if (!t.includes(nodesBefore)) throw new Error('Item Pipeline nodes anchor changed');
   t = t.replace(nodesBefore, nodesAfter);
 
   const valuesBefore = `      nodes,hasNode:!!selected,node:selected ? this.pmNodeDetails(pipeline,selected.name,evidence.nodes?.[selected.name]) : {},closeNode:()=>update({node:null}),`;
   const valuesAfter = `      nodes,hasNode:!!selected,node:selected ? {...this.pmNodeDetails(pipeline,selected.name,evidence.nodes?.[selected.name]),...selected} : {},closeNode:()=>update({node:null}),
       hasPipelineFailure:!!failedNode,pipelineFailure:failedNode || {},pipelineSummary,fullPipelineOpen:!!stored.fullPipeline,
-      openFullPipeline:()=>update({fullPipeline:true,node:stored.node || failedNode?.name || nodes[0]?.name || null}),closeFullPipeline:()=>update({fullPipeline:false}),`;
+      pipelineZoomLabel:pipelineZoom+'%',pipelineZoomScale:String(pipelineZoom / 100),zoomOutDisabled:pipelineZoom<=50,zoomInDisabled:pipelineZoom>=150,
+      openFullPipeline:()=>update({fullPipeline:true,node:stored.node || failedNode?.name || nodes[0]?.name || null}),closeFullPipeline:()=>update({fullPipeline:false}),
+      zoomOut:()=>update({pipelineZoom:Math.max(50,pipelineZoom-25)}),zoomReset:()=>update({pipelineZoom:100}),zoomIn:()=>update({pipelineZoom:Math.min(150,pipelineZoom+25)}),`;
   if (!t.includes(valuesBefore)) throw new Error('Item Pipeline values anchor changed');
   t = t.replace(valuesBefore, valuesAfter);
 
