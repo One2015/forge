@@ -62,7 +62,7 @@ test('supplier, sheet and risk filters update all visible modules and empty stat
   let v = c.outsourcingSupplierValues(); assert.equal(v.resetDisabled, false); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '维象制作'); assert.equal(v.issueTotal, 22); assert.equal(v.issueRows.length, 2);
   v.onSheet({ target: { value: 'ant200' } }); v = c.outsourcingSupplierValues(); assert(!v.hasRows); assert(!v.hasTrend); assert(!v.hasIssues);
   v.reset(); v = c.outsourcingSupplierValues(); assert.equal(v.resetDisabled, true); assert.equal(v.detailRows.length, 3);
-  v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.metrics.at(-1).value, 0);
+  v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.metrics.at(-1).value, 0); assert.equal(v.detailRows[0].tone, 'success');
   v.reset(); v.onCycle({ target: { value: '7d' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant']);
 });
 
@@ -147,7 +147,7 @@ test('management tab exposes all required fields and adds an in-memory expert te
   v.onManagementSupplier({ target: { value: 'missing' } }); v = c.outsourcingSupplierValues(); assert.equal(v.managementHasRows, false); assert.match(managementTable, /!outsourcingSuppliers\.managementHasRows/);
   v.openAdd(); v = c.outsourcingSupplierValues(); assert(v.addOpen); assert(!v.canAdd);
   v.onName({ target: { value: '北辰制作' } }); v.onTaskTypes({ target: { value: 'Web3D' } }); v = c.outsourcingSupplierValues(); assert(v.canAdd); v.add();
-  v = c.outsourcingSupplierValues(); assert.equal(v.managementRows.at(-1).name, '北辰制作'); assert.equal(v.managementRows.at(-1).specialties, 'Web3D'); assert(!v.addOpen);
+  v = c.outsourcingSupplierValues(); assert.equal(v.managementRows.at(-1).name, '北辰制作'); assert.equal(v.managementRows.at(-1).specialties, 'Web3D'); assert(!v.addOpen); assert.equal(v.managementRows.at(-1).tone, 'neutral');
 });
 
 test('supplier generator is idempotent and responsive CSS uses shared tokens', () => {
@@ -155,8 +155,13 @@ test('supplier generator is idempotent and responsive CSS uses shared tokens', (
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
   assert.match(css, /\.forge-outsourcing-column-filter select\{[^}]*width:100%[^}]*border:1px solid transparent!important[^}]*text-overflow:ellipsis/);
   assert.match(css, /\.forge-outsourcing-column-filter\[data-filter-active="true"\] select\{[^}]*border-color:var\(--pm-focus\)!important[^}]*background-color:var\(--pm-selected\)!important/);
+  assert.match(css, /box-shadow:inset 2px 0 var\(--pm-brand\)!important[^}]*color:var\(--forge-text\)!important[^}]*font-weight:600/);
   assert.match(css, /@media\(hover:hover\)\{\.forge-outsourcing-column-filter select:hover/);
   assert.match(css, /\.forge-outsourcing-block-heading>button,\.forge-outsourcing-block-actions button,\.forge-outsourcing-section header>button/);
+  assert.match(css, /data-tone="success"\][^{]*\{[^}]*background:var\(--outsourcing-status-success-bg\)[^}]*color:var\(--pm-success\)/);
+  assert.match(css, /transition-property:scale,background-color,border-color,color,box-shadow[^}]*transition-duration:150ms[^}]*ease-out/);
+  assert.match(css, /:active:not\(:disabled\)\{scale:\.96\}/); assert.doesNotMatch(css, /transition:\s*all/);
+  assert.match(css, /forge-outsourcing-trend-cards>article\{[^}]*box-shadow:var\(--outsourcing-raised-shadow\)/);
   assert.match(css, /@media\(max-width:1000px\)/); assert.match(css, /@media\(max-width:640px\)/);
   assert.match(css, /@container forge-suppliers \(max-width:760px\)/); assert.match(css, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)!important/);
   assert.match(page, /sc-camel-on-key-down="\{\{ outsourcingSuppliers\.onDetailKeyDown \}\}"/); assert.doesNotMatch(page, /<button role="row"/);
