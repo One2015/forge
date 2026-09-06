@@ -6,6 +6,52 @@
   }
 
   pmItemExplorerDemo(id, runId) {
+    if(id === '3a5588389c844037b7f85d62bb303bcf' && runId === '20260824-163805-814774') {
+      const prompt = '生成可分组、折叠并实时刷新的服务错误日志看板，输出桌面端可交互页面与 GLB 场景预览。';
+      const dag = [
+        'task/FUNCTION','prep_task/FUNCTION','ref_search/AGENT','normalize_inputs/FUNCTION','car_plan/LLM','blockout/AGENT',
+        'reform_a/AGENT','reform_b/AGENT','dcc_block/AGENT','material_pass/AGENT','lighting/AGENT','camera/AGENT',
+        'build_product/AGENT','runtime/AGENT','3d_export/AGENT','qa_geometry/FUNCTION','qa_runtime/FUNCTION','review/REVIEW'
+      ];
+      const definitions = Object.fromEntries(dag.map(node => {
+        const [name, kind] = node.split('/');
+        return [name, this.pmDemoNodeConfig(name, kind)];
+      }));
+      const failedAt = dag.findIndex(node => node.startsWith('build_product/'));
+      const durations = ['0.2s','0.4s','12.8s','0.3s','8.2s','18.4s','11.6s','10.9s','22.1s','16.3s','8.7s','4.8s'];
+      const nodes = Object.fromEntries(dag.map((node, index) => {
+        const name = node.split('/')[0];
+        const passed = index < failedAt;
+        const failed = index === failedAt;
+        return [name, {
+          config: definitions[name],
+          status: passed ? '成功' : failed ? '失败' : '未执行',
+          duration: passed ? durations[index] : failed ? '4m 12s' : '—',
+          attempts: passed
+            ? [{number:1,status:'成功',duration:durations[index],activation:1}]
+            : failed
+              ? [{number:1,status:'失败',duration:'4m 12s',activation:1,error:{code:'GLB_EXPORT_TIMEOUT',message:'GLB 导出阶段超过 900 秒，场景面数超出导出预算。'}}]
+              : [],
+          result: passed
+            ? {ok:true}
+            : failed
+              ? {status:'failed',error_code:'GLB_EXPORT_TIMEOUT',message:'GLB 导出阶段超时（900s），未产出可用产物。'}
+              : undefined
+        }];
+      }));
+      return {demo:true,files:[
+        {name:'pipeline/web3d-car-v10.json',content:JSON.stringify({name:'web3d-car',version:'v10',dag,nodeConfigs:definitions},null,2)},
+        {name:'prompts/build_product.md',content:prompt},
+        {name:'logs/build_product.log',content:'GLB_EXPORT_TIMEOUT\nexport exceeded 900s\nno deliverable artifact produced'}
+      ],execution:{pipeline:{name:'web3d-car',version:'v10',dag,nodeConfigs:definitions},nodes,
+        prompts:[{role:'user',label:'Build Prompt',node:'build_product',content:prompt}],
+        events:[
+          {time:'00:00',label:'读取输入',node:'task',detail:{item_id:id,run_id:runId}},
+          {time:'00:34',label:'完成参考检索',node:'ref_search',detail:{status:'success',references:6}},
+          {time:'03:58',label:'开始导出 GLB',node:'build_product',detail:{status:'running',scene_faces:1842600}},
+          {time:'04:12',label:'GLB 导出超时',node:'build_product',detail:{status:'failed',code:'GLB_EXPORT_TIMEOUT',timeout_seconds:900}}
+        ]}};
+    }
     if(id !== 'b3d81c4e77af4a5c9e2f1a6b8c0d3e5f' || runId !== '20260825-034505-c19f2a') return null;
     const prompt = '创建长城主题的可交互 Web3D 场景。\n\n要求：\n- 表现城墙、敌楼和山地地形。\n- 支持旋转、缩放与关键结构标注。\n- 同时适配桌面与移动端。\n- 输出页面入口与资源清单。\n\n此文本为界面演示用 mock Prompt，并非历史模型请求。';
     const dag=['task/FUNCTION','build/AGENT','human_review_initial/REVIEW','build_repair/AGENT','human_review_rework/REVIEW','review/FUNCTION'];

@@ -33,13 +33,15 @@ export function installItemPipelineView(t) {
         pick:()=>update({node:name}),syncDisabled:synced,syncLabel:synced?'已同步':'同步到 Forge 报警群',sync:()=>update({pipelineAlerts:{...alertState,[name]:'sent'}})};
     });
     const selected = nodes.find(node=>node.name===stored.node);
-    const failedNode = nodes.find(node=>node.statusKey==='failed');`;
+    const failedNode = nodes.find(node=>node.statusKey==='failed');
+    const pipelineCounts = nodes.reduce((counts,node)=>({...counts,[node.statusKey]:(counts[node.statusKey] || 0)+1}),{});
+    const pipelineSummary = [nodes.length+' 个节点',pipelineCounts.passed ? pipelineCounts.passed+' 已通过' : '',pipelineCounts.running ? pipelineCounts.running+' 运行中' : '',pipelineCounts.failed ? pipelineCounts.failed+' 失败' : '',pipelineCounts.pending ? pipelineCounts.pending+' 待执行' : ''].filter(Boolean).join(' · ');`;
   if (!t.includes(nodesBefore)) throw new Error('Item Pipeline nodes anchor changed');
   t = t.replace(nodesBefore, nodesAfter);
 
   const valuesBefore = `      nodes,hasNode:!!selected,node:selected ? this.pmNodeDetails(pipeline,selected.name,evidence.nodes?.[selected.name]) : {},closeNode:()=>update({node:null}),`;
   const valuesAfter = `      nodes,hasNode:!!selected,node:selected ? {...this.pmNodeDetails(pipeline,selected.name,evidence.nodes?.[selected.name]),...selected} : {},closeNode:()=>update({node:null}),
-      hasPipelineFailure:!!failedNode,pipelineFailure:failedNode || {},fullPipelineOpen:!!stored.fullPipeline,
+      hasPipelineFailure:!!failedNode,pipelineFailure:failedNode || {},pipelineSummary,fullPipelineOpen:!!stored.fullPipeline,
       openFullPipeline:()=>update({fullPipeline:true,node:stored.node || failedNode?.name || nodes[0]?.name || null}),closeFullPipeline:()=>update({fullPipeline:false}),`;
   if (!t.includes(valuesBefore)) throw new Error('Item Pipeline values anchor changed');
   t = t.replace(valuesBefore, valuesAfter);

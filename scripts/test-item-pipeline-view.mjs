@@ -22,7 +22,20 @@ test('full Pipeline opens as a large dialog with selectable node details',()=>{
  assert.match(built,/>查看完整 Pipeline<\/button>/);
  assert.match(built,/role="dialog" aria-modal="true" aria-labelledby="pm-full-pipeline-title"/);
  assert.match(built,/aria-label="节点具体信息"/);
+ assert.match(built,/pipelineSummary/);
+ assert.match(built,/>执行尝试<\/h4>/);
+ assert.match(built,/>执行结果<\/h4>/);
  assert.match(built,/openFullPipeline:\(\)=>update\(\{fullPipeline:true,node:/);
+});
+
+test('failed historical web3d-car run includes a complete versioned Pipeline snapshot',()=>{
+ const demo=fs.readFileSync(new URL('./postman-ui/item-explorer-demo.js',import.meta.url),'utf8');
+ assert.match(demo,/3a5588389c844037b7f85d62bb303bcf/);
+ assert.match(demo,/20260824-163805-814774/);
+ assert.match(demo,/name:'web3d-car',version:'v10',dag,nodeConfigs:definitions/);
+ assert.match(demo,/GLB_EXPORT_TIMEOUT/);
+ assert.match(demo,/build_product\/AGENT/);
+ assert.match(demo,/review\/REVIEW/);
 });
 
 test('failed nodes show a banner and a direct Forge alert-group action',()=>{
