@@ -30,12 +30,12 @@
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button[aria-pressed=true],.forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button[aria-pressed=true]:hover{background:var(--pm-selected)!important;color:var(--pm-text)!important;font-weight:600;box-shadow:inset 0 0 0 1px var(--pm-border)!important}
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button:not([aria-pressed=true]):hover{background:var(--pm-pressed)!important;color:var(--pm-text)!important}
 .forge-postman .pm-sheet-assignment-grid{grid-template-columns:44px minmax(170px,1.3fr) minmax(140px,1fr) 132px 116px 114px}
-.forge-postman .pm-sheet-status-filter{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:7px;width:100%;min-width:0;height:32px;padding:0 28px 0 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-muted);font:500 12px/20px var(--pm-font);cursor:pointer}
+.forge-postman .pm-sheet-status-filter{position:relative;display:flex;align-items:center;width:100%;min-width:0;height:32px;padding:0 28px 0 10px;border:1px solid var(--pm-control);border-radius:4px;background:var(--pm-canvas);color:var(--pm-muted);font:500 12px/20px var(--pm-font);cursor:pointer}
 .forge-postman .pm-sheet-status-filter::after{content:"";position:absolute;right:10px;top:50%;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--pm-muted);translate:0 -35%;pointer-events:none}
-.forge-postman .pm-sheet-status-filter>span{flex:none;white-space:nowrap}
-.forge-postman .pm-sheet-status-filter select{appearance:none!important;-webkit-appearance:none!important;width:100%;min-width:0;height:30px;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--pm-text)!important;font:500 12px/20px var(--pm-font);cursor:pointer;box-shadow:none!important;outline:0!important;field-sizing:fixed}
+.forge-postman .pm-sheet-status-filter>span{flex:none;color:var(--pm-text);white-space:nowrap;pointer-events:none}
+.forge-postman .pm-sheet-columns label.pm-sheet-status-filter>select{position:absolute;inset:0;z-index:1;appearance:none!important;-webkit-appearance:none!important;width:100%;min-width:0;height:100%;padding:0!important;border:0!important;border-radius:inherit!important;background:transparent!important;color:transparent!important;font:500 12px/20px var(--pm-font);cursor:pointer;box-shadow:none!important;outline:0!important;field-sizing:fixed}
 .forge-postman .pm-sheet-status-filter[data-filter-active=true]{background:var(--pm-selected);border-color:var(--pm-hover-border)}
-.forge-postman .pm-sheet-status-filter[data-filter-active=true] select{font-weight:600}
+.forge-postman .pm-sheet-status-filter[data-filter-active=true]>span{font-weight:600}
 .forge-postman .pm-sheet-status-filter:focus-within{border-color:var(--pm-focus);outline:2px solid var(--pm-focus);outline-offset:1px}
 @media(hover:hover){.forge-postman .pm-sheet-status-filter:hover{background:var(--pm-hover);border-color:var(--pm-hover-border)}}
 @container pm-sheet-list (max-width:860px){
