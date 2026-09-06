@@ -97,7 +97,7 @@ test('supplier trend can focus one labelled series with accessible points', () =
   assert.deepEqual(Array.from(v.trendWeeks), ['2 周前', '上周', '本周']); assert.equal(v.trendCompletion.length, 3); assert.match(v.trendCompletionLine, /^0,15 50,10 100,6$/);
   v.onTrendMetric({ target: { value: 'quality' } }); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.trendCards, card => card.label), ['质检通过率']); assert.equal(v.trendCards[0].current, '96%'); assert.equal(v.singleTrend, true); assert.equal(v.trendAriaLabel, '质检通过率趋势');
-  assert.match(page, /aria-label="趋势指标"/); assert.match(page, /aria-label="趋势时间范围"/); assert.match(page, /data-single="\{\{ outsourcingSuppliers\.singleTrend \}\}"/); assert.match(page, /forge-outsourcing-mini-chart/); assert.match(page, /目标 90%/);
+  assert.match(page, /aria-label="趋势指标"/); assert.match(page, /aria-label="趋势时间范围"/); assert.match(page, /data-single="\{\{ outsourcingSuppliers\.singleTrend \}\}"/); assert.match(page, /forge-outsourcing-mini-chart/); assert.doesNotMatch(page, /forge-outsourcing-target-line|目标 90%/);
   assert.match(page, /forge-outsourcing-trend-filter-metric/); assert.match(page, /forge-outsourcing-trend-filter-window/);
   assert.match(page, /data-forge-chart-tooltip="\{\{ point\.title \}\}"/); assert.match(page, /data-series="\{\{ series\.series \}\}"/);
 });
