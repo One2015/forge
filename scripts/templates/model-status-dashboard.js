@@ -189,7 +189,7 @@
       this.setState({modelPageTab:'lines',modelQuery:'',modelProvider:errorProvider,modelModel:'',modelLine:'',modelFilter:row.id,modelBusinessOnly:false,modelSelection:'',modelRoute:'',modelDrawerMode:'',modelChartPoint:null});
       setTimeout(()=>{if(typeof document!=='undefined')document.getElementById('forge-model-table-title')?.focus();},0);
     }}));
-    const activeLines=lines.filter(line=>line.active), totalCalls=activeLines.reduce((n,line)=>n+(line.calls||0),0), totalFailures=activeLines.reduce((n,line)=>n+(line.failures||0),0), knownLatency=activeLines.filter(line=>line.raw.latency?.metric==='ttft_p95').map(line=>line.latencyMs).filter(Number.isFinite), knownCost=activeLines.reduce((n,line)=>n+(line.costUsd||0),0);
+    const activeLines=lines.filter(line=>line.active);
     const usageComplete=activeLines.length>0&&activeLines.every(line=>line.usageKnown);
     const availableModelIds=new Set(lines.filter(line=>line.active&&line.result==='passed').map(line=>line.modelId));
     const attentionStatuses=new Set(['severe','failed','billing','performance','quality','confirm']);
@@ -201,13 +201,6 @@
       ['需关注模型',snapshot.hasRate?attentionModels:'—','仍可用，有性能、质量或余额告警',attentionModels?'warning':'neutral'],
       ['不可用模型',snapshot.hasRate?unavailableModels:'—',snapshot.unknown?'另有 '+snapshot.unknown+' 个模型状态待确认':'没有可路由线路',unavailableModels?'danger':'neutral']
     ].map(([label,value,note,tone])=>({label,value,note,tone}));
-    const operationMetrics=[
-      ['请求量',usageComplete?num(totalCalls,0):'—',usageComplete?'生产线路':'该时段数据未接入','neutral'],
-      ['成功率',usageComplete&&totalCalls?percent((totalCalls-totalFailures)/totalCalls*100):'—',totalCalls?'生产线路':'暂无调用样本','neutral'],
-      ['P95 TTFT',knownLatency.length?num(Math.max(...knownLatency)/1000,2)+'s':'—','最近一次检测','neutral'],
-      ['平均成本',usageComplete&&totalCalls?money(knownCost/totalCalls):'—','每次调用','neutral']
-    ].map(([label,value,note,tone])=>({label,value,note,tone}));
-    const overviewMetrics=[...availabilityMetrics,...operationMetrics];
     lines.forEach(line => {
       line.routeBadges = [];
       line.stability = line.failureRate == null ? '待检测' : line.failureRate < 1 ? '稳定' : line.failureRate < 5 ? '波动' : '高风险';
@@ -287,7 +280,7 @@
       closeBilling: () => this.setState({ modelDrawerMode: 'diagnostic' }),
       dismissMessage: () => this.setState({ modelRetestMessage: '' }), message: state.modelRetestMessage || '',
       pageTab, overviewTab:pageTab==='overview', linesTab:pageTab==='lines', pageTabs:[['overview','运行概览'],['lines','模型线路']].map(([id,label])=>({id,label,current:pageTab===id?'page':'false',pick:()=>this.setState({modelPageTab:id,modelSelection:'',modelRoute:'',modelDrawerMode:''})})),
-      overviewMetrics,availabilityMetrics,operationMetrics,overviewWindow,overviewWindowLabel,overviewWindows:overviewWindowDefs.map(([id,label])=>({id,label})),onOverviewWindow:event=>this.setState({modelOverviewWindow:event.target.value}),overviewUsageNote:(usageComplete?'请求量、成功率和总成本按'+overviewWindowLabel+'汇总。':'当前数据源未提供'+overviewWindowLabel+'调用统计。')+' 可用线路指已启用、可路由且最近生成验证通过的线路，分母为已纳入生产的线路；P95 TTFT、生成速度与质量状态采用最近一次检测。',modelOverviewRows,errorProvider,errorProviderOptions,onErrorProvider:event=>this.setState({modelErrorProvider:event.target.value}),errorTotal:num(errorTotal,0),errorTypeCount:errorOverviewRows.length,errorOverviewRows,hasErrors:errorOverviewRows.length>0,
+      availabilityMetrics,overviewWindow,overviewWindowLabel,overviewWindows:overviewWindowDefs.map(([id,label])=>({id,label})),onOverviewWindow:event=>this.setState({modelOverviewWindow:event.target.value}),overviewUsageNote:(usageComplete?'请求量、成功率和总成本按'+overviewWindowLabel+'汇总。':'当前数据源未提供'+overviewWindowLabel+'调用统计。')+' 可用线路指已启用、可路由且最近生成验证通过的线路，分母为已纳入生产的线路；P95 TTFT、生成速度与质量状态采用最近一次检测。',modelOverviewRows,errorProvider,errorProviderOptions,onErrorProvider:event=>this.setState({modelErrorProvider:event.target.value}),errorTotal:num(errorTotal,0),errorTypeCount:errorOverviewRows.length,errorOverviewRows,hasErrors:errorOverviewRows.length>0,
       tabs: [['providers', '模型供应商'], ['models', '模型评估']].map(([id, label]) => ({ id, label, selected: state.modelDimension === id, select: () => this.setState({ modelDimension: id }) })),
       providersView: state.modelDimension !== 'models', modelsView: state.modelDimension === 'models', accountTitle: state.modelDimension === 'models' ? '固定集得分' : '账户余额'
     };

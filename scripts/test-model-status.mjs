@@ -97,17 +97,15 @@ test('100 percent availability still exposes independent slow, quality and billi
   assert.match(result.detail, /1 条线路需处理/); assert.match(row.nextStep, /核实供应商账户/);
 });
 
-test('overview separates mutually exclusive model availability from operational quality', () => {
+test('overview presents mutually exclusive model availability without a duplicate operations summary', () => {
   const { c } = component(); c.openModelStatus();
   const view = c.modelStatusValues();
   assert.deepEqual(Array.from(view.availabilityMetrics, metric => metric.label), ['可用模型', '稳定模型', '需关注模型', '不可用模型']);
-  assert.deepEqual(Array.from(view.operationMetrics, metric => metric.label), ['请求量', '成功率', 'P95 TTFT', '平均成本']);
   assert.equal(Number(view.availabilityMetrics[1].value) + Number(view.availabilityMetrics[2].value), view.available);
   assert.equal(Number(view.availabilityMetrics[3].value), view.unavailable);
-  assert(!view.overviewMetrics.some(metric => ['正常模型', '警告模型', '错误率'].includes(metric.label)));
   const html = template.match(/<!-- model-status:start -->[\s\S]*?<!-- model-status:end -->/)[0];
-  assert.match(html, /aria-label="模型可用性"/); assert.match(html, /aria-label="所选时段运行表现"/);
-  assert.match(html, /稳定模型 \+ 需关注模型 = 可用模型/); assert.match(html, /可用性与运行表现采用独立统计口径/);
+  assert.match(html, /aria-label="模型可用性"/); assert.doesNotMatch(html, /所选时段运行表现|调用指标按所选时段汇总/);
+  assert.match(html, /稳定模型 \+ 需关注模型 = 可用模型/); assert.match(html, /模型可用性按当前生产线路汇总/);
 });
 
 test('model overview uses explicit metrics, categorical quality and a working usage window', () => {
