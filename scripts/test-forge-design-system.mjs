@@ -59,3 +59,7 @@ test('responsive system prevents global horizontal overflow by construction', ()
   assert.match(system, /@media\(pointer:coarse\)/);
   assert.match(tokens, /--size-touch:2\.75rem/);
 });
+
+test('sticky production tabs are opaque over scrolling page content', () => {
+  assert.match(system, /\.forge-postman \.forge-production-tabs\{background:var\(--surface-canvas\)!important\}/);
+});
