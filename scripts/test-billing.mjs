@@ -306,8 +306,10 @@ test('stacked distribution, change reasons and abnormal runs are exposed without
   assert.match(html, /<ul class="forge-billing-reasons"><sc-for[\s\S]*?<li>/);
   assert.match(html, /forge-billing-chart[\s\S]*forge-billing-breakdown[\s\S]*billing-anomaly-title/);
   assert.match(html, /\{\{ billing\.tableLabel \}\}费用明细/);
+  assert.doesNotMatch(html, /\{\{ billing\.groupCount \}\} 个\{\{ billing\.tableLabel \}\} · \{\{ billing\.callCount \}\} 条调用记录/);
   assert.match(html, /<a class="forge-billing-run-link" href="\{\{ run\.href \}\}"[^>]*>查看详情<\/a>/);
   assert.match(template, /\.forge-billing-chart\{[^}]*border-bottom:0/);
+  assert.doesNotMatch(template, /\.forge-billing-breakdown header span\{/);
   assert.match(template, /\.forge-billing-analysis\[aria-labelledby="billing-change-title"\]\{border-top:0\}/);
   assert.doesNotMatch(html, /treemap|line-chart/i);
 });
