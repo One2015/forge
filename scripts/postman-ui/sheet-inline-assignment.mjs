@@ -14,5 +14,13 @@ export function installSheetInlineAssignment(t) {
  const end=t.indexOf('          <sc-if value="{{ sheet.empty }}"',start);
  if(start<0||end<0)throw Error('Sheet table boundaries changed');
  t=t.slice(0,start)+fs.readFileSync(new URL('sheet-inline-assignment.html',import.meta.url),'utf8')+t.slice(end);
+ const listStart=t.indexOf('<div class="pm-sheet-list"');
+ const toolbarStart=t.indexOf('<div class="pm-sheet-toolbar"',listStart);
+ const columnsStart=t.indexOf('<div class="pm-sheet-columns pm-sheet-assignment-grid"',toolbarStart);
+ if(listStart<0||toolbarStart<listStart||columnsStart<toolbarStart)throw Error('Sheet toolbar boundaries changed');
+ const toolbar=t.slice(toolbarStart,columnsStart).trim();
+ t=t.slice(0,toolbarStart)+t.slice(columnsStart);
+ const heading='<div class="pm-sheet-section-heading"><h2 id="pm-sheet-items-title">子项清单</h2></div>\n';
+ t=t.slice(0,listStart)+heading+toolbar+'\n'+t.slice(listStart);
  return t.replace('  tagForeground(hex) {',fs.readFileSync(new URL('sheet-inline-assignment-methods.js',import.meta.url),'utf8')+'  tagForeground(hex) {');
 }

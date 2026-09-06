@@ -24,6 +24,10 @@
 .forge-postman :is([data-forge-segmented=pill]:not(.forge-artifact-switch),.fg-segmented,.forge-billing-segment,.forge-wizard-categories) button:is([aria-pressed=true],[data-active=true]){background:var(--pm-selected)!important;color:var(--pm-text)!important;box-shadow:inset 0 0 0 1px var(--pm-tab-indicator)!important}
 .forge-postman .pm-owner-segment{height:32px;padding:2px!important;gap:2px!important;border:1px solid var(--pm-control)!important;border-radius:4px!important;background:var(--pm-subtle)!important}
 .forge-postman .pm-owner-segment::before{display:none!important}
+.forge-postman .pm-sheet-section-heading{display:flex;align-items:center;min-height:24px;margin:0 0 10px}
+.forge-postman .pm-sheet-section-heading h2{margin:0;color:var(--pm-text);font:600 16px/24px var(--pm-font)}
+.forge-postman .pm-sheet-toolbar{padding:0 0 12px!important;border:0!important;gap:12px!important}
+.forge-postman .pm-sheet-list>.pm-sheet-columns{padding:10px 16px!important;gap:12px!important}
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters{display:flex;flex-wrap:nowrap;max-width:100%;padding:3px!important;gap:2px!important;border:1px solid var(--pm-border)!important;border-radius:5px!important;background:var(--pm-hover)!important}
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters::before{display:none!important}
 .forge-postman :is(.pm-sheet-list,.pm-allocation-toolbar) .pm-sheet-filters button{flex:1;min-height:28px!important;height:28px!important;padding:3px 10px!important;border-radius:3px!important;font-size:13px!important}
