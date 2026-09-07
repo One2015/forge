@@ -1,6 +1,16 @@
 // Layout-only adaptation; preserve the editor's existing handlers and data.
 export function installPipelineResponsive(t) {
  t=installPipelineListLayout(t);
+ const pipelineMap='    const pipelines = pipes.map(p => {';
+ if(!t.includes(pipelineMap))throw Error('Pipeline filter data anchor changed');
+ t=t.replace(pipelineMap,`    const recent = st.pipeRecent || 'all', rate = st.pipeRate || 'all', price = st.pipePrice || 'all';
+    pipes = pipes.filter(p => {
+      const unit = p.runs ? Number(String(p.cost).replace(/[$,]/g, '')) / p.runs : null;
+      return (recent === 'all' || (recent === 'day' ? p.lastH <= 24 : recent === 'week' ? p.lastH > 24 && p.lastH <= 168 : p.lastH > 168))
+        && (rate === 'all' || (rate === 'none' ? !p.runs : p.runs > 0 && (rate === 'high' ? p.rate >= 80 : rate === 'mid' ? p.rate >= 60 && p.rate < 80 : p.rate < 60)))
+        && (price === 'all' || (price === 'none' ? unit === null : unit !== null && (price === 'low' ? unit < 50 : price === 'mid' ? unit >= 50 && unit < 100 : unit >= 100)));
+    });
+`+pipelineMap);
  const filterValues=`      pipeQuery: st.pipeQuery,
       onPipeQuery: e => this.setState({ pipeQuery: e.target.value }),
       pipeFilters: filters,`;
@@ -8,6 +18,12 @@ export function installPipelineResponsive(t) {
  t=t.replace(filterValues,`${filterValues}
       pipeFilterValue: ({ '活跃': 'active', '全部': 'all', '废弃': 'archived' })[st.pipeFilter] || 'active',
       pipeFilterActive: st.pipeFilter !== '全部',
+      pipeRecent: st.pipeRecent || 'all',
+      pipeRate: st.pipeRate || 'all',
+      pipePrice: st.pipePrice || 'all',
+      onPipeRecent: e => this.setState({pipeRecent:e.target.value,openPipe:null}),
+      onPipeRate: e => this.setState({pipeRate:e.target.value,openPipe:null}),
+      onPipePrice: e => this.setState({pipePrice:e.target.value,openPipe:null}),
       onPipeFilter: e => this.setState({
         pipeFilter: ({ active: '活跃', all: '全部', archived: '废弃' })[e.target.value] || '活跃',
         openPipe: null
@@ -67,6 +83,13 @@ function installPipelineListLayout(t){
                 </select>
               </label>
               <div>当前版本</div>`);
+ for(const [label,key,options] of [
+   ['最近运行','Recent',[['all','全部'],['day','24 小时内'],['week','1–7 天前'],['older','7 天以前']]],
+   ['成功率','Rate',[['all','全部'],['high','80% 及以上'],['mid','60%–不足 80%'],['low','低于 60%'],['none','暂无运行']]],
+   ['均价 / 条','Price',[['all','全部'],['low','低于 $50'],['mid','$50–不足 $100'],['high','$100 及以上'],['none','暂无运行']]]
+ ]) {
+   replace('<div>'+label+'</div>','<label class="pm-pipelines-status-filter" data-filter-active="{{ pipe'+key+' !== \'all\' }}"><span>'+label+'</span><select aria-label="筛选'+label+'" value="{{ pipe'+key+' }}" sc-camel-on-change="{{ onPipe'+key+' }}">'+options.map(([value,text])=>'<option value="'+value+'">'+text+'</option>').join('')+'</select></label>');
+ }
  replace('<div sc-camel-on-click="{{ p.toggle }}"','<div class="pm-pipelines-row" sc-camel-on-click="{{ p.toggle }}"');
  const rowStart=p.indexOf('<div class="pm-pipelines-row"'),rowEnd=p.indexOf('<sc-if value="{{ p.expanded }}"',rowStart);
  let row=p.slice(rowStart,rowEnd);
