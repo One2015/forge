@@ -152,7 +152,7 @@ test('overview delivery progress is a flat section with filterable delivery date
  assert(overview.groups[0].rows.every(row=>{const days=Number.parseInt(row.deliveryDate);return days>7&&days<=14;}));
  overview.setDeliveryDateFilter({target:{value:'later'}}); overview=c.renderVals().over;
  assert(overview.groups[0].rows.every(row=>Number.parseInt(row.deliveryDate)>=15));
- assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border-radius:0[^}]*box-shadow:none!important/);
+ assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border:1px solid var\(--pm-border\)[^}]*border-radius:6px[^}]*box-shadow:none!important[^}]*overflow:hidden/);
 });
 test('delivery browser uses a two-row table header with the create action in the filter row',()=>{
  const page=built.slice(built.indexOf('<sc-if value="{{ isDelivery }}"'),built.indexOf('<sc-if value="{{ isSheet }}"'));
