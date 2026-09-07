@@ -63,6 +63,19 @@ test('workspace typography and page rhythm share one compact scale',()=>{
  assert.doesNotMatch(built,/>错误类型</);
  assert.doesNotMatch(built,/class="forge-supplier-performance"/);
 });
+test('production list pages share one stable title and primary-action grid',()=>{
+ const headings=Array.from(built.matchAll(/<(?:header|div) class="[^"]*\bpm-production-page-heading\b[^"]*"/g),match=>match[0]);
+ assert.equal(headings.length,4);
+ assert(headings.some(value=>value.includes('fg-page-header')));
+ assert(headings.some(value=>value.includes('pm-pipelines-heading')));
+ for(const [flag,endAnchor] of [['isDatasets','<script type="text/x-dc"'],['isResources','<sc-if value="{{ isItemLife }}"']]){
+  const start=built.indexOf('<sc-if value="{{ '+flag+' }}"');
+  const end=built.indexOf(endAnchor,start);
+  assert.match(built.slice(start,end),/class="pm-production-page-heading"/);
+ }
+ assert.match(built,/\.forge-postman :is\(\.forge-page,\.fg-runs\)>\.pm-production-page-heading\{display:grid!important;grid-template-columns:minmax\(0,1fr\) auto;align-items:start!important;gap:24px!important;min-height:52px;margin-bottom:20px!important\}/);
+ assert.match(built,/\.forge-postman \.pm-production-page-heading>button\{align-self:start;justify-self:end;flex:none;margin:0!important\}/);
+});
 test('workflow indicators distinguish completed, current and upcoming steps',()=>{
  const wizard=built.slice(built.indexOf('<nav class="forge-wizard-steps pm-steps"'),built.indexOf('</nav>',built.indexOf('<nav class="forge-wizard-steps pm-steps"')));
  assert.match(wizard,/aria-label="\{\{ step\.ariaLabel \}\}"/);
@@ -141,20 +154,27 @@ test('overview delivery progress is a flat section with filterable delivery date
  assert(overview.groups[0].rows.every(row=>Number.parseInt(row.deliveryDate)>=15));
  assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border-radius:0[^}]*box-shadow:none!important/);
 });
-test('delivery browser keeps one compact list view with aligned controls',()=>{
+test('delivery browser uses a two-row table header with the create action in the filter row',()=>{
  const page=built.slice(built.indexOf('<sc-if value="{{ isDelivery }}"'),built.indexOf('<sc-if value="{{ isSheet }}"'));
  assert.match(page,/id="pm-delivery-search"[^>]*placeholder="搜索数据单、客户或负责人"/);
  assert.doesNotMatch(page,/pm-delivery-view-toggle|delivery\.folderView|pm-delivery-folder-card/);
  assert.doesNotMatch(page,/\{\{ delivery\.count \}\}/);
  assert.match(built,/\.forge-postman \.pm-delivery-search\{[^}]*height:var\(--pm-control-height\)[^}]*min-height:var\(--pm-control-height\)/);
- assert.match(built,/\.forge-postman \.pm-delivery-sort-trigger\{[^}]*height:var\(--pm-control-height\)[^}]*min-height:var\(--pm-control-height\)/);
- assert.match(page,/<span>\{\{ o\.label \}\}<\/span><span aria-hidden="true">\{\{ o\.mark \}\}<\/span>/);
- assert.match(built,/\.forge-postman \.pm-delivery-sort \.forge-motion-menu\{[^}]*width:max-content[^}]*min-width:100%/);
- assert.match(built,/\.forge-postman \.pm-delivery-sort \.forge-motion-menu button\{[^}]*grid-template-columns:max-content 14px[^}]*justify-content:space-between/);
+ assert.doesNotMatch(page,/pm-delivery-sort|delivery\.sortLabel|最新/);
+ assert.match(page,/class="forge-delivery-primary forge-delivery-create pm-delivery-create-inline"[^>]*>[^<]*<svg[\s\S]*?<span>创建数据单<\/span>/);
+ assert.equal((page.match(/sc-camel-on-click="\{\{ delivery\.create \}\}"/g)||[]).length,1);
+ assert.match(page,/class="pm-delivery-table-head"[\s\S]*>客户<[\s\S]*>数据单名字<[\s\S]*>创建日期<[\s\S]*>创建人<[\s\S]*>状态<[\s\S]*>目标数<[\s\S]*>已关联条数<[\s\S]*>待审核<[\s\S]*>可交付<[\s\S]*>进度<[\s\S]*>操作</);
+ assert.doesNotMatch(page,/forge-delivery-customer-heading|查看子项/);
+ assert.match(built,/\.forge-postman \.pm-delivery-browser-toolbar\{[^}]*background:transparent/);
+ assert.match(built,/\.forge-postman \.pm-delivery-table-head[^}]*grid-template-columns:/);
 
  const c=vm.runInContext('new Component()',ctx);
  c.state.view='delivery';
  let view=c.renderVals().delivery;
+ const first=view.customers[0].sheets[0];
+ assert.match(first.createdDate,/^\d{4}\/\d{2}\/\d{2}$/);
+ assert(first.creator);
+ for(const key of ['target','linked','review','passed'])assert.equal(typeof first[key],'number');
  view.onQuery({target:{value:'yokiguan'}});
  view=c.renderVals().delivery;
  assert.equal(view.customers.reduce((count,customer)=>count+customer.sheets.length,0),1);
@@ -186,7 +206,17 @@ test('UI transformation preserves all business methods outside route adaptation'
  const withoutCheckboxAria=notificationToggleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutUtilityPanels).replace("\n            ariaChecked: n.on ? 'true' : 'false',",'');
  const withoutDeliveryBrowser=deliveryBrowserCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutCheckboxAria).replace(/\n  \/\/ pm-delivery-browser:start[\s\S]*?  \/\/ pm-delivery-browser:end\n/,'');
  const withoutItemRunEntryActions=itemRunEntryActionsLogicCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),withoutDeliveryBrowser);
- assert.equal(normalizeCopy(normalizeModels(strip(withoutItemRunEntryActions))),normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
+ const withoutRunItemOrigin=text=>text
+  .replace("\n    const lifeFromRun = view === 'itemlife' && st.lifeFrom === 'run';",'')
+  .replace(' && !lifeFromRun);',');')
+  .replace("\n      const fromRun = st.lifeFrom === 'run';",'')
+  .replace(/        backLabel:[\s\S]*?\n        showBranchBadge:/, '        ITEM_LIFE_NAVIGATION\n        showBranchBadge:')
+  .replace("\n            const itemId = meta[0] || (rec.id.replace(/[^a-f0-9]/g, '') + String(k).padStart(2, '0')).slice(0, 32);",'')
+  .replace('              id: itemId,',"              id: meta[0] || (rec.id.replace(/[^a-f0-9]/g, '') + String(k).padStart(2, '0')).slice(0, 32),")
+  .replace(/              rowCursor:[\s\S]*?\n              noAction:/,'              RUN_ITEM_DETAIL_ENTRY\n              noAction:');
+ const businessActual=withoutRunItemOrigin(normalizeCopy(normalizeModels(strip(withoutItemRunEntryActions))));
+ const businessExpected=withoutRunItemOrigin(normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
+ assert.equal(businessActual,businessExpected);
 });
 test('Pipeline checkbox aria state follows enable and disable without opening details',()=>{
  const c=vm.runInContext('new Component()',ctx);
@@ -468,8 +498,9 @@ test('delivery drafts are removed while unsaved-form protection remains',()=>{
 
 test('Item explorer scopes evidence to the exact Item and Run and preserves tabs',()=>{
  const c=vm.runInContext('new Component()',ctx), id='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f',runId='20260825-034505-c19f2a';
- Object.assign(c.state,{view:'itemlife',lifeItem:id,lifeRun:runId,sheetKey:'ant200'});
+ Object.assign(c.state,{view:'itemlife',lifeItem:id,lifeRun:runId,lifeRunIndex:21,lifeFrom:'run',sheetKey:'ant200'});
  let e=c.pmItemExplorerValues({id}); assert(e.demo); assert.equal(e.fileCount,4); assert(e.hasPrompts);assert(e.hasEvents);
+ assert(e.hasRunOverview);assert.equal(e.runState,'失败');assert.equal(e.runProgress,'8 / 18');assert.equal(e.runNode,'ref_search');assert.match(e.pipelineLabel,/web3d-gen-build-eval-v3/);assert.equal(e.trajectoryLabel,'4 个事件');
  assert.deepEqual(Array.from(e.nodes,n=>n.name),Array.from(c.pipeData().find(p=>p.name==='web3d-gen-build-eval-v3').dag,n=>n.split('/')[0]));
  e.tabs.find(t=>t.key==='pipeline').pick();e.nodes[1].pick();e=c.pmItemExplorerValues({id});
  assert(e.pipelineTab);assert.equal(e.node.name,'build');assert(e.node.hasConfig);assert(e.node.hasResult);
@@ -488,11 +519,23 @@ test('Pipeline inspector prefers versioned configuration over marked mock defaul
 });
 
 test('Item view links retain the selected tab and scope after reload',()=>{
- const route=ctx.codec.read('/items/b3d81c4e77af4a5c9e2f1a6b8c0d3e5f?run=20260825-034505-c19f2a&sheet=ant200&tab=files');
+ const route=ctx.codec.read('/items/b3d81c4e77af4a5c9e2f1a6b8c0d3e5f?run=20260825-034505-c19f2a&itemIndex=21&sheet=ant200&tab=files&from=run');
  assert.equal(route.patch.pmItemTab,'files');
  const restored=ctx.codec.read(ctx.codec.write(route.patch));
- assert.equal(restored.patch.pmItemTab,'files');assert.equal(restored.patch.lifeRun,route.patch.lifeRun);
+ assert.equal(restored.patch.pmItemTab,'files');assert.equal(restored.patch.lifeRun,route.patch.lifeRun);assert.equal(restored.patch.lifeRunIndex,21);assert.equal(restored.patch.lifeFrom,'run');
  assert.equal(ctx.codec.read('/items/b3d81c4e77af4a5c9e2f1a6b8c0d3e5f?tab=invalid').patch.pmItemTab,'history');
+});
+
+test('every Run Item opens its scoped detail while row actions remain separate',()=>{
+ const c=vm.runInContext('new Component()',ctx),runId='20260825-034505-c19f2a';
+ Object.assign(c.state,{view:'run',activeRun:runId,runItem:null});
+ let values=c.renderVals(), failed=values.run.items.find(item=>item.id==='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f'&&item.state==='失败');
+ assert(failed);assert.equal(failed.rowCursor,'pointer');
+ failed.open({target:{closest:()=>null},preventDefault(){},stopPropagation(){}});
+ assert.equal(c.state.view,'itemlife');assert.equal(c.state.lifeItem,failed.id);assert.equal(c.state.lifeRun,runId);assert.equal(c.state.lifeRunIndex,21);assert.equal(c.state.lifeFrom,'run');assert.equal(c.state.pmItemTab,'history');
+ values=c.renderVals();assert.equal(values.life.backLabel,'返回运行详情');values.life.back();assert.equal(c.state.view,'run');assert.equal(c.state.activeRun,runId);
+ const success=c.renderVals().run.items.find(item=>item.state==='待审核');
+ success.keyOpen({key:'Enter',target:null,currentTarget:null,preventDefault(){}});assert.equal(c.state.view,'itemlife');assert.equal(c.state.lifeItem,success.id);
 });
 
 test('Pipeline owner guards apply on direct editor links, viewer routes and stale callbacks',()=>{

@@ -9,12 +9,15 @@
 .forge-postman .pm-sheet-list{container:pm-sheet-list / inline-size}
 .forge-postman .forge-wizard-main{container:pm-wizard-main / inline-size}
 .forge-postman .rr-page .fg-runs-toolbar{flex-wrap:wrap;overflow:visible;gap:10px 16px}
-.forge-postman .rr-filter-controls{flex:0 1 460px;min-width:0;flex-wrap:wrap;gap:8px 12px;margin-left:auto}
+.forge-postman .rr-status-tabs{flex:0 1 auto;max-width:100%;min-width:0;overflow-x:auto;scrollbar-width:thin}
+.forge-postman .rr-filter-controls{flex:1 1 300px;min-width:0;flex-wrap:wrap;gap:8px 12px}
 .forge-postman .rr-page .rr-filter-controls .fg-search{min-width:140px}
 .forge-postman .rr-notice{gap:12px;overflow-wrap:anywhere}
 .forge-postman .rr-notice button{flex:none}
+.forge-postman .pm-run-item-row[role=link]{cursor:pointer!important}
+.forge-postman .pm-run-item-row[role=link]:focus-visible{outline:2px solid var(--pm-text);outline-offset:-2px}
 @media(min-width:761px){
- .forge-postman .rr-filter-controls{flex:0 1 460px;flex-wrap:nowrap;margin-left:auto}
+ .forge-postman .rr-filter-controls{flex:0 1 300px;flex-wrap:nowrap;margin-left:auto}
  .forge-postman .rr-page .rr-filter-controls .fg-search{flex:0 1 300px;width:300px;max-width:300px}
 }
 
@@ -163,6 +166,7 @@
  .forge-postman .pm-billing-date-range label{flex:1 1 160px}
  .forge-postman :is(.rr-page,.pm-review-queue,.forge-delivery-wizard,.forge-profile-panel,.pm-dataset-editor,.pm-billing-date-range) :is(input:not([type=checkbox],[type=radio],[type=file]),select,textarea){font-size:16px!important}
  .forge-postman :is(.rr-page,.pm-review-queue,.forge-delivery-wizard,.forge-profile-panel,.pm-dataset-editor,.pm-billing-date-range) :is(select,input:not([type=checkbox],[type=radio],[type=file]),button,summary){min-height:44px}
+ .forge-postman .rr-status-tabs .fg-button{min-height:40px}
  .forge-postman .rr-filter-controls{flex:1 1 100%}
  .forge-postman .rr-page .rr-filter-controls .fg-search{flex:1 1 100%;width:100%;max-width:none;height:44px}
  .forge-postman .pm-review-queue .pq-filters .pq-search{height:44px}

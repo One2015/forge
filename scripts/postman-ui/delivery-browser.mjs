@@ -8,6 +8,8 @@ export const deliveryBrowserCopy = [
   ["        .filter(d => delCat === 'all' || d.cat === delCat)", "        .filter(d => {\n          if (delCat !== 'all' && d.cat !== delCat) return false;\n          if (delStatus === 'unmet' && this.overviewFinalDeliveryCount(d) >= (Number(d.target) || 0)) return false;\n          if (!delQuery) return true;\n          const memberText = this.deliverySheetMembers(d).flatMap(member => [member.name, member.accountName, member.role]).filter(Boolean).join(' ');\n          return [d.name, d.customer, d.cat, d.created, d.key, memberText].filter(Boolean).join(' ').toLocaleLowerCase().includes(delQuery);\n        })"],
   ["        const on = delCat === k;", "        const on = delStatus === 'all' && delCat === k;"],
   ["          pick: () => this.setState({ delCat: k })", "          pick: () => this.setState({ delCat: k, delStatus: 'all' })"],
+  ["            const bar = barOf(d);\n            return {", "            const bar = barOf(d);\n            const createdParts = String(d.created || '').split('·').map(part => part.trim());\n            const createdDate = String(createdParts[0] || '—').replace(/\\s*创建$/, '').trim();\n            const creator = createdParts[1] || '—';\n            return {"],
+  ["              motionKey: d.key, name: d.name, created: d.created,", "              motionKey: d.key, name: d.name, created: d.created, createdDate, creator,\n              target: d.target, linked: d.linked, review: d.review, passed: d.passed,"],
   ["      create: () => this.openDeliveryEditor(),\n      subtitle:", "      create: () => this.openDeliveryEditor(),\n      query: st.deliveryQuery || '', hasQuery: !!delQuery,\n      onQuery: event => this.setState({ deliveryQuery: event.target.value }),\n      clearQuery: () => this.setState({ deliveryQuery: '', delCat: 'all', delStatus: 'all' }),\n      unmet: delStatus === 'unmet', unmetBg: delStatus === 'unmet' ? '#fff' : 'transparent',\n      unmetFg: delStatus === 'unmet' ? 'var(--forge-text)' : 'var(--forge-muted)', unmetWeight: delStatus === 'unmet' ? '600' : '400',\n      toggleUnmet: () => this.setState({ delStatus: delStatus === 'unmet' ? 'all' : 'unmet' }),\n      empty: delShownN === 0,\n      subtitle:"]
 ];
 
@@ -23,6 +25,11 @@ export function installDeliveryBrowser(t) {
   const subtitle = '          <div style="margin-top:7px;font-size:14px;color:var(--forge-muted)">{{ delivery.subtitle }}</div>\n';
   if (!page.includes(subtitle)) throw Error('Delivery browser subtitle boundary changed');
   page = page.replace(subtitle, '');
+  const headingCreate = '        <button type="button" class="forge-delivery-primary forge-delivery-create" sc-camel-on-click="{{ delivery.create }}">';
+  const headingCreateStart = page.indexOf(headingCreate);
+  const headingCreateEnd = page.indexOf('</button>', headingCreateStart);
+  if (headingCreateStart < 0 || headingCreateEnd < headingCreateStart) throw Error('Delivery browser heading action boundary changed');
+  page = page.slice(0, headingCreateStart) + page.slice(headingCreateEnd + '</button>\n'.length);
   const toolbarStart = page.indexOf('      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">');
   const resultsStart = page.indexOf('      <div style="display:flex;flex-direction:column;gap:20px">', toolbarStart);
   const resultsClose = page.lastIndexOf('      </div>\n    </div>\n  </sc-if>');

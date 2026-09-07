@@ -64,6 +64,12 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 .forge-postman :is(.forge-page,.fg-page-header,.forge-billing-heading,.forge-model-heading) h1{font:600 var(--pm-title-size)/var(--pm-title-leading) var(--pm-font)!important;letter-spacing:0!important}
 .forge-postman h2,.forge-postman h3{letter-spacing:0}
 .forge-postman .forge-page>div:has(>div>h1){align-items:center!important;margin-bottom:20px!important}
+.forge-postman :is(.forge-page,.fg-runs)>.pm-production-page-heading{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:start!important;gap:24px!important;min-height:52px;margin-bottom:20px!important}
+.forge-postman .pm-production-page-heading>div:first-child{min-width:0}
+.forge-postman .pm-production-page-heading>div:nth-child(2):empty{display:none!important}
+.forge-postman .pm-production-page-heading>div:first-child>h1{margin:0!important}
+.forge-postman .pm-production-page-heading>div:first-child>:is(p,div){margin:4px 0 0!important;color:var(--pm-muted)!important;font-size:13px!important;line-height:20px!important}
+.forge-postman .pm-production-page-heading>button{align-self:start;justify-self:end;flex:none;margin:0!important}
 .forge-postman .forge-page :is(input:not([type=checkbox],[type=radio],[type=file]),select),.forge-postman .fg-input{height:32px!important;min-height:32px;border-radius:4px!important;font-size:13px!important}
 .forge-postman :is(input,textarea,select){font-family:var(--pm-font);caret-color:var(--pm-text);accent-color:var(--pm-link)}
 .forge-postman :is(input,textarea)::placeholder{color:var(--pm-muted);opacity:1}
