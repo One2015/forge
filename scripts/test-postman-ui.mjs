@@ -171,6 +171,7 @@ test('delivery browser uses a two-row table header with the create action in the
  assert.doesNotMatch(page,/forge-delivery-customer-heading|查看子项/);
  assert.match(built,/\.forge-postman \.pm-delivery-browser-toolbar\{[^}]*background:transparent/);
  assert.match(built,/\.forge-postman \.pm-delivery-table-head[^}]*grid-template-columns:/);
+ assert.match(built,/\.forge-postman \.pm-delivery-table-head>span\{[^}]*white-space:nowrap/);
 
  const c=vm.runInContext('new Component()',ctx);
  c.state.view='delivery';
