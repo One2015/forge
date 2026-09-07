@@ -170,7 +170,7 @@ test('delivery browser uses a two-row table header with the create action in the
  assert.match(page,/class="pm-delivery-table-head"[\s\S]*>客户<[\s\S]*>数据单名字<[\s\S]*>创建日期<[\s\S]*>创建人<[\s\S]*>状态<[\s\S]*>目标数<[\s\S]*>已关联条数<[\s\S]*>待审核<[\s\S]*>可交付<[\s\S]*>进度<[\s\S]*>操作</);
  assert.doesNotMatch(page,/forge-delivery-customer-heading|查看子项/);
  assert.match(built,/\.forge-postman \.pm-delivery-browser-toolbar\{[^}]*background:transparent/);
- assert.match(built,/\.forge-postman \.pm-delivery-table-head[^}]*grid-template-columns:/);
+ assert.match(built,/\.forge-postman \.pm-delivery-table-head[^}]*grid-template-columns:130px /);
  assert.match(built,/\.forge-postman \.pm-delivery-table-head>span\{[^}]*white-space:nowrap/);
 
  const c=vm.runInContext('new Component()',ctx);
