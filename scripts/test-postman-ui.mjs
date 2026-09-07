@@ -160,6 +160,7 @@ test('overview delivery progress is a flat section with toggleable delivery-date
 test('delivery browser uses a two-row table header with the create action in the filter row',()=>{
  const page=built.slice(built.indexOf('<sc-if value="{{ isDelivery }}"'),built.indexOf('<sc-if value="{{ isSheet }}"'));
  assert.match(page,/id="pm-delivery-search"[^>]*placeholder="搜索数据单、客户或负责人"/);
+ assert.doesNotMatch(page,/pm-delivery-category-row|数据单分类|delivery\.cats|delivery\.toggleUnmet|>未达标</);
  assert.doesNotMatch(page,/pm-delivery-view-toggle|delivery\.folderView|pm-delivery-folder-card/);
  assert.doesNotMatch(page,/\{\{ delivery\.count \}\}/);
  assert.match(built,/\.forge-postman \.pm-delivery-search\{[^}]*height:var\(--pm-control-height\)[^}]*min-height:var\(--pm-control-height\)/);
