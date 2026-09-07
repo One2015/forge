@@ -132,7 +132,7 @@ test('profile Skill creation menu stays compact and aligned to its trigger',()=>
  assert.match(built,/\.forge-postman \.pm-profile-create-menu\{[^}]*width:240px[^}]*max-width:calc\(100vw - 24px\)/);
  assert.match(built,/width=Math\.min\(240,window\.innerWidth-24\)/);
 });
-test('overview delivery progress is a flat section with filterable delivery dates',()=>{
+test('overview delivery progress is a flat section with toggleable delivery-date sorting',()=>{
  const start=built.indexOf('<section class="pm-overview-delivery-section"');
  const end=built.indexOf('</section>',start);
  assert(start>=0&&end>start);
@@ -140,18 +140,20 @@ test('overview delivery progress is a flat section with filterable delivery date
  assert.match(section,/aria-labelledby="forge-overview-delivery-heading"/);
  assert.match(section,/id="forge-overview-delivery-heading"[^>]*>\{\{ g\.title \}\}<\/h2>/);
  assert.doesNotMatch(section,/\{\{ g\.count \}\}/);
- assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span>项目负责人<\/span><label class="pm-overview-delivery-date-filter"><select aria-label="筛选交付日期"[\s\S]*<option value="all">交付日期<\/option>[\s\S]*<span>交付状态<\/span>/);
+ assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span>项目负责人<\/span><button[^>]*type="button"[^>]*class="pm-overview-delivery-date-sort"[^>]*aria-label="\{\{ over\.deliveryDateSortHint \}\}"[^>]*sc-camel-on-click="\{\{ over\.toggleDeliveryDateSort \}\}"[\s\S]*\{\{ over\.deliveryDateSortLabel \}\}[\s\S]*<span>交付状态<\/span>/);
+ assert.doesNotMatch(section,/筛选交付日期|pm-overview-delivery-date-filter|<select/);
  assert.match(section,/class="pm-overview-delivery-date"[\s\S]*\{\{ r\.deliveryDate \}\}/);
  const c=vm.runInContext('new Component()',ctx); c.state.view='overview';
  let overview=c.renderVals().over;
  assert.equal(overview.groups[0].hasRows,true);
  assert(overview.groups[0].rows.every(row=>/^\d+ 天后$/.test(row.deliveryDate)));
- overview.setDeliveryDateFilter({target:{value:'week'}}); overview=c.renderVals().over;
- assert.equal(overview.deliveryDateFilter,'week'); assert(overview.groups[0].rows.every(row=>Number.parseInt(row.deliveryDate)<=7));
- overview.setDeliveryDateFilter({target:{value:'fortnight'}}); overview=c.renderVals().over;
- assert(overview.groups[0].rows.every(row=>{const days=Number.parseInt(row.deliveryDate);return days>7&&days<=14;}));
- overview.setDeliveryDateFilter({target:{value:'later'}}); overview=c.renderVals().over;
- assert(overview.groups[0].rows.every(row=>Number.parseInt(row.deliveryDate)>=15));
+ assert.equal(overview.deliveryDateSortLabel,'最近优先');
+ assert.deepEqual(Array.from(overview.groups[0].rows,row=>Number.parseInt(row.deliveryDate)),[7,10,13,16,19]);
+ overview.toggleDeliveryDateSort(); overview=c.renderVals().over;
+ assert.equal(overview.deliveryDateSortLabel,'最晚优先');
+ assert.deepEqual(Array.from(overview.groups[0].rows,row=>Number.parseInt(row.deliveryDate)),[19,16,13,10,7]);
+ overview.toggleDeliveryDateSort(); overview=c.renderVals().over;
+ assert.equal(overview.deliveryDateSortLabel,'最近优先');
  assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{[^}]*border:1px solid var\(--pm-border\)[^}]*border-radius:6px[^}]*box-shadow:none!important[^}]*overflow:hidden/);
 });
 test('delivery browser uses a two-row table header with the create action in the filter row',()=>{
