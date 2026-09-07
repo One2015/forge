@@ -552,7 +552,7 @@
           <button class="rbac-tab" type="button" role="tab" aria-selected="${state.memberView === 'invite'}" data-member-view="invite">邀请记录${state.invites.length ? ` · ${state.invites.length}` : ''}</button>
         </div>
         ${state.memberView === 'invite' ? inviteView() : `
-          <div class="rbac-toolbar" style="margin-bottom:12px"><input class="rbac-search" type="search" value="${escapeHtml(state.memberQuery || '')}" placeholder="搜索姓名或邮箱" aria-label="搜索成员" data-action="member-search"><span class="rbac-badge">${members.length} 位成员</span></div>
+          <div class="rbac-toolbar" style="margin-bottom:12px"><input class="rbac-search" type="search" value="${escapeHtml(state.memberQuery || '')}" placeholder="搜索姓名或邮箱" aria-label="搜索成员" data-action="member-search"></div>
           <div class="rbac-card rbac-table-wrap"><table class="rbac-table"><thead><tr><th>成员</th><th>来源</th><th>平台角色</th><th>参与项目</th><th>状态</th></tr></thead><tbody>
             ${members.map(member => `<tr><td><button class="rbac-member-name" type="button" data-member-id="${member.id}" aria-label="查看 ${escapeHtml(member.name)} 的用户 Profile">${escapeHtml(member.name)}<span class="rbac-member-email">${escapeHtml(member.email)}</span></button></td><td>${escapeHtml(member.source)}</td><td><span class="rbac-member-role-value">${platformRoleLabel(member.platformRole)}</span></td><td>${memberProjectsFor(member.id).length} 个</td><td>${escapeHtml(member.status)}</td></tr>`).join('')}
           </tbody></table></div>`}
