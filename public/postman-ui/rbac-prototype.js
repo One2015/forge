@@ -158,6 +158,7 @@
   let dock;
   let toast;
   let toastTimer;
+  let workspaceResizeObserver;
   let pendingPlatformRoles = {};
   let platformRoleConfirmOpen = false;
   let skillDeleteConfirmOpen = false;
@@ -255,6 +256,18 @@
     root.dataset.open = 'false';
     root.setAttribute('aria-live', 'polite');
     document.body.appendChild(root);
+
+    const syncWorkspaceInset = () => {
+      const sidebarEdge = document.querySelector('.forge-sidebar')?.getBoundingClientRect().right;
+      if (Number.isFinite(sidebarEdge)) root.style.setProperty('--rbac-sidebar-edge', `${Math.max(0, sidebarEdge)}px`);
+    };
+    const sidebar = document.querySelector('.forge-sidebar');
+    syncWorkspaceInset();
+    if (sidebar && typeof ResizeObserver === 'function') {
+      workspaceResizeObserver = new ResizeObserver(syncWorkspaceInset);
+      workspaceResizeObserver.observe(sidebar);
+    }
+    window.addEventListener('resize', syncWorkspaceInset, { passive: true });
 
     dock = document.createElement('aside');
     dock.id = 'forge-rbac-role-dock';

@@ -162,6 +162,12 @@
 .forge-postman button.pm-dataset-choose-pipeline { min-height:36px; padding:6px 16px; border:1px solid var(--pm-text); border-radius:4px; background:var(--pm-text); color:#fff; font:inherit; font-weight:600; cursor:pointer; }
 .forge-postman button.pm-dataset-choose-pipeline:hover { background:var(--pm-focus); }
 
+.forge-postman .pm-dataset-detail-heading { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.forge-postman .pm-dataset-detail-heading .pm-dataset-title { flex:1 1 240px; }
+.forge-postman .pm-dataset-detail-actions { display:flex; align-items:center; gap:8px; margin-left:auto; flex:none; }
+.forge-postman .pm-dataset-detail-actions>button { box-sizing:border-box; height:var(--density-control-height)!important; min-height:var(--density-control-height)!important; }
+.forge-postman .pm-dataset-detail-actions .pm-dataset-edit-trigger { margin-left:0; }
+.forge-postman .pm-dataset-meta-count { display:flex; align-items:baseline; font-size:13px; color:var(--pm-text); white-space:nowrap; }
 .forge-postman .pm-dataset-edit-trigger { margin-left:auto; white-space:nowrap; }
 .forge-postman .pm-dataset-editor { width:min(760px,calc(100vw - 32px)); max-height:calc(100dvh - 48px); padding:0; border:1px solid var(--pm-border); border-radius:8px; background:var(--pm-panel,#fff); color:var(--pm-text); }
 .forge-postman .pm-dataset-editor[open] { display:flex; flex-direction:column; }
@@ -188,6 +194,7 @@
 .forge-postman .pm-dataset-edit-error { color:var(--pm-danger); padding:0 20px; }
 .forge-postman .pm-dataset-undo { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; padding:12px; border:1px solid var(--pm-border); font-size:13px; }
 @media(max-width:600px){.forge-postman .pm-dataset-editor{width:calc(100vw - 24px);max-height:calc(100dvh - 24px)}.forge-postman .pm-dataset-edit-fields{grid-template-columns:1fr 1fr}.forge-postman .pm-dataset-edit-fields>label:last-child{grid-column:1/-1}.forge-postman .pm-dataset-editor :is(input,textarea){font-size:16px}}
+@media(max-width:600px){.forge-postman .pm-dataset-detail-heading{align-items:flex-start}.forge-postman .pm-dataset-detail-actions{width:100%;margin-left:0}.forge-postman .pm-dataset-detail-actions>button{flex:1}}
 
 .forge-postman .pm-pipeline-edit-fields { display:grid;grid-template-columns:minmax(0,1fr) 140px auto;gap:12px;align-items:end;margin:12px 0; }
 .forge-postman .pm-pipeline-owner-editor select { min-height:36px;border:1px solid var(--pm-control);border-radius:4px;background:white;color:var(--pm-text);padding:6px 10px;font:inherit;width:100%; }

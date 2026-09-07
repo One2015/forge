@@ -127,6 +127,54 @@ test('production list pages share one stable title and primary-action grid',()=>
  assert.match(built,/\.forge-postman :is\(\.forge-page,\.fg-runs\)>\.pm-production-page-heading\{display:grid!important;grid-template-columns:minmax\(0,1fr\) auto;align-items:start!important;gap:24px!important;min-height:52px;margin-bottom:20px!important\}/);
  assert.match(built,/\.forge-postman \.pm-production-page-heading>button\{align-self:start;justify-self:end;flex:none;margin:0!important\}/);
 });
+test('dataset list rows keep square corners inside the rounded split surface',()=>{
+ assert.match(built,/\.forge-postman \[data-flow-family=datasets\]\[data-pm-click=true\]\{border-radius:0!important\}/);
+ assert.match(built,/\.forge-postman \.pm-dataset-split\{border-radius:var\(--radius-surface\)!important\}/);
+});
+test('dataset detail consolidates its actions and metadata',()=>{
+ const start=built.indexOf('<sc-if value="{{ isDatasets }}"');
+ const end=built.indexOf('<script type="text/x-dc"',start);
+ const page=built.slice(start,end);
+ const headingStart=page.indexOf('class="pm-production-page-heading"');
+ const headingEnd=page.indexOf('<sc-if value="{{ importOpen }}"',headingStart);
+ const detailStart=page.indexOf('<sc-if value="{{ hasDs }}"');
+ const heading=page.slice(headingStart,headingEnd);
+ const detail=page.slice(detailStart);
+ const titleRow=detail.slice(detail.indexOf('class="pm-dataset-detail-heading"'),detail.indexOf('class="pm-dataset-meta"'));
+ assert(start>=0&&end>start&&headingStart>=0&&headingEnd>headingStart&&detailStart>headingEnd);
+ assert.doesNotMatch(heading,/dsSubtitle|openImport|导入数据集/);
+ assert.match(titleRow,/class="pm-dataset-detail-actions"[\s\S]*编辑数据集[\s\S]*class="pm-dataset-import-trigger"[\s\S]*导入数据集/);
+ assert.doesNotMatch(titleRow,/\{\{ ds\.count \}\}/);
+ assert.match(detail,/class="pm-dataset-meta"[\s\S]*<\/sc-for>\s*<div class="pm-dataset-meta-count">\{\{ ds\.count \}\}<\/div>[\s\S]*>版本<\/div>/);
+ assert.match(built,/\.forge-postman \.pm-dataset-detail-actions \{ display:flex; align-items:center; gap:8px; margin-left:auto; flex:none; \}/);
+});
+test('pipeline list exposes a dedicated status filter and status column',()=>{
+ const start=built.indexOf('<sc-if value="{{ isPipelines }}"');
+ const end=built.indexOf('<sc-if value="{{ isPipeEdit }}"',start);
+ const page=built.slice(start,end);
+ assert(start>=0&&end>start);
+ assert.doesNotMatch(page,/pipeSubtitle|pipeCount/);
+	 assert.match(page,/class="pm-pipelines-search"/);
+	 assert.match(page,/class="pm-pipelines-filter-label">状态<\/span>/);
+	 assert.match(page,/aria-label="Pipeline 状态筛选"/);
+	 const heading=page.slice(page.indexOf('class="pm-production-page-heading pm-pipelines-heading"'),page.indexOf('class="pm-pipelines-filters"'));
+	 const filters=page.slice(page.indexOf('class="pm-pipelines-filters"'),page.indexOf('class="pm-pipelines-list"'));
+	 assert.doesNotMatch(heading,/openNewPipe|新建 Pipeline/);
+	 assert.match(filters,/class="pm-pipelines-create" sc-camel-on-click="\{\{ openNewPipe \}\}"/);
+	 assert.match(filters,/pm-pipelines-search[\s\S]*pm-pipelines-filter-label[\s\S]*pm-pipelines-create/);
+	 assert.match(page,/<div>名称<\/div>\s*<div>状态<\/div>\s*<div>当前版本<\/div>/);
+ assert.match(page,/class="pm-pipelines-metric pm-pipelines-status" data-label="状态"/);
+ assert.match(page,/data-state="\{\{ p\.statusTone \}\}">\{\{ p\.statusLabel \}\}<\/span>/);
+ assert.doesNotMatch(page,/<div[^>]*>废弃<\/div>\s*<\/sc-if>\s*<\/div>\s*<div[^>]*>\{\{ p\.owner \}\}/);
+ assert.match(built,/\.forge-postman \.pm-pipelines-search\{border-radius:var\(--radius-control\)!important\}/);
+ assert.match(built,/\.forge-postman \.pm-pipelines-list\{[^}]*border-radius:var\(--radius-surface\)!important/);
+ assert.match(built,/\.forge-postman \.pm-pipelines-row\{[^}]*border-radius:0!important/);
+ assert.match(built,/grid-template-columns:minmax\(220px,1fr\) 56px 62px 50px 82px 62px 96px 78px 20px!important/);
+ const c=vm.runInContext('new Component()',ctx);c.setState({view:'pipelines',pipeFilter:'全部'});const values=c.renderVals();
+ assert.deepEqual(Array.from(values.pipeFilters,filter=>filter.label),['全部','活跃','废弃']);
+ assert(values.pipelines.some(row=>row.statusLabel==='活跃'&&row.statusTone==='active'));
+ assert(values.pipelines.some(row=>row.statusLabel==='废弃'&&row.statusTone==='stale'));
+});
 test('workflow indicators distinguish completed, current and upcoming steps',()=>{
  const wizard=built.slice(built.indexOf('<nav class="forge-wizard-steps pm-steps"'),built.indexOf('</nav>',built.indexOf('<nav class="forge-wizard-steps pm-steps"')));
  assert.match(wizard,/aria-label="\{\{ step\.ariaLabel \}\}"/);
@@ -275,6 +323,9 @@ test('branch configuration uses three searchable single-select pickers with clea
 test('UI transformation preserves all business methods outside route adaptation',()=>{
  const strip=source=>{source=sheetReviewHistoryCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source).replace(/  \/\/ pm-sheet-review-history:start[\s\S]*?  \/\/ pm-sheet-review-history:end\n/,'');source=itemPreviewLinkCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source);source=reviewReferenceSkillCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source);const s=pipelineNodeDrawerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),source);return s.slice(s.indexOf('class Component')).replace(/^.*\/\/ pm-run-model-summary-values\n/gm,'').replace(/  \/\/ pm-delivery-preview-mock:start[\s\S]*?  \/\/ pm-delivery-preview-mock:end\n\n/,'').replace(' || this.pmDeliveryArtifactMock(itemId, runId); // pm-delivery-preview-fallback',';').replace(/  \/\/ pm-item-explorer-demo:start[\s\S]*?  \/\/ pm-item-explorer:end\n\n/,'').replace(/^.*\/\/ pm-item-explorer-values\n/gm,'').replace(/^.*\/\/ pm-node-config-values\n/gm,'').replace(/^.*\/\/ pm-pipeline-access-values\n/gm,'').replace(/  \/\/ forge-routing-methods:start[\s\S]*?\/\/ forge-routing-methods:end/,'').replace(/\n  \/\/ pm-review-queue-methods:start[\s\S]*?\/\/ pm-review-queue-methods:end\n/,'').replace(/\n      \/\/ pm-review-queue-values:start[\s\S]*?\/\/ pm-review-queue-values:end\n/,'').replace(/\n  \/\/ pm-run-records-methods:start[\s\S]*?\/\/ pm-run-records-methods:end\n/,'').replace(/    \/\/ pm-run-records-values:start[\s\S]*?\/\/ pm-run-records-values:end\n\n/,'RUN_RECORDS_VIEW_MODEL').replace(/    const runPal =[\s\S]*?(?=    const delMap =)/,'RUN_RECORDS_VIEW_MODEL').replace('const mineRows = rows.filter(r => (this.reviewQueueClaim(r) || r.assignee).toLowerCase() === me.toLowerCase()); // pm-review-queue-owner','const mineRows = rows.filter(r => r.assignee === me);')};
  const normalizeModels=s=>modelStatusCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),s);
+ const normalizePipelineStatus=s=>s
+  .replace("const filters = ['全部', '活跃', '废弃'].map(label => {","const filters = ['活跃', '全部', '废弃'].map(label => {")
+  .replace("stale: staleOf(p), statusLabel: staleOf(p) ? '废弃' : '活跃', statusTone: staleOf(p) ? 'stale' : 'active', bg: open ? '#fdf5f2' : '#fff',","stale: staleOf(p), bg: open ? '#fdf5f2' : '#fff',");
  const normalizeCopy=beforeDrawer=>{const beforeVersions=pipelineVersionHistoryCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeDrawer).replace(/  \/\/ pm-pipeline-version-history:start[\s\S]*?  \/\/ pm-pipeline-version-history:end\n/,'');const beforeDates=pipelineNodeDrawerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeVersions).replace(/  \/\/ pm-pipeline-node-drawer:start[\s\S]*?  \/\/ pm-pipeline-node-drawer:end\n/,'');const beforeProfile=billingDateRangeCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeDates).replace(/  \/\/ pm-billing-date-range:start[\s\S]*?  \/\/ pm-billing-date-range:end\n/,'');const beforeEditPage=profileSkillEditorCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeProfile).replace(/  \/\/ pm-profile-skill-editor:start[\s\S]*?  \/\/ pm-profile-skill-editor:end\n/,'');const beforeTaskTags=beforeEditPage.includes('const page = true;')?deliveryEditPageCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeEditPage):beforeEditPage;const beforeChecklist=taskTagCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeTaskTags).replace(/  \/\/ pm-task-tags:start[\s\S]*?  \/\/ pm-task-tags:end\n/,'');const beforeOwner=wizardChecklistCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeChecklist).replace(/  \/\/ pm-wizard-checklist:start[\s\S]*?  \/\/ pm-wizard-checklist:end\n/,'');const beforeEditor=pipelineOwnerCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeOwner).replace(/  \/\/ pm-pipeline-owner:start[\s\S]*?  \/\/ pm-pipeline-owner:end\n/,''); const sourceInput=datasetEditorCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),beforeEditor).replace(/  \/\/ pm-dataset-editor:start[\s\S]*?  \/\/ pm-dataset-editor:end\n/,''); const originalInput=datasetPipelineCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),sourceInput).replace(/  \/\/ pm-dataset-pipeline-guide:start[\s\S]*?  \/\/ pm-dataset-pipeline-guide:end\n/,''); const raw=sheetInlineCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),originalInput).replace(/  \/\/ pm-sheet-inline:start[\s\S]*?  \/\/ pm-sheet-inline:end\n/,''); const input=listAssociationCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),raw).replace(/  \/\/ pm-list-association:start[\s\S]*?  \/\/ pm-list-association:end\n/,''); const s=entryTagStyleCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),input).replace(/  \/\/ pm-entry-tag-style:start[\s\S]*?  \/\/ pm-entry-tag-style:end\n/,'');return linkedItemToastCopy.reduce((text,[from,to])=>text.replace(to,()=>from),overviewSummaryCopy.reduce((text,[from,to])=>text.replace(from,()=>to),reviewAllocationCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),ant200MockCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),lifecyclePhotoCopy.slice().reverse().reduce((text,[from,to])=>text.replace(to,()=>from),s))))).replace(/\n  \/\/ pm-branch-search:start[\s\S]*?  \/\/ pm-branch-search:end\n/,'').replace('branch: this.pmBranchValues(),','branch: this.branchFormValues(),').replace(/^.*\/\/ pm-photo-slots\n/gm,'').replace(/\n\n  \/\/ pm-lifecycle-photos:start[\s\S]*?  \/\/ pm-lifecycle-photos:end\n/,'');};
  // This presentation field exposes the existing enabled state to assistive
  // technology; the enabled-state calculation and toggle callback stay intact.
@@ -291,7 +342,7 @@ test('UI transformation preserves all business methods outside route adaptation'
   .replace("\n            const itemId = meta[0] || (rec.id.replace(/[^a-f0-9]/g, '') + String(k).padStart(2, '0')).slice(0, 32);",'')
   .replace('              id: itemId,',"              id: meta[0] || (rec.id.replace(/[^a-f0-9]/g, '') + String(k).padStart(2, '0')).slice(0, 32),")
   .replace(/              rowCursor:[\s\S]*?\n              noAction:/,'              RUN_ITEM_DETAIL_ENTRY\n              noAction:');
- const businessActual=withoutRunItemOrigin(normalizeCopy(normalizeModels(strip(withoutStepV2WMock))));
+ const businessActual=withoutRunItemOrigin(normalizeCopy(normalizeModels(strip(normalizePipelineStatus(withoutStepV2WMock)))));
  const businessExpected=withoutRunItemOrigin(normalizeCopy(strip(removeDeliveryDrafts(logic(original)))));
  assert.equal(businessActual,businessExpected);
 });
@@ -370,17 +421,34 @@ test('resources keeps its page-level create action in the shared primary tier',(
  assert.match(button,/data-pm-primary="true"/);
  assert.doesNotMatch(button,/data-pm-secondary=/);
 });
-test('review summary replaces redundant tabs and filters live in their table columns',()=>{
- assert.match(built,/aria-label="审核范围"/);
+test('review summary leads into a titled list with one inline filter toolbar',()=>{
  assert.doesNotMatch(built,/class="pq-tabs" role="tablist"/);
+ assert.match(built,/<h1 id="queue-title">审核<\/h1>/);assert.doesNotMatch(built,/review\.queue\.subtitle/);assert.match(built,/<h2 class="pq-list-title">审核列表<\/h2>/);
  assert.match(built,/role="table" aria-label="审核任务列表"/);
- for(const label of ['按审核类型筛选','按审核轮次筛选','review.queue.timeHeading }}排序'])assert.match(built,new RegExp(label));
- assert.match(built,/sc-camel-on-change="\{\{ review\.queue\.setPerson \}\}"/);
+ assert.match(built,/sc-for list="\{\{ review\.queue\.filters \}\}"[^>]*hint-placeholder-count="5"/);
+ assert.match(built,/class="pq-filter-trigger"[^>]*aria-label="\{\{ filter\.ariaLabel \}\}：\{\{ filter\.label \}\}"[^>]*aria-haspopup="menu"[^>]*aria-expanded="\{\{ filter\.open \}\}"/);
+ assert.match(built,/class="pq-filter-menu forge-motion-menu"[^>]*role="menu"/);
+ assert.match(built,/role="menuitemradio"[^>]*aria-checked="\{\{ option\.selected \}\}"/);
+ assert.match(built,/class="pq-filter-scrim"/);assert.match(built,/class="pq-search-clear"[^>]*aria-label="清除搜索"/);
+ assert.doesNotMatch(built,/<select aria-label="审核|class="pq-filter-popover"/);
+ assert.doesNotMatch(built,/pq-column-filter|pq-mobile-column-filters/);
  assert.match(built,/\.pm-review-queue \.pq-table-head\{[^}]*font-weight:var\(--weight-semibold\)/);
+ assert.match(built,/\.forge-postman \.pm-review-queue \.pq-table-head\{[^}]*background:var\(--surface-inset\)!important[^}]*border-bottom:1px solid var\(--border-default\)!important/);
+ assert.match(built,/:root\[data-forge-theme=dark\] \.forge-postman \.pm-review-queue \.pq-table-head\{background:var\(--surface-inset\)!important;border-color:var\(--border-default\)!important\}/);
  assert.match(built,/\.pm-review-queue \.pq-filters \.pq-search\{[^}]*height:var\(--pm-control-height\)/);
+ assert.match(built,/\.pm-review-queue \.pq-filters\{[^}]*overflow-x:auto[^}]*scrollbar-width:none/);
+ assert.match(built,/\.pm-review-queue \.pq-filters::\-webkit-scrollbar\{display:none\}/);
  assert.match(built,/\.pm-review-queue \.pq-search>\.forge-icon\{[^}]*inset-inline-start:12px[^}]*top:50%[^}]*transform:translateY\(-50%\)[^}]*pointer-events:none/);
- assert.match(built,/\.forge-postman \.pm-review-queue \.pq-search input\{[^}]*padding-block:5px[^}]*padding-inline:36px 10px/);
- assert.match(built,/\.pm-review-queue \.pq-reset\{height:var\(--pm-control-height\)/);
+ assert.match(built,/\.forge-postman \.pm-review-queue \.pq-search input\{[^}]*padding-block:5px[^}]*padding-inline:36px 36px[^}]*font-size:var\(--type-component-size\)!important/);
+ assert.match(built,/\.pm-review-queue \.pq-filter-trigger\{[^}]*color:var\(--text-disabled\)[^}]*font-size:var\(--type-component-size\)/);
+ assert.match(built,/\.pm-review-queue \.pq-filter-trigger\[data-filtered=true\],[^}]*\{color:var\(--text-primary\);font-weight:var\(--weight-medium\)\}/);
+ assert.match(built,/\.forge-postman \.pm-review-queue \.pq-filter-menu\{[^}]*position:fixed[^}]*border-radius:var\(--radius-surface\)!important[^}]*background:var\(--surface-overlay\)!important[^}]*box-shadow:var\(--shadow-overlay\)!important/);
+ assert.match(built,/\.pm-review-queue \.pq-filters>\.pq-reset\{[^}]*height:var\(--pm-control-height\)/);
+ assert.match(built,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*min-height:60px/);
+ assert.match(built,/\.pm-review-queue \.pq-task\{[^}]*min-height:60px[^}]*padding:9px 0 9px var\(--content-inset-compact\)[^}]*border-radius:0!important/);
+ assert.match(built,/@container pm-review \(max-width:980px\)\{[\s\S]*?\.pq-table-scroll\{max-height:none;overflow:hidden\}/);
+ assert.match(built,/\.pq-table>div:last-child>\.pq-row:first-child\{border-radius:calc\(var\(--radius-surface\) - 1px\) calc\(var\(--radius-surface\) - 1px\) 0 0\}/);
+ assert.match(built,/\.pq-table>div:last-child>\.pq-row:last-child\{border-radius:0 0 calc\(var\(--radius-surface\) - 1px\) calc\(var\(--radius-surface\) - 1px\)\}/);
  assert.doesNotMatch(built,/<span class="pm-preview-label">/);
 });
 
@@ -1092,10 +1160,11 @@ test('Skills created or uploaded in orders remain editable in Profile without du
 
 test('custom billing dates preserve Token filters, reset drilldown and adapt chart resolution',()=>{
  const c=vm.runInContext('new Component()',ctx);c.setState({view:'billing'});c.updateBilling({preset:'yesterday',start:'2026-08-31',end:'2026-08-31',grain:'hour',metric:'tokens',provider:'test-provider',bin:'old',page:3});
- c.billingValues().onPreset({target:{value:'custom'}});assert.equal(c.billingValues().custom,true);
- c.billingValues().onStart({target:{value:'2026-08-01'}});assert.equal(c.state.billing.grain,'day');assert.equal(c.state.billing.metric,'tokens');assert.equal(c.state.billing.provider,'test-provider');assert.equal(c.state.billing.bin,null);assert.equal(c.state.billing.page,1);
+ c.billingValues().onPreset({target:{value:'custom'}});assert.equal(c.billingValues().custom,true);assert.equal(c.billingValues().customTimeActive,true);assert(c.billingValues().grains.every(grain=>!grain.active));
+ c.billingValues().onStart({target:{value:'2026-08-01'}});assert.equal(c.state.billing.grain,'day');assert.equal(c.state.billing.timeMode,'custom');assert.equal(c.state.billing.metric,'tokens');assert.equal(c.state.billing.provider,'test-provider');assert.equal(c.state.billing.bin,null);assert.equal(c.state.billing.page,1);
  assert.equal(c.billingValues().error,'');assert.equal(c.billingValues().bars.length,31);
- const restored=ctx.codec.read(ctx.codec.write({view:'billing',billing:c.state.billing})).patch.billing;assert.equal(restored.start,'2026-08-01');assert.equal(restored.preset,'custom');assert.equal(restored.metric,'tokens');
+ c.billingValues().grains.find(grain=>grain.id==='day').pick();assert.equal(c.billingValues().customTimeActive,false);assert.equal(c.billingValues().grains.filter(grain=>grain.active).length,1);
+ const restored=ctx.codec.read(ctx.codec.write({view:'billing',billing:c.state.billing})).patch.billing;assert.equal(restored.start,'2026-08-01');assert.equal(restored.preset,'custom');assert.equal(restored.timeMode,'day');assert.equal(restored.metric,'tokens');
  c.billingValues().onEnd({target:{value:'2026-07-01'}});assert.match(c.billingValues().error,/结束日期不能早于开始日期/);
  c.billingValues().onEnd({target:{value:'2026-08-02'}});assert.equal(c.billingValues().error,'');assert.equal(c.billingValues().bars.length,2);
  c.billingValues().onPreset({target:{value:'week'}});assert.equal(c.billingValues().custom,false);assert.equal(c.state.billing.metric,'tokens');

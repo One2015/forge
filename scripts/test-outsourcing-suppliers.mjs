@@ -8,6 +8,7 @@ const source = fs.readFileSync(new URL('./templates/forge-base.html', import.met
 const template = JSON.parse(source.split('<script type="__bundler/template">')[1].split('\n</script>')[0]);
 const code = template.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
 const page = template.match(/<!-- outsourcing-suppliers:start -->[\s\S]*?<!-- outsourcing-suppliers:end -->/)[0];
+const systemCss = fs.readFileSync(new URL('../public/postman-ui/forge-system.css', import.meta.url), 'utf8');
 
 function component(props = {}, narrow = false) {
   const context = vm.createContext({
@@ -44,10 +45,11 @@ test('performance page keeps the required section order without exposing fixture
   const labels = ['外部专家整体表现', '单个专家团队交付情况', '外部专家达标趋势', '高频问题'];
   let cursor = -1;
   for (const label of labels) { const next = page.indexOf(label); assert(next > cursor, label); cursor = next; }
-  assert.doesNotMatch(page, /Mock 数据|履约明细与风险评估|外部专家表现筛选器|当前筛选范围的交付与风险汇总|点击专家团队名称查看履约、质量与风险详情|近 5 周|仅展示重复出现 3 次及以上的问题/);
-  assert.match(page, /与模型 API 供应商分开管理/);
+  assert.doesNotMatch(page, /Mock 数据|履约明细与风险评估|外部专家表现筛选器|当前筛选范围的交付与风险汇总|点击专家团队名称查看履约、质量与风险详情|仅展示重复出现 3 次及以上的问题/);
+  assert.doesNotMatch(page, /跟踪外部专家团队的交付、质量与履约风险，与模型 API 供应商分开管理。/);
+  assert.match(page, /<header class="forge-outsourcing-heading"><h1 id="forge-outsourcing-supplier-title" tabindex="-1">外部专家<\/h1><\/header>/);
   assert.match(page, /aria-labelledby="outsourcing-overall"><header><h2 id="outsourcing-overall">外部专家整体表现<\/h2><\/header><dl class="forge-outsourcing-metrics">/);
-  assert.match(page, /aria-labelledby="outsourcing-trend"><header><h2 id="outsourcing-trend">外部专家达标趋势<\/h2><\/header><sc-if/);
+  assert.match(page, /aria-labelledby="outsourcing-trend"><header><h2 id="outsourcing-trend">外部专家达标趋势<\/h2><\/header><div class="forge-outsourcing-trend-toolbar">/);
   assert.match(page, /aria-labelledby="outsourcing-issues"><header><h2 id="outsourcing-issues">高频问题<\/h2><\/header><sc-if/);
   const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
   assert(v.demo); assert.deepEqual(Array.from(v.metrics, row => row.label), ['总交付目标', '已分配任务量', '最终有效交付量', '整体完成率', '整体质检通过率', '风险专家团队']);
@@ -55,33 +57,53 @@ test('performance page keeps the required section order without exposing fixture
   assert(v.hasRows); assert(v.hasTrend); assert(v.hasIssues);
 });
 
-test('supplier, sheet and risk filters update all visible modules and empty states', () => {
+test('supplier, risk and date filters update all visible modules and empty states', () => {
   const c = component(); c.openOutsourcingSuppliers();
-  assert.equal(c.outsourcingSupplierValues().resetDisabled, true);
   c.outsourcingSupplierValues().onSupplier({ target: { value: 'stepfun' } });
-  let v = c.outsourcingSupplierValues(); assert.equal(v.resetDisabled, false); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '维象制作'); assert(v.issues.every(issue => issue.supplier === '维象制作'));
-  v.onSheet({ target: { value: 'ant200' } }); v = c.outsourcingSupplierValues(); assert(!v.hasRows); assert(!v.hasTrend); assert(!v.hasIssues);
-  v.reset(); v = c.outsourcingSupplierValues(); assert.equal(v.resetDisabled, true); assert.equal(v.detailRows.length, 3);
+  let v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '维象制作'); assert(v.issues.every(issue => issue.supplier === '维象制作'));
+  v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert(!v.hasRows); assert(!v.hasTrend); assert(!v.hasIssues);
+  v.onSupplier({ target: { value: '' } }); v.onRisk({ target: { value: '' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 3);
   v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.metrics.at(-1).value, 0);
-  v.reset(); v.onCycle({ target: { value: '7d' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant']);
+  v.onRisk({ target: { value: '' } }); v.onCycle({ target: { value: '7d' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant']);
 });
 
 test('supplier trend is a labelled three-series line chart with accessible points', () => {
-  const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
-  assert.deepEqual(Array.from(v.trendWeeks), ['4 周前', '3 周前', '2 周前', '上周', '本周']);
+  const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
+  assert.equal(v.trendTeam, 'stepfun'); assert.equal(v.trendSupplier, '维象制作'); assert.equal(v.trendRange, 'day');
+  assert.deepEqual(Array.from(v.trendLabels), ['4 天前', '3 天前', '前天', '昨天', '今天']);
   assert.equal(v.trendCompletion.length, 5); assert.equal(v.trendEffective.length, 5); assert.equal(v.trendQuality.length, 5);
   assert.match(v.trendCompletionLine, /^0,32 25,26 50,19 75,14 100,9$/);
   assert.deepEqual(Array.from(v.trendCards, card => card.label), ['任务完成率', '有效交付率', '质检通过率']);
-  assert.equal(v.trendCards[0].current, '91%'); assert.equal(v.trendCards[0].change, '较上周 +5 个百分点');
+  assert.equal(v.trendCards[0].current, '91%'); assert.equal(v.trendCards[0].change, '较昨日 +5 个百分点');
   assert.match(page, /forge-outsourcing-trend-cards/); assert.match(page, /forge-outsourcing-mini-chart/); assert.match(page, /目标 90%/);
+  const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
+  const targetRule = css.match(/\.forge-outsourcing-target-line\{([^}]*)\}/)?.[1] || '';
+  assert.doesNotMatch(targetRule, /border|left:0/); assert.match(targetRule, /right:0/); assert.match(targetRule, /background:var\(--forge-panel\)/);
   assert.match(page, /data-forge-chart-tooltip="\{\{ point\.title \}\}"/); assert.match(page, /data-series="\{\{ series\.series \}\}"/);
+  assert.match(page, /aria-label="筛选趋势专家团队"[^>]*value="\{\{ outsourcingSuppliers\.trendTeam \}\}"/);
+  assert.match(page, /aria-label="趋势时间范围"[^>]*value="\{\{ outsourcingSuppliers\.trendRange \}\}"/);
+  assert(page.indexOf('aria-label="筛选趋势专家团队"') < page.indexOf('aria-label="趋势时间范围"'));
+  for (const option of ['day">日', 'month">月', 'year">年', 'custom">自定义']) assert(page.includes('value="' + option));
+  assert.match(page, /aria-label="趋势开始日期"/); assert.match(page, /aria-label="趋势结束日期"/);
+  v.onTrendTeam({ target: { value: 'ant' } }); v = c.outsourcingSupplierValues();
+  assert.equal(v.trendSupplier, '灵犀三维'); assert.equal(v.trendCards[0].current, '94%');
+  v.onTrendRange({ target: { value: 'month' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.trendLabels), ['5月', '6月', '7月', '8月', '9月']); assert.equal(v.trendCards[0].change, '较上月 +5 个百分点');
+  v.onTrendRange({ target: { value: 'year' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.trendLabels), ['2022年', '2023年', '2024年', '2025年', '2026年']); assert.equal(v.trendCards[0].change, '较上年 +5 个百分点');
+  v.onTrendRange({ target: { value: 'custom' } }); v = c.outsourcingSupplierValues(); assert.equal(v.trendCustom, true);
+  v.onTrendStart({ target: { value: '2026-09-01' } }); v = c.outsourcingSupplierValues(); v.onTrendEnd({ target: { value: '2026-09-05' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.trendLabels), ['9月1日', '9月2日', '9月3日', '9月4日', '9月5日']); assert.equal(v.trendCards[0].change, '较上一时点 +5 个百分点');
 });
 
 test('delivery table is concise and supplier names open the merged detail drawer', () => {
   const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
-  for (const label of ['分配量', '已完成', '有效交付', '完成率', '质检通过率']) assert(page.includes('<span role="columnheader">' + label + '</span>'));
-  for (const label of ['按专家团队筛选', '按交付日期筛选', '按风险等级筛选', '按关联数据单筛选']) assert(page.includes('aria-label="' + label + '"'));
-  assert.match(page, /class="forge-outsourcing-delivery-section"[^>]*><header><h2[^>]*>单个专家团队交付情况<\/h2><button[^>]*>重置筛选<\/button><\/header><div class="forge-outsourcing-delivery-surface">/);
+  for (const label of ['按专家团队筛选', '按分配量排序', '按已完成数量排序', '按有效交付数量排序', '按完成率排序', '按质检通过率排序', '按交付日期筛选', '按风险等级筛选']) assert(page.includes('aria-label="' + label + '"'));
+  assert.equal(page.match(/class="forge-outsourcing-column-filter"/g)?.length, 8);
+  assert.match(page, /<span role="columnheader">数据单<\/span>/);
+  assert.doesNotMatch(page, /按关联数据单筛选|outsourcingSuppliers\.(?:sheet|sheetActive|sheets|onSheet)/);
+  assert.match(page, /class="forge-outsourcing-delivery-section"[^>]*><header><h2[^>]*>单个专家团队交付情况<\/h2><\/header><div class="forge-outsourcing-delivery-surface">/);
+  assert.doesNotMatch(page, /重置筛选|forge-outsourcing-reset|outsourcingSuppliers\.(?:reset|resetDisabled)/);
   assert.doesNotMatch(page, /forge-outsourcing-filters|点击专家团队名称查看履约、质量与风险详情|目标 \/ 分配|生产 \/ 上传|<span>计划<\/span>/);
   assert.match(page, /class="forge-outsourcing-supplier-trigger"/); assert.match(page, /class="forge-outsourcing-drawer" role="dialog"/);
   v.detailRows[0].openDetail(); v = c.outsourcingSupplierValues();
@@ -89,22 +111,59 @@ test('delivery table is concise and supplier names open the merged detail drawer
   v.closeDetail(); assert(!c.outsourcingSupplierValues().detailOpen);
 });
 
-test('frequent issues are grouped by expert team instead of repeating cards', () => {
+test('numeric headers share one active sort and return to their default options', () => {
+  const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
+  for (const control of [v.assignedSort, v.producedSort, v.validSort, v.completionSort, v.qualitySort]) {
+    assert.equal(control.order, ''); assert.equal(control.active, false);
+  }
+  v.assignedSort.change({ target: { value: 'desc' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant', 'internal']);
+  assert.equal(v.assignedSort.active, true); assert.equal(v.completionSort.active, false);
+  v.assignedSort.change({ target: { value: 'asc' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['internal', 'ant', 'stepfun']);
+  v.producedSort.change({ target: { value: 'desc' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant', 'internal']);
+  assert.equal(v.assignedSort.active, false); assert.equal(v.producedSort.active, true);
+  v.validSort.change({ target: { value: 'asc' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['internal', 'ant', 'stepfun']);
+  v.completionSort.change({ target: { value: 'desc' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['ant', 'internal', 'stepfun']);
+  assert.equal(v.validSort.active, false); assert.equal(v.completionSort.active, true);
+  v.completionSort.change({ target: { value: 'asc' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'internal', 'ant']);
+  v.qualitySort.change({ target: { value: 'desc' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['ant', 'internal', 'stepfun']);
+  assert.equal(v.completionSort.active, false); assert.equal(v.qualitySort.active, true);
+  v.qualitySort.change({ target: { value: 'asc' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'internal', 'ant']);
+  v.qualitySort.change({ target: { value: '' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant', 'internal']);
+  for (const control of [v.assignedSort, v.producedSort, v.validSort, v.completionSort, v.qualitySort]) {
+    assert.equal(control.order, ''); assert.equal(control.active, false);
+  }
+});
+
+test('frequent issues use one multi-column table with company data in each row', () => {
   const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
-  assert.deepEqual(Array.from(v.issueGroups, group => group.supplier), ['维象制作', '灵犀三维']);
-  assert.equal(v.issueGroups[0].count, 2); assert.equal(v.issueGroups[0].items[0].count, 14);
-  assert.match(page, /forge-outsourcing-issue-groups/); assert.doesNotMatch(page, /按专家团队归类/);
+  assert.deepEqual(Array.from(v.issues, issue => issue.supplier), ['维象制作', '维象制作', '灵犀三维']);
+  assert.equal(v.issues[0].name, '材质与参考图不一致'); assert.equal(v.issues[0].scope, '3 个批次 · 42 项'); assert.equal(v.issues[0].count, 14); assert.equal(v.issues[0].recent, '昨日 18:40');
+  assert.equal('issueGroups' in v, false);
+  assert.match(page, /class="forge-outsourcing-issues-table" role="table" aria-label="高频问题列表"/);
+  const issueHeaders = ['问题', '涉及公司', '影响', '次数', '出现时间'];
+  let cursor = page.indexOf('forge-outsourcing-issues-table-head');
+  for (const label of issueHeaders) { const next = page.indexOf('<span role="columnheader">' + label + '</span>', cursor); assert(next > cursor, label); cursor = next; }
+  assert.match(page, /<sc-for list="\{\{ outsourcingSuppliers\.issues \}\}" as="issue"><div class="forge-outsourcing-issues-table-row" role="row"><strong role="cell">\{\{ issue\.name \}\}<\/strong><span role="cell">\{\{ issue\.supplier \}\}<\/span><span role="cell">\{\{ issue\.scope \}\}<\/span><strong role="cell">\{\{ issue\.count \}\} 次<\/strong><span role="cell">\{\{ issue\.recent \}\}<\/span>/);
+  assert.doesNotMatch(page, /forge-outsourcing-issue-groups|group\.supplier|group\.count|group\.items|最近出现：|影响 \{\{ issue\.scope \}\}/);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
-  assert.match(css, /\.forge-outsourcing-issue-groups\{[^}]*padding:0\}/);
-  assert.match(css, /\.forge-outsourcing-issue-groups>section>div\{border:0;border-radius:0\}/);
-  assert.match(css, /\.forge-outsourcing-issue-groups article\{[^}]*display:grid;[^}]*grid-template-columns:minmax\(0,1fr\) 132px/);
-  assert.match(css, /\.forge-outsourcing-issue-groups article>div:last-child\{display:flex;min-width:0;flex-direction:column;align-items:flex-start;justify-self:stretch;text-align:left\}/);
-  assert.match(css, /\.forge-outsourcing-issue-groups article\{grid-template-columns:1fr;align-items:flex-start;gap:8px\}/);
+  assert.match(css, /\.forge-outsourcing-issues-table-scroll\{overflow:auto\}/);
+  assert.match(css, /\.forge-outsourcing-issues-table \[role="row"\]\{display:grid;grid-template-columns:minmax\(220px,1\.7fr\) minmax\(120px,1fr\) minmax\(170px,1\.3fr\) minmax\(72px,\.55fr\) minmax\(150px,1fr\)/);
+  assert.doesNotMatch(css, /forge-outsourcing-issue-groups|forge-outsourcing-issue-main|forge-outsourcing-issue-meta/);
 });
 
 test('management tab exposes all required fields and adds an in-memory expert team', () => {
   const c = component(); c.openOutsourcingSuppliers('management'); let v = c.outsourcingSupplierValues();
   assert(v.managementTab); assert.match(page, /专家团队名称 \*/); assert.match(page, /联系人/); assert.match(page, /联系方式/); assert.match(page, /任务类型/); assert.match(page, /目标产能/); assert.doesNotMatch(page, /默认产能/); assert.match(page, /合作状态/); assert.match(page, /备注/);
+  assert.match(page, /<section class="forge-outsourcing-section forge-outsourcing-management-section">/); assert.doesNotMatch(page, /forge-outsourcing-section forge-outsourcing-contained-section/);
   assert.match(page, /list="forge-outsourcing-task-types"/); assert.match(page, /placeholder="输入或选择任务类型"/); assert.match(page, /<option value="Web3D"><\/option>/); assert.match(page, /<option value="质量复核"><\/option>/);
   assert.deepEqual(Array.from(v.managementRows, row => row.name), ['维象制作', '灵犀三维', '观澜质检']);
   v.openAdd(); v = c.outsourcingSupplierValues(); assert(v.addOpen); assert(!v.canAdd);
@@ -115,13 +174,20 @@ test('management tab exposes all required fields and adds an in-memory expert te
 test('supplier generator is idempotent and responsive CSS uses shared tokens', () => {
   assert.equal(updateOutsourcingSuppliers(source), source);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
-  assert.match(page, /class="forge-outsourcing-reset" disabled="\{\{ outsourcingSuppliers\.resetDisabled \}\}"/);
-  assert.match(css, /\.forge-outsourcing-delivery-surface\{[^}]*border:1px solid var\(--forge-border\);[^}]*border-radius:var\(--pm-radius\)/);
-  assert.match(css, /\.forge-outsourcing-metrics,\.forge-outsourcing-issue-groups\{[^}]*border:1px solid var\(--forge-border\);[^}]*border-radius:var\(--pm-radius\)/);
+  assert.doesNotMatch(page, /forge-outsourcing-reset|重置筛选/);
+  assert.match(css, /\.forge-outsourcing-delivery-surface\{[^}]*border:0;[^}]*border-radius:0;[^}]*background:transparent/);
+  assert.match(css, /\.forge-outsourcing-delivery-table\{[^}]*border-radius:var\(--pm-radius\);[^}]*overflow:hidden/);
+  assert.match(css, /\.forge-outsourcing-metrics,\.forge-outsourcing-issues-table\{[^}]*border:1px solid var\(--forge-border\);[^}]*border-radius:var\(--pm-radius\)/);
   assert.doesNotMatch(css, /\.forge-outsourcing-section\{[^}]*border:/);
-  assert.match(css, /\.forge-outsourcing-column-filter select\{[^}]*border:0;[^}]*background:transparent;[^}]*font-weight:600/);
-  assert.match(css, /\.forge-outsourcing-reset\{[^}]*border:0;[^}]*background:transparent;[^}]*color:var\(--pm-brand\)/);
-  assert.match(css, /\.forge-outsourcing-reset:disabled\{[^}]*color:var\(--forge-muted\)/);
+  assert.doesNotMatch(css, /forge-outsourcing-reset/);
+  assert.match(css, /\.forge-outsourcing \.forge-outsourcing-column-filter select\{[^}]*border:1px solid transparent;[^}]*border-radius:var\(--pm-radius\);[^}]*background:transparent;[^}]*field-sizing:content/);
+  assert.match(css, /\.forge-outsourcing-trend-toolbar\{[^}]*justify-content:space-between/);
+  assert.doesNotMatch(systemCss, /\.forge-postman \.forge-outsourcing-section\{border:1px/);
+  assert.match(systemCss, /\.forge-outsourcing-section:not\(\.forge-outsourcing-contained-section\)\{border:0!important;border-radius:0!important;background:transparent!important/);
+  assert.match(systemCss, /\.forge-outsourcing-delivery-section \.forge-outsourcing-table-scroll\{border:0!important;border-radius:0!important;background:transparent!important/);
+  assert.doesNotMatch(systemCss, /forge-outsourcing-reset/);
+  assert.match(systemCss, /\.forge-outsourcing-column-filter select\{[^}]*border:1px solid transparent!important;[^}]*border-radius:var\(--radius-control\)!important;[^}]*background:transparent!important/);
+  assert.match(systemCss, /\.forge-outsourcing-column-filter select::picker-icon\{margin-inline-start:4px!important\}/);
   assert.match(css, /@media\(max-width:1000px\)/); assert.match(css, /@media\(max-width:640px\)/);
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}|rgba?\(/i);
   for (const token of ['--forge-border', '--forge-panel', '--pm-brand', '--pm-chart-1']) assert(css.includes('var(' + token + ')'));

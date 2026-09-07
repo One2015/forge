@@ -17,7 +17,7 @@ export function installBillingDateRange(t){
     const days=(this.billingStamp(next.end)-this.billingStamp(next.start))/86400000+1;
     const limits={hour:7,day:366,month:3653,year:18263};
     const grain=days>limits[next.grain]?Object.keys(limits).find(key=>days<=limits[key]) || 'year':next.grain;
-    this.updateBilling({[field]:value,preset:'custom',grain});
+    this.updateBilling({[field]:value,preset:'custom',timeMode:'custom',grain});
   }
   // pm-billing-date-range:end
   billingMoney(micros) {`);

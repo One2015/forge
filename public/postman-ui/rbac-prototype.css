@@ -4,7 +4,7 @@
 .forge-rbac-prototype [data-rbac-blocked="true"]{opacity:.42!important;cursor:not-allowed!important}
 .forge-rbac-prototype .forge-sidebar-profile[data-rbac-current="true"]{background:var(--rbac-accent-soft);box-shadow:inset 3px 0 0 var(--rbac-accent)}
 
-#forge-rbac-root{position:fixed;z-index:520;top:52px;right:0;bottom:0;left:var(--forge-sidebar-width,184px);display:none;background:var(--forge-bg,#fbfaf8);color:var(--rbac-ink);font:14px/1.5 var(--forge-font,"Helvetica Neue",Helvetica,"PingFang SC",sans-serif);overflow:auto;overscroll-behavior:contain}
+#forge-rbac-root{position:fixed;z-index:520;top:52px;right:0;bottom:0;left:var(--rbac-sidebar-edge,var(--sidebar-width,184px));display:none;background:var(--forge-bg,#fbfaf8);color:var(--rbac-ink);font:14px/1.5 var(--forge-font,"Helvetica Neue",Helvetica,"PingFang SC",sans-serif);overflow:auto;overscroll-behavior:contain}
 #forge-rbac-root[data-open="true"]{display:block}
 #forge-rbac-root *{box-sizing:border-box}
 #forge-rbac-root button,#forge-rbac-root input,#forge-rbac-root select,#forge-rbac-root textarea{font:inherit}
@@ -231,7 +231,6 @@
 #forge-rbac-toast[data-show="true"]{opacity:1;transform:translateY(0)}
 
 @media(max-width:900px){
-  #forge-rbac-root{left:64px}
   .rbac-page{width:min(100% - 28px,1180px);padding-top:20px}
   .rbac-profile-card{grid-template-columns:auto 1fr 1fr}.rbac-profile-card>div:last-child{grid-column:2/-1}
   .rbac-detail-grid{grid-template-columns:1fr}

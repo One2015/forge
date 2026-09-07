@@ -291,5 +291,18 @@ test('standard Postman entry loads the RBAC Profile surface exactly once', () =>
   const output = read('public/forge-postman.html');
   assert.equal(output.match(/rbac-prototype\.css/g)?.length, 1);
   assert.equal(output.match(/rbac-prototype\.js/g)?.length, 1);
+  assert.match(output, /rbac-prototype\.css\?v=[a-f0-9]{12}/);
+  assert.match(output, /rbac-prototype\.js\?v=[a-f0-9]{12}/);
   assert.match(output, /forge-postman forge-rbac-prototype/);
+});
+
+test('RBAC workspace follows the live sidebar width without covering navigation', () => {
+  const source = read('public/postman-ui/rbac-prototype.js');
+  const styles = read('public/postman-ui/rbac-prototype.css');
+  assert.match(source, /document\.body\.appendChild\(root\)/);
+  assert.match(source, /document\.querySelector\('\.forge-sidebar'\)\?\.getBoundingClientRect\(\)\.right/);
+  assert.match(source, /new ResizeObserver\(syncWorkspaceInset\)/);
+  assert.match(source, /root\.style\.setProperty\('--rbac-sidebar-edge'/);
+  assert.match(styles, /#forge-rbac-root\{[^}]*left:var\(--rbac-sidebar-edge,var\(--sidebar-width,184px\)\)/);
+  assert.doesNotMatch(styles, /@media\(max-width:900px\)\{\s*#forge-rbac-root\{left:64px\}/);
 });

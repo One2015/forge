@@ -33,6 +33,7 @@ const ForgeRoutes = {
     if(route.patch.view === 'runs') Object.assign(route.patch, {
       runsMetric:['running','review','failed','cost','models'].includes(params.get('metric'))?params.get('metric'):'',
       runsFilter:({queued:'排队中',cancelled:'已取消',completed:'运行完成'})[params.get('status')]||route.patch.runsFilter,
+      runsOwner:(params.get('owner')||'').slice(0,80),
       runsPage:Math.max(1,Number(params.get('page'))||1), runsPageSize:[10,20,50].includes(Number(params.get('size')))?Number(params.get('size')):10
     });
     if(route.patch.delCat === '全部') route.patch.delCat = 'all';
@@ -54,6 +55,8 @@ const ForgeRoutes = {
       const u=new URL(route,'https://forge.invalid');
       const status=({'排队中':'queued','已取消':'cancelled','运行完成':'completed','运行失败':'failed'})[state.runsFilter];
       if(status)u.searchParams.set('status',status);
+      const owner=String(state.runsOwner||(state.runsMine?'mine':'')).slice(0,80);
+      if(owner)u.searchParams.set('owner',owner);else u.searchParams.delete('owner');
       if(state.runsMetric)u.searchParams.set('metric',state.runsMetric);
       if(state.runsPage>1)u.searchParams.set('page',state.runsPage);
       if(state.runsPageSize&&state.runsPageSize!==10)u.searchParams.set('size',state.runsPageSize);

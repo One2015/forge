@@ -133,7 +133,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman :is(.pm-delivery-category-row,.pm-delivery-view-toggle,.forge-billing-segment,.forge-wizard-categories) button:is([aria-pressed=true],[aria-selected=true],[data-active=true]){border-color:var(--border-default)!important;background:var(--surface-raised)!important;color:var(--text-primary)!important;font-weight:var(--weight-medium)!important;box-shadow:0 1px 2px rgb(26 31 54 / 6%)!important}
 
 /* Cross-page Stripe-style content surfaces ------------------------------- */
-.forge-postman :is(.pm-delivery-customer-group,.forge-wizard-card,.forge-wizard-summary-desktop,.forge-model-overview-metrics,.forge-model-table-scroll,.forge-model-error-cards button,.forge-billing-chart,.forge-billing-table-scroll,.forge-billing-run-table,.forge-outsourcing-section,.forge-outsourcing-filters,.forge-outsourcing-table-scroll){border-color:var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;box-shadow:none!important}
+.forge-postman :is(.pm-delivery-customer-group,.forge-wizard-card,.forge-wizard-summary-desktop,.forge-model-overview-metrics,.forge-model-table-scroll,.forge-model-error-cards button,.forge-billing-chart,.forge-billing-table-scroll,.forge-billing-run-table,.forge-outsourcing-filters,.forge-outsourcing-table-scroll){border-color:var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;box-shadow:none!important}
 .forge-postman :is(.forge-model-table-scroll,.forge-billing-table-scroll,.forge-outsourcing-table-scroll){overflow:auto;border:1px solid var(--border-subtle)!important}
 .forge-postman :is(.forge-model-table-head,.forge-billing-thead,.forge-outsourcing-table-head){background:var(--surface-subtle)!important;color:var(--text-muted)!important;border-color:var(--border-subtle)!important}
 .forge-postman :is(.forge-model-table-row,.forge-billing-tbody [role=row],.forge-outsourcing-table-row){border-color:var(--border-subtle)!important;background:transparent!important}
@@ -159,7 +159,11 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .forge-model-error-cards button{border:1px solid var(--border-subtle)!important}
 .forge-postman .forge-model-error-action,.forge-postman :is(.forge-billing-link,.forge-outsourcing-link){color:var(--text-link)!important}
 .forge-postman .forge-outsourcing-filters{padding:var(--content-inset)!important;border:1px solid var(--border-subtle)!important}
-.forge-postman .forge-outsourcing-section{border:1px solid var(--border-subtle)!important}
+.forge-postman .forge-outsourcing .forge-outsourcing-section:not(.forge-outsourcing-contained-section){border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+.forge-postman .forge-outsourcing .forge-outsourcing-delivery-section .forge-outsourcing-table-scroll{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+.forge-postman .forge-outsourcing .forge-outsourcing-column-filter select{width:max-content!important;min-width:0!important;max-width:100%!important;min-height:28px!important;padding:3px 4px!important;border:1px solid transparent!important;border-radius:var(--radius-control)!important;background:transparent!important;box-shadow:none!important;field-sizing:content}
+.forge-postman .forge-outsourcing .forge-outsourcing-column-filter[data-active=true] select{border-color:var(--border-default)!important;background:var(--surface-raised)!important}
+@supports(appearance:base-select){.forge-postman .forge-outsourcing .forge-outsourcing-column-filter select{gap:4px!important}.forge-postman .forge-outsourcing .forge-outsourcing-column-filter select::picker-icon{margin-inline-start:4px!important}}
 .forge-postman .forge-billing-section-header{margin:var(--space-5) 0 var(--space-3)!important;padding:0!important;border:0!important;background:transparent!important}
 .forge-postman .forge-billing-chart{border:1px solid var(--border-subtle)!important;padding:var(--content-inset)!important}
 .forge-postman :is(.forge-billing-cost-bar,.forge-billing-contributor-bar i,.forge-billing-share i){background:var(--accent-primary)!important}
@@ -191,6 +195,8 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .pm-page-overview .forge-summary-title{color:var(--text-secondary);font-size:var(--type-caption-size);font-weight:var(--weight-medium)}
 .forge-postman .pm-page-overview .forge-summary-value{margin-top:var(--space-4)}
 .forge-postman .pm-page-overview .forge-summary-value strong{color:var(--text-primary)!important;font-size:1.75rem;line-height:2rem;font-weight:var(--weight-semibold);letter-spacing:-.035em}
+.forge-postman .pm-page-overview .forge-summary-auxiliary{display:flex;align-items:center;gap:var(--space-1)}
+.forge-postman .pm-page-overview .forge-summary-auxiliary .forge-metric-delta-tag{display:inline-flex;align-items:center;margin-left:0;padding:.125rem .5rem;border-radius:var(--radius-xs);font-size:.75rem!important;line-height:1.25rem!important}
 .forge-postman .pm-page-overview .forge-summary-note{margin-top:var(--space-2);color:var(--text-muted);font-size:var(--type-caption-size);line-height:var(--type-caption-leading)}
 @media(hover:hover){.forge-postman .pm-page-overview .forge-summary-card[data-actionable=true]:hover{background:var(--surface-hover)!important}}
 .forge-postman .pm-overview-delivery-section{background:transparent}

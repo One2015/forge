@@ -30,13 +30,12 @@ test('billing chart uses the centralized Forge chart sequence', () => {
   assert.match(template, /const colors=\['var\(--pm-chart-1\)'[\s\S]*'var\(--pm-chart-6\)'\]/);
 });
 
-test('time granularity is a secondary unfilled control while metrics retain their segment', () => {
-  assert(template.includes('class="forge-billing-granularity" role="group" aria-label="时间粒度"'));
+test('time view is a secondary mutually-exclusive control while metrics retain their segment', () => {
+  assert(template.includes('class="forge-billing-granularity" role="group" aria-label="时间视图"'));
   assert(template.includes('class="forge-billing-segment" role="group" aria-label="趋势指标"'));
   assert.match(template, /<section class="forge-billing-distribution"[^>]*>\s*<header class="forge-billing-section-header"><h2[^>]*>\{\{ billing\.chartTitle \}\}<\/h2><\/header>\s*<div class="forge-billing-chart">\s*<div class="forge-billing-chart-controls">/);
   assert.doesNotMatch(template, /<small>\{\{ billing\.period \}\} · \{\{ billing\.unit \}\}<\/small>/);
-  assert.match(template, /class="forge-billing-custom-time"[^>]*aria-haspopup="dialog"[^>]*aria-controls="forge-billing-calendar"[^>]*aria-label="选择自定义时间范围"/);
-  assert.doesNotMatch(template, /class="forge-billing-custom-time"[^>]*aria-pressed/);
+  assert.match(template, /class="forge-billing-custom-time"[^>]*aria-pressed="\{\{ billing\.customTimeActive \}\}"[^>]*aria-haspopup="dialog"[^>]*aria-controls="forge-billing-calendar"[^>]*aria-label="选择自定义时间范围"/);
   assert.doesNotMatch(template, /\{\{ billing\.period \}\}<br>\{\{ billing\.timezoneLabel \}\} · 包含结束日期/);
   assert.doesNotMatch(template, /class="forge-billing-filters"|class="forge-billing-date-trigger"/);
   assert.match(template, /\.forge-billing-custom-time\{anchor-name:--billing-calendar\}/);
@@ -48,16 +47,21 @@ test('time granularity is a secondary unfilled control while metrics retain thei
   assert.match(template, /\.forge-billing-granularity\{[^}]*background:transparent/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\{[^}]*background:transparent;box-shadow:none/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button\[aria-pressed="true"\]\{[^}]*text-decoration:underline/);
-  assert.match(template, /\.forge-billing \.forge-billing-granularity button\.forge-billing-custom-time\{[^}]*color:var\(--forge-muted\);font-weight:400;text-decoration:none/);
+  assert.doesNotMatch(template, /button\.forge-billing-custom-time\{[^}]*text-decoration:none/);
   assert.match(template, /\.forge-billing \.forge-billing-granularity button:is\(:hover,:active\)\{background:transparent/);
 });
 
 test('custom time control reuses the existing calendar range state', () => {
   const c = values();
-  assert.equal(c.billingValues().custom, false);
+  let v = c.billingValues();
+  assert.equal(v.custom, false); assert.equal(v.customTimeActive, false); assert.equal(v.grains.filter(grain => grain.active).length, 1);
   c.billingValues().openCustomTime();
-  assert.equal(c.billingValues().preset, 'custom');
-  assert.equal(c.billingValues().custom, true);
+  v = c.billingValues();
+  assert.equal(v.preset, 'custom'); assert.equal(v.custom, true); assert.equal(v.customTimeActive, true); assert(v.grains.every(grain => !grain.active));
+  const range = [v.start, v.end];
+  v.grains.find(grain => grain.id === 'day').pick(); v = c.billingValues();
+  assert.equal(v.preset, 'custom'); assert.equal(v.grain, 'day'); assert.equal(v.customTimeActive, false); assert(v.grains.find(grain => grain.id === 'day').active); assert.deepEqual([v.start, v.end], range);
+  v.openCustomTime(); v = c.billingValues(); assert(v.customTimeActive); assert(v.grains.every(grain => !grain.active));
 });
 
 test('yesterday is a UTC+8 calendar day with inclusive start and exclusive end', () => {
@@ -310,17 +314,41 @@ test('stacked distribution, change reasons and abnormal runs are exposed without
   assert(v.chartSeries.length > 0); assert(v.changeReasons.some(row => row.label === '请求量'));
   assert(v.abnormalRuns.some(row => row.runId === 'run-spike'));
   assert.match(html, /forge-billing-stack/); assert.match(html, /变化补充说明/); assert.match(html, /异常成本 Run/);
+  assert.doesNotMatch(html, /按当前筛选范围识别/);
   assert.match(html, /<ul class="forge-billing-reasons"><sc-for[\s\S]*?<li>/);
   assert.match(html, /<\/sc-if>\s*<\/div>\s*<\/section>\s*<section class="forge-billing-breakdown"/);
-  assert.match(html, /<section class="forge-billing-breakdown"[^>]*>\s*<header><div><h2 id="forge-billing-table-title"/);
+  assert.match(html, /<section class="forge-billing-breakdown"[^>]*>\s*<header><h2 id="forge-billing-table-title"[^>]*>[\s\S]*?<div class="forge-billing-table-actions" role="group"/);
+  assert.match(html, /class="forge-billing-table-actions"[\s\S]*?class="forge-billing-search"[\s\S]*?class="forge-billing-button"[^>]*>[\s\S]*?导出 CSV/);
   assert.match(html, /\{\{ billing\.tableLabel \}\}费用明细/);
   assert.doesNotMatch(html, /\{\{ billing\.groupCount \}\} 个\{\{ billing\.tableLabel \}\} · \{\{ billing\.callCount \}\} 条调用记录/);
   assert.match(html, /<a class="forge-billing-run-link" href="\{\{ run\.href \}\}"[^>]*>查看详情<\/a>/);
   assert.match(template, /\.forge-billing-chart\{[^}]*border-bottom:0/);
   assert.doesNotMatch(template, /\.forge-billing-breakdown header span\{/);
   assert.match(template, /\.forge-postman \.forge-billing \.forge-billing-search input\{padding-inline-start:32px!important\}/);
+  assert.match(template, /\.forge-billing-breakdown>header\{display:grid;gap:10px;margin-bottom:8px\}/);
+  assert.match(template, /\.forge-billing-table-actions\{display:flex;width:100%;gap:8px;align-items:center\}/);
+  assert.match(template, /\.forge-billing-table-actions>\.forge-billing-button\{margin-left:auto\}/);
   assert.match(template, /\.forge-billing-analysis\[aria-labelledby="billing-anomaly-title"\],\.forge-billing-analysis\[aria-labelledby="billing-change-title"\]\{border-top:0\}/);
   assert.doesNotMatch(html, /treemap|line-chart/i);
+});
+
+test('abnormal run cost and deviation headers sort by most or least', () => {
+  const c = values(coveredLedger([
+    event('low', { runId: 'run-low', taskName: '低成本', costMicros: 2000000, anomalyReason: '检查' }),
+    event('mid', { runId: 'run-mid', taskName: '中成本', costMicros: 5000000, anomalyReason: '检查' }),
+    event('high', { runId: 'run-high', taskName: '高成本', costMicros: 9000000, anomalyReason: '检查' }),
+  ]));
+  let v = c.billingValues();
+  assert.equal(v.anomalyDeviationOrder, 'desc'); assert.equal(v.anomalyCostOrder, '');
+  v.onAnomalyCostOrder({ target: { value: 'asc' } }); v = c.billingValues();
+  assert.deepEqual(Array.from(v.abnormalRuns, row => row.runId), ['run-low', 'run-mid', 'run-high']);
+  assert.equal(v.anomalyCostSort, 'ascending'); assert.equal(v.anomalyDeviationSort, 'none');
+  v.onAnomalyDeviationOrder({ target: { value: 'desc' } }); v = c.billingValues();
+  assert.deepEqual(Array.from(v.abnormalRuns, row => row.runId), ['run-high', 'run-mid', 'run-low']);
+  assert.equal(v.anomalyDeviationSort, 'descending'); assert.equal(v.anomalyCostOrder, '');
+  const html = template.match(/<!-- billing:start -->[\s\S]*?<!-- billing:end -->/)[0];
+  assert.match(html, /aria-label="成本排序"[\s\S]*?<option value="desc">最多<\/option><option value="asc">最少<\/option>/);
+  assert.match(html, /aria-label="偏差排序"[\s\S]*?<option value="desc">最多<\/option><option value="asc">最少<\/option>/);
 });
 
 test('all numeric sorts toggle both ways; search and pagination never alter KPI denominators', () => {

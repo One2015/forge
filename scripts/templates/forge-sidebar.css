@@ -42,7 +42,7 @@
 .forge-sidebar-popover>div:not(.forge-sidebar-popover-list){flex:none}
 .forge-sidebar-popover-list{min-height:0;max-height:min(430px,60dvh);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--forge-control-border) transparent}
 .forge-sidebar-popover-close{display:flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--forge-muted)}
-.forge-production-tabs{position:sticky;top:var(--forge-topbar-height);z-index:39;display:flex;align-items:center;gap:22px;padding:0 24px;min-height:44px;background:#fff;border-bottom:1px solid #e8e2d9;flex-wrap:wrap}
+.forge-production-tabs{position:sticky;top:var(--forge-topbar-height);z-index:39;display:flex;align-items:center;gap:22px;padding:0 24px;min-height:44px;background:#fff;border:0;flex-wrap:wrap}
 .forge-production-tabs>div{min-width:0;scrollbar-width:none;-ms-overflow-style:none}
 .forge-production-tabs>div::-webkit-scrollbar{display:none}
 @media(hover:hover){.forge-sidebar-link:not([aria-current="page"]):hover,.forge-sidebar-collapse:hover,.forge-sidebar-tool:not([aria-expanded="true"]):hover,.forge-sidebar-popover-close:hover{background:#f1f1ef;color:#171717}.forge-sidebar-link-coming-soon:hover{color:var(--forge-muted)}.forge-sidebar-link[aria-current="page"]:hover{background:#ffe7d8}.forge-sidebar-brand:hover{background:#f8f8f7}}

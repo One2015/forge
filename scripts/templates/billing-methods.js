@@ -191,6 +191,8 @@
     if (this.state.view !== 'billing') return { open: false };
     const source = this.billingSource(), s = Object.assign({ tab: 'overview', project: '', provider: '', model: '', sort: 'cost', direction: 'desc', metric: 'cost', query: '', page: 1, pageSize: 10, bin: null }, this.billingPreset('yesterday'), this.state.billing);
     if (s.tab === 'projects') s.tab = 'overview';
+    const timeModes = ['hour', 'day', 'month', 'year', 'custom'];
+    const timeMode = timeModes.includes(s.timeMode) ? s.timeMode : s.preset === 'custom' ? 'custom' : s.grain;
     const start = this.billingStamp(s.start), end = this.billingStamp(s.end) + 86400000, today = this.billingDay(Date.now()), days = (end - start) / 86400000;
     let error = !Number.isFinite(start) || !Number.isFinite(end) ? '请选择开始和结束日期。' : start >= end ? '结束日期不能早于开始日期。' : s.end > today ? '结束日期不能晚于今天。' : '';
     const limits = { hour: 7, day: 366, month: 3653, year: 18263 };
@@ -313,7 +315,8 @@
     ];
     const runGroups=new Map(); current.filter(row=>row.runId).forEach(row=>{if(!runGroups.has(row.runId))runGroups.set(row.runId,{id:row.runId,task:row.taskName||'所属任务待接入',cost:0,reasons:new Set()});const run=runGroups.get(row.runId);run.cost+=row.costMicros;if(row.anomalyReason)run.reasons.add(row.anomalyReason);});
     const runValues=Array.from(runGroups.values()),runAverage=runValues.length?runValues.reduce((n,row)=>n+row.cost,0)/runValues.length:0;
-    const abnormalRuns=runValues.filter(row=>row.cost>runAverage*1.05||row.reasons.size).map(row=>({id:row.id,runId:row.id,task:row.task,cost:this.billingMoney(row.cost),deviation:runAverage?'+'+Math.round((row.cost/runAverage-1)*100)+'%':'—',reason:Array.from(row.reasons)[0]||'成本高于同范围 Run 平均值',href:'?view=run&activeRun='+encodeURIComponent(row.id),open:event=>{event?.preventDefault?.();this.setState({view:'run',activeRun:row.id,runItem:null,runsQuery:''});}})).sort((a,b)=>Number(b.deviation.replace(/[^\d.-]/g,''))-Number(a.deviation.replace(/[^\d.-]/g,''))).slice(0,5);
+    const anomalyMetric=s.anomalyMetric==='cost'?'cost':'deviation',anomalyDirection=s.anomalyDirection==='asc'?'asc':'desc';
+    const abnormalRuns=runValues.filter(row=>row.cost>runAverage*1.05||row.reasons.size).map(row=>{const deviationValue=runAverage?Math.round((row.cost/runAverage-1)*100):0;return{id:row.id,runId:row.id,task:row.task,cost:this.billingMoney(row.cost),costValue:row.cost,deviation:runAverage?'+'+deviationValue+'%':'—',deviationValue,reason:Array.from(row.reasons)[0]||'成本高于同范围 Run 平均值',href:'?view=run&activeRun='+encodeURIComponent(row.id),open:event=>{event?.preventDefault?.();this.setState({view:'run',activeRun:row.id,runItem:null,runsQuery:''});}};}).sort((a,b)=>{const key=anomalyMetric==='cost'?'costValue':'deviationValue',difference=a[key]-b[key];return(anomalyDirection==='asc'?difference:-difference)||a.id.localeCompare(b.id);}).slice(0,5);
     const costTone = (value, baseline) => !comparisonKnown || value === baseline ? 'neutral' : value < baseline ? 'success' : 'danger';
     const metric = (label, value, note, help, tone = 'neutral') => {
       let noteLabel = note, noteValue = '', noteSuffix = '';
@@ -337,13 +340,13 @@
     const fileSuffix = (source.demo ? '示例-' : '') + s.start + '-' + s.end + (selected ? '-所选时段' : '');
     return {
       open: true, ready, loading: source.kind === 'loading', failed: source.kind === 'error', disconnected: source.kind === 'disconnected', unavailable: source.kind === 'error' || source.kind === 'disconnected', demo: source.demo, message: source.message, error,
-      start: s.start, end: s.end, today, preset: s.preset, grain: s.grain, period, presetName, custom: s.preset === 'custom', showOverviewSummary: s.tab === 'overview', exportNotice: s.exportNotice || '',
+      start: s.start, end: s.end, today, preset: s.preset, grain: s.grain, period, presetName, custom: s.preset === 'custom', customTimeActive: timeMode === 'custom', showOverviewSummary: s.tab === 'overview', exportNotice: s.exportNotice || '',
       updated: Number.isFinite(source.updatedAt) ? '最近更新 ' + labelTime(source.updatedAt) + ' · ' + this.billingTimezoneLabel() : '数据更新时间未提供', timezoneLabel:this.billingTimezoneLabel(),
       project: s.project, provider: s.provider, model: s.model, projects, providers, models, noProject: !s.project, noProvider: !s.provider, noModel: !s.model, filtered, presets,
       chips, hasChips: chips.length > 0, showScope: chips.length > 0 || !!selected, canGoBack: !!s.trail?.length,
       drillBack: () => { const trail = [...(s.trail || [])], previous = trail.pop(); if (previous) this.updateBilling({ ...previous, trail }); },
       tabs: [['overview', '总览'], ['suppliers', '按模型供应商'], ['models', '按模型']].map(([id, name]) => ({ id, name, active: s.tab === id, current: s.tab === id ? 'page' : 'false', pick: () => this.updateBilling({ tab: id, query: '' }) })),
-      grains: [['hour', '小时'], ['day', '日'], ['month', '月'], ['year', '年']].map(([id, name]) => ({ id, name, active: s.grain === id, pick: () => this.updateBilling({ grain: id }) })),
+      grains: [['hour', '小时'], ['day', '日'], ['month', '月'], ['year', '年']].map(([id, name]) => ({ id, name, active: timeMode === id, pick: () => this.updateBilling({ grain: id, timeMode: id }) })),
       chartMetrics: [['cost', '费用'], ['tokens', 'Tokens'], ['calls', '调用次数']].map(([id, name]) => ({ id, name, active: s.metric === id, pick: () => this.updateBilling({ metric: id }) })),
       chartSeries, chartTitle: s.metric === 'tokens' ? 'Token 用量分布' : s.metric === 'calls' ? '调用次数分布' : '费用分布', unit: s.metric === 'cost' ? 'USD' : s.metric === 'tokens' ? 'Tokens' : '次',
       metrics: [
@@ -354,6 +357,10 @@
       ],
       inputShare: totalTokens ? (100 * sum.input / totalTokens).toFixed(1) + '%' : '0%', insight, driver, comparisonKnown,
       comparisonPeriod: comparisonKnown ? '对比 ' + labelTime(previousStart) + ' — ' + labelTime(rangeStart) + '（不含结束时刻）' : '', changeReasons, abnormalRuns, hasAbnormalRuns:abnormalRuns.length>0,
+      anomalyCostOrder:anomalyMetric==='cost'?anomalyDirection:'',anomalyDeviationOrder:anomalyMetric==='deviation'?anomalyDirection:'',
+      anomalyCostSort:anomalyMetric==='cost'?(anomalyDirection==='asc'?'ascending':'descending'):'none',anomalyDeviationSort:anomalyMetric==='deviation'?(anomalyDirection==='asc'?'ascending':'descending'):'none',
+      anomalyCostActive:anomalyMetric==='cost',anomalyDeviationActive:anomalyMetric==='deviation',
+      onAnomalyCostOrder:e=>this.updateBilling({anomalyMetric:'cost',anomalyDirection:e.target.value==='asc'?'asc':'desc'}),onAnomalyDeviationOrder:e=>this.updateBilling({anomalyMetric:'deviation',anomalyDirection:e.target.value==='asc'?'asc':'desc'}),
       contributors, remainder: this.billingMoney(remainder), hasRemainder: remainder > 0, compositionLabel: tableLabel + '费用构成', compositionNote: top && sum.cost ? 'Top 1 · ' + top.name + ' 占 ' + top.share : '当前范围没有计费金额',
       hasRows: rows.length > 0, hasData: allRows.length > 0, rows, tableLabel, columns, resultCount: filteredRows.length, groupCount: allRows.length,
       callCount: this.billingNumber(sum.calls), query: s.query, noSearch: !s.query, page, pages, pageSize, rangeLabel: filteredRows.length ? ((page - 1) * pageSize + 1) + '–' + Math.min(page * pageSize, filteredRows.length) : '0',
@@ -363,9 +370,14 @@
       costAxis: [this.billingMoney(maxCost), this.billingMoney(maxCost / 2), '$0'], tokenAxis: [this.billingCompact(maxTokens), this.billingCompact(maxTokens / 2), '0'],
       chartAxis: [chartFormat(chartMax), chartFormat(chartMax / 2), s.metric === 'cost' ? '$0' : '0'], bars, chartMinWidth: Math.max(260, buckets.length * 18) + 'px',
       focusLabel: selected ? bucketLabel(selected) : '', focusCost: selected ? this.billingMoney(selected.cost) : '', focusTokens: selected ? '输入 ' + this.billingNumber(selected.input) + ' / 输出 ' + this.billingNumber(selected.output) : '', hasFocus: !!selected, clearBin: () => this.updateBilling({ bin: null }),
-      onPreset: e => e.target.value === 'custom' ? this.updateBilling({ preset: 'custom' }) : this.updateBilling(this.billingPreset(e.target.value)),
+      onPreset: e => {
+        const preset = e.target.value;
+        if (preset === 'custom') return this.updateBilling({ preset: 'custom', timeMode: 'custom' });
+        const range = this.billingPreset(preset);
+        this.updateBilling({ ...range, timeMode: range.grain });
+      },
       openCustomTime: () => {
-        this.updateBilling({ preset: 'custom' });
+        this.updateBilling({ preset: 'custom', timeMode: 'custom' });
         setTimeout(() => {
           if (typeof document === 'undefined') return;
           const calendar = document.getElementById('forge-billing-calendar');
@@ -373,9 +385,9 @@
           try { if (!calendar.matches(':popover-open')) calendar.showPopover(); } catch (_) {}
         }, 0);
       },
-      onStart: e => this.updateBilling({ start: e.target.value, preset: 'custom', grain:this.billingCompatibleGrain(e.target.value,s.end,s.grain) }), onEnd: e => this.updateBilling({ end: e.target.value, preset: 'custom', grain:this.billingCompatibleGrain(s.start,e.target.value,s.grain) }),
+      onStart: e => this.updateBilling({ start: e.target.value, preset: 'custom', timeMode: 'custom', grain:this.billingCompatibleGrain(e.target.value,s.end,s.grain) }), onEnd: e => this.updateBilling({ end: e.target.value, preset: 'custom', timeMode: 'custom', grain:this.billingCompatibleGrain(s.start,e.target.value,s.grain) }),
       onProject: e => this.updateBilling({ project: e.target.value, trail: [] }), onProvider: e => this.updateBilling({ provider: e.target.value, model: '', trail: [] }), onModel: e => this.updateBilling({ model: e.target.value, trail: [] }),
-      reset: () => this.updateBilling({ ...this.billingPreset('yesterday'), project: '', provider: '', model: '', query: '', trail: [] }), resetDates: () => this.updateBilling(this.billingPreset('yesterday')),
+      reset: () => this.updateBilling({ ...defaultRange, timeMode: defaultRange.grain, project: '', provider: '', model: '', query: '', trail: [] }), resetDates: () => this.updateBilling({ ...defaultRange, timeMode: defaultRange.grain }),
       sortCost: () => sort('cost'), sortTokens: () => sort('tokens'),
       exportDetails: () => this.billingDownload([['数据类型', '调用 ID', '调用时间 UTC+8', '项目', '供应商', '模型', '输入 Tokens', '输出 Tokens', '费用 USD'], ...[...current].sort((a,b) => a.occurredAt - b.occurredAt).map(r => [source.demo ? '示例' : '账单', r.id, labelTime(r.occurredAt), r.projectName, r.providerName, r.modelName, r.inputTokens, r.outputTokens, (r.costMicros / 1000000).toFixed(6)])], 'Forge-调用明细-' + fileSuffix + '.csv'),
       exportTable: () => this.billingDownload([['数据类型', tableLabel, '费用 USD', '费用占比', '总 Tokens', '输入 Tokens', '输出 Tokens', '调用次数'], ...filteredRows.map(r => [source.demo ? '示例' : '账单', r.name, (r.costRaw / 1000000).toFixed(6), r.share, r.tokenRaw, r.inputRaw, r.outputRaw, r.callsRaw])], 'Forge-' + tableLabel + '汇总-' + fileSuffix + '.csv'),

@@ -10,10 +10,10 @@ const ForgeRoutes = (() => {
     reviewOwner: 'all', reviewPhase: 'pending', reviewSort: 'newest', reviewQuery: '', reviewTab: '预览',
     sheetKey: null, sheetRow: null, sheetFilter: 'all', sheetQuery: '', sheetTagFilter: '',
     lifeItem: null, lifeRun: null, lifeDs: null, lifeFrom: null, lifeBranch: null,
-    pipeFilter: '活跃', pipeQuery: '', dsQuery: '', runsFilter: '全部', runsMine: false, runsQuery: '',
+    pipeFilter: '活跃', pipeQuery: '', dsQuery: '', runsFilter: '全部', runsMine: false, runsOwner: '', runsQuery: '',
     delCat: 'all', delStatus: 'all', delSort: 'newest', billing: undefined,
     modelQuery: '', modelProvider: '', modelModel: '', modelLine: '', modelFilter: 'production', modelDimension: 'providers', modelSelection: '', modelRoute: '', modelSource: '', modelBusinessOnly: false, modelSort: 'impact', modelTimeRange: 'all', modelTimeStart: '', modelTimeEnd: '', modelDrawerMode: '', modelChartMetric: 'ttft', modelNoteOpen: false, modelPageTab: 'overview', modelOverviewWindow: '1h',
-    supplierTab: 'performance', supplierVendor: '', supplierSheet: '', supplierRisk: '', supplierCycle: 'all', supplierAddOpen: false,
+    supplierTab: 'performance', supplierVendor: '', supplierRisk: '', supplierCycle: 'all', supplierAddOpen: false,
     dlOpen: false, notifOpen: false, profileOpen: false, profileTab: 'tasks',
     routeAnchor: '', routeError: '', routeMissingUrl: '',
   });
@@ -47,7 +47,7 @@ const ForgeRoutes = (() => {
         const section = parts[1] || 'runs', id = parts[2];
         if (section === 'runs' && parts.length <= 3) {
           patch.view = id ? 'run' : 'runs'; patch.activeRun = id || null;
-          patch.runsQuery = query; patch.runsMine = get('owner') === 'mine';
+          patch.runsQuery = query; patch.runsMine = get('owner') === 'mine'; patch.runsOwner = (get('owner') || '').slice(0, 80);
           patch.runsFilter = ({ running: '运行中', success: '成功', failed: '失败' })[get('status')] || '全部';
         } else if (section === 'submitted' && parts.length === 2) { patch.view = 'submitted'; patch.activeRun = get('run') || null; }
         else if (section === 'pipelines' && parts.length <= 4 && (!parts[3] || parts[3] === 'edit') && (!parts[3] || id)) {
@@ -93,6 +93,7 @@ const ForgeRoutes = (() => {
         if (get('preset')) patch.billing.preset = oneOf(get('preset'), ['yesterday', 'week', 'month', 'year', 'years', 'custom'], 'yesterday');
         for (const key of ['start', 'end']) if (q.has(key)) patch.billing[key] = get(key);
         if (get('grain')) patch.billing.grain = oneOf(get('grain'), ['hour', 'day', 'month', 'year'], 'day');
+        if (get('time')) patch.billing.timeMode = oneOf(get('time'), ['hour', 'day', 'month', 'year', 'custom'], 'custom');
       } else if (parts[0] === 'models' && parts.length === 1) {
         patch.view = 'models'; patch.modelQuery = query; patch.modelProvider = get('provider');
         patch.modelModel = get('model'); patch.modelLine = get('line');
@@ -104,7 +105,7 @@ const ForgeRoutes = (() => {
         patch.modelDrawerMode = oneOf(get('drawer'), ['diagnostic', 'test', 'billing'], ''); patch.modelChartMetric = oneOf(get('metric'), ['ttft', 'throughput', 'total', 'errors'], 'ttft'); patch.modelPageTab = oneOf(get('tab'), ['overview', 'lines'], get('tab') === 'compare' ? 'lines' : 'overview'); patch.modelOverviewWindow = oneOf(get('window'), ['1h', '24h', '7d', '30d'], '1h');
       } else if (parts[0] === 'outsourcing-suppliers' && parts.length <= 2) {
         patch.view = 'outsourcing-suppliers'; patch.supplierVendor = parts[1] || get('supplier');
-        patch.supplierTab = oneOf(get('tab'), ['performance', 'management'], 'performance'); patch.supplierSheet = get('sheet');
+        patch.supplierTab = oneOf(get('tab'), ['performance', 'management'], 'performance');
         patch.supplierRisk = oneOf(get('risk'), ['critical', 'high', 'medium', 'low'], ''); patch.supplierCycle = oneOf(get('cycle'), ['all', '7d', '30d', 'quarter'], 'all');
       } else throw Error('route');
       patch.profileOpen = get('panel') === 'profile'; patch.profileTab = get('profile') === 'skills' ? 'skills' : 'tasks';
@@ -121,7 +122,7 @@ const ForgeRoutes = (() => {
     const q = new URLSearchParams(); let path = '/overview', anchor = s.routeAnchor || '';
     const set = (key, value, fallback = '') => { if (value != null && value !== '' && String(value) !== String(fallback)) q.set(key, String(value)); };
     switch (s.view) {
-      case 'runs': path = '/production/runs'; set('status', ({'运行中':'running','成功':'success','失败':'failed'})[s.runsFilter]); set('owner', s.runsMine ? 'mine' : ''); set('q', s.runsQuery); break;
+      case 'runs': path = '/production/runs'; set('status', ({'运行中':'running','成功':'success','失败':'failed'})[s.runsFilter]); set('owner', s.runsOwner || (s.runsMine ? 'mine' : '')); set('q', s.runsQuery); break;
       case 'run': path = '/production/runs/' + enc(s.activeRun || 'missing'); break;
       case 'submitted': path = '/production/submitted'; set('run', s.activeRun); break;
       case 'pipelines': path = '/production/pipelines' + (s.openPipe ? '/' + enc(s.openPipe) : ''); set('status', ({'全部':'all','废弃':'archived'})[s.pipeFilter]); set('q', s.pipeQuery); break;
@@ -138,9 +139,9 @@ const ForgeRoutes = (() => {
       case 'delivery-create': path = '/delivery/new'; set('draft', s.deliveryEditor?.savedDraftId); anchor = s.deliveryEditor?.tab || 'basic'; break;
       case 'sheet': path = '/delivery/' + enc(s.sheetKey || 'missing') + (s.sheetRow ? '/items/' + enc(s.sheetRow) : ''); set('status', s.sheetFilter, 'all'); set('q', s.sheetQuery); set('tag', s.sheetTagFilter); break;
       case 'itemlife': path = '/items/' + enc(s.lifeItem || 'missing'); set('run', s.lifeRun); set('sheet', s.sheetKey); set('from', s.lifeFrom === 'review' ? 'review' : ''); break;
-      case 'billing': path = '/billing/' + (s.billing?.tab === 'projects' ? 'overview' : s.billing?.tab || 'overview'); for (const key of ['preset', 'start', 'end', 'grain', 'project', 'provider', 'model', 'bin']) set(key, s.billing?.[key]); set('sort', s.billing?.sort, 'cost'); set('direction', s.billing?.direction, 'desc'); set('metric', s.billing?.metric, 'cost'); set('search', s.billing?.query); set('page', s.billing?.page, '1'); set('pageSize', s.billing?.pageSize, '10'); break;
+      case 'billing': path = '/billing/' + (s.billing?.tab === 'projects' ? 'overview' : s.billing?.tab || 'overview'); for (const key of ['preset', 'start', 'end', 'grain', 'project', 'provider', 'model', 'bin']) set(key, s.billing?.[key]); set('time', s.billing?.timeMode, s.billing?.preset === 'custom' ? 'custom' : s.billing?.grain); set('sort', s.billing?.sort, 'cost'); set('direction', s.billing?.direction, 'desc'); set('metric', s.billing?.metric, 'cost'); set('search', s.billing?.query); set('page', s.billing?.page, '1'); set('pageSize', s.billing?.pageSize, '10'); break;
       case 'models': path = '/models'; set('q', s.modelQuery); set('provider', s.modelProvider); set('model', s.modelModel); set('line', s.modelLine); set('status', s.modelFilter, 'production'); set('dimension', s.modelDimension, 'providers'); set('selection', s.modelSelection); set('route', s.modelRoute); set('source', s.modelSource); set('impact', s.modelBusinessOnly ? '1' : ''); set('sort', s.modelSort, 'impact'); set('period', s.modelTimeRange, 'all'); if (s.modelTimeRange === 'custom') { set('from', s.modelTimeStart); set('to', s.modelTimeEnd); } set('drawer', s.modelDrawerMode); set('metric', s.modelChartMetric, 'ttft'); set('tab', s.modelPageTab, 'overview'); set('window', s.modelOverviewWindow, '1h'); break;
-      case 'outsourcing-suppliers': path = '/outsourcing-suppliers' + (s.supplierVendor ? '/' + enc(s.supplierVendor) : ''); set('tab', s.supplierTab, 'performance'); set('sheet', s.supplierSheet); set('risk', s.supplierRisk); set('cycle', s.supplierCycle, 'all'); break;
+      case 'outsourcing-suppliers': path = '/outsourcing-suppliers' + (s.supplierVendor ? '/' + enc(s.supplierVendor) : ''); set('tab', s.supplierTab, 'performance'); set('risk', s.supplierRisk); set('cycle', s.supplierCycle, 'all'); break;
       case 'route-error': return s.routeMissingUrl || '/not-found';
     }
     if (s.deliveryEditor?.key) { path = '/delivery/' + enc(s.deliveryEditor.key) + '/edit'; anchor = anchor || s.deliveryEditor.tab || 'basic'; }

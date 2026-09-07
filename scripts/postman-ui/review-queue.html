@@ -1,6 +1,6 @@
 <section class="forge-page pm-page-review pm-review-queue" aria-labelledby="queue-title">
   <button type="button" class="pq-back" sc-camel-on-click="{{ review.back }}">[[icon:arrow-left:16]] {{ review.backLabel }}</button>
-  <header class="pq-heading"><div><h1 id="queue-title">审核队列</h1><p>{{ review.queue.subtitle }}</p></div><button type="button" class="pq-refresh" sc-camel-on-click="{{ review.queue.refresh }}" disabled="{{ review.queue.loading }}">[[icon:arrow-clockwise:16]] <sc-if value="{{ review.queue.loading }}">刷新中…</sc-if><sc-if value="{{ !review.queue.loading }}">刷新</sc-if></button></header>
+  <header class="pq-heading"><div><h1 id="queue-title">审核</h1></div><button type="button" class="pq-refresh" sc-camel-on-click="{{ review.queue.refresh }}" disabled="{{ review.queue.loading }}">[[icon:arrow-clockwise:16]] <sc-if value="{{ review.queue.loading }}">刷新中…</sc-if><sc-if value="{{ !review.queue.loading }}">刷新</sc-if></button></header>
   <div class="pq-summary forge-overview-summary" role="group" aria-label="审核摘要">
     <sc-for list="{{ review.queue.summary }}" as="s">
       <article class="forge-summary-card pq-summary-item" data-actionable="true" data-selected="{{ s.selected }}">
@@ -11,27 +11,23 @@
     </sc-for>
   </div>
   <div id="queue-panel" role="region" aria-label="审核任务">
-    <div class="pq-filters" role="search" aria-label="搜索和筛选审核任务">
-      <label class="pq-search"><span class="pq-sr">搜索任务</span>[[icon:magnifying-glass:16]]<input type="search" aria-label="搜索 Item 名称、Item ID、Run ID" placeholder="搜索 Item 名称、ID、Run ID" value="{{ review.queue.query }}" sc-camel-on-input="{{ review.queue.onQuery }}" /></label>
-      <label class="pq-scope-filter"><span class="pq-sr">审核范围</span><select aria-label="审核范围" value="{{ review.queue.owner }}" sc-camel-on-change="{{ review.queue.setOwner }}"><option value="all">全部任务</option><option value="mine">我的任务</option></select></label>
-      <div class="pq-mobile-column-filters" aria-label="表格列筛选">
-        <label><span class="pq-sr">审核类型</span><select aria-label="审核类型" value="{{ review.queue.type }}" sc-camel-on-change="{{ review.queue.setType }}"><option value="all">全部类型</option><option value="first">首次审核</option><option value="rework">返工复审</option></select></label>
-        <label><span class="pq-sr">审核轮次</span><select aria-label="审核轮次" value="{{ review.queue.round }}" sc-camel-on-change="{{ review.queue.setRound }}"><option value="all">全部轮次</option><option value="1">第 1 轮</option><option value="2">第 2 轮</option><option value="3">第 3 轮及以上</option></select></label>
-        <label><span class="pq-sr">{{ review.queue.personHeading }}</span><select aria-label="{{ review.queue.personHeading }}" value="{{ review.queue.person }}" sc-camel-on-change="{{ review.queue.setPerson }}"><option value="all">全部{{ review.queue.personHeading }}</option><sc-for list="{{ review.queue.people }}" as="person"><option value="{{ person.value }}">{{ person.label }}</option></sc-for></select></label>
-        <label><span class="pq-sr">{{ review.queue.timeHeading }}排序</span><select aria-label="{{ review.queue.timeHeading }}排序" value="{{ review.queue.sort }}" sc-camel-on-change="{{ review.queue.setSort }}"><option value="newest">最新优先</option><option value="oldest">最早优先</option></select></label>
-      </div>
+    <h2 class="pq-list-title">审核列表</h2>
+    <div class="pq-filters" role="search" aria-label="搜索和筛选审核任务" data-menu-open="{{ review.queue.menuOpen }}">
+      <label class="pq-search" sc-camel-on-click="{{ review.queue.closeMenu }}"><span class="pq-sr">搜索任务</span>[[icon:magnifying-glass:16]]<input type="search" aria-label="搜索 Item 名称、Item ID、Run ID" placeholder="搜索 Item 名称、ID、Run ID" value="{{ review.queue.query }}" sc-camel-on-input="{{ review.queue.onQuery }}" /><sc-if value="{{ review.queue.hasQuery }}"><button type="button" class="pq-search-clear" aria-label="清除搜索" sc-camel-on-click="{{ review.queue.clearQuery }}">[[icon:x:14]]</button></sc-if></label>
+      <sc-for list="{{ review.queue.filters }}" as="filter" hint-placeholder-count="5"><div class="pq-inline-filter" data-filter="{{ filter.key }}"><button id="pq-filter-{{ filter.key }}" type="button" class="pq-filter-trigger" data-filtered="{{ filter.filtered }}" aria-label="{{ filter.ariaLabel }}：{{ filter.label }}" aria-haspopup="menu" aria-controls="pq-filter-menu" aria-expanded="{{ filter.open }}" sc-camel-on-click="{{ filter.toggle }}"><span>{{ filter.label }}</span>[[icon:caret-down:12]]</button></div></sc-for>
       <sc-if value="{{ review.queue.hasFilters }}"><button type="button" class="pq-reset" sc-camel-on-click="{{ review.queue.reset }}">重置</button></sc-if>
     </div>
+    <sc-if value="{{ review.queue.menuOpen }}"><button type="button" class="pq-filter-scrim" aria-label="关闭筛选菜单" sc-camel-on-click="{{ review.queue.closeMenu }}"></button><div id="pq-filter-menu" class="pq-filter-menu forge-motion-menu" data-motion-open="true" data-placement="{{ review.queue.activeFilter.placement }}" role="menu" aria-label="{{ review.queue.activeFilter.ariaLabel }}选项" style="left:{{ review.queue.activeFilter.left }}px;top:{{ review.queue.activeFilter.top }}px;width:{{ review.queue.activeFilter.width }}px" sc-camel-on-key-down="{{ review.queue.menuKey }}"><sc-for list="{{ review.queue.activeFilter.options }}" as="option"><button type="button" class="pq-filter-option" role="menuitemradio" aria-checked="{{ option.selected }}" data-selected="{{ option.selected }}" sc-camel-on-click="{{ option.pick }}"><span>{{ option.label }}</span><span class="pq-filter-option-check" aria-hidden="true"><sc-if value="{{ option.selected }}">[[icon:check:14]]</sc-if></span></button></sc-for></div></sc-if>
     <sc-if value="{{ review.queue.todayOnly }}"><div class="pq-date-filter">今天完成的审核<button type="button" sc-camel-on-click="{{ review.queue.clearToday }}" aria-label="取消今天筛选">[[icon:x:12]]</button></div></sc-if>
     <div class="pq-table-scroll" tabindex="{{ review.queue.empty ? -1 : 0 }}" role="region" aria-label="审核任务表" aria-busy="{{ review.queue.loading }}" data-empty="{{ review.queue.empty }}">
       <sc-if value="{{ !review.queue.empty }}">
       <div class="pq-table" role="table" aria-label="审核任务列表" aria-rowcount="{{ review.queue.total + 1 }}">
         <div class="pq-columns pq-table-head" role="row">
           <div role="columnheader">Case / Item ID</div>
-          <div role="columnheader"><label class="pq-column-filter" data-active="{{ review.queue.type !== 'all' }}"><span class="pq-sr">按审核类型筛选</span><select aria-label="按审核类型筛选" value="{{ review.queue.type }}" sc-camel-on-change="{{ review.queue.setType }}"><option value="all">{{ review.queue.statusHeading }}</option><option value="first">首次审核</option><option value="rework">返工复审</option></select>[[icon:caret-down:12]]</label></div>
-          <div role="columnheader"><label class="pq-column-filter" data-active="{{ review.queue.round !== 'all' }}"><span class="pq-sr">按审核轮次筛选</span><select aria-label="按审核轮次筛选" value="{{ review.queue.round }}" sc-camel-on-change="{{ review.queue.setRound }}"><option value="all">轮次</option><option value="1">第 1 轮</option><option value="2">第 2 轮</option><option value="3">第 3 轮+</option></select>[[icon:caret-down:12]]</label></div>
-          <div role="columnheader"><label class="pq-column-filter" data-active="{{ review.queue.person !== 'all' }}"><span class="pq-sr">按{{ review.queue.personHeading }}筛选</span><select aria-label="按{{ review.queue.personHeading }}筛选" value="{{ review.queue.person }}" sc-camel-on-change="{{ review.queue.setPerson }}"><option value="all">{{ review.queue.personHeading }}</option><sc-for list="{{ review.queue.people }}" as="person"><option value="{{ person.value }}">{{ person.label }}</option></sc-for></select>[[icon:caret-down:12]]</label></div>
-          <div role="columnheader"><label class="pq-column-filter" data-active="{{ review.queue.sort === 'oldest' }}"><span class="pq-sr">{{ review.queue.timeHeading }}排序</span><select aria-label="{{ review.queue.timeHeading }}排序" value="{{ review.queue.sort }}" sc-camel-on-change="{{ review.queue.setSort }}"><option value="newest">{{ review.queue.timeHeading }} · 最新</option><option value="oldest">{{ review.queue.timeHeading }} · 最早</option></select>[[icon:caret-down:12]]</label></div>
+          <div role="columnheader">{{ review.queue.statusHeading }}</div>
+          <div role="columnheader">轮次</div>
+          <div role="columnheader">{{ review.queue.personHeading }}</div>
+          <div role="columnheader">{{ review.queue.timeHeading }}</div>
           <div role="columnheader">操作</div>
         </div>
         <div role="rowgroup">

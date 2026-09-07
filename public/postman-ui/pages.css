@@ -184,6 +184,7 @@
 .forge-postman .pm-dataset-page-content{flex:0 0 auto!important;overflow:visible!important}
 .forge-postman .pm-dataset-split>div:last-child>div:last-child{border:0!important;border-left:1px solid var(--pm-border)!important;border-radius:0!important}
 .forge-postman [data-flow-family=datasets]{padding:10px var(--content-inset-compact)!important;min-height:64px}
+.forge-postman [data-flow-family=datasets][data-pm-click=true]{border-radius:0!important}
 .forge-postman [data-flow-family=datasets]>div:first-child>div:first-child{font:500 13px/20px var(--pm-font)!important}
 .forge-postman .pm-page-pipelines [data-pm-click=true]>div:first-child{min-width:0}
 .forge-postman .review-queue-card-header{height:auto!important;min-height:88px!important}

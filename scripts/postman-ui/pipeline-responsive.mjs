@@ -1,5 +1,11 @@
 // Layout-only adaptation; preserve the editor's existing handlers and data.
 export function installPipelineResponsive(t) {
+ const filterOrder="const filters = ['活跃', '全部', '废弃'].map(label => {";
+ if(!t.includes(filterOrder))throw Error('Pipeline status filter order anchor changed');
+ t=t.replace(filterOrder,"const filters = ['全部', '活跃', '废弃'].map(label => {");
+ const statusValues="stale: staleOf(p), bg: open ? '#fdf5f2' : '#fff',";
+ if(!t.includes(statusValues))throw Error('Pipeline status values anchor changed');
+ t=t.replace(statusValues,"stale: staleOf(p), statusLabel: staleOf(p) ? '废弃' : '活跃', statusTone: staleOf(p) ? 'stale' : 'active', bg: open ? '#fdf5f2' : '#fff',");
  t=installPipelineListLayout(t);
  const start=t.indexOf('<div class="pm-pipeline-editor '), end=t.indexOf('<sc-if value="{{ isDatasets }}"',start);
  if(start<0||end<0) throw Error('Pipeline editor boundary changed');
@@ -30,14 +36,32 @@ function installPipelineListLayout(t){
  if(start<0||end<start)throw Error('Pipeline list layout boundary changed');
  let p=t.slice(start,end);
  const replace=(from,to)=>{if(!p.includes(from))throw Error('Pipeline list layout anchor changed: '+from.slice(0,80));p=p.replace(from,to);};
+ const createStart=p.indexOf('<button sc-camel-on-click="{{ openNewPipe }}"');
+ const createEnd=p.indexOf('</button>',createStart)+9;
+ const headingSpacer=p.lastIndexOf('        <div style="flex:1"></div>\n        ',createStart);
+ if(createStart<0||createEnd<9||headingSpacer<0)throw Error('Pipeline create action anchor changed');
+ const createButton=p.slice(createStart,createEnd).replace('<button ','<button class="pm-pipelines-create" ');
+ p=p.slice(0,headingSpacer)+p.slice(createEnd);
  replace('<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">','<div class="pm-production-page-heading pm-pipelines-heading" style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">');
+ replace('<div style="margin-top:7px;font-size:14px;color:var(--forge-muted)">{{ pipeSubtitle }}</div>','');
  replace('<div style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">','<div class="pm-pipelines-filters" style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">');
+ replace('<input sc-camel-on-change="{{ onPipeQuery }}"','<input class="pm-pipelines-search" sc-camel-on-change="{{ onPipeQuery }}"');
+ replace('<div data-forge-segmented="pill" role="group" style="','<span class="pm-pipelines-filter-label">状态</span><div data-forge-segmented="pill" role="group" aria-label="Pipeline 状态筛选" style="');
+ replace('<div style="flex:1"></div>\n        <div style="font-size:13px;color:var(--forge-muted)">{{ pipeCount }}</div>','<div class="pm-pipelines-filter-spacer" style="flex:1"></div>\n        '+createButton+'\n        <div style="font-size:13px;color:var(--forge-muted)">{{ pipeCount }}</div>');
+ replace('<div style="font-size:13px;color:var(--forge-muted)">{{ pipeCount }}</div>','');
  replace('<div style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">','<div class="pm-pipelines-list" style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">');
  replace('<div style="display:grid;grid-template-columns:minmax(0,1.7fr)', '<div class="pm-pipelines-columns" style="display:grid;grid-template-columns:minmax(0,1.7fr)');
+ replace('<div>名称</div>\n              <div>当前版本</div>','<div>名称</div>\n              <div>状态</div>\n              <div>当前版本</div>');
  replace('<div sc-camel-on-click="{{ p.toggle }}"','<div class="pm-pipelines-row" sc-camel-on-click="{{ p.toggle }}"');
  const rowStart=p.indexOf('<div class="pm-pipelines-row"'),rowEnd=p.indexOf('<sc-if value="{{ p.expanded }}"',rowStart);
  let row=p.slice(rowStart,rowEnd);
  row=row.replace('<div style="min-width:0">','<div class="pm-pipelines-name" style="min-width:0">').replace('white-space:nowrap">{{ p.name }}','white-space:nowrap" title="{{ p.name }}">{{ p.name }}');
+ const nameStatus=/\s*<sc-if value="\{\{ p\.stale \}\}"[^>]*>\s*<div[^>]*>废弃<\/div>\s*<\/sc-if>/;
+ if(!nameStatus.test(row))throw Error('Pipeline name status anchor changed');
+ row=row.replace(nameStatus,'');
+ const versionCell='<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;font-weight:600">{{ p.version }}</div>';
+ if(!row.includes(versionCell))throw Error('Pipeline status column anchor changed');
+ row=row.replace(versionCell,'<div class="pm-pipelines-metric pm-pipelines-status" data-label="状态"><span class="pm-pipelines-status-value" data-state="{{ p.statusTone }}">{{ p.statusLabel }}</span></div>\n                  '+versionCell);
  for(const [key,label] of [['version','当前版本'],['nodes','节点'],['last','最近运行'],['runs','运行数'],['unitCost','均价 / 条']]){
   row=row.replace(new RegExp('<div (style="[^"]*")>(\\{\\{ p\\.'+key+' \\}\\})</div>'),'<div class="pm-pipelines-metric" data-label="'+label+'" $1>$2</div>');
  }
