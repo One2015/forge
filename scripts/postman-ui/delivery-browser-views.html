@@ -2,21 +2,41 @@
   <sc-if value="{{ delivery.empty }}" hint-placeholder-val="{{ false }}">
     <div class="pm-delivery-empty">
       <strong>没有匹配的数据单</strong>
-      <span>调整搜索关键词或分类后重试。</span>
-      <button type="button" sc-camel-on-click="{{ delivery.clearQuery }}">清除搜索</button>
+      <span>调整搜索关键词或创建人筛选后重试。</span>
+      <button type="button" sc-camel-on-click="{{ delivery.clearQuery }}">清除筛选</button>
     </div>
   </sc-if>
   <div class="pm-delivery-table" role="table" aria-label="交付数据单列表">
     <div class="pm-delivery-table-head" role="row">
       <span role="columnheader">客户</span>
       <span role="columnheader">数据单名字</span>
-      <span role="columnheader">创建日期</span>
-      <span role="columnheader">创建人</span>
-      <span role="columnheader">状态</span>
+      <span role="columnheader" class="pm-delivery-header-control" aria-sort="{{ delivery.sortCreated.ariaSort }}">
+        <span>创建时间</span>
+        <button type="button" class="pm-delivery-sort-button" data-active="{{ delivery.sortCreated.active }}" data-direction="{{ delivery.sortCreated.direction }}" aria-label="{{ delivery.sortCreated.hint }}" title="{{ delivery.sortCreated.hint }}" sc-camel-on-click="{{ delivery.sortCreated.toggle }}">[[icon:arrow-up:9]][[icon:arrow-down:9]]</button>
+      </span>
+      <label role="columnheader" class="pm-delivery-owner-filter" data-filter-active="{{ delivery.creatorFilterActive }}">
+        <span>创建人</span>[[icon:caret-down:11]]
+        <select aria-label="{{ delivery.creatorFilterHint }}" value="{{ delivery.creatorFilter }}" sc-camel-on-change="{{ delivery.onCreatorFilter }}">
+          <sc-for list="{{ delivery.creatorOptions }}" as="option" hint-placeholder-count="4"><option value="{{ option.value }}" selected="{{ option.selected }}">{{ option.label }}</option></sc-for>
+        </select>
+      </label>
+      <span role="columnheader" class="pm-delivery-header-control" aria-sort="{{ delivery.sortStatus.ariaSort }}">
+        <span>状态</span>
+        <button type="button" class="pm-delivery-sort-button" data-active="{{ delivery.sortStatus.active }}" data-direction="{{ delivery.sortStatus.direction }}" aria-label="{{ delivery.sortStatus.hint }}" title="{{ delivery.sortStatus.hint }}" sc-camel-on-click="{{ delivery.sortStatus.toggle }}">[[icon:arrow-up:9]][[icon:arrow-down:9]]</button>
+      </span>
       <span role="columnheader">目标数</span>
-      <span role="columnheader">已关联条数</span>
-      <span role="columnheader">待审核</span>
-      <span role="columnheader">可交付</span>
+      <span role="columnheader" class="pm-delivery-header-control" aria-sort="{{ delivery.sortLinked.ariaSort }}">
+        <span>已关联条数</span>
+        <button type="button" class="pm-delivery-sort-button" data-active="{{ delivery.sortLinked.active }}" data-direction="{{ delivery.sortLinked.direction }}" aria-label="{{ delivery.sortLinked.hint }}" title="{{ delivery.sortLinked.hint }}" sc-camel-on-click="{{ delivery.sortLinked.toggle }}">[[icon:arrow-up:9]][[icon:arrow-down:9]]</button>
+      </span>
+      <span role="columnheader" class="pm-delivery-header-control" aria-sort="{{ delivery.sortReview.ariaSort }}">
+        <span>待审核条数</span>
+        <button type="button" class="pm-delivery-sort-button" data-active="{{ delivery.sortReview.active }}" data-direction="{{ delivery.sortReview.direction }}" aria-label="{{ delivery.sortReview.hint }}" title="{{ delivery.sortReview.hint }}" sc-camel-on-click="{{ delivery.sortReview.toggle }}">[[icon:arrow-up:9]][[icon:arrow-down:9]]</button>
+      </span>
+      <span role="columnheader" class="pm-delivery-header-control" aria-sort="{{ delivery.sortPassed.ariaSort }}">
+        <span>交付条数</span>
+        <button type="button" class="pm-delivery-sort-button" data-active="{{ delivery.sortPassed.active }}" data-direction="{{ delivery.sortPassed.direction }}" aria-label="{{ delivery.sortPassed.hint }}" title="{{ delivery.sortPassed.hint }}" sc-camel-on-click="{{ delivery.sortPassed.toggle }}">[[icon:arrow-up:9]][[icon:arrow-down:9]]</button>
+      </span>
       <span role="columnheader">进度</span>
       <span role="columnheader">操作</span>
     </div>
@@ -26,13 +46,13 @@
           <div class="pm-delivery-row" role="row" data-flow-family="delivery" data-flow-row="{{ d.motionKey }}">
             <span class="pm-delivery-customer-cell" role="cell"><sc-if value="{{ c.hasLogo }}" hint-placeholder-val="{{ false }}"><img class="forge-delivery-customer-logo" src="{{ c.logo }}" alt="" width="22" height="22" /></sc-if><span>{{ c.name }}</span></span>
             <span class="pm-delivery-name-cell" role="cell"><strong>{{ d.name }}</strong></span>
-            <span class="pm-delivery-date-cell" role="cell"><span class="pm-delivery-mobile-label">创建日期</span>{{ d.createdDate }}</span>
+            <span class="pm-delivery-date-cell" role="cell"><span class="pm-delivery-mobile-label">创建时间</span>{{ d.createdDate }}</span>
             <span class="pm-delivery-owner-cell" role="cell"><span class="pm-delivery-mobile-label">创建人</span>{{ d.creator }}</span>
             <span class="pm-delivery-status-cell" role="cell" style="color:{{ d.badgeFg }}">{{ d.badge }}</span>
             <span class="pm-delivery-metric pm-delivery-target-cell" role="cell"><span class="pm-delivery-mobile-label">目标数</span><strong>{{ d.target }}</strong></span>
             <span class="pm-delivery-metric pm-delivery-linked-cell" role="cell"><span class="pm-delivery-mobile-label">已关联条数</span><strong>{{ d.linked }}</strong></span>
-            <span class="pm-delivery-metric pm-delivery-review-cell" role="cell"><span class="pm-delivery-mobile-label">待审核</span><strong>{{ d.review }}</strong></span>
-            <span class="pm-delivery-metric pm-delivery-passed-cell" role="cell"><span class="pm-delivery-mobile-label">可交付</span><strong>{{ d.passed }}</strong></span>
+            <span class="pm-delivery-metric pm-delivery-review-cell" role="cell"><span class="pm-delivery-mobile-label">待审核条数</span><strong>{{ d.review }}</strong></span>
+            <span class="pm-delivery-metric pm-delivery-passed-cell" role="cell"><span class="pm-delivery-mobile-label">交付条数</span><strong>{{ d.passed }}</strong></span>
             <span class="pm-delivery-progress" role="cell"><span class="pm-progress-bar" aria-hidden="true"><span style="width:{{ d.segPass }};background:var(--pm-success-mark)"></span><span style="width:{{ d.segReview }};background:var(--pm-warning-mark)"></span><span style="width:{{ d.segFail }};background:var(--pm-danger-mark)"></span></span><span class="pm-delivery-progress-copy">{{ d.hint }}</span></span>
             <span class="pm-delivery-action-cell" role="cell"><button type="button" class="pm-delivery-open" sc-camel-on-click="{{ d.open }}" aria-label="查看数据单 {{ d.name }}">查看</button></span>
           </div>
