@@ -208,11 +208,18 @@
 
 #forge-rbac-role-dock{position:fixed;z-index:700;right:18px;bottom:18px;width:min(470px,calc(100vw - 36px));border:1px solid #cbc7c1;border-radius:10px;background:#fff;color:var(--rbac-ink);box-shadow:0 10px 30px rgba(31,29,26,.16);font:13px/1.4 var(--forge-font,"Helvetica Neue",Helvetica,sans-serif)}
 #forge-rbac-role-dock[data-hidden="true"]{display:none}
+#forge-rbac-role-dock[data-collapsed="true"]{width:auto}
 .rbac-dock-row{display:flex;align-items:center;gap:10px;padding:10px 12px}
 .rbac-prototype-tag{display:inline-flex;align-items:center;min-height:22px;padding:2px 7px;border-radius:5px;background:var(--rbac-accent-soft);color:#a03817;font-size:11px;font-weight:650;letter-spacing:.02em}
 .rbac-dock-row label{display:flex;align-items:center;gap:6px;color:var(--rbac-muted);white-space:nowrap}
 .rbac-dock-row select{height:30px;max-width:150px;border:1px solid var(--rbac-line);border-radius:5px;background:#fff;color:var(--rbac-ink);padding:3px 25px 3px 7px}
-.rbac-dock-info{margin-left:auto;border:0;background:transparent;color:var(--rbac-muted);width:30px;height:30px;border-radius:5px}
+.rbac-dock-actions{display:flex;align-items:center;gap:2px;margin-left:auto}
+.rbac-dock-info,.rbac-dock-collapse{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--rbac-muted)}
+.rbac-dock-info:hover,.rbac-dock-collapse:hover,.rbac-dock-reopen:hover{background:var(--rbac-soft);color:var(--rbac-ink)}
+.rbac-dock-info:focus-visible,.rbac-dock-collapse:focus-visible,.rbac-dock-reopen:focus-visible{outline:2px solid var(--rbac-blue);outline-offset:2px}
+.rbac-dock-chevron{display:block;width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg)}
+.rbac-dock-reopen{display:flex;align-items:center;gap:9px;min-height:40px;padding:7px 10px;border:0;border-radius:9px;background:#fff;color:var(--rbac-muted);font:inherit;cursor:pointer}
+.rbac-dock-reopen .rbac-dock-chevron{transform:translateY(2px) rotate(225deg)}
 .rbac-dock-note{display:none;margin:0;padding:9px 12px;border-top:1px solid var(--rbac-line);color:var(--rbac-muted);font-size:12px}
 #forge-rbac-role-dock[data-expanded="true"] .rbac-dock-note{display:block}
 
@@ -225,7 +232,7 @@
   .rbac-detail-grid{grid-template-columns:1fr}
   .rbac-skill-grid{grid-template-columns:1fr}
   .rbac-role-sheet{width:min(760px,calc(100vw - 64px))}
-  .rbac-dock-row{flex-wrap:wrap}.rbac-dock-info{margin-left:0}
+  .rbac-dock-row{flex-wrap:wrap}.rbac-dock-actions{margin-left:0}
 }
 @media(max-width:620px){
   .rbac-page{width:calc(100% - 24px);padding:18px 0 110px}
@@ -242,6 +249,7 @@
   .rbac-role-sheet-head,.rbac-role-sheet-body{padding-left:16px;padding-right:16px}
   .rbac-role-identity{grid-template-columns:1fr}.rbac-role-identity .rbac-form-field:nth-child(2),.rbac-role-identity .rbac-form-field:nth-child(3){grid-column:auto;grid-row:auto}
   #forge-rbac-role-dock{right:12px;bottom:12px;width:calc(100vw - 24px)}
+  #forge-rbac-role-dock[data-collapsed="true"]{width:auto}
   .rbac-dock-row label{flex:1}.rbac-dock-row select{width:100%;max-width:none}
   #forge-rbac-toast{right:12px;bottom:116px;max-width:calc(100vw - 24px)}
 }

@@ -150,7 +150,7 @@
     permissionRole: 'project-owner', skillScope: 'platform', skillCreateMode: '', activeSkillId: '', skillEditMode: false, activeMemberId: '', activeMemberProject: 'ant-200',
     editingMemberPermissions: false, rolePermissions: clone(defaultPermissions), customPermissions: {}, projectAssignments: clone(initialProjectAssignments), customRoles: [],
     roleCreateOpen: false, roleDraftName: '', roleDraftDescription: '', roleDraftBase: 'member', roleDraftPermissions: clone(defaultPermissions.member), roleDraftError: '',
-    members: clone(initialMembers), invites: [], skills: clone(initialSkills), avatar: '', dockExpanded: false,
+    members: clone(initialMembers), invites: [], skills: clone(initialSkills), avatar: '', dockExpanded: false, dockCollapsed: false,
   };
   let state = loadState();
   let root;
@@ -698,8 +698,14 @@
 
   function renderDock() {
     dock.dataset.expanded = String(!!state.dockExpanded);
+    dock.dataset.collapsed = String(!!state.dockCollapsed);
     dock.dataset.hidden = String(!!state.roleCreateOpen);
-    dock.innerHTML = `<div class="rbac-dock-row"><span class="rbac-prototype-tag">Prototype</span><label>平台<select data-dock="platform"><option value="admin" ${state.platformRole === 'admin' ? 'selected' : ''}>Admin</option><option value="member" ${state.platformRole === 'member' ? 'selected' : ''}>Internal Member</option></select></label><label>项目<select data-dock="project">${roleEntries().map(([key, label]) => `<option value="${escapeHtml(key)}" ${state.projectRole === key ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label><button class="rbac-dock-info" type="button" data-dock="info" aria-label="查看体验模式说明" aria-expanded="${!!state.dockExpanded}">?</button></div><p class="rbac-dock-note">平台角色决定是否能管理 Member 和 Permission；项目角色决定具体 Forge 功能。Admin 始终拥有最高权限。External Experts 仅通过 Fellow 工作。</p>`;
+    if (state.dockCollapsed) {
+      dock.innerHTML = `<button class="rbac-dock-reopen" type="button" data-dock="expand" aria-label="展开 Prototype 控制栏" aria-expanded="false"><span class="rbac-prototype-tag">Prototype</span><span class="rbac-dock-chevron" aria-hidden="true"></span></button>`;
+      dock.querySelector('[data-dock="expand"]')?.addEventListener('click', () => update({ dockCollapsed: false }));
+      return;
+    }
+    dock.innerHTML = `<div class="rbac-dock-row"><span class="rbac-prototype-tag">Prototype</span><label>平台<select data-dock="platform"><option value="admin" ${state.platformRole === 'admin' ? 'selected' : ''}>Admin</option><option value="member" ${state.platformRole === 'member' ? 'selected' : ''}>Internal Member</option></select></label><label>项目<select data-dock="project">${roleEntries().map(([key, label]) => `<option value="${escapeHtml(key)}" ${state.projectRole === key ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label><div class="rbac-dock-actions"><button class="rbac-dock-info" type="button" data-dock="info" aria-label="查看体验模式说明" aria-expanded="${!!state.dockExpanded}">?</button><button class="rbac-dock-collapse" type="button" data-dock="collapse" aria-label="收起 Prototype 控制栏" aria-expanded="true"><span class="rbac-dock-chevron" aria-hidden="true"></span></button></div></div><p class="rbac-dock-note">平台角色决定是否能管理 Member 和 Permission；项目角色决定具体 Forge 功能。Admin 始终拥有最高权限。External Experts 仅通过 Fellow 工作。</p>`;
     dock.querySelector('[data-dock="platform"]')?.addEventListener('change', event => {
       const platformRole = event.target.value;
       update({ platformRole, roleCreateOpen: false, roleDraftError: '', activeTab: platformRole === 'admin' ? state.activeTab : (['member', 'permission'].includes(state.activeTab) ? 'profile' : state.activeTab) });
@@ -711,6 +717,7 @@
       showToast(`当前项目角色：${roleLabel(event.target.value)}`);
     });
     dock.querySelector('[data-dock="info"]')?.addEventListener('click', () => update({ dockExpanded: !state.dockExpanded }));
+    dock.querySelector('[data-dock="collapse"]')?.addEventListener('click', () => update({ dockCollapsed: true, dockExpanded: false }));
   }
 
   function bindRootEvents() {

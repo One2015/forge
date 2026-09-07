@@ -281,6 +281,24 @@ test('Skill cards hide file type and list every related task sheet', () => {
   assert.match(styles, /\.rbac-skill-detail-usage/);
 });
 
+test('Prototype role dock collapses to a compact keyboard-accessible trigger', () => {
+  const source = read('public/postman-ui/rbac-prototype.js');
+  const styles = read('public/postman-ui/rbac-prototype.css');
+  for (const contract of [
+    'dockCollapsed: false',
+    'dock.dataset.collapsed = String(!!state.dockCollapsed)',
+    'data-dock="collapse"',
+    'aria-label="收起 Prototype 控制栏"',
+    'data-dock="expand"',
+    'aria-label="展开 Prototype 控制栏"',
+    "update({ dockCollapsed: true, dockExpanded: false })",
+    "update({ dockCollapsed: false })",
+  ]) assert.ok(source.includes(contract), `missing dock collapse contract: ${contract}`);
+  assert.match(styles, /#forge-rbac-role-dock\[data-collapsed="true"\]\{width:auto\}/);
+  assert.match(styles, /\.rbac-dock-reopen\{[^}]*min-height:40px/);
+  assert.match(styles, /\.rbac-dock-reopen:focus-visible\{outline:2px solid var\(--rbac-blue\)/);
+});
+
 test('generated RBAC page loads isolated prototype assets', () => {
   const output = read('public/forge-rbac.html');
   assert.match(output, /rbac-prototype\.css\?v=[0-9a-f]{12}/);
