@@ -133,6 +133,9 @@ export function buildPostman(source){
   if(!ds.includes(anchor))throw Error('Dataset page scroll anchor changed: '+style);
   ds=ds.replace(anchor,'<div class="pm-dataset-page-content" style="'+style+'">');
  }
+ // Keep dataset search aligned to the page gutter and omit visual group headers.
+ ds=ds.replace('padding:13px 16px;border-bottom:1px solid var(--forge-border);flex-wrap:wrap','padding:13px 0;border-bottom:1px solid var(--forge-border);flex-wrap:wrap');
+ ds=ds.replace(/<div style="[^"]*">{{ g.label }}<\/div>/g,'');
  t=t.slice(0,dsStart)+ds+t.slice(dsEnd);
  t=installReviewQueue(t);
  t=installRunRecords(t);
