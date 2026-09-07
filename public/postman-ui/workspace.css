@@ -57,7 +57,7 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 .forge-postman .pm-notification-switch:focus-visible{outline:2px solid var(--pm-focus)!important;outline-offset:2px!important}
 @media(hover:hover){.forge-postman .pm-notification-switch:hover{background:var(--pm-hover-border)}.forge-postman .pm-notification-switch[aria-checked=true]:hover{background:var(--pm-action-hover)}}
 @media(pointer:coarse){.forge-postman .pm-notification-switch{min-height:20px!important}}
-.forge-postman .forge-production-tabs{min-height:40px;gap:12px;padding-inline:24px;background:var(--pm-subtle);border-color:var(--pm-border)}
+.forge-postman .forge-production-tabs{min-height:40px;gap:12px;padding-inline:24px;background:var(--pm-canvas);border-color:var(--pm-border)}
 .forge-postman .forge-production-tabs button{height:40px;font-size:12px!important;padding:0 16px!important;color:var(--pm-muted)!important}
 .forge-postman .forge-production-tabs button[aria-pressed=true]{border-bottom-color:var(--pm-tab-indicator)!important;color:var(--pm-text)!important;background:#fff!important}
 .forge-postman .forge-page,.forge-postman .fg-runs{max-width:1600px!important;padding:var(--pm-page-top) var(--pm-page-gutter) var(--pm-page-bottom)!important;margin-inline:auto}
