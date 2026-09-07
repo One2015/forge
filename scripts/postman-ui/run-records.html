@@ -1,5 +1,5 @@
 <sc-if value="{{ isRuns }}"><section class="fg-theme fg-runs rr-page" aria-labelledby="fg-runs-title">
- <header class="fg-page-header"><div><h1 id="fg-runs-title">运行记录</h1><p>{{ runs.subtitle }}</p></div><button type="button" class="fg-button" data-variant="primary" data-size="md" sc-camel-on-click="{{ goPipelines }}"><span class="fg-button-content"><svg class="forge-icon" data-phosphor="plus" width="16" height="16" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>新建运行</span><span class="fg-button-busy" aria-hidden="true">处理中…</span></button></header>
+ <header class="fg-page-header"><div><h1 id="fg-runs-title">运行</h1><p>{{ runs.subtitle }}</p></div><button type="button" class="fg-button" data-variant="primary" data-size="md" sc-camel-on-click="{{ goPipelines }}"><span class="fg-button-content"><svg class="forge-icon" data-phosphor="plus" width="16" height="16" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>新建运行</span><span class="fg-button-busy" aria-hidden="true">处理中…</span></button></header>
 
 <div class="rr-summary forge-overview-summary" role="group" aria-label="运行摘要"><sc-for list="{{ runs.kpis }}" as="k">
  <article class="forge-summary-card rr-summary-item" data-actionable="false">
@@ -9,15 +9,17 @@
  </article>
 </sc-for></div>
 <sc-if value="{{ runs.hasNotice }}"><div class="rr-notice" role="status">{{ runs.notice }}<button type="button" aria-label="关闭提示" sc-camel-on-click="{{ runs.dismiss }}">[[icon:x:14]]</button></div></sc-if>
+<section class="rr-list-section" aria-labelledby="rr-list-title">
+<h2 id="rr-list-title">运行任务</h2>
 <div class="rr-list-shell">
  <div class="fg-runs-toolbar" role="search" aria-label="筛选运行记录">
- <div class="rr-status-tabs" role="group" aria-label="运行状态"><sc-for list="{{ runs.filters }}" as="f" hint-placeholder-count="4"><button type="button" class="fg-button" data-variant="tertiary" data-size="sm" sc-camel-on-click="{{ f.pick }}" aria-pressed="{{ f.selected }}" data-motion-label="{{ f.label }}"><span class="fg-button-content">{{ f.label }}</span><span class="fg-button-busy" aria-hidden="true">处理中…</span></button></sc-for></div>
- <label class="fg-checkbox-label"><input type="checkbox" checked="{{ runs.mineSelected }}" sc-camel-on-change="{{ runs.toggleMine }}"><span>只看我的</span></label>
  <div class="rr-filter-controls">
+ <label class="fg-checkbox-label"><input type="checkbox" checked="{{ runs.mineSelected }}" sc-camel-on-change="{{ runs.toggleMine }}"><span>只看我的</span></label>
  <div class="fg-search"><svg class="forge-icon" data-phosphor="magnifying-glass" width="16" height="16" viewBox="0 0 256 256" sc-camel-view-box="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg><input class="fg-input" type="search" aria-label="搜索运行、Pipeline 或数据集" placeholder="搜索运行、Pipeline 或数据集…" value="{{ runs.query }}" sc-camel-on-input="{{ runs.onQuery }}"></div>
  <sc-if value="{{ runs.hasFilters }}"><button type="button" class="rr-reset" sc-camel-on-click="{{ runs.clear }}">重置</button></sc-if></div></div>
-<div class="rr-scroll" role="region" aria-label="运行记录" tabindex="{{ runs.empty ? -1 : 0 }}" data-empty="{{ runs.empty }}"><sc-if value="{{ !runs.empty }}"><div class="rr-table" role="table" aria-label="运行记录表格">
-<div class="rr-grid rr-heading" role="row"><span role="columnheader">运行</span><span role="columnheader">运行状态</span><span role="columnheader">Item 状态</span><span role="columnheader">发起人 / 时间</span><span role="columnheader" class="rr-number">耗时</span><span role="columnheader" class="rr-number">成本</span><span role="columnheader" class="rr-operations">操作</span></div>
+<div class="rr-scroll" role="region" aria-label="运行记录" tabindex="{{ runs.empty ? -1 : 0 }}" data-empty="{{ runs.empty }}"><div class="rr-table" role="table" aria-label="运行记录表格">
+<div class="rr-grid rr-heading" role="row"><span role="columnheader">运行</span><span role="columnheader" class="rr-status-heading"><label class="rr-status-filter" data-filter-active="{{ runs.statusFiltered }}"><select aria-label="筛选运行状态" value="{{ runs.filterValue }}" sc-camel-on-change="{{ runs.onFilter }}"><option value="all">运行状态</option><option value="running">运行中</option><option value="completed">运行完成</option><option value="failed">运行失败</option><option value="queued">排队中</option><option value="cancelled">已取消</option></select></label></span><span role="columnheader">Item 状态</span><span role="columnheader">发起人 / 时间</span><span role="columnheader" class="rr-number">耗时</span><span role="columnheader" class="rr-number">成本</span><span role="columnheader" class="rr-operations">操作</span></div>
+<sc-if value="{{ !runs.empty }}">
 <div role="rowgroup"><sc-for list="{{ runs.rows }}" as="r"><div class="rr-grid rr-row" role="row" tabindex="0" aria-label="查看运行 {{ r.id }}" sc-camel-on-click="{{ r.open }}" sc-camel-on-keydown="{{ r.keyOpen }}">
 <div class="rr-identity" role="cell"><strong title="{{ r.strategy }}">{{ r.strategy }}</strong><span class="rr-pipeline" title="{{ r.pipe }} · {{ r.ver }}">{{ r.pipe }} · {{ r.ver }}</span><span class="rr-context"><span title="{{ r.dsName }}">数据集：{{ r.dsName }}</span><span aria-hidden="true">｜</span><code title="{{ r.id }}">Run ID: {{ r.id }}</code><button class="rr-copy" type="button" aria-label="{{ r.copyLabel }}" title="{{ r.copyLabel }}" sc-camel-on-click="{{ r.copy }}">[[icon:copy:14]]</button></span></div>
 <div role="cell"><span class="rr-status" data-state="{{ r.state }}"><sc-if value="{{ r.isRunning }}"><svg width="12" height="12" viewBox="0 0 24 24" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 6v6l4 2"></path></svg></sc-if><sc-if value="{{ r.isComplete }}">[[icon:check:12]]</sc-if>{{ r.statusLabel }}</span></div>
@@ -25,8 +27,8 @@
 <div class="rr-person" role="cell"><span>{{ r.owner }}</span><small title="{{ r.timeFull }}">{{ r.when }}</small></div>
 <div class="rr-number" data-label="耗时" role="cell" title="{{ r.durationHint }}">{{ r.durationLabel }}</div><div class="rr-number" data-label="成本" role="cell">{{ r.costLabel }}</div>
 <div class="rr-operations" role="cell"><button type="button" class="rr-action" data-kind="{{ r.actionTone }}" sc-camel-on-click="{{ r.action }}">{{ r.actionLabel }}</button></div>
-</div></sc-for></div></div>
-</sc-if>
+</div></sc-for></div>
+</sc-if></div>
 <sc-if value="{{ runs.empty }}"><div class="pm-filter-empty" role="status">
  <sc-if value="{{ runs.hasFilters }}"><img class="pm-filter-empty-illustration" src="/postman-ui/illustrations/filter-no-results.svg" width="112" height="80" alt="" aria-hidden="true" /></sc-if>
  <p class="pm-filter-empty-title">{{ runs.emptyTitle }}</p><p class="pm-filter-empty-hint">{{ runs.emptyHint }}</p>
@@ -35,4 +37,4 @@
 </div>
 <sc-if value="{{ !runs.empty }}">
 <footer class="rr-pagination"><span role="status">共 {{ runs.total }} 条</span><label>每页 <select aria-label="每页运行记录数" value="{{ runs.size }}" sc-camel-on-change="{{ runs.setSize }}"><option value="10">10 条</option><option value="20">20 条</option><option value="50">50 条</option></select></label><button type="button" aria-label="上一页" disabled="{{ runs.first }}" sc-camel-on-click="{{ runs.prev }}">[[icon:arrow-left:14]]</button><span>{{ runs.page }} / {{ runs.pages }}</span><button type="button" aria-label="下一页" disabled="{{ runs.last }}" sc-camel-on-click="{{ runs.next }}">[[icon:arrow-right:14]]</button></footer>
-</sc-if></section></sc-if>
+</sc-if></section></section></sc-if>

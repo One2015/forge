@@ -16,6 +16,7 @@
     const all=ForgeRunRecords.calculate(raw,{now,anchor,telemetry,timings:Array.isArray(this.props.runTimings)?this.props.runTimings:ForgeRunRecords.mockTimings(),decisions:st.reviewDecisions,itemTech:st.runItemTech});
     const patch=p=>this.setState({runsPage:1,runsMenu:'',...p});
     const clear=()=>patch({runsQuery:'',runsFilter:'全部',runsMine:false});
+    const filterLabels={all:'全部',running:'运行中',completed:'运行完成',failed:'运行失败',queued:'排队中',cancelled:'已取消'};
     const filter=({'运行中':'running','成功':'completed','运行完成':'completed','失败':'failed','运行失败':'failed','排队中':'queued','已取消':'cancelled'})[st.runsFilter]||'all';
     const query=String(st.runsQuery||'').trim().toLowerCase();
     const matches=all.rows.filter(r=>(filter==='all'||r.state===filter)&&(!st.runsMine||r.owner===(this.props.currentUser||'一万'))&&(!query||[r.strategy,r.name,r.pipe,r.dsName,r.id,r.owner].join(' ').toLowerCase().includes(query))).sort((a,b)=>b.started-a.started);
@@ -37,7 +38,7 @@
         copy:e=>{stop(e);this.copyRunRecordId(r.id);},copyLabel:st.runsCopied===r.id?'已复制':'复制 Run ID '+r.id};
     });
     const kpis=[['all','全部',all.rows.length,'','当前范围内的全部运行记录'],['running','运行中',all.running,'','按运行状态统计'],['review','待审核',all.review,'','所有运行的待审核 Item 总数'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分 Item 失败']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title}));
-    return {rows,kpis,subtitle:raw.length+' 次运行',count:matches.length+' / '+raw.length,hasAny:!!raw.length,empty:!matches.length,emptyTitle:raw.length?'没有匹配的运行':'还没有运行记录',emptyHint:raw.length?'试试减少筛选条件，或换个关键词。':'从 Pipeline 发起运行后，记录会显示在这里。',query:st.runsQuery||'',onQuery:e=>patch({runsQuery:e.target.value}),mineSelected:!!st.runsMine,toggleMine:()=>patch({runsMine:!st.runsMine}),
+    return {rows,kpis,subtitle:raw.length+' 次运行',count:matches.length+' / '+raw.length,hasAny:!!raw.length,empty:!matches.length,emptyTitle:raw.length?'没有匹配的运行':'还没有运行记录',emptyHint:raw.length?'试试减少筛选条件，或换个关键词。':'从 Pipeline 发起运行后，记录会显示在这里。',query:st.runsQuery||'',onQuery:e=>patch({runsQuery:e.target.value}),mineSelected:!!st.runsMine,toggleMine:()=>patch({runsMine:!st.runsMine}),filterValue:filter,statusFiltered:filter!=='all',onFilter:e=>patch({runsFilter:filterLabels[e.target.value]||'全部'}),
       filters:[['all','全部'],['running','运行中'],['completed','运行完成'],['failed','运行失败'],['queued','排队中'],['cancelled','已取消']].map(([key,label])=>({label,selected:filter===key,pick:()=>patch({runsFilter:label})})),
       hasFilters:!!query||filter!=='all'||!!st.runsMine,clear,metricLabel:'',hasMetric:false,
       total:matches.length,page,pages,size,first:page===1,last:page===pages,prev:()=>this.setState({runsPage:Math.max(1,page-1)}),next:()=>this.setState({runsPage:Math.min(pages,page+1)}),setSize:e=>patch({runsPageSize:Number(e.target.value)}),
