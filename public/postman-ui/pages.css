@@ -453,3 +453,13 @@
 .forge-postman .forge-model-routes-table [role="row"]{grid-template-columns:104px 120px 150px 200px 90px 100px 90px 160px 130px 90px 130px 170px}
 .forge-postman .forge-model-comparison-table [role="row"]{grid-template-columns:1.2fr 1.6fr repeat(7,1fr)}
 .forge-postman :is(.forge-model-overview-table,.forge-model-routes-table,.forge-model-comparison-table) [role="row"]>*{text-align:left}
+.forge-postman .pm-dataset-columns,.forge-postman .pm-dataset-record{display:grid;grid-template-columns:minmax(0,1fr) 140px 160px;align-items:center;gap:20px;padding:13px 16px;border-bottom:1px solid var(--pm-border)}
+.forge-postman .pm-dataset-columns{background:var(--pm-table-heading);color:var(--pm-muted);font-size:13px}
+.forge-postman .pm-dataset-record{cursor:pointer;font-size:13px}
+.forge-postman .pm-dataset-record:hover{background:var(--pm-hover)}
+.forge-postman .pm-dataset-record-name{min-width:0}
+.forge-postman .pm-dataset-record-name>div{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.forge-postman .pm-dataset-record-name strong{overflow-wrap:anywhere;font-size:14px;font-weight:600}
+.forge-postman .pm-dataset-record-name span,.forge-postman .pm-dataset-record-name small{color:var(--pm-muted)}
+.forge-postman .pm-dataset-record-name small{display:block;margin-top:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+@media(max-width:760px){.forge-postman .pm-dataset-columns,.forge-postman .pm-dataset-record{grid-template-columns:minmax(0,1fr) 100px 110px;gap:12px;padding-inline:12px}}

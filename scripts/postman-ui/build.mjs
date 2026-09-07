@@ -136,6 +136,9 @@ export function buildPostman(source){
  // Keep dataset search aligned to the page gutter and omit visual group headers.
  ds=ds.replace('padding:13px 16px;border-bottom:1px solid var(--forge-border);flex-wrap:wrap','padding:13px 0;border-bottom:1px solid var(--forge-border);flex-wrap:wrap');
  ds=ds.replace(/<div style="[^"]*">{{ g.label }}<\/div>/g,'');
+ ds=ds.replace('<sc-for list="{{ dsGroups }}"', '<div class="pm-dataset-columns"><span>数据集</span><span>创建人</span><span>上次使用</span></div><sc-for list="{{ dsGroups }}"');
+ ds=ds.replace(/<div sc-camel-on-click="{{ d.select }}"[\s\S]*?data-flow-row="{{ d.name }}">[\s\S]*?<\/div>\s*<\/sc-for>/,
+  '<div class="pm-dataset-record" sc-camel-on-click="{{ d.select }}" data-flow-family="datasets" data-flow-row="{{ d.name }}"><div class="pm-dataset-record-name"><div><strong>{{ d.name }}</strong><span>{{ d.count }}</span></div><small title="{{ d.pipelines }}">{{ d.pipelines }}</small></div><span>{{ d.owner }}</span><span>{{ d.used }}</span></div></sc-for>');
  t=t.slice(0,dsStart)+ds+t.slice(dsEnd);
  t=installReviewQueue(t);
  t=installRunRecords(t);
