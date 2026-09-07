@@ -98,6 +98,8 @@ test('supplier trend can focus one labelled series with accessible points', () =
   v.onTrendMetric({ target: { value: 'quality' } }); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.trendCards, card => card.label), ['质检通过率']); assert.equal(v.trendCards[0].current, '96%'); assert.equal(v.singleTrend, true); assert.equal(v.trendAriaLabel, '质检通过率趋势');
   assert.match(page, /aria-label="趋势指标"/); assert.match(page, /aria-label="趋势时间范围"/); assert.match(page, /data-single="\{\{ outsourcingSuppliers\.singleTrend \}\}"/); assert.match(page, /forge-outsourcing-mini-chart/); assert.doesNotMatch(page, /forge-outsourcing-target-line|目标 90%/);
+  assert.match(page, /<h2 id="outsourcing-trend">外部专家达标趋势<\/h2><div class="forge-outsourcing-heading-filters"><label class="forge-outsourcing-trend-filter forge-outsourcing-trend-filter-metric"><select/);
+  assert.doesNotMatch(page, /<h2 id="outsourcing-trend">外部专家达标趋势<\/h2><p>|forge-outsourcing-trend-filter(?: forge-outsourcing-trend-filter-(?:metric|window))?">\s*<span>/);
   assert.match(page, /forge-outsourcing-trend-filter-metric/); assert.match(page, /forge-outsourcing-trend-filter-window/);
   assert.match(page, /data-forge-chart-tooltip="\{\{ point\.title \}\}"/); assert.match(page, /data-series="\{\{ series\.series \}\}"/);
 });
@@ -121,6 +123,7 @@ test('frequent issues are an aggregate percentage list with an expert filter', (
   v.onIssueSupplier({ target: { value: '' } }); v.onIssueWindow({ target: { value: '7d' } }); v = c.outsourcingSupplierValues();
   assert.equal(v.issueWindow, '7d'); assert.equal(v.issueTotal, 15); assert.deepEqual(Array.from(v.issueRows, row => row.count), [8, 4, 3]);
   assert.match(page, /aria-label="高频问题专家团队"/); assert.match(page, /aria-label="高频问题时间范围"/); assert.match(page, /forge-outsourcing-issue-list/); assert.match(page, /issue\.percentage/);
+  assert.doesNotMatch(page, /class="forge-outsourcing-issue-filter(?: forge-outsourcing-issue-filter-compact)?">\s*<span>/);
   assert.match(page, /class="forge-outsourcing-issue-track"/); assert.doesNotMatch(page, /最近出现|issue\.recent/);
   const css = fs.readFileSync(new URL('./templates/outsourcing-suppliers.css', import.meta.url), 'utf8');
   assert.match(css, /\.forge-outsourcing-issue-list article\{[^}]*grid-template-columns:minmax\(220px,\.9fr\) minmax\(180px,1\.3fr\) 72px/);
