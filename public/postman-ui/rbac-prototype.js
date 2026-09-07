@@ -641,8 +641,6 @@
     return `
       <section class="rbac-section"><div class="rbac-section-head"><div><h2>项目角色与默认权限</h2><p class="rbac-section-copy">用户被分配项目角色后自动继承；个人覆盖不会被默认权限更新清除。</p></div><button class="rbac-primary" type="button" data-action="open-role-create">＋ 新增角色</button></div>
         <div class="rbac-permission-role-tabs" role="tablist" aria-label="选择项目角色">${roleEntries().map(([key, label]) => `<button type="button" role="tab" data-permission-role="${escapeHtml(key)}" aria-selected="${selected === key}" tabindex="${selected === key ? '0' : '-1'}">${escapeHtml(label)}${state.customRoles?.some(role => role.id === key) ? '<span>自定义</span>' : ''}</button>`).join('')}</div>
-        <div class="rbac-role-summary"><p>${escapeHtml(roleDescription(selected))}</p></div>
-        ${selected === 'external-expert' ? '<div class="rbac-inline-note" style="margin-bottom:12px"><div><strong>External Experts 安全边界</strong><br>即使勾选权限，也只作用于同步到 Fellow 的任务包，不会开放 Forge 登录或内部数据。</div></div>' : ''}
         <div class="rbac-card rbac-table-wrap"><table class="rbac-table rbac-permission-table"><thead><tr><th>权限范围</th><th>View</th><th>Create</th><th>Modify</th><th>Remove</th></tr></thead><tbody>${permissionRowsMarkup((feature, action) => `<input type="checkbox" data-role-permission="${feature}:${action}" ${state.rolePermissions[selected]?.[feature]?.[action] ? 'checked' : ''} aria-label="${feature} ${action}">`)}</tbody></table><footer class="rbac-permission-footer"><p>Prototype 设置保存在当前浏览器；刷新后仍保留。</p><button class="rbac-primary" type="button" data-action="save-role-permissions">保存默认权限</button></footer></div>
       </section>${state.roleCreateOpen ? roleCreateSheet() : ''}`;
   }
