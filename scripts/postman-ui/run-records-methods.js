@@ -58,6 +58,7 @@
     const kpis=[['all','全部',all.rows.length,'','当前范围内的全部运行记录'],['running','运行中',all.running,'','按运行状态统计'],['review','待审核',all.review,'','所有运行的待审核条目总数'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分条目失败']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title}));
     return {rows,kpis,subtitle:raw.length+' 次运行',count:matches.length+' / '+raw.length,hasAny:!!raw.length,empty:!matches.length,emptyTitle:raw.length?'没有匹配的运行':'还没有运行记录',emptyHint:raw.length?'试试减少筛选条件，或换个关键词。':'从流程页发起运行后，记录会显示在这里。',query:st.runsQuery||'',onQuery:e=>patch({runsQuery:e.target.value}),mineSelected:!!st.runsMine,toggleMine:()=>patch({runsMine:!st.runsMine}),
       filters:[['all','全部'],['running','运行中'],['completed','运行完成'],['failed','运行失败'],['queued','排队中'],['cancelled','已取消']].map(([key,label])=>({label,selected:filter===key,pick:()=>patch({runsFilter:label})})),
+      filterValue:({'all':'全部',running:'运行中',completed:'运行完成',failed:'运行失败',queued:'排队中',cancelled:'已取消'})[filter]||'全部',setFilter:e=>patch({runsFilter:e.target.value}),
       hasFilters:!!query||filter!=='all'||!!st.runsMine,clear,metricLabel:'',hasMetric:false,
       total:matches.length,page,pages,size,first:page===1,last:page===pages,prev:()=>this.setState({runsPage:Math.max(1,page-1)}),next:()=>this.setState({runsPage:Math.min(pages,page+1)}),setSize:e=>patch({runsPageSize:Number(e.target.value)}),
       notice:st.runsNotice||'',hasNotice:!!st.runsNotice,dismiss:()=>this.setState({runsNotice:''})};

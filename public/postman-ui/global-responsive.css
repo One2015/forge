@@ -17,7 +17,7 @@
 .forge-postman .pm-run-item-row[role=link]{cursor:pointer!important}
 .forge-postman .pm-run-item-row[role=link]:focus-visible{outline:2px solid var(--pm-text);outline-offset:-2px}
 @media(min-width:761px){
- .forge-postman .rr-filter-controls{flex:0 1 300px;flex-wrap:nowrap;margin-left:auto}
+ .forge-postman .rr-filter-controls{flex:0 1 460px;flex-wrap:nowrap;margin-left:auto}
  .forge-postman .rr-page .rr-filter-controls .fg-search{flex:0 1 300px;width:300px;max-width:300px}
 }
 
