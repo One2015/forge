@@ -583,7 +583,7 @@
   function inviteView() {
     return `
       <div class="rbac-invite-layout">
-        <form class="rbac-card rbac-invite-form" data-form="invite" novalidate>
+        <form class="rbac-invite-form" data-form="invite" novalidate>
           <div class="rbac-section-head"><div><h2>通过邮箱邀请</h2><p class="rbac-section-copy">邀请管理员和成员加入 Forge，或邀请外部专家通过 Fellow 协作。</p></div></div>
           <div class="rbac-form-grid">
             <label class="rbac-form-field"><span>用户邮箱</span><input class="rbac-input" type="email" name="email" placeholder="name@company.com" autocomplete="email" required></label>
