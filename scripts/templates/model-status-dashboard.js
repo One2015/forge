@@ -1,9 +1,8 @@
   // model-status-dashboard:start
   modelStatusDashboard(input, snapshot, isDemo) {
     const state = this.state;
-    const overviewWindowDefs = [['1h', '近 1 小时'], ['24h', '近 24 小时'], ['7d', '近 7 天'], ['30d', '近 30 天']];
+    const overviewWindowDefs = [['1h', '小时', '近 1 小时'], ['24h', '日', '近 24 小时'], ['30d', '月', '近 30 天'], ['365d', '年', '近 1 年'], ['custom', '自定义', '自定义时段']];
     const overviewWindow = overviewWindowDefs.some(([id]) => id === state.modelOverviewWindow) ? state.modelOverviewWindow : '1h';
-    const overviewWindowLabel = overviewWindowDefs.find(([id]) => id === overviewWindow)?.[1] || '近 1 小时';
     const { fresh } = this.modelEvidenceClock(input);
     const rawRoutes = new Map((Array.isArray(input?.routes) ? input.routes : []).map(route => [route.id, route]));
     const providerRecords = new Map((Array.isArray(input?.providers) ? input.providers : []).map(provider => [provider.id, provider]));
@@ -14,6 +13,13 @@
     const time = at => new Date(at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
     const timestamp = value => { const parsed = typeof value === 'number' ? value : Date.parse(value); return Number.isFinite(parsed) ? parsed : null; };
     const currentTime = timestamp(input?.catalogCheckedAt) || Date.now();
+    const dateValue = stamp => new Date(stamp).toISOString().slice(0, 10);
+    const overviewWindowEnd = /^\d{4}-\d{2}-\d{2}$/.test(state.modelOverviewEnd || '') ? state.modelOverviewEnd : dateValue(currentTime);
+    const overviewWindowStart = /^\d{4}-\d{2}-\d{2}$/.test(state.modelOverviewStart || '') ? state.modelOverviewStart : dateValue(currentTime - 6 * 86400000);
+    const overviewWindowInvalid = overviewWindow === 'custom' && overviewWindowStart > overviewWindowEnd;
+    const overviewWindowDays = overviewWindowInvalid ? 0 : Math.max(1, Math.round((Date.parse(overviewWindowEnd + 'T00:00:00Z') - Date.parse(overviewWindowStart + 'T00:00:00Z')) / 86400000) + 1);
+    const overviewWindowLabel = overviewWindow === 'custom' ? overviewWindowStart + ' 至 ' + overviewWindowEnd : overviewWindowDefs.find(([id]) => id === overviewWindow)?.[2] || '近 1 小时';
+    const overviewWindowKey = overviewWindow === 'custom' ? 'custom:' + overviewWindowStart + ':' + overviewWindowEnd : overviewWindow;
     const statusLabels = { severe: '严重', performance: '警告', quality: '质量异常', confirm: '需确认', billing: '余额不足', normal: '正常', failed: '调用失败', unknown: '待确认', inactive: '未纳入生产' };
     const protocolPaths = { 'anthropic-messages': '/v1/messages', 'openai-chat': '/v1/chat/completions', 'openai-responses': '/v1/responses', 'gemini-content': '/v1beta/models/{model}:generateContent' };
     // Use explicit error categories; severity and latency alone cannot identify a supplier cause.
@@ -21,8 +27,10 @@
     const errorReasons = { insufficient_balance: 'supplier_balance', arrears: 'supplier_balance', key_unavailable: 'key_unavailable', authentication_failed: 'key_unavailable', account_shortage: 'account_shortage', downstream_error: 'downstream_error', upstream_error: 'downstream_error' };
     const toneFor = status => ['severe', 'failed', 'billing'].includes(status) ? 'danger' : ['performance', 'quality', 'confirm'].includes(status) ? 'warning' : status === 'normal' ? 'success' : 'muted';
     const lines = snapshot.rows.map(row => {
-      const raw = rawRoutes.get(row.id) || {}, rawUsage = raw.usage || {}, windowUsage = rawUsage.windows?.[overviewWindow];
-      const usage = windowUsage || (overviewWindow === '1h' ? rawUsage : {}), latency = raw.latency || {}, quality = raw.quality || {}, evidence = isDemo ? raw.demoEvidence || {} : {};
+      const raw = rawRoutes.get(row.id) || {}, rawUsage = raw.usage || {}, windowUsage = rawUsage.windows?.[overviewWindowKey] || (overviewWindow === 'custom' ? rawUsage.windows?.custom : rawUsage.windows?.[overviewWindow]);
+      const demoCustomSource = isDemo && overviewWindow === 'custom' && !overviewWindowInvalid ? rawUsage.windows?.['30d'] : null;
+      const demoCustomUsage = demoCustomSource ? { calls: Math.round(demoCustomSource.calls * overviewWindowDays / 30), failures: Math.round(demoCustomSource.failures * overviewWindowDays / 30), costUsd: Math.round(demoCustomSource.costUsd * overviewWindowDays / 30 * 100) / 100, checkedAt: demoCustomSource.checkedAt, windowLabel: overviewWindowLabel } : null;
+      const usage = windowUsage || demoCustomUsage || (overviewWindow === '1h' ? rawUsage : {}), latency = raw.latency || {}, quality = raw.quality || {}, evidence = isDemo ? raw.demoEvidence || {} : {};
       const usageKnown = !row.uncertain && fresh(usage.checkedAt) && Number.isSafeInteger(usage.calls) && usage.calls >= 0 && Number.isSafeInteger(usage.failures) && usage.failures >= 0 && usage.failures <= usage.calls && Number.isFinite(usage.costUsd) && usage.costUsd >= 0;
       const latencyKnown = row.latencyLabel.includes('×') && Number.isFinite(latency.currentMs) && Number.isFinite(latency.baselineMs) && latency.baselineMs > 0;
       const calls = usageKnown ? usage.calls : null, failures = usageKnown ? usage.failures : null, failureRate = calls ? failures / calls * 100 : calls === 0 ? 0 : null;
@@ -178,11 +186,15 @@
     const modelOverviewRows=summarize('modelId','model');
     const errorMap=new Map();
     lines.forEach(line=>(line.alertReasonItems||[]).forEach(reason=>{
-      const current=errorMap.get(reason.id)||{id:reason.id,name:reason.label,count:0};
+      const current=errorMap.get(reason.id)||{id:reason.id,name:reason.label,count:0,companies:new Set(),tasks:0,failures:0,lastSeen:'待确认',lastSeenAt:-Infinity};
       current.count+=1;
+      current.companies.add(line.provider);
+      current.tasks+=Number(line.impact?.tasks)||0;
+      current.failures+=Number(line.impact?.failedCalls)||0;
+      if(Number.isFinite(line.observedAt)&&line.observedAt>current.lastSeenAt){current.lastSeenAt=line.observedAt;current.lastSeen=line.abnormalStartedAt||line.observedLabel||'待确认';}
       errorMap.set(reason.id,current);
     }));
-    const errorOverviewRows=Array.from(errorMap.values()).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'zh-CN')).map(row=>({...row,count:num(row.count,0),open:()=>{
+    const errorOverviewRows=Array.from(errorMap.values()).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'zh-CN')).map(row=>({id:row.id,name:row.name,company:Array.from(row.companies).sort((a,b)=>a.localeCompare(b,'zh-CN')).join('、')||'待确认',impact:[row.tasks?num(row.tasks,0)+' 个运行任务':'',row.failures?num(row.failures,0)+' 次失败':''].filter(Boolean).join(' · ')||'待确认',count:num(row.count,0),countLabel:num(row.count,0)+' 次',lastSeen:row.lastSeen,open:()=>{
       this.setState({modelPageTab:'lines',modelQuery:'',modelProvider:'',modelModel:'',modelLine:'',modelFilter:row.id,modelBusinessOnly:false,modelSelection:'',modelRoute:'',modelDrawerMode:'',modelChartPoint:null});
       setTimeout(()=>{if(typeof document!=='undefined')document.getElementById('forge-model-table-title')?.focus();},0);
     }}));
@@ -284,7 +296,7 @@
       closeBilling: () => this.setState({ modelDrawerMode: 'diagnostic' }),
       dismissMessage: () => this.setState({ modelRetestMessage: '' }), message: state.modelRetestMessage || '',
       pageTab, overviewTab:pageTab==='overview', linesTab:pageTab==='lines', pageTabs:[['overview','运行概览'],['lines','模型线路']].map(([id,label])=>({id,label,current:pageTab===id?'page':'false',pick:()=>this.setState({modelPageTab:id,modelSelection:'',modelRoute:'',modelDrawerMode:''})})),
-      overviewMetrics,availabilityMetrics,operationMetrics,overviewWindow,overviewWindowLabel,overviewWindows:overviewWindowDefs.map(([id,label])=>({id,label})),onOverviewWindow:event=>this.setState({modelOverviewWindow:event.target.value}),overviewUsageNote:(usageComplete?'请求量、成功率和总成本按'+overviewWindowLabel+'汇总。':'当前数据源未提供'+overviewWindowLabel+'调用统计。')+' 可用线路指已启用、可路由且最近生成验证通过的线路，分母为已纳入生产的线路；P95 TTFT、生成速度与质量状态采用最近一次检测。',modelOverviewRows,errorOverviewRows,hasErrors:errorOverviewRows.length>0,
+      overviewMetrics,availabilityMetrics,operationMetrics,overviewWindow,overviewWindowLabel,overviewWindowStart,overviewWindowEnd,overviewWindowInvalid,overviewWindowCustom:overviewWindow==='custom',overviewWindowOptions:overviewWindowDefs.map(([id,label])=>({id,label,active:id===overviewWindow,pick:()=>this.setState({modelOverviewWindow:id})})),onOverviewWindowStart:event=>this.setState({modelOverviewStart:event.target.value}),onOverviewWindowEnd:event=>this.setState({modelOverviewEnd:event.target.value}),modelOverviewRows,errorOverviewRows,hasErrors:errorOverviewRows.length>0,
       tabs: [['providers', '模型供应商'], ['models', '模型评估']].map(([id, label]) => ({ id, label, selected: state.modelDimension === id, select: () => this.setState({ modelDimension: id }) })),
       providersView: state.modelDimension !== 'models', modelsView: state.modelDimension === 'models', accountTitle: state.modelDimension === 'models' ? '固定集得分' : '账户余额'
     };

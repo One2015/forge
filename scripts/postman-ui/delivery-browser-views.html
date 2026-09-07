@@ -1,74 +1,16 @@
 <section class="pm-delivery-results" aria-label="交付数据单">
-  <sc-if value="{{ delivery.empty }}" hint-placeholder-val="{{ false }}">
-    <div class="pm-delivery-empty">
-      <strong>没有匹配的数据单</strong>
-      <span>调整搜索关键词或分类后重试。</span>
-      <button type="button" sc-camel-on-click="{{ delivery.clearQuery }}">清除搜索</button>
-    </div>
-  </sc-if>
-  <sc-if value="{{ delivery.listView }}" hint-placeholder-val="{{ true }}">
-    <div class="pm-delivery-groups pm-delivery-groups-list">
-      <sc-for list="{{ delivery.customers }}" as="c" hint-placeholder-count="2">
-        <section class="pm-delivery-customer-group">
-          <!-- delivery-customer-heading:start -->
-<header class="forge-delivery-customer-heading">
-  <div class="forge-delivery-customer-identity">
-    <sc-if value="{{ c.hasLogo }}" hint-placeholder-val="{{ false }}"><img class="forge-delivery-customer-logo" src="{{ c.logo }}" alt="{{ c.logoAlt }}" width="28" height="28" /></sc-if>
-    <h2 class="forge-delivery-customer-name">{{ c.name }}</h2>
-  </div>
-  <p class="forge-delivery-customer-meta">{{ c.meta }}</p>
-</header>
-<!-- delivery-customer-heading:end -->
-          <div class="pm-delivery-list">
-            <sc-for list="{{ c.sheets }}" as="d" hint-placeholder-count="2">
-              <button type="button" class="pm-delivery-row" sc-camel-on-click="{{ d.open }}" data-flow-family="delivery" data-flow-row="{{ d.motionKey }}" aria-label="打开数据单 {{ d.name }}">
-                <span class="pm-delivery-identity"><strong>{{ d.name }}</strong><span>{{ d.created }}</span><span class="pm-delivery-badge" style="color:{{ d.badgeFg }}">{{ d.badge }}</span></span>
-                <span class="pm-delivery-counts"><sc-for list="{{ d.funnel }}" as="f" hint-placeholder-count="4"><span><span>{{ f.k }}</span><strong style="color:{{ f.fg }}">{{ f.v }}</strong></span></sc-for></span>
-                <span class="pm-delivery-progress"><span class="pm-progress-bar" aria-hidden="true"><span style="width:{{ d.segPass }};background:var(--pm-success-mark)"></span><span style="width:{{ d.segReview }};background:var(--pm-warning-mark)"></span><span style="width:{{ d.segFail }};background:var(--pm-danger-mark)"></span></span><span>{{ d.hint }}</span></span>
-                <span class="pm-delivery-open">查看子项 [[icon:arrow-right:16]]</span>
-              </button>
-            </sc-for>
-          </div>
-        </section>
-      </sc-for>
-    </div>
-  </sc-if>
-  <sc-if value="{{ delivery.folderView }}" hint-placeholder-val="{{ false }}">
-    <div class="pm-delivery-groups pm-delivery-groups-folder">
-      <sc-for list="{{ delivery.customers }}" as="c" hint-placeholder-count="2">
-        <section class="pm-delivery-customer-group">
-          <!-- delivery-customer-heading:start -->
-<header class="forge-delivery-customer-heading">
-  <div class="forge-delivery-customer-identity">
-    <sc-if value="{{ c.hasLogo }}" hint-placeholder-val="{{ false }}"><img class="forge-delivery-customer-logo" src="{{ c.logo }}" alt="{{ c.logoAlt }}" width="28" height="28" /></sc-if>
-    <h2 class="forge-delivery-customer-name">{{ c.name }}</h2>
-  </div>
-  <p class="forge-delivery-customer-meta">{{ c.meta }}</p>
-</header>
-<!-- delivery-customer-heading:end -->
-          <div class="pm-delivery-folder-grid">
-            <sc-for list="{{ c.sheets }}" as="d" hint-placeholder-count="2">
-              <article class="pm-delivery-folder-card" data-flow-family="delivery" data-flow-row="{{ d.motionKey }}">
-                <div class="pm-delivery-folder-cover" data-has-cover="{{ d.hasCover }}">
-                  <sc-if value="{{ d.hasCover }}" hint-placeholder-val="{{ false }}"><img src="{{ d.coverUrl }}" alt="{{ d.coverAlt }}" /></sc-if>
-                  <sc-if value="{{ d.noCover }}" hint-placeholder-val="{{ true }}"><div class="pm-delivery-folder-cover-empty">[[icon:folder-simple:24]]<span>添加封面</span></div></sc-if>
-                  <label class="pm-delivery-folder-cover-action">
-                    <input class="pm-delivery-cover-input" type="file" accept="image/png,image/jpeg,image/webp" aria-label="{{ d.coverLabel }}" sc-camel-on-change="{{ d.uploadCover }}" />
-                    <span>{{ d.coverAction }}</span>
-                  </label>
-                </div>
-                <button type="button" class="pm-delivery-folder-copy" sc-camel-on-click="{{ d.open }}" aria-label="打开数据单 {{ d.name }}">
-                  <span class="pm-delivery-folder-title"><strong>{{ d.name }}</strong><span style="color:{{ d.badgeFg }}">{{ d.badge }}</span></span>
-                  <span class="pm-delivery-folder-meta">{{ d.created }}</span>
-                  <span class="pm-progress-bar" aria-hidden="true"><span style="width:{{ d.segPass }};background:var(--pm-success-mark)"></span><span style="width:{{ d.segReview }};background:var(--pm-warning-mark)"></span><span style="width:{{ d.segFail }};background:var(--pm-danger-mark)"></span></span>
-                  <span class="pm-delivery-folder-hint">{{ d.hint }}</span>
-                </button>
-                <sc-if value="{{ d.coverError }}" hint-placeholder-val="{{ false }}"><p class="pm-delivery-folder-error" role="alert">{{ d.coverError }}</p></sc-if>
-              </article>
-            </sc-for>
-          </div>
-        </section>
-      </sc-for>
-    </div>
-  </sc-if>
+ <div class="pm-delivery-table-scroll">
+ <div class="pm-delivery-data-table" role="table" aria-label="交付数据单列表">
+ <div role="rowgroup"><div class="pm-delivery-data-row pm-delivery-data-head" role="row"><div role="columnheader"><button type="button" class="pm-delivery-column-filter" data-active="{{ delivery.table.filters.customer.active }}" aria-label="筛选客户" aria-haspopup="menu" aria-expanded="{{ delivery.table.filters.customer.open }}" sc-camel-on-click="{{ delivery.table.filters.customer.toggle }}">客户[[icon:caret-down:12]]</button><sc-if value="{{ delivery.table.filters.customer.open }}"><button class="pm-delivery-filter-scrim" aria-label="关闭筛选" sc-camel-on-click="{{ delivery.table.filters.customer.close }}"></button><div class="pm-delivery-filter-menu" role="menu" style="left:{{ delivery.table.filters.customer.left }}px;top:{{ delivery.table.filters.customer.top }}px"><sc-for list="{{ delivery.table.filters.customer.options }}" as="option"><button type="button" role="menuitemradio" aria-checked="{{ option.selected }}" sc-camel-on-click="{{ option.pick }}">{{ option.label }}<sc-if value="{{ option.selected }}">[[icon:check:14]]</sc-if></button></sc-for></div></sc-if></div><div role="columnheader" aria-sort="{{ delivery.table.sorts.name.direction }}"><button class="pm-delivery-column-sort" type="button" aria-label="数据单名字排序" sc-camel-on-click="{{ delivery.table.sorts.name.toggle }}">数据单名字<span class="pq-sort-icon" data-sort="{{ delivery.table.sorts.name.direction }}" aria-hidden="true"><span class="pq-sort-up">[[icon:caret-down:12]]</span><span class="pq-sort-down">[[icon:caret-down:12]]</span></span></button></div><div role="columnheader" aria-sort="{{ delivery.table.sorts.dateLabel.direction }}"><button class="pm-delivery-column-sort" type="button" aria-label="创建日期排序" sc-camel-on-click="{{ delivery.table.sorts.dateLabel.toggle }}">创建日期<span class="pq-sort-icon" data-sort="{{ delivery.table.sorts.dateLabel.direction }}" aria-hidden="true"><span class="pq-sort-up">[[icon:caret-down:12]]</span><span class="pq-sort-down">[[icon:caret-down:12]]</span></span></button></div><div role="columnheader"><button type="button" class="pm-delivery-column-filter" data-active="{{ delivery.table.filters.creatorLabel.active }}" aria-label="筛选创建人" aria-haspopup="menu" aria-expanded="{{ delivery.table.filters.creatorLabel.open }}" sc-camel-on-click="{{ delivery.table.filters.creatorLabel.toggle }}">创建人[[icon:caret-down:12]]</button><sc-if value="{{ delivery.table.filters.creatorLabel.open }}"><button class="pm-delivery-filter-scrim" aria-label="关闭筛选" sc-camel-on-click="{{ delivery.table.filters.creatorLabel.close }}"></button><div class="pm-delivery-filter-menu" role="menu" style="left:{{ delivery.table.filters.creatorLabel.left }}px;top:{{ delivery.table.filters.creatorLabel.top }}px"><sc-for list="{{ delivery.table.filters.creatorLabel.options }}" as="option"><button type="button" role="menuitemradio" aria-checked="{{ option.selected }}" sc-camel-on-click="{{ option.pick }}">{{ option.label }}<sc-if value="{{ option.selected }}">[[icon:check:14]]</sc-if></button></sc-for></div></sc-if></div><div role="columnheader"><button type="button" class="pm-delivery-column-filter" data-active="{{ delivery.table.filters.badge.active }}" aria-label="筛选状态" aria-haspopup="menu" aria-expanded="{{ delivery.table.filters.badge.open }}" sc-camel-on-click="{{ delivery.table.filters.badge.toggle }}">状态[[icon:caret-down:12]]</button><sc-if value="{{ delivery.table.filters.badge.open }}"><button class="pm-delivery-filter-scrim" aria-label="关闭筛选" sc-camel-on-click="{{ delivery.table.filters.badge.close }}"></button><div class="pm-delivery-filter-menu" role="menu" style="left:{{ delivery.table.filters.badge.left }}px;top:{{ delivery.table.filters.badge.top }}px"><sc-for list="{{ delivery.table.filters.badge.options }}" as="option"><button type="button" role="menuitemradio" aria-checked="{{ option.selected }}" sc-camel-on-click="{{ option.pick }}">{{ option.label }}<sc-if value="{{ option.selected }}">[[icon:check:14]]</sc-if></button></sc-for></div></sc-if></div><div role="columnheader" aria-sort="{{ delivery.table.sorts.targetCount.direction }}"><button class="pm-delivery-column-sort" type="button" aria-label="目标数排序" sc-camel-on-click="{{ delivery.table.sorts.targetCount.toggle }}">目标数<span class="pq-sort-icon" data-sort="{{ delivery.table.sorts.targetCount.direction }}" aria-hidden="true"><span class="pq-sort-up">[[icon:caret-down:12]]</span><span class="pq-sort-down">[[icon:caret-down:12]]</span></span></button></div><div role="columnheader" aria-sort="{{ delivery.table.sorts.linkedCount.direction }}"><button class="pm-delivery-column-sort" type="button" aria-label="已关联条数排序" sc-camel-on-click="{{ delivery.table.sorts.linkedCount.toggle }}">已关联条数<span class="pq-sort-icon" data-sort="{{ delivery.table.sorts.linkedCount.direction }}" aria-hidden="true"><span class="pq-sort-up">[[icon:caret-down:12]]</span><span class="pq-sort-down">[[icon:caret-down:12]]</span></span></button></div><div role="columnheader" aria-sort="{{ delivery.table.sorts.reviewCount.direction }}"><button class="pm-delivery-column-sort" type="button" aria-label="待审核排序" sc-camel-on-click="{{ delivery.table.sorts.reviewCount.toggle }}">待审核<span class="pq-sort-icon" data-sort="{{ delivery.table.sorts.reviewCount.direction }}" aria-hidden="true"><span class="pq-sort-up">[[icon:caret-down:12]]</span><span class="pq-sort-down">[[icon:caret-down:12]]</span></span></button></div><div role="columnheader" aria-sort="{{ delivery.table.sorts.passedCount.direction }}"><button class="pm-delivery-column-sort" type="button" aria-label="可交付排序" sc-camel-on-click="{{ delivery.table.sorts.passedCount.toggle }}">可交付<span class="pq-sort-icon" data-sort="{{ delivery.table.sorts.passedCount.direction }}" aria-hidden="true"><span class="pq-sort-up">[[icon:caret-down:12]]</span><span class="pq-sort-down">[[icon:caret-down:12]]</span></span></button></div><div role="columnheader" aria-sort="{{ delivery.table.sorts.progress.direction }}"><button class="pm-delivery-column-sort" type="button" aria-label="进度排序" sc-camel-on-click="{{ delivery.table.sorts.progress.toggle }}">进度<span class="pq-sort-icon" data-sort="{{ delivery.table.sorts.progress.direction }}" aria-hidden="true"><span class="pq-sort-up">[[icon:caret-down:12]]</span><span class="pq-sort-down">[[icon:caret-down:12]]</span></span></button></div><div role="columnheader">操作</div></div></div>
+ <div role="rowgroup"><sc-for list="{{ delivery.table.rows }}" as="d">
+ <div class="pm-delivery-data-row" role="row" data-flow-family="delivery" data-flow-row="{{ d.motionKey }}">
+ <div role="cell"><div class="pm-delivery-table-customer"><sc-if value="{{ d.hasLogo }}"><img src="{{ d.logo }}" alt="" width="24" height="24" /></sc-if><span>{{ d.customer }}</span></div></div>
+ <div role="cell"><button class="pm-delivery-table-name" type="button" sc-camel-on-click="{{ d.open }}">{{ d.name }}</button></div>
+ <div role="cell" class="pm-delivery-table-muted">{{ d.dateLabel }}</div><div role="cell" class="pm-delivery-table-muted">{{ d.creatorLabel }}</div>
+ <div role="cell"><span class="pm-delivery-status" data-status="{{ d.badge }}">{{ d.badge }}</span></div><div role="cell">{{ d.targetCount }}</div><div role="cell">{{ d.linkedCount }}</div><div role="cell">{{ d.reviewCount }}</div><div role="cell">{{ d.passedCount }}</div>
+ <div role="cell"><div class="pm-delivery-table-progress"><span class="pm-progress-bar" aria-hidden="true"><span style="width:{{ d.segPass }};background:var(--pm-success-mark)"></span><span style="width:{{ d.segReview }};background:var(--pm-warning-mark)"></span><span style="width:{{ d.segFail }};background:var(--pm-danger-mark)"></span></span><span>{{ d.hint }}</span></div></div>
+ <div role="cell"><button class="pm-delivery-table-open" type="button" sc-camel-on-click="{{ d.open }}" aria-label="查看 {{ d.name }}">查看</button></div>
+ </div></sc-for></div></div>
+ <sc-if value="{{ delivery.table.empty }}"><div class="pm-delivery-empty"><strong>没有匹配的数据单</strong><span>试试其他数据单、客户或负责人。</span><button type="button" sc-camel-on-click="{{ delivery.table.reset }}">清除筛选</button></div></sc-if>
+ </div>
 </section>

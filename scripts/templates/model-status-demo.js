@@ -34,7 +34,8 @@
         ['1h', '近 1 小时', 1, 1, 1],
         ['24h', '近 24 小时', 22, 18, 21.7],
         ['7d', '近 7 天', 142, 108, 139.5],
-        ['30d', '近 30 天', 585, 430, 572]
+        ['30d', '近 30 天', 585, 430, 572],
+        ['365d', '近 1 年', 7020, 5160, 6864]
       ].reduce((windows, [id, windowLabel, callFactor, failureFactor, costFactor]) => {
         windows[id] = { calls: Math.round(spec.calls * callFactor), failures: Math.round(spec.failures * failureFactor), costUsd: Math.round(spec.cost * costFactor * 100) / 100, checkedAt: at, windowLabel };
         return windows;

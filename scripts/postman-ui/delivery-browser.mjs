@@ -10,7 +10,7 @@ export const deliveryBrowserCopy = [
   ["          pick: () => this.setState({ delCat: k })", "          pick: () => this.setState({ delCat: k, delStatus: 'all' })"],
   ["      create: () => this.openDeliveryEditor(),\n      subtitle:", "      create: () => this.openDeliveryEditor(),\n      query: st.deliveryQuery || '', hasQuery: !!delQuery,\n      onQuery: event => this.setState({ deliveryQuery: event.target.value }),\n      clearQuery: () => this.setState({ deliveryQuery: '', delCat: 'all', delStatus: 'all' }),\n      unmet: delStatus === 'unmet', unmetBg: delStatus === 'unmet' ? '#fff' : 'transparent',\n      unmetFg: delStatus === 'unmet' ? 'var(--forge-text)' : 'var(--forge-muted)', unmetWeight: delStatus === 'unmet' ? '600' : '400',\n      toggleUnmet: () => this.setState({ delStatus: delStatus === 'unmet' ? 'all' : 'unmet' }),\n      listView: delView === 'list', folderView: delView === 'folder',\n      views: [['list', '列表'], ['folder', '文件夹']].map(([key, label]) => ({ key, label, selected: delView === key, pick: () => this.setState({ deliveryView: key }) })),\n      empty: delShownN === 0,\n      subtitle:"],
   ["            const bar = barOf(d);\n            return {", "            const bar = barOf(d);\n            const cover = (st.deliveryFolderCovers || {})[d.key] || null;\n            const coverError = (st.deliveryFolderCoverErrors || {})[d.key] || '';\n            return {"],
-  ["              motionKey: d.key, name: d.name, created: d.created,", "              motionKey: d.key, name: d.name, created: d.created,\n              coverUrl: cover && cover.url || '', hasCover: !!(cover && cover.url), noCover: !(cover && cover.url),\n              coverAlt: d.name + ' 封面', coverLabel: (cover ? '更换' : '上传') + d.name + '的文件夹封面',\n              coverAction: cover ? '更换封面' : '上传封面', coverError,\n              uploadCover: event => this.pmDeliveryFolderCoverUpload(event, d.key),"]
+  ["              motionKey: d.key, name: d.name, created: d.created,", "              motionKey: d.key, name: d.name, created: d.created,\n              dateLabel: String(d.created || '').match(/\\d{4}[\\/.-]\\d{2}[\\/.-]\\d{2}/)?.[0] || '—', creatorLabel: d.ownerAccount || d.createdBy || '—', targetCount: d.target, linkedCount: d.linked, reviewCount: d.review, passedCount: d.passed,\n              coverUrl: cover && cover.url || '', hasCover: !!(cover && cover.url), noCover: !(cover && cover.url),\n              coverAlt: d.name + ' 封面', coverLabel: (cover ? '更换' : '上传') + d.name + '的文件夹封面',\n              coverAction: cover ? '更换封面' : '上传封面', coverError,\n              uploadCover: event => this.pmDeliveryFolderCoverUpload(event, d.key),"]
 ];
 
 export function installDeliveryBrowser(t) {
@@ -22,10 +22,14 @@ export function installDeliveryBrowser(t) {
   if (!t.includes('  deliveryData() {')) throw Error('Delivery browser method anchor changed');
   t = t.replace('  deliveryData() {', methods + '  deliveryData() {');
 
+  t = t.replace('    let sheet = {};', '    delivery.table = this.deliveryTableValues(delivery);\n    let sheet = {};');
+
   const deliveryStart = t.indexOf('<sc-if value="{{ isDelivery }}"');
   const deliveryEnd = t.indexOf('<sc-if value="{{ isSheet }}"', deliveryStart);
   if (deliveryStart < 0 || deliveryEnd < deliveryStart) throw Error('Delivery browser page boundary changed');
   let page = t.slice(deliveryStart, deliveryEnd);
+  page = page.replace(/<button type="button" class="forge-delivery-primary forge-delivery-create"[\s\S]*?<\/button>/, '');
+  page = page.replace(/<div style="margin-top:7px;font-size:14px;color:var\(--forge-muted\)">{{ delivery.subtitle }}<\/div>/, '');
   const toolbarStart = page.indexOf('      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">');
   const resultsStart = page.indexOf('      <div style="display:flex;flex-direction:column;gap:20px">', toolbarStart);
   const resultsClose = page.lastIndexOf('      </div>\n    </div>\n  </sc-if>');

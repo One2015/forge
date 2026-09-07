@@ -158,12 +158,22 @@
       && (round === 'all' || (round === '3' ? r.n >= 3 : r.n === Number(round)))
       && (person === 'all' || eq(r.person, person))
       && (!done || !st.queueToday || r.stamp >= +todayStart && r.stamp <= now))
-      .sort((a, b) => a.stamp === null ? 1 : b.stamp === null ? -1 : st.reviewSort === 'oldest' ? a.stamp - b.stamp : b.stamp - a.stamp);
+      .sort((a, b) => {
+        const sort = st.reviewSort || 'newest';
+        if (sort === 'round-asc' || sort === 'round-desc') {
+          const delta = (a.n - b.n) * (sort === 'round-asc' ? 1 : -1);
+          if (delta) return delta;
+        }
+        if (a.stamp === null && b.stamp === null) return 0;
+        if (a.stamp === null) return 1;
+        if (b.stamp === null) return -1;
+        return sort === 'oldest' ? a.stamp - b.stamp : b.stamp - a.stamp;
+      });
     const size = [10,20,50].includes(Number(st.queuePageSize)) ? Number(st.queuePageSize) : 10;
     const pages = Math.max(1, Math.ceil(filtered.length / size));
     const page = Math.min(pages, Math.max(1, Number(st.queuePage) || 1));
-    const hasFilters = !!query || owner !== 'all' || type !== 'all' || round !== 'all' || person !== 'all' || st.reviewSort === 'oldest' || !!st.queueToday;
-    const filterCount = [owner !== 'all', type !== 'all', round !== 'all', person !== 'all', st.reviewSort === 'oldest', !!st.queueToday].filter(Boolean).length;
+    const hasFilters = !!query || owner !== 'all' || type !== 'all' || round !== 'all' || person !== 'all' || (st.reviewSort && st.reviewSort !== 'newest') || !!st.queueToday;
+    const filterCount = [owner !== 'all', type !== 'all', round !== 'all', person !== 'all', !!st.reviewSort && st.reviewSort !== 'newest', !!st.queueToday].filter(Boolean).length;
     const personHeading = done ? '审核人' : '提交人';
     const timeHeading = done ? '审核时间' : '提交时间';
     const menuState = st.queueFilterMenu || null;
@@ -262,7 +272,13 @@
       query: st.reviewQuery || '', hasQuery:!!query, onQuery:e=>patch({reviewQuery:e.target.value,queueFilterMenu:null}), clearQuery:()=>patch({reviewQuery:'',queueFilterMenu:null}), owner, setOwner:e=>patch({reviewOwner:e.target.value,queueFilterMenu:null}),
       type, setType:e=>patch({queueType:e.target.value}), round, setRound:e=>patch({queueRound:e.target.value}),
       person, people, setPerson:e=>patch({queuePerson:e.target.value}),
-      sort:st.reviewSort || 'newest', setSort:e=>patch({reviewSort:e.target.value}), filters, activeFilter, menuOpen:!!activeFilter, closeMenu, menuKey, hasFilters, filterCount, hasFilterSelections:filterCount > 0, reset,
+      sort:st.reviewSort || 'newest', setSort:e=>patch({reviewSort:e.target.value}), filters: filters.filter(f => f.key === 'owner' || f.key === 'round'),
+      typeFilter: filters.find(f => f.key === 'type'), personFilter: filters.find(f => f.key === 'person'),
+      roundSort: st.reviewSort === 'round-asc' ? 'ascending' : st.reviewSort === 'round-desc' ? 'descending' : 'none',
+      timeSort: st.reviewSort === 'oldest' ? 'ascending' : !st.reviewSort || st.reviewSort === 'newest' ? 'descending' : 'none',
+      toggleRoundSort: () => patch({reviewSort: st.reviewSort === 'round-asc' ? 'round-desc' : 'round-asc', queueFilterMenu:null}),
+      toggleTimeSort: () => patch({reviewSort: st.reviewSort === 'oldest' ? 'newest' : 'oldest', queueFilterMenu:null}),
+      activeFilter, menuOpen:!!activeFilter, closeMenu, menuKey, hasFilters, filterCount, hasFilterSelections:filterCount > 0, reset,
       rows:filtered.slice((page-1)*size,page*size), total:filtered.length, empty:!filtered.length,
       emptyTitle:hasFilters ? '没有符合条件的任务' : done ? '还没有审核记录' : '当前任务已处理完',
       emptyHint:hasFilters ? '试试减少筛选条件，或换个关键词。' : done ? '完成审核后，结果与轮次会记录在这里。' : '新的产物提交后会出现在这里。',

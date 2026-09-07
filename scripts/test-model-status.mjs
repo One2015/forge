@@ -102,12 +102,20 @@ test('overview separates mutually exclusive model availability from operational 
   const view = c.modelStatusValues();
   assert.deepEqual(Array.from(view.availabilityMetrics, metric => metric.label), ['可用模型', '稳定模型', '需关注模型', '不可用模型']);
   assert.deepEqual(Array.from(view.operationMetrics, metric => metric.label), ['请求量', '成功率', 'P95 TTFT', '平均成本']);
+  assert.deepEqual(Array.from(view.overviewMetrics, metric => metric.label), ['可用模型', '稳定模型', '需关注模型', '不可用模型', '请求量', '成功率', 'P95 TTFT', '平均成本']);
   assert.equal(Number(view.availabilityMetrics[1].value) + Number(view.availabilityMetrics[2].value), view.available);
   assert.equal(Number(view.availabilityMetrics[3].value), view.unavailable);
   assert(!view.overviewMetrics.some(metric => ['正常模型', '警告模型', '错误率'].includes(metric.label)));
   const html = template.match(/<!-- model-status:start -->[\s\S]*?<!-- model-status:end -->/)[0];
-  assert.match(html, /aria-label="模型可用性"/); assert.match(html, /aria-label="所选时段运行表现"/);
-  assert.match(html, /稳定模型 \+ 需关注模型 = 可用模型/); assert.match(html, /可用性与运行表现采用独立统计口径/);
+  assert.match(html, /aria-label="模型可用性与运行表现"/); assert.doesNotMatch(html, /aria-label="所选时段运行表现"/);
+  assert.doesNotMatch(html, /稳定模型 \+ 需关注模型 = 可用模型/); assert.match(html, /可用性与运行表现采用独立统计口径/);
+  assert.equal(html.match(/class="forge-model-overview-group"/g)?.length, 1);
+  assert.match(html, /<h3>模型可用性<\/h3><div class="forge-model-overview-time">/);
+  assert.match(html, /class="forge-model-overview-ranges" role="group" aria-label="模型表现时间范围"/);
+  assert.match(html, /list="\{\{ modelStatus\.overviewWindowOptions \}\}"/);
+  assert.match(html, /aria-pressed="\{\{ option\.active \}\}"/); assert.match(html, /sc-camel-on-click="\{\{ option\.pick \}\}"/);
+  assert.doesNotMatch(html, /<span>统计时段<\/span>|<select aria-label="模型可用性统计时段"/);
+  assert.match(html, /list="\{\{ modelStatus\.overviewMetrics \}\}"/);
 });
 
 test('model overview uses explicit metrics, categorical quality and a working usage window', () => {
@@ -115,18 +123,27 @@ test('model overview uses explicit metrics, categorical quality and a working us
   let view = c.modelStatusValues();
   const oneHour = view.modelOverviewRows.find(row => row.name === 'Claude Opus 4.1');
   assert.equal(view.overviewWindow, '1h'); assert.equal(view.overviewWindowLabel, '近 1 小时');
+  assert.deepEqual(Array.from(view.overviewWindowOptions, option => [option.id, option.label, option.active]), [['1h','小时',true],['24h','日',false],['30d','月',false],['365d','年',false],['custom','自定义',false]]);
   assert.equal(oneHour.requests, '540'); assert.equal(oneHour.latency, '3.02s'); assert.equal(oneHour.qualityStatus, '基线内'); assert.equal(oneHour.statusLabel, '余额风险');
   assert(!Object.hasOwn(oneHour, 'error')); assert(!/^\d/.test(oneHour.qualityStatus));
-  view.onOverviewWindow({ target: { value: '24h' } }); view = c.modelStatusValues();
+  view.overviewWindowOptions.find(option => option.id === '24h').pick(); view = c.modelStatusValues();
   const fullDay = view.modelOverviewRows.find(row => row.name === 'Claude Opus 4.1');
   assert.equal(view.overviewWindowLabel, '近 24 小时'); assert.notEqual(fullDay.requests, oneHour.requests); assert.notEqual(fullDay.cost, oneHour.cost);
-  assert.match(view.overviewUsageNote, /可用线路指已启用、可路由且最近生成验证通过/);
+  view.overviewWindowOptions.find(option => option.id === '365d').pick(); view = c.modelStatusValues();
+  assert.equal(view.overviewWindowLabel, '近 1 年'); assert.equal(view.overviewWindowOptions.find(option => option.id === '365d').active, true);
+  view.overviewWindowOptions.find(option => option.id === 'custom').pick(); view = c.modelStatusValues();
+  assert.equal(view.overviewWindowCustom, true); assert.equal(view.overviewWindowStart.length, 10); assert.equal(view.overviewWindowEnd.length, 10);
+  const customRequests = view.modelOverviewRows.find(row => row.name === 'Claude Opus 4.1').requests;
+  assert.notEqual(customRequests, '—'); assert.match(view.overviewWindowLabel, /^\d{4}-\d{2}-\d{2} 至 \d{4}-\d{2}-\d{2}$/);
+  assert.equal(Object.hasOwn(view, 'overviewUsageNote'), false);
   assert.match(modelStyles, /\.forge-model-table-heading>div\{[^}]*min-width:0;flex:1/);
   assert.match(modelStyles, /\.forge-model-table-heading p\{[^}]*white-space:nowrap;overflow:hidden;text-overflow:ellipsis/);
   const overviewHtml = template.match(/modelStatus\.overviewTab[\s\S]*?modelStatus\.linesTab/)[0];
   for (const label of ['请求量', '可用线路', '成功率', 'P95 TTFT', '生成速度', '质量状态', '总成本', '运行状态']) assert.match(overviewHtml, new RegExp('>' + label + '<'));
   for (const removed of ['成功 / 错误率', '>质量<', '>成本<', '>趋势<']) assert(!overviewHtml.includes(removed));
-  assert.match(overviewHtml, /aria-label="模型表现统计时段"/); assert.match(overviewHtml, /row\.latency/); assert.match(overviewHtml, /row\.qualityStatus/); assert.match(overviewHtml, /row\.statusLabel/);
+  assert.doesNotMatch(overviewHtml, /modelStatus\.overviewUsageNote|请求量、成功率和总成本按|可用线路指已启用/);
+  assert.match(overviewHtml, /aria-label="模型表现时间范围"/); assert.doesNotMatch(overviewHtml, /模型可用性统计时段|模型表现统计时段/); assert.match(overviewHtml, /row\.latency/); assert.match(overviewHtml, /row\.qualityStatus/); assert.match(overviewHtml, /row\.statusLabel/);
+  assert.match(overviewHtml, /<sc-if value="\{\{ modelStatus\.overviewWindowCustom \}\}"><div class="forge-model-overview-custom-dates" role="group" aria-label="自定义模型表现日期">/);
 });
 
 test('error reasons are a standalone affected-route summary with direct drill-down', () => {
@@ -135,23 +152,27 @@ test('error reasons are a standalone affected-route summary with direct drill-do
   assert.equal(view.errorOverviewRows.length, 4);
   assert(view.errorOverviewRows.every(row => row.count === '1'));
   const downstream = view.errorOverviewRows.find(row => row.id === 'downstream_error');
-  assert.equal(downstream.name, '下游供应商报错');
+  assert.equal(downstream.name, '下游供应商报错'); assert.equal(downstream.company, '云桥'); assert.equal(downstream.impact, '2 个运行任务 · 126 次失败'); assert.equal(downstream.countLabel, '1 次'); assert.equal(downstream.lastSeen, '今天 12:35');
   downstream.open(); view = c.modelStatusValues();
   assert(view.linesTab); assert.equal(view.filter, 'downstream_error'); assert.equal(view.resultCount, '1 条线路');
   assert.deepEqual(Array.from(view.rows, row => row.id), ['production-02']);
   const overviewHtml = template.match(/modelStatus\.overviewTab[\s\S]*?modelStatus\.linesTab/)[0];
   assert(!overviewHtml.includes('模型供应商整体表现')); assert(!overviewHtml.includes('providerOverviewRows'));
-  assert.match(overviewHtml, /按当前异常线路归类；同一线路可能包含多个原因/);
-  assert.match(overviewHtml, /forge-model-error-cards/); assert.match(overviewHtml, /row\.count/); assert.match(overviewHtml, /条受影响线路/); assert.match(overviewHtml, /row\.open/);
+  assert.doesNotMatch(overviewHtml, /按当前异常线路归类；同一线路可能包含多个原因/);
+  assert.match(overviewHtml, /class="forge-model-error-table" role="table" aria-label="错误原因汇总"/);
+  for (const label of ['问题', '涉及公司', '影响', '次数', '出现时间']) assert.match(overviewHtml, new RegExp('>' + label + '<'));
+  assert.match(overviewHtml, /class="forge-model-error-row"[^>]*role="row"[^>]*row\.open/); assert.match(overviewHtml, /row\.company/); assert.match(overviewHtml, /row\.impact/); assert.match(overviewHtml, /row\.countLabel/); assert.match(overviewHtml, /row\.lastSeen/);
+  assert.doesNotMatch(overviewHtml, /forge-model-error-cards|条受影响线路|查看线路/);
 });
 
 test('a selected usage window stays unavailable when live monitoring did not provide it', () => {
   const payload = data(undefined, [route('r', 'm', 'p', { usage: { calls: 10, failures: 1, costUsd: 2, checkedAt: NOW - 1000 } })]);
   const { c } = component(payload); c.openModelStatus();
   let view = c.modelStatusValues(); assert.equal(view.modelOverviewRows[0].requests, '10');
-  view.onOverviewWindow({ target: { value: '7d' } }); view = c.modelStatusValues();
+  view.overviewWindowOptions.find(option => option.id === '365d').pick(); view = c.modelStatusValues();
   assert.equal(view.modelOverviewRows[0].requests, '—'); assert.equal(view.modelOverviewRows[0].success, '—'); assert.equal(view.modelOverviewRows[0].cost, '—');
-  assert.match(view.overviewUsageNote, /当前数据源未提供近 7 天调用统计/);
+  assert.deepEqual(Array.from(view.operationMetrics, metric => metric.value), ['—', '—', '—', '—']);
+  assert.equal(view.operationMetrics[0].note, '该时段数据未接入');
 });
 
 test('delay comparison needs recent same-class valid samples and a named metric', () => {
@@ -258,9 +279,14 @@ test('benchmark-only evidence is consolidated into the model-lines table', () =>
 
 test('overview sections use a consistent vertical rhythm', () => {
   assert.match(modelStyles, /\.forge-model-overview\+\.forge-model-table-section\{margin-top:28px\}/);
+  assert.match(modelStyles, /\.forge-model-overview-metrics>div:nth-child\(-n\+4\)\{border-bottom:1px solid var\(--forge-border\)\}/);
+  assert.match(modelStyles, /\.forge-model-overview-ranges\{[^}]*display:inline-flex;[^}]*border:1px solid var\(--forge-control-border\)/);
+  assert.match(modelStyles, /\.forge-model-overview-ranges button\[data-current="true"\]\{[^}]*background:var\(--pm-selected\);[^}]*color:var\(--pm-brand\)/);
+  assert.match(modelStyles, /\.forge-model-overview-time\{width:100%;flex-wrap:wrap;gap:6px;margin-top:6px\}/);
   assert.match(modelStyles, /\.forge-model-error-summary\{margin-top:28px\}/);
-  assert.match(modelStyles, /\.forge-model-error-cards\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)[^}]*gap:10px/);
-  assert.match(modelStyles, /@media\(max-width:900px\)\{[^}]*\.forge-model-error-cards\{grid-template-columns:repeat\(2,1fr\)/);
+  assert.match(modelStyles, /\.forge-model-error-table\{[^}]*min-width:760px;[^}]*border:1px solid var\(--forge-border\);[^}]*border-radius:var\(--pm-radius\)/);
+  assert.match(modelStyles, /\.forge-model-error-table \[role="row"\]\{[^}]*grid-template-columns:1\.45fr \.85fr 1\.2fr \.55fr \.8fr/);
+  assert.match(modelStyles, /\.forge-model-error-row\{[^}]*min-height:58px;[^}]*border-bottom:1px solid var\(--forge-border\)/);
   assert.match(modelStyles, /\.forge-model-lines-section\{margin-top:24px\}/);
   assert.match(modelStyles, /\.forge-model-lines-section>\.forge-model-filters\{margin:0 0 14px\}/);
 });
@@ -442,11 +468,12 @@ test('combined model filters survive URL round trips, including a selected diagn
   const { c } = component(); c.openModelStatus();
   const target = c.modelStatusValues().allLines.find(line => line.id === 'production-02');
   c.modelStatusValues().onLine({ target: { value: target.id } }); c.modelStatusValues().onModel({ target: { value: target.modelId } }); c.modelStatusValues().onProvider({ target: { value: target.providerId } });
-  c.modelStatusValues().onOverviewWindow({ target: { value: '7d' } });
+  c.modelStatusValues().overviewWindowOptions.find(option => option.id === 'custom').pick();
+  c.modelStatusValues().onOverviewWindowStart({ target: { value: '2026-09-01' } }); c.modelStatusValues().onOverviewWindowEnd({ target: { value: '2026-09-05' } });
   c.modelStatusValues().onFilter({ target: { value: 'severe' } }); c.modelStatusValues().onTimeRange({ target: { value: '24h' } }); c.modelStatusValues().rows[0].select();
   const route = codec.write(c.state), parsed = codec.read(route);
   assert.equal(parsed.error, ''); const { c: restored } = component(); restored.setState(parsed.patch);
-  const view = restored.modelStatusValues(); assert.equal(view.rows.length, 1); assert.equal(view.line, target.id); assert.equal(view.provider, target.providerId); assert.equal(view.model, target.modelId); assert.equal(view.filter, 'severe'); assert.equal(view.timeRange, '24h'); assert.equal(view.overviewWindow, '7d'); assert.match(route, /period=24h/); assert.match(route, /window=7d/); assert(view.drawerOpen);
+  const view = restored.modelStatusValues(); assert.equal(view.rows.length, 1); assert.equal(view.line, target.id); assert.equal(view.provider, target.providerId); assert.equal(view.model, target.modelId); assert.equal(view.filter, 'severe'); assert.equal(view.timeRange, '24h'); assert.equal(view.overviewWindow, 'custom'); assert.equal(view.overviewWindowStart, '2026-09-01'); assert.equal(view.overviewWindowEnd, '2026-09-05'); assert.match(route, /period=24h/); assert.match(route, /window=custom/); assert.match(route, /windowFrom=2026-09-01/); assert.match(route, /windowTo=2026-09-05/); assert(view.drawerOpen);
 });
 
 test('alert reasons filter explicit current failures and remain independent of severity', () => {

@@ -30,10 +30,10 @@ test('scope, column filters, query and sorting combine and reset pagination',()=
  q().reset();q().onQuery({target:{value:q().rows[0].runId}});assert(q().rows.every(r=>r.runId===q().rows[0].runId));
 });
 test('custom filter menus expose selected state, positioning and selection without native selects',()=>{
- const {c,q}=fixture();const type=q().filters.find(filter=>filter.key==='type');assert.equal(type.label,'全部类型');assert.equal(type.options.length,3);
+ const {c,q}=fixture();const type=q().typeFilter;assert.equal(type.label,'全部类型');assert.equal(type.options.length,3);
  const event={detail:1,preventDefault(){},stopPropagation(){},currentTarget:{getBoundingClientRect(){return {left:420,right:528,top:100,bottom:136,width:108}}}};
  type.toggle(event);assert.equal(c.state.queueFilterMenu.key,'type');assert.equal(q().activeFilter.ariaLabel,'审核类型');assert.equal(q().activeFilter.left,420);assert.equal(q().activeFilter.width,108);assert.equal(q().activeFilter.placement,'bottom');
- q().activeFilter.options.find(option=>option.value==='rework').pick(event);assert.equal(q().type,'rework');assert.equal(q().menuOpen,false);assert.equal(q().filters.find(filter=>filter.key==='type').label,'返工复审');
+ q().activeFilter.options.find(option=>option.value==='rework').pick(event);assert.equal(q().type,'rework');assert.equal(q().menuOpen,false);assert.equal(q().typeFilter.label,'返工复审');
  q().onQuery({target:{value:'Item'}});assert(q().hasQuery);q().clearQuery();assert(!q().hasQuery);
 });
 test('pagination counts and page sizes use the filtered collection',()=>{
@@ -151,4 +151,12 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.match(template,/class="review-workbench-reject"[^>]*disabled="\{\{ it\.cannotSubmitNote \}\}">提交返工/);
  const methods=fs.readFileSync(new URL('./postman-ui/review-queue-methods.js',import.meta.url),'utf8');
  assert.match(methods,/querySelector\('\.review-workbench-rework-form'\)/);assert.match(methods,/form\.querySelector\('textarea'\)\?\.focus\(\)/);
+});
+
+test('column sort toggles both directions and keeps person filtering',()=>{
+ const {c,q}=fixture();q().setSize({target:{value:'50'}});q().setPerson({target:{value:'yokiguan'}});
+ q().toggleRoundSort();assert.equal(q().roundSort,'ascending');assert(q().rows.every((r,i,a)=>!i||a[i-1].n<=r.n));
+ q().toggleRoundSort();assert.equal(q().roundSort,'descending');assert(q().rows.every((r,i,a)=>!i||a[i-1].n>=r.n));
+ q().toggleTimeSort();assert.equal(q().timeSort,'ascending');assert.equal(q().roundSort,'none');assert(q().rows.every((r,i,a)=>!i||a[i-1].stamp<=r.stamp));
+ q().toggleTimeSort();assert.equal(q().timeSort,'descending');assert(q().rows.every((r,i,a)=>!i||a[i-1].stamp>=r.stamp));assert.equal(q().person,'yokiguan');
 });

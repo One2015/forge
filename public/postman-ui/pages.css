@@ -289,8 +289,8 @@
 
 /* Route-level completion pass: every major surface uses the same density and hierarchy. */
 .forge-postman .pm-page-overview>div:last-child{gap:18px!important}
-.forge-postman .pm-overview-delivery-section{background:transparent;border:0;border-bottom:1px solid var(--pm-border);border-radius:0;box-shadow:none!important;overflow:hidden}
-.forge-postman .pm-overview-delivery-section>div:first-child{background:transparent;padding:12px 16px!important}
+.forge-postman .pm-overview-delivery-section{background:transparent;border:0;border-radius:0;box-shadow:none!important;overflow:visible}
+.forge-postman .pm-overview-delivery-section>.pm-overview-delivery-heading{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0}
 .forge-postman .pm-page-overview [data-flow-family=runs]{padding:10px 12px!important;background:var(--pm-canvas)}
 .forge-postman .pm-page-overview [data-flow-family=runs]:hover{background:var(--pm-hover)!important}
 

@@ -57,14 +57,14 @@ test('performance page keeps the required section order without exposing fixture
   assert(v.hasRows); assert(v.hasTrend); assert(v.hasIssues);
 });
 
-test('supplier, risk and date filters update all visible modules and empty states', () => {
+test('supplier and risk filters update all visible modules and empty states', () => {
   const c = component(); c.openOutsourcingSuppliers();
   c.outsourcingSupplierValues().onSupplier({ target: { value: 'stepfun' } });
   let v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '维象制作'); assert(v.issues.every(issue => issue.supplier === '维象制作'));
   v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert(!v.hasRows); assert(!v.hasTrend); assert(!v.hasIssues);
   v.onSupplier({ target: { value: '' } }); v.onRisk({ target: { value: '' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 3);
   v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.metrics.at(-1).value, 0);
-  v.onRisk({ target: { value: '' } }); v.onCycle({ target: { value: '7d' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant']);
+  v.onRisk({ target: { value: '' } }); v = c.outsourcingSupplierValues(); assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant', 'internal']);
 });
 
 test('supplier trend is a labelled three-series line chart with accessible points', () => {
@@ -81,25 +81,36 @@ test('supplier trend is a labelled three-series line chart with accessible point
   assert.doesNotMatch(targetRule, /border|left:0/); assert.match(targetRule, /right:0/); assert.match(targetRule, /background:var\(--forge-panel\)/);
   assert.match(page, /data-forge-chart-tooltip="\{\{ point\.title \}\}"/); assert.match(page, /data-series="\{\{ series\.series \}\}"/);
   assert.match(page, /aria-label="筛选趋势专家团队"[^>]*value="\{\{ outsourcingSuppliers\.trendTeam \}\}"/);
-  assert.match(page, /aria-label="趋势时间范围"[^>]*value="\{\{ outsourcingSuppliers\.trendRange \}\}"/);
+  assert.match(page, /class="forge-outsourcing-trend-ranges" role="group" aria-label="趋势时间范围"/);
   assert(page.indexOf('aria-label="筛选趋势专家团队"') < page.indexOf('aria-label="趋势时间范围"'));
-  for (const option of ['day">日', 'month">月', 'year">年', 'custom">自定义']) assert(page.includes('value="' + option));
+  assert.match(page, /trendRangeOptions/); assert.match(page, /aria-pressed="\{\{ option\.active \}\}"/); assert.match(page, /sc-camel-on-click="\{\{ option\.pick \}\}"/);
+  assert.doesNotMatch(page, /<select aria-label="趋势时间范围"|outsourcingSuppliers\.onTrendRange/);
+  assert.match(page, /<sc-if value="\{\{ outsourcingSuppliers\.trendCustom \}\}"><div class="forge-outsourcing-trend-custom-dates" role="group" aria-label="自定义趋势日期">/);
   assert.match(page, /aria-label="趋势开始日期"/); assert.match(page, /aria-label="趋势结束日期"/);
+  assert.deepEqual(Array.from(v.trendRangeOptions, option => [option.id, option.label, option.active]), [['day','日',true],['month','月',false],['year','年',false],['custom','自定义',false]]);
   v.onTrendTeam({ target: { value: 'ant' } }); v = c.outsourcingSupplierValues();
   assert.equal(v.trendSupplier, '灵犀三维'); assert.equal(v.trendCards[0].current, '94%');
-  v.onTrendRange({ target: { value: 'month' } }); v = c.outsourcingSupplierValues();
+  v.trendRangeOptions.find(option => option.id === 'month').pick(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.trendLabels), ['5月', '6月', '7月', '8月', '9月']); assert.equal(v.trendCards[0].change, '较上月 +5 个百分点');
-  v.onTrendRange({ target: { value: 'year' } }); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.trendRangeOptions, option => option.active), [false,true,false,false]);
+  v.trendRangeOptions.find(option => option.id === 'year').pick(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.trendLabels), ['2022年', '2023年', '2024年', '2025年', '2026年']); assert.equal(v.trendCards[0].change, '较上年 +5 个百分点');
-  v.onTrendRange({ target: { value: 'custom' } }); v = c.outsourcingSupplierValues(); assert.equal(v.trendCustom, true);
+  v.trendRangeOptions.find(option => option.id === 'custom').pick(); v = c.outsourcingSupplierValues(); assert.equal(v.trendCustom, true); assert.deepEqual(Array.from(v.trendRangeOptions, option => option.active), [false,false,false,true]);
   v.onTrendStart({ target: { value: '2026-09-01' } }); v = c.outsourcingSupplierValues(); v.onTrendEnd({ target: { value: '2026-09-05' } }); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.trendLabels), ['9月1日', '9月2日', '9月3日', '9月4日', '9月5日']); assert.equal(v.trendCards[0].change, '较上一时点 +5 个百分点');
 });
 
 test('delivery table is concise and supplier names open the merged detail drawer', () => {
   const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
-  for (const label of ['按专家团队筛选', '按分配量排序', '按已完成数量排序', '按有效交付数量排序', '按完成率排序', '按质检通过率排序', '按交付日期筛选', '按风险等级筛选']) assert(page.includes('aria-label="' + label + '"'));
-  assert.equal(page.match(/class="forge-outsourcing-column-filter"/g)?.length, 8);
+  for (const label of ['按专家团队筛选', '按风险等级筛选']) assert(page.includes('aria-label="' + label + '"'));
+  for (const key of ['assignedSort', 'producedSort', 'validSort', 'completionSort', 'qualitySort', 'dateSort']) {
+    assert(page.includes('aria-label="{{ outsourcingSuppliers.' + key + '.ariaLabel }}"'));
+    assert(page.includes('sc-camel-on-click="{{ outsourcingSuppliers.' + key + '.toggle }}"'));
+  }
+  assert.equal(page.match(/class="forge-outsourcing-column-filter"/g)?.length, 2);
+  assert.equal(page.match(/class="forge-outsourcing-column-sort"/g)?.length, 6);
+  assert.match(page, /data-phosphor="arrows-down-up"/); assert.match(page, /data-phosphor="arrow-down"/); assert.match(page, /data-phosphor="arrow-up"/);
+  assert.doesNotMatch(page, /按交付日期筛选|supplierCycle|onCycle|Sort\.change/);
   assert.match(page, /<span role="columnheader">数据单<\/span>/);
   assert.doesNotMatch(page, /按关联数据单筛选|outsourcingSuppliers\.(?:sheet|sheetActive|sheets|onSheet)/);
   assert.match(page, /class="forge-outsourcing-delivery-section"[^>]*><header><h2[^>]*>单个专家团队交付情况<\/h2><\/header><div class="forge-outsourcing-delivery-surface">/);
@@ -111,34 +122,41 @@ test('delivery table is concise and supplier names open the merged detail drawer
   v.closeDetail(); assert(!c.outsourcingSupplierValues().detailOpen);
 });
 
-test('numeric headers share one active sort and return to their default options', () => {
+test('column sort buttons share one active direction and date supports newest and oldest', () => {
   const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
-  for (const control of [v.assignedSort, v.producedSort, v.validSort, v.completionSort, v.qualitySort]) {
-    assert.equal(control.order, ''); assert.equal(control.active, false);
+  for (const control of [v.assignedSort, v.producedSort, v.validSort, v.completionSort, v.qualitySort, v.dateSort]) {
+    assert.equal(control.order, ''); assert.equal(control.active, false); assert.equal(control.neutral, true); assert.match(control.ariaLabel, /默认顺序/);
   }
-  v.assignedSort.change({ target: { value: 'desc' } }); v = c.outsourcingSupplierValues();
+  v.assignedSort.toggle(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant', 'internal']);
-  assert.equal(v.assignedSort.active, true); assert.equal(v.completionSort.active, false);
-  v.assignedSort.change({ target: { value: 'asc' } }); v = c.outsourcingSupplierValues();
+  assert.equal(v.assignedSort.descending, true); assert.equal(v.completionSort.active, false); assert.match(v.assignedSort.ariaLabel, /最多优先/);
+  v.assignedSort.toggle(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.detailRows, row => row.id), ['internal', 'ant', 'stepfun']);
-  v.producedSort.change({ target: { value: 'desc' } }); v = c.outsourcingSupplierValues();
+  assert.equal(v.assignedSort.ascending, true);
+  v.assignedSort.toggle(); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant', 'internal']); assert.equal(v.assignedSort.neutral, true);
+  v.producedSort.toggle(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant', 'internal']);
   assert.equal(v.assignedSort.active, false); assert.equal(v.producedSort.active, true);
-  v.validSort.change({ target: { value: 'asc' } }); v = c.outsourcingSupplierValues();
-  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['internal', 'ant', 'stepfun']);
-  v.completionSort.change({ target: { value: 'desc' } }); v = c.outsourcingSupplierValues();
+  v.validSort.toggle(); v = c.outsourcingSupplierValues(); v.validSort.toggle(); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['internal', 'ant', 'stepfun']); assert.equal(v.producedSort.active, false);
+  v.completionSort.toggle(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.detailRows, row => row.id), ['ant', 'internal', 'stepfun']);
   assert.equal(v.validSort.active, false); assert.equal(v.completionSort.active, true);
-  v.completionSort.change({ target: { value: 'asc' } }); v = c.outsourcingSupplierValues();
+  v.completionSort.toggle(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'internal', 'ant']);
-  v.qualitySort.change({ target: { value: 'desc' } }); v = c.outsourcingSupplierValues();
+  v.qualitySort.toggle(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.detailRows, row => row.id), ['ant', 'internal', 'stepfun']);
   assert.equal(v.completionSort.active, false); assert.equal(v.qualitySort.active, true);
-  v.qualitySort.change({ target: { value: 'asc' } }); v = c.outsourcingSupplierValues();
+  v.qualitySort.toggle(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'internal', 'ant']);
-  v.qualitySort.change({ target: { value: '' } }); v = c.outsourcingSupplierValues();
+  v.dateSort.toggle(); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['internal', 'ant', 'stepfun']); assert.match(v.dateSort.ariaLabel, /最近优先/);
+  v.dateSort.toggle(); v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant', 'internal']); assert.match(v.dateSort.ariaLabel, /最旧优先/);
+  v.dateSort.toggle(); v = c.outsourcingSupplierValues();
   assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant', 'internal']);
-  for (const control of [v.assignedSort, v.producedSort, v.validSort, v.completionSort, v.qualitySort]) {
+  for (const control of [v.assignedSort, v.producedSort, v.validSort, v.completionSort, v.qualitySort, v.dateSort]) {
     assert.equal(control.order, ''); assert.equal(control.active, false);
   }
 });
@@ -181,7 +199,11 @@ test('supplier generator is idempotent and responsive CSS uses shared tokens', (
   assert.doesNotMatch(css, /\.forge-outsourcing-section\{[^}]*border:/);
   assert.doesNotMatch(css, /forge-outsourcing-reset/);
   assert.match(css, /\.forge-outsourcing \.forge-outsourcing-column-filter select\{[^}]*border:1px solid transparent;[^}]*border-radius:var\(--pm-radius\);[^}]*background:transparent;[^}]*field-sizing:content/);
+  assert.match(css, /\.forge-outsourcing-sort-button\{[^}]*display:inline-flex;[^}]*border:0;[^}]*background:transparent;[^}]*cursor:pointer/);
+  assert.match(css, /\.forge-outsourcing-column-sort\[data-active="true"\] \.forge-outsourcing-sort-button,\.forge-outsourcing-column-sort\[data-active="true"\] \.forge-icon\{color:var\(--pm-brand\)\}/);
   assert.match(css, /\.forge-outsourcing-trend-toolbar\{[^}]*justify-content:space-between/);
+  assert.match(css, /\.forge-outsourcing-trend-ranges\{[^}]*display:inline-flex;[^}]*border:1px solid var\(--forge-control-border\)/);
+  assert.match(css, /\.forge-outsourcing-trend-ranges button\[data-current="true"\]\{[^}]*background:var\(--pm-selected\);[^}]*color:var\(--pm-brand\)/);
   assert.doesNotMatch(systemCss, /\.forge-postman \.forge-outsourcing-section\{border:1px/);
   assert.match(systemCss, /\.forge-outsourcing-section:not\(\.forge-outsourcing-contained-section\)\{border:0!important;border-radius:0!important;background:transparent!important/);
   assert.match(systemCss, /\.forge-outsourcing-delivery-section \.forge-outsourcing-table-scroll\{border:0!important;border-radius:0!important;background:transparent!important/);

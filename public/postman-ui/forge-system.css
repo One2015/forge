@@ -356,3 +356,99 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
   .forge-postman :is(button,input,select,textarea,dialog,[role=dialog],.forge-summary-card),#forge-rbac-root :is(button,input,select,textarea,.rbac-card){border-color:CanvasText!important}
   .forge-postman :is([aria-selected=true],[aria-pressed=true],[aria-current=page]){outline:2px solid Highlight!important;outline-offset:-2px}
 }
+
+/* Run row actions share the regular control typography. */
+.forge-postman .pm-page-run .pm-run-item-row :is(button,[role=button]) {
+  font-family:var(--font-sans)!important;
+  font-size:var(--type-component-size)!important;
+  line-height:var(--type-component-leading)!important;
+  font-weight:var(--weight-regular)!important;
+  letter-spacing:normal!important;
+}
+
+/* Section heading belongs above the item table surface. */
+.forge-postman .pm-page-run .pm-run-items-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-block:24px 12px;
+}
+
+/* Shared columns keep run headers, costs and actions aligned. */
+.forge-postman .pm-page-run :is(.pm-run-items-columns,.pm-run-item-row) {
+  grid-template-columns:minmax(0,1.6fr) 96px minmax(0,1fr) 64px 96px!important;
+}
+.forge-postman .pm-page-run .pm-run-items-columns {
+  display:grid;
+  align-items:center;
+  gap:clamp(10px,1.4vw,16px);
+  padding:12px 18px;
+  background:var(--surface-subtle);
+  border-bottom:1px solid var(--border-subtle);
+  color:var(--text-muted);
+  font-size:var(--type-caption-size);
+  line-height:var(--type-caption-leading);
+  font-weight:var(--weight-medium);
+}
+.forge-postman .pm-run-item-cost,
+.forge-postman .pm-run-cost-heading,
+.forge-postman .pm-run-actions-heading {text-align:end}
+@container pm-run (max-width:760px) {
+  .forge-postman .pm-page-run .pm-run-items-columns {display:none}
+  .forge-postman .pm-page-run .pm-run-item-row {grid-template-columns:minmax(0,1fr) auto!important}
+  .forge-postman .pm-page-run .pm-run-item-cost {grid-column:1;grid-row:4;text-align:start}
+  .forge-postman .pm-page-run .pm-run-item-row>div:last-child {grid-row:4}
+}
+
+.forge-postman .pq-table-head .pq-column-control{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:0;border:0;background:transparent;color:inherit;font:inherit!important;cursor:pointer;white-space:nowrap}
+.forge-postman .pq-column-control:is(:hover,[data-filtered=true],[aria-expanded=true]){color:var(--accent-primary)}
+.pq-sort-icon{display:flex;flex-direction:column;gap:0;color:var(--text-disabled)}
+.pq-sort-icon>span{display:flex;height:8px}
+.pq-sort-icon[data-sort=ascending] .pq-sort-up,.pq-sort-icon[data-sort=descending] .pq-sort-down{color:var(--accent-primary)}
+.pq-sort-up svg{transform:rotate(180deg)}
+
+/* Delivery: one table with explicit metadata and quantity columns. */
+.forge-postman .pm-delivery-reference-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-block:4px 16px}
+.forge-postman .pm-delivery-reference-toolbar .pm-delivery-search{flex:0 1 480px;width:480px;max-width:100%}
+.forge-postman .pm-delivery-reference-toolbar .forge-delivery-create{margin:0;flex:none}
+.pm-delivery-table-scroll{overflow-x:auto;border:1px solid var(--border-subtle);border-radius:var(--radius-surface);background:var(--surface-raised)}
+.forge-postman .pm-delivery-data-table{width:100%;min-width:1170px;border-collapse:collapse;font-size:var(--type-component-size);line-height:var(--type-component-leading);text-align:start}
+.pm-delivery-data-row>[role=columnheader],.pm-delivery-data-row>[role=cell]{padding:20px 12px;border-bottom:1px solid var(--border-subtle);white-space:nowrap;vertical-align:middle;text-align:start}
+.pm-delivery-data-head{padding-block:16px;font-weight:var(--weight-medium)}
+.pm-delivery-data-table [role=rowgroup]:last-child .pm-delivery-data-row:last-child>[role=cell]{border-bottom:0}
+.pm-delivery-data-row:not(.pm-delivery-data-head):hover{background:var(--surface-subtle)}
+.pm-delivery-data-row>div:first-child{padding-inline-start:16px}
+.pm-delivery-table-customer{display:flex;align-items:center;gap:10px;min-width:90px}
+.pm-delivery-table-customer img{object-fit:contain;flex:none}
+.forge-postman .pm-delivery-table-name{padding:0;border:0;background:transparent;color:var(--text-primary);font:inherit;font-weight:var(--weight-medium);text-align:start;cursor:pointer;min-width:220px}
+.pm-delivery-table-muted{color:var(--text-muted)}
+.pm-delivery-table-progress{display:flex;flex-direction:column;gap:8px;min-width:180px;color:var(--text-muted);font-size:var(--type-caption-size)}
+.pm-delivery-table-progress .pm-progress-bar{width:100%;height:5px}
+.forge-postman .pm-delivery-table-open{padding:6px 10px;border:1px solid var(--border-default);border-radius:var(--radius-control);background:var(--surface-raised);color:var(--text-primary);font:inherit;cursor:pointer}
+@media(max-width:600px){.forge-postman .pm-delivery-reference-toolbar{flex-wrap:wrap}.forge-postman .pm-delivery-reference-toolbar .pm-delivery-search{flex-basis:100%}}
+
+.forge-postman .pm-delivery-reference-toolbar{justify-content:flex-end}
+.pm-delivery-data-row{display:grid;grid-template-columns:120px minmax(240px,1.7fr) 110px 90px 80px 70px 94px 78px 78px minmax(190px,1fr) 72px;align-items:stretch}
+.pm-delivery-data-row>[role=cell],.pm-delivery-data-row>[role=columnheader]{display:flex;align-items:center;min-width:0}
+.pm-delivery-data-head{padding-block:0;background:var(--surface-subtle);color:var(--text-muted);font-size:var(--type-caption-size)}
+.pm-delivery-data-row .pm-delivery-table-progress{width:100%;min-width:0}
+.pm-delivery-data-table{min-width:1322px!important}
+
+.forge-postman .pm-delivery-column-sort,.pm-delivery-column-filter{display:inline-flex;align-items:center;gap:5px;position:relative;padding:0;min-height:28px;border:0;background:transparent;color:inherit;font:inherit!important;white-space:nowrap;cursor:pointer}
+.pm-delivery-column-filter select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.pm-delivery-column-filter:focus-within{outline:2px solid var(--accent-primary);outline-offset:3px;border-radius:3px}
+.pm-delivery-column-filter[data-active=true],.forge-postman .pm-delivery-column-sort:hover{color:var(--accent-primary)}
+.forge-postman .pm-delivery-data-row .pm-delivery-status{display:inline-block;padding:0;border:0;background:transparent;color:var(--status-warning,#946300);font:inherit;line-height:1.4;white-space:nowrap}
+.forge-postman .pm-delivery-status[data-status="已达标"]{color:var(--status-success,#27884c)}
+.pm-delivery-data-row{grid-template-columns:110px minmax(210px,1.6fr) 112px 94px 84px 82px 108px 84px 84px minmax(170px,1fr) 70px}
+.pm-delivery-data-row>[role=columnheader]{padding-block:12px}
+.pm-delivery-data-row>[role=cell]{min-height:80px;padding-block:16px}
+.pm-delivery-data-row:not(.pm-delivery-data-head){border-bottom:1px solid var(--border-subtle)}
+.pm-delivery-data-row>[role=cell]{border-bottom:0}
+.pm-delivery-data-row .pm-delivery-table-name{min-width:0;white-space:normal;line-height:1.5}
+.forge-postman .pm-delivery-filter-scrim{position:fixed;inset:0;z-index:200;background:transparent;border:0;border-radius:0;cursor:default}
+.pm-delivery-filter-menu{position:fixed;z-index:201;min-width:180px;padding:4px;border:1px solid var(--border-default);border-radius:var(--radius-control);background:var(--surface-raised);box-shadow:var(--shadow-overlay)}
+.forge-postman .pm-delivery-filter-menu button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:9px 12px;border:0;background:transparent;color:var(--text-primary);text-align:start;cursor:pointer;font-weight:400}
+.forge-postman .pm-delivery-filter-menu button:hover,.forge-postman .pm-delivery-filter-menu button[aria-checked=true]{background:var(--surface-subtle);color:var(--accent-primary)}

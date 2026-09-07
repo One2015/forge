@@ -24,10 +24,10 @@
       <div class="pq-table" role="table" aria-label="审核任务列表" aria-rowcount="{{ review.queue.total + 1 }}">
         <div class="pq-columns pq-table-head" role="row">
           <div role="columnheader">Case / Item ID</div>
-          <div role="columnheader">{{ review.queue.statusHeading }}</div>
-          <div role="columnheader">轮次</div>
-          <div role="columnheader">{{ review.queue.personHeading }}</div>
-          <div role="columnheader">{{ review.queue.timeHeading }}</div>
+          <div role="columnheader"><button id="pq-filter-type" type="button" class="pq-column-control" data-filtered="{{ review.queue.typeFilter.filtered }}" aria-label="{{ review.queue.typeFilter.ariaLabel }}：{{ review.queue.typeFilter.label }}" aria-haspopup="menu" aria-controls="pq-filter-menu" aria-expanded="{{ review.queue.typeFilter.open }}" sc-camel-on-click="{{ review.queue.typeFilter.toggle }}"><span>{{ review.queue.statusHeading }}</span>[[icon:caret-down:12]]</button></div>
+          <div role="columnheader" aria-sort="{{ review.queue.roundSort }}"><button type="button" class="pq-column-control" aria-label="轮次：切换升序或降序" sc-camel-on-click="{{ review.queue.toggleRoundSort }}">轮次<span class="pq-sort-icon" data-sort="{{ review.queue.roundSort }}" aria-hidden="true"><span class="pq-sort-up">[[icon:caret-down:12]]</span><span class="pq-sort-down">[[icon:caret-down:12]]</span></span></button></div>
+          <div role="columnheader"><button id="pq-filter-person" type="button" class="pq-column-control" data-filtered="{{ review.queue.personFilter.filtered }}" aria-label="{{ review.queue.personFilter.ariaLabel }}：{{ review.queue.personFilter.label }}" aria-haspopup="menu" aria-controls="pq-filter-menu" aria-expanded="{{ review.queue.personFilter.open }}" sc-camel-on-click="{{ review.queue.personFilter.toggle }}"><span>{{ review.queue.personHeading }}</span>[[icon:caret-down:12]]</button></div>
+          <div role="columnheader" aria-sort="{{ review.queue.timeSort }}"><button type="button" class="pq-column-control" aria-label="{{ review.queue.timeHeading }}：切换升序或降序" sc-camel-on-click="{{ review.queue.toggleTimeSort }}">{{ review.queue.timeHeading }}<span class="pq-sort-icon" data-sort="{{ review.queue.timeSort }}" aria-hidden="true"><span class="pq-sort-up">[[icon:caret-down:12]]</span><span class="pq-sort-down">[[icon:caret-down:12]]</span></span></button></div>
           <div role="columnheader">操作</div>
         </div>
         <div role="rowgroup">
