@@ -179,6 +179,14 @@ export function buildPostman(source){
   "kind: n.kind, title: n.title, badge: n.badge, badgeFg: bfg, badgeBorder: bborder, dot: bdot,",
   "kind: n.kind, title: n.title, badge: n.badge, badgeFg: bfg, badgeBorder: bborder, dot: String(n.badge).includes('失败') ? 'var(--forge-danger)' : bdot,"
  );
+ const productionHeading='<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">';
+ for(const [flag,endAnchor] of [['isDatasets','<script type="text/x-dc"'],['isResources','<sc-if value="{{ isItemLife }}"']]){
+  const pageStart=t.indexOf('<sc-if value="{{ '+flag+' }}"');
+  const pageEnd=t.indexOf(endAnchor,pageStart);
+  const headingStart=t.indexOf(productionHeading,pageStart);
+  if(pageStart<0||pageEnd<pageStart||headingStart<pageStart||headingStart>pageEnd)throw Error('Production page heading anchor changed: '+flag);
+  t=t.slice(0,headingStart)+productionHeading.replace('<div','<div class="pm-production-page-heading"')+t.slice(headingStart+productionHeading.length);
+ }
  replace('<p>仅用于案例沉淀，不影响审核结论。</p>','');
  replace('<button type="button" class="forge-delivery-secondary" disabled="{{ deliveryEditor.workspace.locked }}" sc-camel-on-click="{{ deliveryEditor.workspace.back }}">返回列表</button>','');
  replace('返回列表会保留未完成内容；创建成功的 Skill 不随数据单取消而删除。','创建成功的 Skill 不随数据单取消而删除。');

@@ -53,7 +53,7 @@ function installPipelineListLayout(t){
  if(segmentStart<0||segmentEnd<segmentStart)throw Error('Pipeline segmented filter anchor changed');
  p=p.slice(0,segmentStart)+p.slice(segmentEnd+segmentClose.length);
  replace('<div style="font-size:13px;color:var(--forge-muted)">{{ pipeCount }}</div>','<div class="pm-pipelines-count" style="font-size:13px;color:var(--forge-muted)">{{ pipeCount }}</div>\n        '+createButton);
- replace('<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">','<div class="pm-pipelines-heading" style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">');
+ replace('<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">','<div class="pm-production-page-heading pm-pipelines-heading" style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">');
  replace('<div style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">','<div class="pm-pipelines-filters" style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">');
  replace('<div style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">','<div class="pm-pipelines-list" style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">');
  replace('<div style="display:grid;grid-template-columns:minmax(0,1.7fr)', '<div class="pm-pipelines-columns" style="display:grid;grid-template-columns:minmax(0,1.7fr)');

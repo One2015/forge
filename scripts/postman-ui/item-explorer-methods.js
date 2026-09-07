@@ -1,6 +1,10 @@
   // pm-item-explorer:start
   pmNodeKindLabel(kind) {
-    return ({FUNCTION:'函数 · Function',AGENT:'智能体 · Agent',REVIEW:'人工审核 · Review',LLM:'模型 · LLM'})[kind] || kind || '节点';
+    return ({FUNCTION:'函数',AGENT:'智能体',REVIEW:'人工审核',LLM:'模型'})[kind] || kind || '节点';
+  }
+
+  pmChineseDuration(value) {
+    return String(value || '').replace(/(\d+)h\b/g,'$1 时').replace(/(\d+)m\b/g,'$1 分').replace(/(\d+(?:\.\d+)?)s\b/g,'$1 秒');
   }
 
   pmCanEditPipeline() {
@@ -36,7 +40,7 @@
       hasConfig: !!config, noConfig: !config,
       configFields: config && typeof config === 'object' ? Object.entries(config).map(([key,value])=>({key,value:printable(value)})) : config ? [{key:'配置',value:printable(config)}] : [],
       definition: printable(declared ?? {name}),
-      attempts: attempts.map((attempt,i)=>({label:'Attempt ' + (attempt.number ?? i+1),status:attempt.status || '未记录',duration:attempt.duration || '耗时未记录',detail:printable(attempt)})),
+      attempts: attempts.map((attempt,i)=>({label:'第 ' + (attempt.number ?? i+1) + ' 次尝试',status:attempt.status || '未记录',duration:attempt.duration ? this.pmChineseDuration(attempt.duration) : '耗时未记录',detail:printable(attempt)})),
       hasAttempts: attempts.length > 0, noAttempts: attempts.length === 0,
       hasResult: execution?.result !== undefined, result: execution?.result !== undefined ? printable(execution.result) : '',
     };
@@ -55,7 +59,8 @@
     const node = ['queued','cancelled'].includes(status) ? '未开始' : tech.stoppedAtNode || tech.node || nodeNames[index % nodeNames.length];
     const cost = tech.stoppedAtCost || tech.cost || run.itemCosts?.[index] || (['queued','cancelled'].includes(status) ? '—' : '\u0024' + (status === 'success' ? 54 + index * 3 : 12.4 + index * 2.6).toFixed(2));
     const fallbackSeconds = 12 + index * 7;
-    const elapsed = tech.stoppedAtTime || tech.elapsed || (['queued','cancelled'].includes(status) ? '—' : (6 + index + Math.floor(fallbackSeconds / 60)) + 'm ' + String(fallbackSeconds % 60).padStart(2,'0') + 's');
+    const elapsedRaw = tech.stoppedAtTime || tech.elapsed || (['queued','cancelled'].includes(status) ? '—' : (6 + index + Math.floor(fallbackSeconds / 60)) + 'm ' + String(fallbackSeconds % 60).padStart(2,'0') + 's');
+    const elapsed = this.pmChineseDuration(elapsedRaw);
     return {index,status,label:({success:'待审核',running:'运行中',failed:'失败',queued:'排队中',stopping:'停止中',stopped:'已停止',cancelled:'已取消'})[status] || '状态未知',progress,node,cost,elapsed};
   }
 
@@ -84,12 +89,13 @@
     }));
     const file = allFiles.find(file=>file.id===stored.file) || allFiles[0];
     const files = allFiles.filter(file=>file.name.toLowerCase().includes((stored.query || '').toLowerCase())).map(file=>({...file,selected:file.id===(stored.file || allFiles[0]?.id),pick:()=>update({file:file.id})}));
-    const prompts = (Array.isArray(evidence.prompts) ? evidence.prompts : []).map((prompt,index)=>({id:String(index),label:prompt.label || prompt.role || 'Prompt '+(index+1),node:prompt.node || '',content:String(prompt.content || '')}));
+    const promptLabels = {'System Prompt':'系统提示词','User Prompt':'用户提示词',system:'系统提示词',user:'用户提示词'};
+    const prompts = (Array.isArray(evidence.prompts) ? evidence.prompts : []).map((prompt,index)=>({id:String(index),label:promptLabels[prompt.label] || promptLabels[prompt.role] || prompt.label || prompt.role || '提示词 '+(index+1),node:prompt.node || '',content:String(prompt.content || '').replace(/\bMock\b/g,'示例')}));
     const ds = this.dsData().find(ds=>(ds.items || []).some(item=>item[0]===id));
     const input = ds?.items?.find(item=>item[0]===id);
     const events = (Array.isArray(evidence.events) ? evidence.events : []).map((event,index)=>({id:String(index),label:event.label || event.type || '事件',node:event.node || '',time:event.time || '',detail:typeof event.detail==='string' ? event.detail : JSON.stringify(event.detail ?? {},null,2)}));
     const runItem = this.pmRunItemSnapshot(run,id,state.lifeFrom==='run' ? state.lifeRunIndex : null);
-    const pipelineLabel = [pipelineName,version].filter(Boolean).join(' ') || '未关联 Pipeline';
+    const pipelineLabel = [pipelineName,version].filter(Boolean).join(' ') || '未关联流程';
     const nodes = (pipeline?.dag || []).map((declared,index)=>{
       const [name,kind] = typeof declared==='string' ? declared.split('/') : [declared.name,declared.kind];
       return {name,kind,kindLabel:this.pmNodeKindLabel(kind),index:index+1,selected:stored.node===name,status:evidence.nodes?.[name]?.status || '未提供执行状态',pick:()=>update({node:name}),hasEdge:index < pipeline.dag.length-1};
@@ -97,7 +103,7 @@
     const selected = nodes.find(node=>node.name===stored.node);
     return {
       demo:!!manifest.demo,
-      tabs:[['history','完整记录'],['pipeline','Pipeline'],['files','文件'],['prompt','查看 Prompt'],['trace','轨迹']].map(([key,label])=>({key,label,selected:tab===key,pick:()=>update({tab:key})})),
+      tabs:[['history','完整记录'],['pipeline','流程'],['files','文件'],['prompt','查看提示词'],['trace','轨迹']].map(([key,label])=>({key,label,selected:tab===key,pick:()=>update({tab:key})})),
       history:tab==='history',pipelineTab:tab==='pipeline',filesTab:tab==='files',promptTab:tab==='prompt',traceTab:tab==='trace',
       showContext:tab!=='history' && tab!=='pipeline',
       hasRunOverview:!!runItem,
@@ -107,7 +113,7 @@
       pipelineHref:ForgeRoutes.write({view:'pipeedit',editPipe:pipelineName,pmPipelineView:true}),
       pipelineEditHref:ForgeRoutes.write({view:'pipeedit',editPipe:pipelineName,pmPipelineView:false}),
       canEditPipeline:!!current && this.pmCanEditPipeline(),
-      hasPipeline:!!pipeline,noPipeline:!pipeline,definitionNote:manifest.demo ? 'Mock Pipeline 配置与执行样例' : evidence.pipeline ? '本次运行的 Pipeline 快照' : '当前同版本定义 · 未提供运行时配置快照',
+      hasPipeline:!!pipeline,noPipeline:!pipeline,definitionNote:manifest.demo ? '示例流程配置与执行记录' : evidence.pipeline ? '本次运行的流程快照' : '当前同版本定义 · 未提供运行时配置快照',
       nodes,hasNode:!!selected,node:selected ? this.pmNodeDetails(pipeline,selected.name,evidence.nodes?.[selected.name]) : {},closeNode:()=>update({node:null}),
       fileCount:allFiles.length,files,hasFiles:allFiles.length>0,noFiles:allFiles.length===0,noMatches:allFiles.length>0&&files.length===0,
       file:file ? {...file,hasUrl:!!file.url,showImage:file.image&&!!file.url,unavailable:!file.hasContent&&!(file.image&&file.url)} : {},hasFile:!!file,

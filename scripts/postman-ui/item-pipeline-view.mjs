@@ -27,7 +27,7 @@ export function installItemPipelineView(t) {
       const failureMessage = execution.error?.message || execution.errorMessage || execution.result?.message || (status.key==='failed' ? runContext.errorMessage : '') || '节点执行失败，请查看执行尝试与运行日志。';
       const failureCode = execution.error?.code || execution.errorCode || execution.result?.error_code || runContext.errorCode || '';
       const lastAttempt = Array.isArray(execution.attempts) ? execution.attempts.at(-1) : null;
-      const duration = execution.duration || lastAttempt?.duration || (status.key==='running' || status.key==='failed' ? runContext.elapsed : '') || '—';
+      const duration = this.pmChineseDuration(execution.duration || lastAttempt?.duration || (status.key==='running' || status.key==='failed' ? runContext.elapsed : '') || '—');
       const synced = alertState[name] === 'sent';
       return {name,kind,kindLabel:this.pmNodeKindLabel(kind),index:index+1,selected:stored.node===name,...tone,...status,
         failed:status.key==='failed',failureMessage,failureCode,hasFailureCode:!!failureCode,duration,hasEdge:index < pipeline.dag.length-1,edgeState:status.key,

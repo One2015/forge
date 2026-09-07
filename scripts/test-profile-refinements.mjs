@@ -33,7 +33,7 @@ test('each related task displays the account role in that case and actions reche
   const profile=c.buildProfileValues(),roles=new Map(profile.tasks.map(task=>[task.key,task.roleLabel]));
   assert.equal(roles.get('owned'),'Project Owner');
   assert.equal(roles.get('reviewed'),'Reviewer-Forge');
-  assert.equal(roles.get('outsourced'),'Reviewer-Outsourcing');
+  assert.equal(roles.get('outsourced'),'外部专家');
   assert(!roles.has('unrelated'));
   const stale=profile.tasks.find(task=>task.key==='reviewed'),before=c.state.view;
   c.state.deliverySheets.find(sheet=>sheet.key==='reviewed').members=[];

@@ -1,12 +1,31 @@
   // pm-run-records-methods:start
   runModelSummary(rec) {
-    // Only run-scoped usage is evidence of execution; current Pipeline configuration is not.
+    // Only run-scoped usage is evidence of execution; current workflow configuration is not.
     const telemetry=Array.isArray(this.props.runTelemetry)?this.props.runTelemetry:null;
     const explicit=Array.isArray(rec.modelsUsed)?rec.modelsUsed:null;
     const mock=!telemetry && !explicit && rec.id==='20260825-093412-a4f7c1';
     const source=explicit || (telemetry ? telemetry.filter(row=>row.runId===rec.id && Number(row.calls)>0) : mock ? [{modelName:'Claude Sonnet 4.5'},{modelName:'GPT-4.1'}] : []);
     const names=[...new Set(source.map(row=>typeof row==='string'?row:row?.modelName || row?.model || row?.modelId).filter(name=>typeof name==='string' && name.trim()).map(name=>name.trim()))];
     return {names:names.map(name=>({name})),empty:!names.length,mock};
+  }
+  runRecordCopy(value) {
+    const copy={
+      'Science Mechanism 组':'科学机理组','Sedan':'轿车','Finance DOCX':'金融文档','Anatomy Explainer':'解剖学讲解','Building v51':'建筑 v51','复用专家 workspace':'复用专家工作区',
+      'the in-browser editor of a collaborative SQL playground where analysts pair on queries in real time':'支持分析师实时协作编写查询的浏览器内数据库编辑器',
+      'an interactive explainer of how mRNA vaccines instruct cells to build spike proteins':'讲解信使核糖核酸疫苗如何指导细胞生成刺突蛋白的交互页面',
+      'a public dashboard tracking municipal water reservoir levels across a drought season':'跟踪旱季城市水库水位的公共数据看板',
+      'a version-diff viewer for machine learning experiment configs':'用于比较机器学习实验配置版本差异的查看器',
+      'a scrollytelling piece on how ocean thermohaline circulation moves heat':'讲解海洋温盐环流如何传递热量的滚动叙事页面',
+      'a patient-facing timeline of a multi-stage cancer treatment protocol':'面向患者展示多阶段癌症治疗方案的时间线',
+      'a seismic activity monitor plotting tremors along a subduction fault':'绘制俯冲断层沿线震动的地震活动监测器',
+      'a guided walkthrough of how a distributed consensus round reaches quorum':'分步讲解分布式共识轮次如何达到法定人数',
+      'a live log tailer that groups noisy service errors into collapsible clusters':'将杂乱服务错误归并为可折叠分组的实时日志查看器',
+      'a configurator for a compact EV showing drivetrain cutaways at each trim level':'展示各配置动力系统剖面的紧凑型电动车配置器',
+      'a side-by-side spec comparison of three sedans with photoreal turntables':'通过逼真旋转视图并排比较三款轿车参数',
+      'a query planner visualizer that explains why an index was skipped':'解释查询规划器为何跳过索引的可视化工具',
+      'an interior walkthrough of a van conversion with modular layout swapping':'支持切换模块化布局的厢式车改装内部导览'
+    };
+    return copy[value]||value;
   }
   runRecordsValues() {
     const st=this.state, now=Date.now(), anchor=this._runRecordsAnchor||(this._runRecordsAnchor=now);
@@ -16,7 +35,6 @@
     const all=ForgeRunRecords.calculate(raw,{now,anchor,telemetry,timings:Array.isArray(this.props.runTimings)?this.props.runTimings:ForgeRunRecords.mockTimings(),decisions:st.reviewDecisions,itemTech:st.runItemTech});
     const patch=p=>this.setState({runsPage:1,runsMenu:'',...p});
     const clear=()=>patch({runsQuery:'',runsFilter:'全部',runsMine:false});
-    const filterLabels={all:'全部',running:'运行中',completed:'运行完成',failed:'运行失败',queued:'排队中',cancelled:'已取消'};
     const filter=({'运行中':'running','成功':'completed','运行完成':'completed','失败':'failed','运行失败':'failed','排队中':'queued','已取消':'cancelled'})[st.runsFilter]||'all';
     const query=String(st.runsQuery||'').trim().toLowerCase();
     const matches=all.rows.filter(r=>(filter==='all'||r.state===filter)&&(!st.runsMine||r.owner===(this.props.currentUser||'一万'))&&(!query||[r.strategy,r.name,r.pipe,r.dsName,r.id,r.owner].join(' ').toLowerCase().includes(query))).sort((a,b)=>b.started-a.started);
@@ -29,23 +47,23 @@
       const detail=open(r), failed=open(r,true), review=e=>{stop(e);this.setState({runsMenu:''});this.openReview(r.id);};
       const counts=r.counts;
       const progress=[['queued','排队'],['processing','处理中'],['review','待审核'],['passed','已通过'],['failed','失败'],['cancelled','未完成']].filter(([key])=>counts[key]).map(([key,label])=>counts[key]+' '+label).join(' · ')+' / '+r.n;
-      const duration=r.duration==null?'—':r.duration<60000?Math.round(r.duration/1000)+' s':(r.duration>=3600000?Math.floor(r.duration/3600000)+'h ':'')+Math.floor(r.duration/60000%60)+'m '+String(Math.floor(r.duration/1000%60)).padStart(2,'0')+'s';
+      const duration=r.duration==null?'—':r.duration<60000?Math.round(r.duration/1000)+' 秒':(r.duration>=3600000?Math.floor(r.duration/3600000)+' 时 ':'')+Math.floor(r.duration/60000%60)+' 分 '+String(Math.floor(r.duration/1000%60)).padStart(2,'0')+' 秒';
       const detailLabel=r.state==='running'?'查看进度':r.state==='completed'?'查看结果':'查看详情';
-      return {...r,isRunning:r.state==='running',isComplete:r.state==='completed',statusLabel:labels[r.state],progress,durationLabel:duration,durationHint:r.duration==null?'当前记录未提供执行耗时':(r.durationSynthetic?'Mock 执行时长快照 · ':'')+(r.state==='running'?'已运行时长':'执行耗时'),costLabel:all.money(r.costNumber),when:this.ago(Number(Math.max(0,(now-r.started)/3600000).toFixed(1))),timeFull:new Date(r.started).toLocaleString('zh-CN',{hour12:false}),
+      return {...r,name:this.runRecordCopy(r.name),strategy:this.runRecordCopy(r.strategy),isRunning:r.state==='running',isComplete:r.state==='completed',statusLabel:labels[r.state],progress,durationLabel:duration,durationHint:r.duration==null?'当前记录未提供执行耗时':(r.durationSynthetic?'示例执行时长 · ':'')+(r.state==='running'?'已运行时长':'执行耗时'),costLabel:all.money(r.costNumber),when:this.ago(Number(Math.max(0,(now-r.started)/3600000).toFixed(1))),timeFull:new Date(r.started).toLocaleString('zh-CN',{hour12:false}),
         segments:[['queued','排队'],['processing','处理中'],['review','待审核'],['passed','已通过'],['failed','失败'],['cancelled','未完成']].filter(([key])=>counts[key]).map(([key,label])=>({key,width:(r.n?counts[key]/r.n*100:0)+'%',label:label+' '+counts[key]})),
         open:detail,keyOpen:e=>{if(e.target!==e.currentTarget||!['Enter',' '].includes(e.key))return;e.preventDefault();detail(e);},
         actionTone:action,actionLabel:({cause:'查看原因',failed:'查看失败项',review:'去审核',detail:detailLabel})[action],action:action==='review'?review:['failed','cause'].includes(action)?failed:detail,
-        copy:e=>{stop(e);this.copyRunRecordId(r.id);},copyLabel:st.runsCopied===r.id?'已复制':'复制 Run ID '+r.id};
+        copy:e=>{stop(e);this.copyRunRecordId(r.id);},copyLabel:st.runsCopied===r.id?'已复制':'复制运行编号 '+r.id};
     });
-    const kpis=[['all','全部',all.rows.length,'','当前范围内的全部运行记录'],['running','运行中',all.running,'','按运行状态统计'],['review','待审核',all.review,'','所有运行的待审核 Item 总数'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分 Item 失败']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title}));
-    return {rows,kpis,subtitle:raw.length+' 次运行',count:matches.length+' / '+raw.length,hasAny:!!raw.length,empty:!matches.length,emptyTitle:raw.length?'没有匹配的运行':'还没有运行记录',emptyHint:raw.length?'试试减少筛选条件，或换个关键词。':'从 Pipeline 发起运行后，记录会显示在这里。',query:st.runsQuery||'',onQuery:e=>patch({runsQuery:e.target.value}),mineSelected:!!st.runsMine,toggleMine:()=>patch({runsMine:!st.runsMine}),filterValue:filter,statusFiltered:filter!=='all',onFilter:e=>patch({runsFilter:filterLabels[e.target.value]||'全部'}),
+    const kpis=[['all','全部',all.rows.length,'','当前范围内的全部运行记录'],['running','运行中',all.running,'','按运行状态统计'],['review','待审核',all.review,'','所有运行的待审核条目总数'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分条目失败']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title}));
+    return {rows,kpis,subtitle:raw.length+' 次运行',count:matches.length+' / '+raw.length,hasAny:!!raw.length,empty:!matches.length,emptyTitle:raw.length?'没有匹配的运行':'还没有运行记录',emptyHint:raw.length?'试试减少筛选条件，或换个关键词。':'从流程页发起运行后，记录会显示在这里。',query:st.runsQuery||'',onQuery:e=>patch({runsQuery:e.target.value}),mineSelected:!!st.runsMine,toggleMine:()=>patch({runsMine:!st.runsMine}),
       filters:[['all','全部'],['running','运行中'],['completed','运行完成'],['failed','运行失败'],['queued','排队中'],['cancelled','已取消']].map(([key,label])=>({label,selected:filter===key,pick:()=>patch({runsFilter:label})})),
       hasFilters:!!query||filter!=='all'||!!st.runsMine,clear,metricLabel:'',hasMetric:false,
       total:matches.length,page,pages,size,first:page===1,last:page===pages,prev:()=>this.setState({runsPage:Math.max(1,page-1)}),next:()=>this.setState({runsPage:Math.min(pages,page+1)}),setSize:e=>patch({runsPageSize:Number(e.target.value)}),
       notice:st.runsNotice||'',hasNotice:!!st.runsNotice,dismiss:()=>this.setState({runsNotice:''})};
   }
   async copyRunRecordId(id) {
-    try { if(typeof navigator==='undefined'||!navigator.clipboard?.writeText)throw Error('clipboard unavailable'); await navigator.clipboard.writeText(id);this.setState({runsCopied:id,runsNotice:'Run ID 已复制'}); }
-    catch {this.setState({runsNotice:'复制失败，请选中 Run ID 手动复制。'});}
+    try { if(typeof navigator==='undefined'||!navigator.clipboard?.writeText)throw Error('clipboard unavailable'); await navigator.clipboard.writeText(id);this.setState({runsCopied:id,runsNotice:'运行编号已复制'}); }
+    catch {this.setState({runsNotice:'复制失败，请选中运行编号手动复制。'});}
   }
   // pm-run-records-methods:end
