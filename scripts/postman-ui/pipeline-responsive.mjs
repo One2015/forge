@@ -1,6 +1,17 @@
 // Layout-only adaptation; preserve the editor's existing handlers and data.
 export function installPipelineResponsive(t) {
  t=installPipelineListLayout(t);
+ const filterValues=`      pipeQuery: st.pipeQuery,
+      onPipeQuery: e => this.setState({ pipeQuery: e.target.value }),
+      pipeFilters: filters,`;
+ if(!t.includes(filterValues))throw Error('Pipeline filter values anchor changed');
+ t=t.replace(filterValues,`${filterValues}
+      pipeFilterValue: ({ '活跃': 'active', '全部': 'all', '废弃': 'archived' })[st.pipeFilter] || 'active',
+      pipeFilterActive: st.pipeFilter !== '全部',
+      onPipeFilter: e => this.setState({
+        pipeFilter: ({ active: '活跃', all: '全部', archived: '废弃' })[e.target.value] || '活跃',
+        openPipe: null
+      }),`);
  const start=t.indexOf('<div class="pm-pipeline-editor '), end=t.indexOf('<sc-if value="{{ isDatasets }}"',start);
  if(start<0||end<0) throw Error('Pipeline editor boundary changed');
  let p=t.slice(start,end);
@@ -30,20 +41,55 @@ function installPipelineListLayout(t){
  if(start<0||end<start)throw Error('Pipeline list layout boundary changed');
  let p=t.slice(start,end);
  const replace=(from,to)=>{if(!p.includes(from))throw Error('Pipeline list layout anchor changed: '+from.slice(0,80));p=p.replace(from,to);};
+ const createAt=p.indexOf('sc-camel-on-click="{{ openNewPipe }}"');
+ const createStart=p.lastIndexOf('<button',createAt),createEnd=p.indexOf('</button>',createAt)+9;
+ if(createAt<0||createStart<0||createEnd<9)throw Error('Pipeline create button anchor changed');
+ const createButton=p.slice(createStart,createEnd);
+ p=p.slice(0,createStart)+p.slice(createEnd);
+ replace('<div style="margin-top:7px;font-size:14px;color:var(--forge-muted)">{{ pipeSubtitle }}</div>','');
+ const segmentStart=p.indexOf('<div data-forge-segmented="pill" role="group"');
+ const segmentClose='</sc-for>\n        </div>';
+ const segmentEnd=p.indexOf(segmentClose,segmentStart);
+ if(segmentStart<0||segmentEnd<segmentStart)throw Error('Pipeline segmented filter anchor changed');
+ p=p.slice(0,segmentStart)+p.slice(segmentEnd+segmentClose.length);
+ replace('<div style="font-size:13px;color:var(--forge-muted)">{{ pipeCount }}</div>','<div class="pm-pipelines-count" style="font-size:13px;color:var(--forge-muted)">{{ pipeCount }}</div>\n        '+createButton);
  replace('<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">','<div class="pm-pipelines-heading" style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">');
  replace('<div style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">','<div class="pm-pipelines-filters" style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">');
  replace('<div style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">','<div class="pm-pipelines-list" style="background:#fff;border:1px solid var(--forge-border);border-radius:14px;overflow:hidden">');
  replace('<div style="display:grid;grid-template-columns:minmax(0,1.7fr)', '<div class="pm-pipelines-columns" style="display:grid;grid-template-columns:minmax(0,1.7fr)');
+ replace('<div>名称</div>\n              <div>当前版本</div>',`<div>名称</div>
+              <label class="pm-pipelines-status-filter" data-filter-active="{{ pipeFilterActive }}">
+                <span>状态</span>
+                <select aria-label="筛选 Pipeline 状态" value="{{ pipeFilterValue }}" sc-camel-on-change="{{ onPipeFilter }}">
+                  <option value="active">活跃</option>
+                  <option value="all">全部</option>
+                  <option value="archived">废弃</option>
+                </select>
+              </label>
+              <div>当前版本</div>`);
  replace('<div sc-camel-on-click="{{ p.toggle }}"','<div class="pm-pipelines-row" sc-camel-on-click="{{ p.toggle }}"');
  const rowStart=p.indexOf('<div class="pm-pipelines-row"'),rowEnd=p.indexOf('<sc-if value="{{ p.expanded }}"',rowStart);
  let row=p.slice(rowStart,rowEnd);
  row=row.replace('<div style="min-width:0">','<div class="pm-pipelines-name" style="min-width:0">').replace('white-space:nowrap">{{ p.name }}','white-space:nowrap" title="{{ p.name }}">{{ p.name }}');
+ const staleStart=row.indexOf('<sc-if value="{{ p.stale }}"');
+ const staleEnd=row.indexOf('</sc-if>',staleStart);
+ if(staleStart<0||staleEnd<staleStart)throw Error('Pipeline stale badge anchor changed');
+ row=row.slice(0,staleStart)+row.slice(staleEnd+8);
  for(const [key,label] of [['version','当前版本'],['nodes','节点'],['last','最近运行'],['runs','运行数'],['unitCost','均价 / 条']]){
   row=row.replace(new RegExp('<div (style="[^"]*")>(\\{\\{ p\\.'+key+' \\}\\})</div>'),'<div class="pm-pipelines-metric" data-label="'+label+'" $1>$2</div>');
  }
  row=row.replace('<div style="display:flex;align-items:center;gap:7px">','<div class="pm-pipelines-metric pm-pipelines-rate" data-label="成功率" style="display:flex;align-items:center;gap:7px">');
+ const statusCell=`<div class="pm-pipelines-metric pm-pipelines-status" data-label="状态">
+                  <sc-if value="{{ p.stale }}"><span data-state="archived">废弃</span></sc-if>
+                  <sc-if value="{{ !p.stale }}"><span data-state="active">活跃</span></sc-if>
+                </div>
+                `;
+ const versionCell='<div class="pm-pipelines-metric" data-label="当前版本"';
+ if(!row.includes(versionCell))throw Error('Pipeline version cell anchor changed');
+ row=row.replace(versionCell,statusCell+versionCell);
  row=row.replace('<div style="font-size:12px;color:var(--forge-muted);text-align:right">','<div class="pm-pipelines-chevron" style="font-size:12px;color:var(--forge-muted);text-align:right">');
  p=p.slice(0,rowStart)+row+p.slice(rowEnd);
+ p=p.replaceAll('grid-template-columns:minmax(0,1.7fr) 62px 50px','grid-template-columns:minmax(0,1.7fr) 108px 62px 50px');
  replace('<div style="border-bottom:1px solid var(--forge-border);background:var(--forge-subtle);padding:16px 18px">','<div class="pm-pipelines-detail" style="border-bottom:1px solid var(--forge-border);background:var(--forge-subtle);padding:16px 18px">');
  replace('<div style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">','<div class="pm-pipelines-detail-actions" style="display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap">');
  replace('<div style="font-size:12px;color:var(--forge-muted)">累计成本</div>','<div style="font-size:12px;color:var(--forge-muted)">累计使用次数</div>');
