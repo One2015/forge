@@ -59,7 +59,7 @@ export function installRunRecords(t){
    ["'第 ' + (k + 1) + ' 条 Item'", "'第 ' + (k + 1) + ' 条'"],
    ["retryLabel: state === 'failed' ? 'Reroll' : '重新运行'", "retryLabel: state === 'failed' ? '重新生成' : '重新运行'"],
    ["retryTitle: state === 'failed' ? '前往生产，选择 Pipeline、数据集和 Item 后发起 Reroll'", "retryTitle: state === 'failed' ? '前往生产，选择流程、数据集和条目后重新生成'"],
-   ["{ label: 'Pipeline', key: 'pipelines' }", "{ label: '流程', key: 'pipelines' }"],
+   ["{ label: 'Pipeline', key: 'pipelines' }", "{ label: 'pipeline', key: 'pipelines' }"],
    ['Run {{ cancelAsk.runId }}', '运行编号：{{ cancelAsk.runId }}'],
    ["{ k: 'Item 名称', v: a.itemName }", "{ k: '条目名称', v: a.itemName }"],
    ["{ k: 'Item ID', v: a.itemId }", "{ k: '条目编号', v: a.itemId }"],
