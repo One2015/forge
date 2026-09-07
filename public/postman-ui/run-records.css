@@ -2,7 +2,8 @@
 .forge-postman .rr-page{padding:var(--pm-page-top) var(--pm-page-gutter) var(--pm-page-bottom);min-width:0;max-width:none}
 .forge-postman .rr-page .fg-page-header{margin-bottom:16px}
 .forge-postman .rr-summary .forge-summary-value strong{color:var(--pm-text);font-variant-numeric:tabular-nums}
-.forge-postman .rr-page .fg-runs-toolbar{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:16px;margin-bottom:16px;min-width:0;overflow-x:auto;scrollbar-width:thin}
+.forge-postman .rr-list-shell{overflow:hidden;border:1px solid var(--pm-border);border-radius:4px;background:var(--pm-canvas)}
+.forge-postman .rr-page .fg-runs-toolbar{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:16px;min-height:46px;margin:0;padding:6px 10px;min-width:0;overflow-x:auto;scrollbar-width:thin;border-bottom:1px solid var(--pm-border);background:var(--pm-table-heading)}
 .forge-postman .rr-status-tabs{display:flex;flex:none;gap:4px;align-items:center;padding:3px 2px}
 .forge-postman .rr-status-tabs .fg-button{flex:none;height:32px;min-height:32px;padding:5px 12px!important;border:0!important;border-radius:6px!important;background:transparent!important;box-shadow:none!important;color:var(--pm-muted)!important;font-size:13px}
 .forge-postman .rr-status-tabs .fg-button[aria-pressed=true]{background:var(--pm-pressed)!important;color:var(--pm-text)!important;font-weight:600}
@@ -15,7 +16,7 @@
 .rr-reset{flex:none;white-space:nowrap;border:0;background:transparent;font:inherit;color:var(--pm-muted);cursor:pointer;padding:6px}
 /* The page owns vertical scrolling at every breakpoint. Keep horizontal overflow
    available for columns without turning the records into a second viewport. */
-.rr-scroll{overflow-x:auto;max-height:none;border:1px solid var(--pm-border);border-radius:4px;background:white;min-height:170px}
+.rr-scroll{overflow-x:auto;max-height:none;border:0;border-radius:0;background:white;min-height:170px}
 .rr-table{min-width:0;width:100%}
 /* Seven columns need 960px including gaps/insets; flexible identity and progress
    absorb spare room before the content-width reflow below 980px. */
