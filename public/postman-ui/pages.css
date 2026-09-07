@@ -5,7 +5,6 @@
 .forge-postman .pm-overview-delivery-date-sort{display:inline-flex;align-items:center;justify-content:flex-start;gap:5px;width:120px;min-width:120px;height:32px;min-height:32px;margin:0;padding:0 6px;border:0;border-radius:4px;background:transparent;color:var(--pm-muted);font:500 12px/20px var(--pm-font);white-space:nowrap;cursor:pointer}
 .forge-postman .pm-overview-delivery-date-sort:hover{background:var(--pm-hover);color:var(--pm-text)}
 .forge-postman .pm-overview-delivery-date-sort:focus-visible{outline:2px solid var(--pm-focus);outline-offset:1px}
-.forge-postman .pm-overview-delivery-sort-direction{color:var(--pm-text);font-weight:600}
 .forge-postman .pm-overview-delivery-owner{min-width:0;font-size:13px;line-height:20px;overflow-wrap:anywhere;color:var(--pm-text)}
 .forge-postman .pm-overview-delivery-date{display:flex;gap:8px;white-space:nowrap;font-size:13px;line-height:20px;color:var(--pm-text);font-variant-numeric:tabular-nums}
 .forge-postman :is(.pm-overview-owner-label,.pm-overview-delivery-mobile-label){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}

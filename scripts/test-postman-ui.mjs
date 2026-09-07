@@ -140,8 +140,9 @@ test('overview delivery progress is a flat section with toggleable delivery-date
  assert.match(section,/aria-labelledby="forge-overview-delivery-heading"/);
  assert.match(section,/id="forge-overview-delivery-heading"[^>]*>\{\{ g\.title \}\}<\/h2>/);
  assert.doesNotMatch(section,/\{\{ g\.count \}\}/);
- assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span>项目负责人<\/span><button[^>]*type="button"[^>]*class="pm-overview-delivery-date-sort"[^>]*aria-label="\{\{ over\.deliveryDateSortHint \}\}"[^>]*sc-camel-on-click="\{\{ over\.toggleDeliveryDateSort \}\}"[\s\S]*\{\{ over\.deliveryDateSortLabel \}\}[\s\S]*<span>交付状态<\/span>/);
+ assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span>项目负责人<\/span><button[^>]*type="button"[^>]*class="pm-overview-delivery-date-sort"[^>]*aria-label="\{\{ over\.deliveryDateSortHint \}\}"[^>]*sc-camel-on-click="\{\{ over\.toggleDeliveryDateSort \}\}"[\s\S]*\[\[icon:arrow-up:12\]\][\s\S]*\[\[icon:arrow-down:12\]\][\s\S]*<span>交付状态<\/span>/);
  assert.doesNotMatch(section,/筛选交付日期|pm-overview-delivery-date-filter|<select/);
+ assert.doesNotMatch(section,/pm-overview-delivery-sort-direction|\{\{ over\.deliveryDateSortLabel \}\}/);
  assert.match(section,/class="pm-overview-delivery-date"[\s\S]*\{\{ r\.deliveryDate \}\}/);
  const c=vm.runInContext('new Component()',ctx); c.state.view='overview';
  let overview=c.renderVals().over;
