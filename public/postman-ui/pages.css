@@ -53,7 +53,7 @@
 .forge-postman .pm-delivery-create-inline{flex:none;min-height:var(--pm-control-height);white-space:nowrap}
 .forge-postman .pm-delivery-results{display:block;overflow-x:auto;border:1px solid var(--pm-border);border-radius:6px;background:var(--pm-canvas)}
 .forge-postman .pm-delivery-table{min-width:900px}
-.forge-postman .pm-delivery-table-head,.forge-postman .pm-delivery-row{display:grid;grid-template-columns:minmax(84px,.9fr) minmax(150px,1.6fr) 78px 64px 58px 54px 68px 54px 54px minmax(100px,1fr) 48px;gap:10px;align-items:center}
+.forge-postman .pm-delivery-table-head,.forge-postman .pm-delivery-row{display:grid;grid-template-columns:130px minmax(150px,1.6fr) 78px 64px 58px 54px 68px 54px 54px minmax(100px,1fr) 48px;gap:10px;align-items:center}
 .forge-postman .pm-delivery-table-head{min-height:44px;padding:8px 12px;border-bottom:1px solid var(--pm-border);background:var(--pm-table-heading);color:var(--pm-muted);font:600 12px/16px var(--pm-font)}
 .forge-postman .pm-delivery-table-head>span{min-width:0;white-space:nowrap}
 .forge-postman .pm-delivery-table-body{display:block}
