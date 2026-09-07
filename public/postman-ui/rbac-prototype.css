@@ -3,7 +3,7 @@
 .forge-rbac-prototype #forge-profile-panel{display:none!important}
 .forge-rbac-prototype [data-rbac-blocked="true"]{opacity:.42!important;cursor:not-allowed!important}
 .forge-rbac-prototype .forge-sidebar-profile[data-rbac-current="true"]{background:var(--rbac-accent-soft);box-shadow:inset 3px 0 0 var(--rbac-accent)}
-.forge-rbac-prototype[data-rbac-page="profile"] .forge-main>:not(#forge-rbac-root){display:none!important}
+.forge-rbac-prototype:is([data-rbac-page="profile"],[data-rbac-page="member-management"]) .forge-main>:not(#forge-rbac-root){display:none!important}
 
 #forge-rbac-root{position:relative;display:none;width:100%;min-height:calc(100dvh - var(--forge-topbar-height,0px));background:var(--forge-bg,#fbfaf8);color:var(--rbac-ink);font:14px/1.5 var(--forge-font,"Helvetica Neue",Helvetica,"PingFang SC",sans-serif)}
 #forge-rbac-root[data-open="true"]{display:block}

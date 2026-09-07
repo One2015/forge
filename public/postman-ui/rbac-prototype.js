@@ -146,7 +146,7 @@
     return { ...skill, relatedTasks, content };
   }
   const defaults = {
-    platformRole: 'admin', projectRole: 'project-owner', activeTab: 'profile', memberView: 'list',
+    platformRole: 'admin', projectRole: 'project-owner', activeTab: 'profile', workspaceSurface: 'profile', memberView: 'list',
     permissionRole: 'project-owner', skillScope: 'platform', skillCreateMode: '', activeSkillId: '', skillEditMode: false, activeMemberId: '', activeMemberProject: 'ant-200',
     editingMemberPermissions: false, rolePermissions: clone(defaultPermissions), customPermissions: {}, projectAssignments: clone(initialProjectAssignments), customRoles: [],
     roleCreateOpen: false, roleDraftName: '', roleDraftDescription: '', roleDraftBase: 'member', roleDraftPermissions: clone(defaultPermissions.member), roleDraftError: '',
@@ -167,15 +167,16 @@
     } catch (_) {}
     return window;
   }
-  function routePath() {
+  function routeUrl() {
     const host = routeHost();
     const url = new URL(host.location.href);
     if (host === window && /\/forge-(?:postman|rbac)\.html$/.test(url.pathname)) {
       const nested = url.searchParams.get('route');
-      return nested ? new URL(nested, 'https://forge.invalid').pathname : '';
+      return nested ? new URL(nested, 'https://forge.invalid') : new URL('/overview', 'https://forge.invalid');
     }
-    return url.pathname;
+    return url;
   }
+  function routePath() { return routeUrl().pathname; }
   function isLegacyProfileRoute() {
     const host = routeHost();
     const url = new URL(host.location.href);
@@ -186,18 +187,20 @@
     }
     return url.searchParams.get('panel') === 'profile';
   }
-  function profileUrl() {
+  function profileUrl(surface = 'profile') {
     const host = routeHost();
     const url = new URL(host.location.href);
+    const destination = surface === 'members' ? '/members' : '/profile';
     if (host === window && /\/forge-(?:postman|rbac)\.html$/.test(url.pathname)) {
-      return url.pathname + '?route=' + encodeURIComponent('/profile');
+      return url.pathname + '?route=' + encodeURIComponent(destination);
     }
-    return '/profile';
+    return destination;
   }
-  function syncProfileRoute() {
-    if (routePath() === '/profile') return;
+  function syncProfileRoute(surface = 'profile') {
+    const destination = surface === 'members' ? '/members' : '/profile';
+    if (routePath() === destination) return;
     const host = routeHost();
-    host.history.pushState({ ...(host.history.state || {}), forgeRbacProfile: true }, '', profileUrl());
+    host.history.pushState({ ...(host.history.state || {}), forgeRbacProfile: true }, '', profileUrl(surface));
     // The Forge route controller listens to popstate. Updating it here keeps
     // the application state, address bar and Back/Forward behavior aligned.
     host.dispatchEvent(new host.PopStateEvent('popstate', { state: host.history.state }));
@@ -208,6 +211,7 @@
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
       return {
         ...clone(defaults), ...saved,
+        workspaceSurface: saved.workspaceSurface === 'members' ? 'members' : 'profile',
         skillCreateMode: '', activeSkillId: '', skillEditMode: false,
         rolePermissions: { ...clone(defaultPermissions), ...(saved.rolePermissions || {}) },
         projectAssignments: { ...clone(initialProjectAssignments), ...(saved.projectAssignments || {}) },
@@ -356,7 +360,17 @@
     if (skillMenu && !event.target.closest?.('.rbac-skill-create-menu')) skillMenu.open = false;
     const profileButton = event.target.closest?.('.forge-sidebar-profile');
     if (profileButton) {
-      openWorkspace('profile');
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      openWorkspace('profile', { surface: 'profile', syncRoute: true });
+      return;
+    }
+    const memberManagement = event.target.closest?.('[data-rbac-nav="members"]');
+    if (memberManagement) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (!isAdmin()) return;
+      openWorkspace('member', { surface: 'members', syncRoute: true });
       return;
     }
     const nav = event.target.closest?.('.forge-sidebar-link,.forge-sidebar-brand');
@@ -392,30 +406,37 @@
     });
     const profile = document.querySelector('.forge-sidebar-profile');
     if (profile) {
-      profile.dataset.rbacCurrent = String(root?.dataset.open === 'true');
-      profile.setAttribute('aria-current', root?.dataset.open === 'true' ? 'page' : 'false');
+      const current = root?.dataset.open === 'true' && state.workspaceSurface === 'profile';
+      profile.dataset.rbacCurrent = String(current);
+      profile.setAttribute('aria-current', current ? 'page' : 'false');
       profile.removeAttribute('aria-expanded');
       profile.removeAttribute('aria-controls');
       profile.removeAttribute('popovertarget');
       const label = profile.querySelector('.forge-sidebar-profile-label');
       if (label) label.textContent = isAdmin() ? 'Admin' : 'Internal Member';
     }
-  }
-  function openWorkspace(tab, { syncRoute = false } = {}) {
-    const wasOpen = root?.dataset.open === 'true';
-    state.activeTab = tab || state.activeTab;
-    if (!isAdmin() && ['member', 'permission'].includes(state.activeTab)) state.activeTab = 'profile';
-    if (syncRoute) syncProfileRoute();
-    root.dataset.open = 'true';
-    document.body.dataset.rbacPage = 'profile';
-    document.querySelectorAll('.forge-sidebar-link[aria-current="page"]').forEach(link => link.setAttribute('aria-current', 'false'));
-    const profile = document.querySelector('.forge-sidebar-profile');
-    if (profile) {
-      profile.dataset.rbacCurrent = 'true';
-      profile.setAttribute('aria-current', 'page');
+    const memberManagement = document.querySelector('[data-rbac-nav="members"]');
+    if (memberManagement) {
+      const available = isAdmin();
+      const current = available && root?.dataset.open === 'true' && state.workspaceSurface === 'members';
+      memberManagement.setAttribute('aria-hidden', String(!available));
+      memberManagement.setAttribute('aria-current', current ? 'page' : 'false');
+      memberManagement.tabIndex = available ? 0 : -1;
     }
+  }
+  function openWorkspace(tab, { syncRoute = false, surface = '' } = {}) {
+    const wasOpen = root?.dataset.open === 'true';
+    const requestedSurface = surface || (['member', 'permission'].includes(tab) ? 'members' : 'profile');
+    state.workspaceSurface = requestedSurface === 'members' && isAdmin() ? 'members' : 'profile';
+    const allowedTabs = state.workspaceSurface === 'members' ? ['member', 'permission'] : ['profile', 'skill'];
+    state.activeTab = allowedTabs.includes(tab) ? tab : allowedTabs[0];
+    if (syncRoute) syncProfileRoute(state.workspaceSurface);
+    root.dataset.open = 'true';
+    document.body.dataset.rbacPage = state.workspaceSurface === 'members' ? 'member-management' : 'profile';
+    document.querySelectorAll('.forge-sidebar-link[aria-current="page"]').forEach(link => link.setAttribute('aria-current', 'false'));
+    applyFeatureAccess();
     render();
-    document.title = 'Profile | Forge';
+    document.title = state.workspaceSurface === 'members' ? '成员管理 | Forge' : 'Profile | Forge';
     try { routeHost().document.title = document.title; } catch (_) {}
     if (!wasOpen) {
       const scroller = document.scrollingElement;
@@ -437,14 +458,26 @@
       profile.dataset.rbacCurrent = 'false';
       profile.setAttribute('aria-current', 'false');
     }
+    const memberManagement = document.querySelector('[data-rbac-nav="members"]');
+    if (memberManagement) memberManagement.setAttribute('aria-current', 'false');
   }
   function syncWorkspaceToRoute() {
-    if (routePath() === '/profile' || isLegacyProfileRoute()) {
+    if (routePath() === '/profile' || routePath() === '/members' || isLegacyProfileRoute()) {
       if (isLegacyProfileRoute()) {
         const host = routeHost();
         host.history.replaceState({ ...(host.history.state || {}), forgeRbacProfile: true }, '', profileUrl());
       }
-      openWorkspace(state.activeTab);
+      const surface = routePath() === '/members' ? 'members' : 'profile';
+      if (surface === 'members' && !isAdmin()) {
+        const host = routeHost();
+        host.history.replaceState({ ...(host.history.state || {}), forgeRbacProfile: true }, '', profileUrl('profile'));
+        openWorkspace('profile', { surface: 'profile' });
+        return;
+      }
+      const tab = surface === 'members'
+        ? (['member', 'permission'].includes(state.activeTab) ? state.activeTab : 'member')
+        : (['profile', 'skill'].includes(state.activeTab) ? state.activeTab : 'profile');
+      openWorkspace(tab, { surface });
     } else closeWorkspace();
   }
 
@@ -457,11 +490,15 @@
       bindRootEvents();
       return;
     }
-    if (!isAdmin() && ['member', 'permission'].includes(state.activeTab)) state.activeTab = 'profile';
+    if (state.workspaceSurface === 'members' && !isAdmin()) {
+      openWorkspace('profile', { surface: 'profile', syncRoute: true });
+      return;
+    }
+    const managingMembers = state.workspaceSurface === 'members';
     root.innerHTML = `
       <div class="rbac-page">
         <header class="rbac-page-head">
-          <div><h1 id="forge-rbac-page-title" tabindex="-1">Profile</h1><p>${isAdmin() ? '账号、成员和权限管理' : '个人信息与工作内容'}</p></div>
+          <div><h1 id="forge-rbac-page-title" tabindex="-1">${managingMembers ? '成员管理' : 'Profile'}</h1><p>${managingMembers ? '管理平台成员与项目角色权限' : '账号与个人 Skill'}</p></div>
         </header>
         ${tabsMarkup()}
         <div class="rbac-page-body">${activeView()}</div>
@@ -469,10 +506,9 @@
     bindRootEvents();
   }
   function tabsMarkup() {
-    const tabs = isAdmin()
-      ? [['profile', '基础信息'], ['member', 'Member'], ['permission', 'Permission'], ['skill', 'Skill']]
-      : [['profile', '基础信息'], ['skill', 'Skill']];
-    return `<nav class="rbac-tabs" role="tablist" aria-label="Profile 内容">${tabs.map(([key, label]) => `
+    const managingMembers = state.workspaceSurface === 'members';
+    const tabs = managingMembers ? [['member', 'Member'], ['permission', 'Permission']] : [['profile', '基础信息'], ['skill', 'Skill']];
+    return `<nav class="rbac-tabs" role="tablist" aria-label="${managingMembers ? '成员管理内容' : 'Profile 内容'}">${tabs.map(([key, label]) => `
       <button class="rbac-tab" type="button" role="tab" aria-selected="${state.activeTab === key}" data-tab="${key}">${label}</button>`).join('')}</nav>`;
   }
   function activeView() {
@@ -708,7 +744,9 @@
     dock.innerHTML = `<div class="rbac-dock-row"><span class="rbac-prototype-tag">Prototype</span><label>平台<select data-dock="platform"><option value="admin" ${state.platformRole === 'admin' ? 'selected' : ''}>Admin</option><option value="member" ${state.platformRole === 'member' ? 'selected' : ''}>Internal Member</option></select></label><label>项目<select data-dock="project">${roleEntries().map(([key, label]) => `<option value="${escapeHtml(key)}" ${state.projectRole === key ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label><div class="rbac-dock-actions"><button class="rbac-dock-info" type="button" data-dock="info" aria-label="查看体验模式说明" aria-expanded="${!!state.dockExpanded}">?</button><button class="rbac-dock-collapse" type="button" data-dock="collapse" aria-label="收起 Prototype 控制栏" aria-expanded="true"><span class="rbac-dock-chevron" aria-hidden="true"></span></button></div></div><p class="rbac-dock-note">平台角色决定是否能管理 Member 和 Permission；项目角色决定具体 Forge 功能。Admin 始终拥有最高权限。External Experts 仅通过 Fellow 工作。</p>`;
     dock.querySelector('[data-dock="platform"]')?.addEventListener('change', event => {
       const platformRole = event.target.value;
-      update({ platformRole, roleCreateOpen: false, roleDraftError: '', activeTab: platformRole === 'admin' ? state.activeTab : (['member', 'permission'].includes(state.activeTab) ? 'profile' : state.activeTab) });
+      const leaveMemberManagement = platformRole !== 'admin' && state.workspaceSurface === 'members';
+      update({ platformRole, roleCreateOpen: false, roleDraftError: '', workspaceSurface: leaveMemberManagement ? 'profile' : state.workspaceSurface, activeTab: leaveMemberManagement ? 'profile' : state.activeTab });
+      if (leaveMemberManagement) openWorkspace('profile', { surface: 'profile', syncRoute: true });
       showToast(`已切换为 ${platformRole === 'admin' ? 'Admin' : 'Internal Member'} 体验状态`);
     });
     dock.querySelector('[data-dock="project"]')?.addEventListener('change', event => {

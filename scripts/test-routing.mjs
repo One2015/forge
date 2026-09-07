@@ -65,7 +65,7 @@ test('all main pages, details, filters and utility panels have stable round trip
     '/delivery/ant200/edit#skills', '/delivery/ant200/edit#tags', '/items/item-1?run=run-1&sheet=ant200&from=review',
     '/billing/models?preset=custom&start=2026-08-01&end=2026-08-31&grain=hour&provider=Anthropic&model=claude&project=web3d&sort=tokens',
     '/billing/suppliers', '/billing/overview?metric=calls&sort=calls&direction=asc&page=2&pageSize=5&search=web&bin=2026-09-02T15', '/models?provider=test&status=attention&q=model', '/models?dimension=models&status=slow&selection=claude&route=yq-claude', '/models?period=24h', '/models?period=custom&from=2026-09-01T09%3A00&to=2026-09-02T18%3A30', '/models?source=live', '/outsourcing-suppliers', '/outsourcing-suppliers/stepfun?sheet=step300&risk=high&cycle=7d', '/outsourcing-suppliers?tab=management', '/overview?panel=downloads',
-    '/overview?panel=notifications', '/profile',
+    '/overview?panel=notifications', '/profile', '/members',
   ]) {
     const route = codec.read(url); assert.equal(route.error, '', url);
     if (route.editor) route.patch.deliveryEditor = { ...route.editor, savedDraftId: route.draft };

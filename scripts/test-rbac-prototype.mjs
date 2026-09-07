@@ -21,19 +21,19 @@ test('RBAC prototype keeps platform and project roles separate', () => {
   assert.match(source, /customPermissions/);
 });
 
-test('RBAC prototype includes profile, member, permission, skill and invitation flows', () => {
+test('RBAC prototype includes profile, member management, permission, skill and invitation flows', () => {
   const source = read('public/postman-ui/rbac-prototype.js');
   for (const feature of ['基础信息', 'Member', 'Permission', 'Skill', '用户邮箱', '飞书模拟通知']) {
     assert.ok(source.includes(feature), `missing ${feature}`);
   }
 });
 
-test('Profile is a routed page in the application flow instead of a fixed overlay', () => {
+test('Profile and member management are routed pages in the application flow instead of fixed overlays', () => {
   const source = read('public/postman-ui/rbac-prototype.js');
   const styles = read('public/postman-ui/rbac-prototype.css');
   const routes = read('scripts/templates/routing-core.js');
   assert.match(source, /\(document\.querySelector\('\.forge-main'\) \|\| document\.body\)\.appendChild\(root\)/);
-  assert.match(source, /host\.history\.pushState\([^;]+profileUrl\(\)\)/);
+  assert.match(source, /host\.history\.pushState\([^;]+profileUrl\(surface\)\)/);
   assert.match(source, /host\.history\.replaceState\([^;]+profileUrl\(\)\)/);
   assert.match(source, /isLegacyProfileRoute/);
   assert.match(source, /syncWorkspaceToRoute/);
@@ -41,9 +41,25 @@ test('Profile is a routed page in the application flow instead of a fixed overla
   assert.doesNotMatch(source, /document\.body\.appendChild\(root\)/);
   assert.match(styles, /#forge-rbac-root\{position:relative;/);
   assert.doesNotMatch(styles, /#forge-rbac-root\{position:fixed/);
-  assert.match(styles, /data-rbac-page="profile"[^}]+:not\(#forge-rbac-root\)/);
+  assert.match(styles, /data-rbac-page="profile"[^}]+data-rbac-page="member-management"[^}]+:not\(#forge-rbac-root\)/);
   assert.match(routes, /parts\[0\] === 'profile'/);
+  assert.match(routes, /parts\[0\] === 'members'/);
   assert.match(routes, /case 'profile': path = '\/profile'/);
+  assert.match(routes, /case 'members': path = '\/members'/);
+});
+
+test('Admin member management is a dedicated navigation surface while Profile keeps only personal tabs', () => {
+  const source = read('public/postman-ui/rbac-prototype.js');
+  const styles = read('scripts/templates/forge-sidebar.css');
+  const sidebar = read('scripts/templates/forge-sidebar.html');
+  assert.ok(sidebar.includes('data-rbac-nav="members"'));
+  assert.ok(sidebar.includes('<span>成员管理</span>'));
+  assert.match(styles, /\.forge-sidebar-member-management\{display:none\}/);
+  assert.match(styles, /data-rbac-platform-role="admin"[^}]+\.forge-sidebar-member-management\{display:flex\}/);
+  assert.ok(source.includes("const tabs = managingMembers ? [['member', 'Member'], ['permission', 'Permission']] : [['profile', '基础信息'], ['skill', 'Skill']]"));
+  assert.ok(source.includes("managingMembers ? '成员管理' : 'Profile'"));
+  assert.ok(source.includes("surface === 'members' && !isAdmin()"));
+  assert.ok(source.includes("profileUrl('profile')"));
 });
 
 test('Profile platform role uses the same plain text treatment as email', () => {
@@ -55,7 +71,7 @@ test('Profile platform role uses the same plain text treatment as email', () => 
 test('Profile header omits the redundant return-to-workspace action', () => {
   const source = read('public/postman-ui/rbac-prototype.js');
   const profileRender = source.match(/function render\(\)[\s\S]*?function tabsMarkup\(\)/)?.[0] || '';
-  assert.match(profileRender, /<header class="rbac-page-head">[\s\S]*?<h1[^>]*>Profile<\/h1>/);
+  assert.match(profileRender, /<header class="rbac-page-head">[\s\S]*?managingMembers \? '成员管理' : 'Profile'/);
   assert.doesNotMatch(profileRender, /data-action="close-workspace"/);
 });
 
@@ -174,7 +190,7 @@ test('Skill form separates new and existing owned Skills into two sections', () 
 
 test('Skill creation form is ephemeral and hidden until the user requests it', () => {
   const source = read('public/postman-ui/rbac-prototype.js');
-  assert.match(source, /\.\.\.clone\(defaults\), \.\.\.saved,\s*skillCreateMode: '', activeSkillId: '', skillEditMode: false/);
+  assert.match(source, /\.\.\.clone\(defaults\), \.\.\.saved,[\s\S]*?skillCreateMode: '', activeSkillId: '', skillEditMode: false/);
   assert.match(source, /state\.skillCreateMode === 'form'/);
   assert.match(source, /data-action="skill-form"/);
   assert.match(source, /skillCreateMode: ''/);

@@ -22,10 +22,10 @@ function component(props = {}, narrow = false) {
   return context.instance;
 }
 
-test('five destinations, including external experts, live in the semantic left navigation', () => {
+test('primary destinations and admin-only member management live in the semantic left navigation', () => {
   assert.match(sidebar, /<nav[^>]+aria-label="主导航"/);
   const buttons = [...sidebar.matchAll(/<button[^>]+class="[^"]*\bforge-sidebar-link\b[^"]*"[^>]+aria-label="([^"]+)"/g)].map(x => x[1]);
-  assert.deepEqual(buttons, ['概览', '生产', '审核', '交付', '外部专家']);
+  assert.deepEqual(buttons, ['概览', '生产', '审核', '交付', '外部专家', '成员管理']);
   for (const action of ['goOverview', 'goRuns', 'goReview', 'goDelivery', 'goSuppliers']) {
     assert(sidebar.includes('{{ sidebar.' + action + ' }}'));
     assert(!toolbar.includes('{{ ' + action + ' }}'));
@@ -33,6 +33,7 @@ test('five destinations, including external experts, live in the semantic left n
   assert(sidebar.includes('aria-expanded="{{ sidebar.expanded }}"'));
   assert(sidebar.includes('aria-controls="forge-primary-navigation"'));
   assert.match(sidebar, /data-phosphor="storefront"/);
+  assert.match(sidebar, /data-rbac-nav="members"/);
   assert.match(sidebar, /sc-camel-on-click="\{\{ sidebar\.goSuppliers \}\}"/);
   assert.doesNotMatch(sidebar, /forge-sidebar-link-coming-soon|aria-disabled="true"/);
 });

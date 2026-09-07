@@ -108,6 +108,8 @@ const ForgeRoutes = (() => {
         patch.supplierRisk = oneOf(get('risk'), ['critical', 'high', 'medium', 'low'], ''); patch.supplierCycle = oneOf(get('cycle'), ['all', '7d', '30d', 'quarter'], 'all');
       } else if (parts[0] === 'profile' && parts.length === 1) {
         patch.view = 'profile';
+      } else if (parts[0] === 'members' && parts.length === 1) {
+        patch.view = 'members';
       } else throw Error('route');
       // Legacy profile-panel links now resolve to the first-class Profile page.
       if (get('panel') === 'profile') patch.view = 'profile';
@@ -146,6 +148,7 @@ const ForgeRoutes = (() => {
       case 'models': path = '/models'; set('q', s.modelQuery); set('provider', s.modelProvider); set('model', s.modelModel); set('line', s.modelLine); set('status', s.modelFilter, 'production'); set('dimension', s.modelDimension, 'providers'); set('selection', s.modelSelection); set('route', s.modelRoute); set('source', s.modelSource); set('sort', s.modelSort, 'impact'); set('period', s.modelTimeRange, 'all'); if (s.modelTimeRange === 'custom') { set('from', s.modelTimeStart); set('to', s.modelTimeEnd); } set('drawer', s.modelDrawerMode); set('metric', s.modelChartMetric, 'ttft'); set('tab', s.modelPageTab, 'overview'); set('window', s.modelOverviewWindow, '1h'); break;
       case 'outsourcing-suppliers': path = '/outsourcing-suppliers' + (s.supplierVendor ? '/' + enc(s.supplierVendor) : ''); set('tab', s.supplierTab, 'performance'); set('sheet', s.supplierSheet); set('risk', s.supplierRisk); set('cycle', s.supplierCycle, 'all'); break;
       case 'profile': path = '/profile'; break;
+      case 'members': path = '/members'; break;
       case 'route-error': return s.routeMissingUrl || '/not-found';
     }
     if (s.deliveryEditor?.key) { path = '/delivery/' + enc(s.deliveryEditor.key) + '/edit'; anchor = anchor || s.deliveryEditor.tab || 'basic'; }
