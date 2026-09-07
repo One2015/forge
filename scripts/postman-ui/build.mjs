@@ -140,6 +140,13 @@ export function buildPostman(source){
  ds=ds.replace('<sc-for list="{{ dsGroups }}"', '<div class="pm-dataset-columns"><span>数据集</span><span>创建人</span><span>上次使用</span></div><sc-for list="{{ dsGroups }}"');
  ds=ds.replace(/<div sc-camel-on-click="{{ d.select }}"[\s\S]*?data-flow-row="{{ d.name }}">[\s\S]*?<\/div>\s*<\/sc-for>/,
   '<div class="pm-dataset-record" sc-camel-on-click="{{ d.select }}" data-flow-family="datasets" data-flow-row="{{ d.name }}"><div class="pm-dataset-record-name"><div><strong>{{ d.name }}</strong><span>{{ d.count }}</span></div><small title="{{ d.pipelines }}">{{ d.pipelines }}</small></div><span>{{ d.owner }}</span><span>{{ d.used }}</span></div></sc-for>');
+ const datasetImportButton=ds.match(/<button sc-camel-on-click="{{ openImport }}"[\s\S]*?<\/button>/)?.[0];
+ if(!datasetImportButton)throw Error('Dataset import action not found');
+ ds=ds.replace(datasetImportButton,'');
+ ds=ds.replace('<div style="flex:none;display:flex;align-items:center;gap:9px;padding:13px 0;border-bottom:1px solid var(--forge-border);flex-wrap:wrap">',
+  '<h2 class="pm-dataset-list-title">数据list</h2><div class="pm-dataset-list-toolbar">');
+ ds=ds.replace('<div style="font-size:13px;color:var(--forge-muted);white-space:nowrap">{{ dsCount }}</div>',
+  datasetImportButton+'<span class="pm-dataset-list-count">{{ dsCount }}</span>');
  t=t.slice(0,dsStart)+ds+t.slice(dsEnd);
  t=installReviewQueue(t);
  t=installRunRecords(t);
