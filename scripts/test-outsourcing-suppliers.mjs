@@ -36,8 +36,8 @@ test('overview card and sidebar open the single external expert destination', ()
     assert.equal(c.state.dlOpen, false); assert.equal(c.state.notifOpen, false);
     assert.equal(c.state.sidebarCollapsed, narrow);
   }
-  const c = component(), supplierCard = c.renderVals().over.stats.find(card => card.k === '外部专家表现');
-  assert.match(supplierCard.cardLabel, /外部专家表现/); assert.equal(supplierCard.v, 92.4);
+  const c = component(), supplierCard = c.renderVals().over.stats.find(card => card.k === '质检通过率');
+  assert.match(supplierCard.cardLabel, /质检通过率/); assert.equal(supplierCard.v, 92.4);
   supplierCard.go(); assert.equal(c.state.view, 'outsourcing-suppliers');
 });
 
@@ -60,7 +60,7 @@ test('performance page keeps the required section order without exposing fixture
 test('supplier and risk filters update all visible modules and empty states', () => {
   const c = component(); c.openOutsourcingSuppliers();
   c.outsourcingSupplierValues().onSupplier({ target: { value: 'stepfun' } });
-  let v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '维象制作'); assert(v.issues.every(issue => issue.supplier === '维象制作'));
+  let v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.trendSupplier, '整体专家团队'); assert(v.issues.every(issue => issue.supplier === '维象制作'));
   v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert(!v.hasRows); assert(!v.hasTrend); assert(!v.hasIssues);
   v.onSupplier({ target: { value: '' } }); v.onRisk({ target: { value: '' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 3);
   v.onRisk({ target: { value: 'low' } }); v = c.outsourcingSupplierValues(); assert.equal(v.detailRows.length, 1); assert.equal(v.metrics.at(-1).value, 0);
@@ -68,7 +68,7 @@ test('supplier and risk filters update all visible modules and empty states', ()
 });
 
 test('supplier trend is a labelled three-series line chart with accessible points', () => {
-  const c = component(); c.openOutsourcingSuppliers(); let v = c.outsourcingSupplierValues();
+  const c = component(); c.openOutsourcingSuppliers(); c.outsourcingSupplierValues().onTrendTeam({target:{value:'stepfun'}}); let v = c.outsourcingSupplierValues();
   assert.equal(v.trendTeam, 'stepfun'); assert.equal(v.trendSupplier, '维象制作'); assert.equal(v.trendRange, 'day');
   assert.deepEqual(Array.from(v.trendLabels), ['4 天前', '3 天前', '前天', '昨天', '今天']);
   assert.equal(v.trendCompletion.length, 5); assert.equal(v.trendEffective.length, 5); assert.equal(v.trendQuality.length, 5);
@@ -107,7 +107,7 @@ test('delivery table is concise and supplier names open the merged detail drawer
     assert(page.includes('aria-label="{{ outsourcingSuppliers.' + key + '.ariaLabel }}"'));
     assert(page.includes('sc-camel-on-click="{{ outsourcingSuppliers.' + key + '.toggle }}"'));
   }
-  assert.equal(page.match(/class="forge-outsourcing-column-filter"/g)?.length, 2);
+  assert.equal(page.match(/class="forge-outsourcing-column-filter"/g)?.length, 3);
   assert.equal(page.match(/class="forge-outsourcing-column-sort"/g)?.length, 6);
   assert.match(page, /data-phosphor="arrows-down-up"/); assert.match(page, /data-phosphor="arrow-down"/); assert.match(page, /data-phosphor="arrow-up"/);
   assert.doesNotMatch(page, /按交付日期筛选|supplierCycle|onCycle|Sort\.change/);
@@ -213,4 +213,53 @@ test('supplier generator is idempotent and responsive CSS uses shared tokens', (
   assert.match(css, /@media\(max-width:1000px\)/); assert.match(css, /@media\(max-width:640px\)/);
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}|rgba?\(/i);
   for (const token of ['--forge-border', '--forge-panel', '--pm-brand', '--pm-chart-1']) assert(css.includes('var(' + token + ')'));
+});
+
+test('category filtering composes with risk and can recover from empty results', () => {
+  const c = component();
+  c.openOutsourcingSuppliers();
+  let v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.categoryOptions, option => option.value), ['金融', '3D', '游戏']);
+  v.onCategory({ target: { value: '3D' } });
+  v = c.outsourcingSupplierValues();
+  assert.deepEqual(Array.from(v.detailRows, row => row.id), ['stepfun', 'ant']);
+  v.onRisk({ target: { value: 'high' } });
+  assert.equal(c.outsourcingSupplierValues().detailRows.length, 1);
+  v.onCategory({ target: { value: '游戏' } });
+  assert.equal(c.outsourcingSupplierValues().hasRows, false);
+  v.onRisk({ target: { value: '' } });
+  v.onCategory({ target: { value: '' } });
+  assert.equal(c.outsourcingSupplierValues().detailRows.length, 3);
+  assert(page.includes('aria-label="按品类筛选"'));
+  assert(!page.includes('<sc-if value="{{ outsourcingSuppliers.hasRows }}">'));
+  v.openAdd();
+  c.outsourcingSupplierValues().onName({ target: { value: '游戏测试团队' } });
+  c.outsourcingSupplierValues().onCategoryForm({ target: { value: '游戏' } });
+  c.outsourcingSupplierValues().add();
+  c.outsourcingSupplierValues().onCategory({ target: { value: '游戏' } });
+  assert.equal(c.outsourcingSupplierValues().detailRows[0].category, '游戏');
+});
+
+
+test('trend team placeholder restores the weighted overall view after selecting a team', () => {
+  const c = component(); c.openOutsourcingSuppliers();
+  let v = c.outsourcingSupplierValues();
+  assert.equal(v.trendTeam, '');
+  assert.equal(v.trendSupplier, '整体专家团队');
+  const overall = Array.from(v.trendCards, card => card.current);
+  assert.deepEqual(overall, ['93.4%', '84.4%', '95.3%']);
+  v.onTrendTeam({target:{value:'stepfun'}});
+  v = c.outsourcingSupplierValues();
+  assert.equal(v.trendCards[0].current, '91%');
+  v.onTrendTeam({target:{value:''}});
+  v = c.outsourcingSupplierValues();
+  assert.equal(v.trendTeam, '');
+  assert.deepEqual(Array.from(v.trendCards, card => card.current), overall);
+  assert.equal(v.detailRows.length, 3);
+  v.onCategory({target:{value:'金融'}});
+  v = c.outsourcingSupplierValues();
+  assert.equal(v.trendTeam, '');
+  assert.equal(v.trendCards[0].current, '98%');
+  v.onCategory({target:{value:'游戏'}});
+  assert.equal(c.outsourcingSupplierValues().hasTrend, false);
 });

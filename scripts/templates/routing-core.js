@@ -103,6 +103,8 @@ const ForgeRoutes = (() => {
         patch.modelBusinessOnly = get('impact') === '1'; patch.modelSort = oneOf(get('sort'), ['impact', 'severity', 'latency', 'errors', 'balance', 'updated'], 'impact');
         patch.modelTimeRange = oneOf(get('period'), ['all', '1h', '24h', '7d', '30d', 'custom'], 'all'); patch.modelTimeStart = get('from'); patch.modelTimeEnd = get('to');
         patch.modelDrawerMode = oneOf(get('drawer'), ['diagnostic', 'test', 'billing'], ''); patch.modelChartMetric = oneOf(get('metric'), ['ttft', 'throughput', 'total', 'errors'], 'ttft'); patch.modelPageTab = oneOf(get('tab'), ['overview', 'lines'], get('tab') === 'compare' ? 'lines' : 'overview'); patch.modelOverviewWindow = oneOf(get('window'), ['1h', '24h', '30d', '365d', 'custom'], '1h'); patch.modelOverviewStart = get('windowFrom'); patch.modelOverviewEnd = get('windowTo');
+      } else if (parts[0] === 'members' && parts.length === 1) {
+        patch.view = 'members';
       } else if (parts[0] === 'outsourcing-suppliers' && parts.length <= 2) {
         patch.view = 'outsourcing-suppliers'; patch.supplierVendor = parts[1] || get('supplier');
         patch.supplierTab = oneOf(get('tab'), ['performance', 'management'], 'performance');
@@ -141,6 +143,7 @@ const ForgeRoutes = (() => {
       case 'itemlife': path = '/items/' + enc(s.lifeItem || 'missing'); set('run', s.lifeRun); set('sheet', s.sheetKey); set('from', s.lifeFrom === 'review' ? 'review' : ''); break;
       case 'billing': path = '/billing/' + (s.billing?.tab === 'projects' ? 'overview' : s.billing?.tab || 'overview'); for (const key of ['preset', 'start', 'end', 'grain', 'project', 'provider', 'model', 'bin']) set(key, s.billing?.[key]); set('time', s.billing?.timeMode, s.billing?.preset === 'custom' ? 'custom' : s.billing?.grain); set('sort', s.billing?.sort, 'cost'); set('direction', s.billing?.direction, 'desc'); set('metric', s.billing?.metric, 'cost'); set('search', s.billing?.query); set('page', s.billing?.page, '1'); set('pageSize', s.billing?.pageSize, '10'); break;
       case 'models': path = '/models'; set('q', s.modelQuery); set('provider', s.modelProvider); set('model', s.modelModel); set('line', s.modelLine); set('status', s.modelFilter, 'production'); set('dimension', s.modelDimension, 'providers'); set('selection', s.modelSelection); set('route', s.modelRoute); set('source', s.modelSource); set('impact', s.modelBusinessOnly ? '1' : ''); set('sort', s.modelSort, 'impact'); set('period', s.modelTimeRange, 'all'); if (s.modelTimeRange === 'custom') { set('from', s.modelTimeStart); set('to', s.modelTimeEnd); } set('drawer', s.modelDrawerMode); set('metric', s.modelChartMetric, 'ttft'); set('tab', s.modelPageTab, 'overview'); set('window', s.modelOverviewWindow, '1h'); if (s.modelOverviewWindow === 'custom') { set('windowFrom', s.modelOverviewStart); set('windowTo', s.modelOverviewEnd); } break;
+      case 'members': path = '/members'; break;
       case 'outsourcing-suppliers': path = '/outsourcing-suppliers' + (s.supplierVendor ? '/' + enc(s.supplierVendor) : ''); set('tab', s.supplierTab, 'performance'); set('risk', s.supplierRisk); set('cycle', s.supplierCycle, 'all'); break;
       case 'route-error': return s.routeMissingUrl || '/not-found';
     }

@@ -31,7 +31,10 @@
 
   deliveryTableValues(delivery) {
     const st = this.state;
-    const all = delivery.customers.flatMap(c => c.sheets.map(d => ({...d, customer:c.name, logo:c.logo, hasLogo:c.hasLogo})));
+    const all = delivery.customers.flatMap(c => c.sheets.map(d => ({...d, customer:c.name, logo:c.logo, hasLogo:c.hasLogo,
+      openRow:event=>{if(event.target?.closest?.('button,a,input,select,textarea'))return;d.open();},
+      rowKey:event=>{if(event.target!==event.currentTarget||!['Enter',' '].includes(event.key))return;event.preventDefault();d.open();}
+    })));
     const selected = st.deliveryColumnFilters || {};
     const definitions = [['customer','客户'],['creatorLabel','创建人'],['badge','状态']];
     const patch = change => this.setState(change);

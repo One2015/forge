@@ -632,3 +632,40 @@ test('billing, supplier follow-up and local mitigation actions are explicit and 
   assert(view.drawerDiagnostic && view.noteOpen); assert.match(view.note, /模拟数据/); assert.match(view.note, /production-02/);
   view.switchRoute(); assert.match(c.modelStatusValues().message, /未修改生产路由/);
 });
+
+test('model overview numeric columns toggle both directions and quality filtering composes with sorting',()=>{
+ const {c}=component();c.openModelStatus();
+ for(const key of ['requests','success','latency','speed','cost']){
+  let view=c.modelStatusValues();view.modelOverviewControls[key+'Toggle']();
+  view=c.modelStatusValues();assert.equal(view.modelOverviewControls[key+'Direction'],'ascending');
+  const expected=view.modelOverviewRows.map(row=>row.id);
+  const values=view.modelOverviewRows.map(row=>row.sortValues[key]).filter(Number.isFinite);
+  assert.deepEqual(Array.from(values),[...values].sort((a,b)=>a-b));
+  view.modelOverviewControls[key+'Toggle']();view=c.modelStatusValues();
+  assert.equal(view.modelOverviewControls[key+'Direction'],'descending');
+  const descending=view.modelOverviewRows.map(row=>row.sortValues[key]).filter(Number.isFinite);
+  assert.deepEqual(Array.from(descending),[...values].sort((a,b)=>b-a));assert(expected.length>1);
+ }
+ c.modelStatusValues().modelOverviewControls.onQuality({target:{value:'基线内'}});
+ let view=c.modelStatusValues();assert(view.modelOverviewRows.length>0);assert(view.modelOverviewRows.every(row=>row.qualityStatus==='基线内'));
+ view.modelOverviewControls.onQuality({target:{value:'证据不足'}});
+ view=c.modelStatusValues();assert.equal(view.modelOverviewEmpty,view.modelOverviewRows.length===0);
+ view.modelOverviewControls.onQuality({target:{value:'all'}});assert.equal(c.modelStatusValues().modelOverviewRows.length,5);
+});
+
+test('error summary company dropdown and numeric count ordering compose',()=>{
+ const {c}=component();c.openModelStatus();
+ let view=c.modelStatusValues();const all=view.errorOverviewRows.length;
+ assert(view.errorCompanyOptions.some(option=>option.value==='云桥'));
+ view.onErrorCompany({target:{value:'云桥'}});view=c.modelStatusValues();
+ assert(view.errorOverviewRows.length>0&&view.errorOverviewRows.length<all);
+ assert(view.errorOverviewRows.every(row=>row.company.split('、').includes('云桥')));
+ view.toggleErrorCount();view=c.modelStatusValues();assert.equal(view.errorCountDirection,'ascending');
+ let counts=Array.from(view.errorOverviewRows,row=>Number(row.count.replace(/,/g,'')));
+ assert.deepEqual(counts,[...counts].sort((a,b)=>a-b));
+ view.toggleErrorCount();view=c.modelStatusValues();assert.equal(view.errorCountDirection,'descending');
+ counts=Array.from(view.errorOverviewRows,row=>Number(row.count.replace(/,/g,'')));
+ assert.deepEqual(counts,[...counts].sort((a,b)=>b-a));
+ view.onErrorCompany({target:{value:'不存在的公司'}});view=c.modelStatusValues();assert(view.errorOverviewEmpty);assert(view.hasErrors);
+ view.onErrorCompany({target:{value:'all'}});assert.equal(c.modelStatusValues().errorOverviewRows.length,all);
+});

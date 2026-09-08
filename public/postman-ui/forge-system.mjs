@@ -34,7 +34,8 @@ function updatePreferenceControls() {
     themeButton.setAttribute('aria-pressed', String(dark));
     themeButton.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
     themeButton.querySelector('[data-forge-theme-label]').textContent = dark ? '浅色' : '深色';
-    themeButton.querySelector('[data-forge-theme-icon]').dataset.mode = dark ? 'light' : 'dark';
+    const icon = themeButton.querySelector('[data-forge-theme-icon]');
+    if (icon) icon.dataset.mode = dark ? 'light' : 'dark';
   }
 }
 
@@ -70,14 +71,18 @@ function installForgePreferences() {
   updatePreferenceControls();
   installAIAdapters();
 
-  document.querySelector('#forge-theme-toggle')?.addEventListener('click', () => {
+  document.addEventListener('click', event => {
+    if (!event.target.closest?.('#forge-theme-toggle')) return;
     setTheme(root.dataset.forgeTheme === 'dark' ? 'light' : 'dark');
   });
 
   const observer = new MutationObserver(records => {
     for (const record of records) {
       for (const node of record.addedNodes) {
-        if (node.nodeType === Node.ELEMENT_NODE) installAIAdapters(node);
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          installAIAdapters(node);
+          if (node.matches('#forge-theme-toggle') || node.querySelector('#forge-theme-toggle')) updatePreferenceControls();
+        }
       }
     }
   });

@@ -1,5 +1,10 @@
 import fs from 'node:fs';
 export const sheetInlineCopy = [
+ ["      const v = this.statusOf('item', delMap[k] || 'pending');", "      const v = k === 'failed' ? this.statusOf('run', 'failed') : this.statusOf('item', delMap[k] || 'pending');"],
+ ['        count: rows.length + \' / \' + d.target + \' 个子项\',', `        statusFilter: sf,
+        statusOptions: [...new Set(rows0.map(row => row[3]))].map(value => ({ value, label: delPalSafe(value)[3] })),
+        onStatusFilter: event => this.setState({ sheetFilter: event.target.value }),
+        count: rows.length + ' / ' + d.target + ' 个子项',`],
  ['      this._sheetIds = rows.map(r => r[2]);','      this._sheetIds = rows.map(r => r[2]);\n      const inlineAssignments = this.pmSheetAssignments(d); // pm-sheet-inline-values'],
  ['            name: r[0], path: r[1], id: r[2], state, fg, border, dot,','            name: r[0], path: r[1], id: r[2], state, fg, border, dot, ...inlineAssignments.get(r[2]),'],
  // Existing sheets can be assigned incrementally from either surface.

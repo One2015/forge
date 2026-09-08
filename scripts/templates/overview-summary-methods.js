@@ -86,10 +86,14 @@
     const model = this.modelStatusSnapshot(modelMocked ? this.modelDemoInput() : this.props.modelMonitoring);
     const supplier = this.supplierPerformanceValues();
     return [
-      { k: '待审核', v: mine.length, unit: '项', fg: 'var(--forge-text)', ...auxiliary(''),
+      { k: '内部待审核', v: mine.length, unit: '项', fg: 'var(--forge-text)', ...auxiliary(''),
         cardLabel: '待审核，待我审核 ' + mine.length + ' 项',
         description: '当前用户负责且尚未完成的审核 Item 数量，按 Item ID 去重。',
-        actionable: true, actionLabel: '进入审核队列，筛选待我审核', go: () => this.openReview('all', { reviewOwner: 'mine', reviewPhase: 'pending' }) },
+        actionable: true, actionLabel: '进入审核队列，筛选待我审核', go: () => { this.openReview('all', { reviewOwner: 'mine', reviewPhase: 'pending' }); this.setState({reviewAudience:'internal'}); } },
+      { k: '质检通过率', v: supplier.hasPassRate ? supplier.passRate : '—', unit: supplier.hasPassRate ? '%' : '', fg: 'var(--forge-text)', ...auxiliary(supplier.hasPassRate ? supplier.passRateDelta : (supplier.ready ? '通过率待接入' : supplier.message)),
+        cardLabel: supplier.hasPassRate ? '质检通过率，昨日通过率 ' + supplier.passRate + '%' + (supplier.passRateDelta ? '，' + supplier.passRateDelta : '') : '质检通过率，昨日通过率待接入',
+        description: supplier.hasPassRate ? '昨日通过的外部专家交付批次占昨日已完成审核的外部专家交付批次比例。' + (supplier.mocked ? ' 当前为演示数据。' : '') : '外部专家昨日通过率尚未接入。',
+        actionable: true, actionLabel: '查看质检通过率', go: supplier.openAll },
       { k: '运行中', v: running.length, unit: '个任务', fg: 'var(--forge-text)', ...auxiliary(''),
         cardLabel: '运行中，运行中 ' + running.length + ' 个任务',
         description: '状态为运行中的 Run 任务数量，按 Run ID 去重，不统计运行中的 Item 数。',
@@ -106,10 +110,7 @@
         cardLabel: model.hasRate ? '模型状态，可用模型 ' + model.rate + '%，' + model.note : '模型状态，待检测',
         description: '当前确认可用的生产模型数除以当前启用的生产模型总数。清单不完整、检测过期或健康状态未知时不显示百分比。' + (modelMocked ? ' 当前为演示数据。' : ''),
         actionable: true, actionLabel: '进入模型供应商表现与错误原因分析', go: () => { this.openModelStatus(); this.setState({ modelSource: modelMocked ? '' : 'live', modelDimension: 'providers' }); } },
-      { k: '外部专家表现', v: supplier.hasPassRate ? supplier.passRate : '—', unit: supplier.hasPassRate ? '%' : '', fg: 'var(--forge-text)', ...auxiliary(supplier.hasPassRate ? supplier.passRateDelta : (supplier.ready ? '通过率待接入' : supplier.message)),
-        cardLabel: supplier.hasPassRate ? '外部专家表现，昨日通过率 ' + supplier.passRate + '%' + (supplier.passRateDelta ? '，' + supplier.passRateDelta : '') : '外部专家表现，昨日通过率待接入',
-        description: supplier.hasPassRate ? '昨日通过的外部专家交付批次占昨日已完成审核的外部专家交付批次比例。' + (supplier.mocked ? ' 当前为演示数据。' : '') : '外部专家昨日通过率尚未接入。',
-        actionable: true, actionLabel: '进入外部专家表现', go: supplier.openAll }
+
     ];
   }
   // overview-summary-methods:end

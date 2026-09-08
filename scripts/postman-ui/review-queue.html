@@ -1,6 +1,9 @@
 <section class="forge-page pm-page-review pm-review-queue" aria-labelledby="queue-title">
-  <button type="button" class="pq-back" sc-camel-on-click="{{ review.back }}">[[icon:arrow-left:16]] {{ review.backLabel }}</button>
-  <header class="pq-heading"><div><h1 id="queue-title">审核</h1></div><button type="button" class="pq-refresh" sc-camel-on-click="{{ review.queue.refresh }}" disabled="{{ review.queue.loading }}">[[icon:arrow-clockwise:16]] <sc-if value="{{ review.queue.loading }}">刷新中…</sc-if><sc-if value="{{ !review.queue.loading }}">刷新</sc-if></button></header>
+  <sc-if value="{{ review.queue.showBack }}"><button type="button" class="pq-back" sc-camel-on-click="{{ review.back }}">[[icon:arrow-left:16]] {{ review.backLabel }}</button></sc-if>
+  <header class="pq-heading"><div><h1 id="queue-title">审核</h1></div></header>
+  <div class="eq-audience-row"><div class="eq-audience" role="tablist" aria-label="审核分类" sc-camel-on-key-down="{{ review.queue.externalQA.audienceKey }}"><button id="review-tab-internal" type="button" role="tab" aria-selected="{{ review.queue.externalQA.internal }}" aria-controls="review-panel-internal" tabindex="{{ review.queue.externalQA.internal ? 0 : -1 }}" sc-camel-on-click="{{ review.queue.externalQA.showInternal }}">内部审核</button><button id="review-tab-external" type="button" role="tab" aria-selected="{{ review.queue.externalQA.external }}" aria-controls="review-panel-external" tabindex="{{ review.queue.externalQA.external ? 0 : -1 }}" sc-camel-on-click="{{ review.queue.externalQA.showExternal }}"><span>外部审核</span><sc-if value="{{ review.queue.externalQA.pending > 0 }}"><span class="eq-pending-badge" aria-label="{{ review.queue.externalQA.pending }} 项待质检">{{ review.queue.externalQA.pending }}</span></sc-if></button></div><button type="button" class="pq-refresh" sc-camel-on-click="{{ review.queue.refresh }}" disabled="{{ review.queue.loading }}">[[icon:arrow-clockwise:16]] <sc-if value="{{ review.queue.loading }}">刷新中…</sc-if><sc-if value="{{ !review.queue.loading }}">刷新</sc-if></button></div>
+  <!-- external-review-panel -->
+  <sc-if value="{{ review.queue.externalQA.internal }}"><div id="review-panel-internal" role="tabpanel" aria-labelledby="review-tab-internal">
   <div class="pq-summary forge-overview-summary" role="group" aria-label="审核摘要">
     <sc-for list="{{ review.queue.summary }}" as="s">
       <article class="forge-summary-card pq-summary-item" data-actionable="true" data-selected="{{ s.selected }}">
@@ -59,4 +62,5 @@
     </sc-if>
   </div>
   <sc-if value="{{ review.queue.hasError }}"><div class="pq-error" role="alert"><span>{{ review.queue.error }}</span><button type="button" sc-camel-on-click="{{ review.queue.refresh }}">重试</button><button type="button" sc-camel-on-click="{{ review.queue.dismissError }}" aria-label="关闭错误提示">[[icon:x:16]]</button></div></sc-if>
+</div></sc-if>
 </section>

@@ -24,7 +24,10 @@ test('Forge exposes semantic light, dark and density tokens', () => {
 
 test('theme control is native while density remains URL-configurable without a user toggle', () => {
   assert.doesNotMatch(built, /forge-density-toggle|data-forge-density-label|>紧凑</);
-  assert.match(built, /id="forge-theme-toggle"[^>]*aria-pressed="false"/);
+  assert.doesNotMatch(built, /<header class="pm-topbar">/);
+  const profile = fs.readFileSync(new URL('../public/postman-ui/rbac-prototype.js', import.meta.url), 'utf8');
+  assert.match(profile, /id="profile-appearance-title">外观/);
+  assert.match(profile, /id="forge-theme-toggle"[^>]*aria-pressed="false"/);
   assert.match(built, /src="\/postman-ui\/forge-system\.mjs"/);
   assert.match(behavior, /storage\.get\('forge-theme'\)/);
   assert.match(behavior, /query\.get\('density'\)/);

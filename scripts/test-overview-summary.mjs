@@ -23,18 +23,18 @@ function component(props = {}) {
 
 test('overview keeps six equal summary cards in one group with exact destinations', () => {
   const c = component(), overview = c.renderVals().over, cards = overview.stats;
-  assert.deepEqual(Array.from(cards, card => card.k), ['待审核', '运行中', '交付缺口', '昨日成本', '模型状态', '外部专家表现']);
+  assert.deepEqual(Array.from(cards, card => card.k), ['内部待审核', '质检通过率', '运行中', '交付缺口', '昨日成本', '模型状态']);
   assert(cards.every(card => !Object.hasOwn(card, 'prefix') && card.actionable && card.description.length > 15 && card.cardLabel));
-  assert.equal(cards[3].v, '$199.49'); assert.equal(cards[3].auxiliaryValue, '−8.1%'); assert.equal(cards[3].auxiliaryTone, 'success');
-  assert.equal(cards[4].v, 100); assert.equal(cards[4].unit, '%'); assert.equal(cards[4].auxiliaryLabel, '5 / 5 个模型可用');
-  assert.equal(cards[5].v, 92.4); assert.equal(cards[5].unit, '%'); assert.equal(cards[5].auxiliaryValue, '+2.1pp'); assert.equal(cards[5].auxiliaryTone, 'success');
+  assert.equal(cards[4].v, '$199.49'); assert.equal(cards[4].auxiliaryValue, '−8.1%'); assert.equal(cards[4].auxiliaryTone, 'success');
+  assert.equal(cards[5].v, 100); assert.equal(cards[5].unit, '%'); assert.equal(cards[5].auxiliaryLabel, '5 / 5 个模型可用');
+  assert.equal(cards[1].v, 92.4); assert.equal(cards[1].unit, '%'); assert.equal(cards[1].auxiliaryValue, '+2.1pp'); assert.equal(cards[1].auxiliaryTone, 'success');
   assert.equal(overview.signals, undefined);
   cards[0].go(); assert.equal(c.state.view, 'review'); assert.equal(c.state.reviewOwner, 'mine'); assert.equal(c.state.reviewPhase, 'pending');
-  cards[1].go(); assert.equal(c.state.view, 'runs'); assert.equal(c.state.runsFilter, '运行中');
-  cards[2].go(); assert.equal(c.state.view, 'delivery'); assert.equal(c.state.delStatus, 'unmet');
-  cards[3].go(); assert.equal(c.state.view, 'billing'); assert.equal(c.state.billing.preset, 'yesterday');
-  cards[4].go(); assert.equal(c.state.view, 'models'); assert.equal(c.state.modelDimension, 'providers'); assert.equal(c.state.modelSource, '');
-  cards[5].go(); assert.equal(c.state.view, 'outsourcing-suppliers');
+  cards[2].go(); assert.equal(c.state.view, 'runs'); assert.equal(c.state.runsFilter, '运行中');
+  cards[3].go(); assert.equal(c.state.view, 'delivery'); assert.equal(c.state.delStatus, 'unmet');
+  cards[4].go(); assert.equal(c.state.view, 'billing'); assert.equal(c.state.billing.preset, 'yesterday');
+  cards[5].go(); assert.equal(c.state.view, 'models'); assert.equal(c.state.modelDimension, 'providers'); assert.equal(c.state.modelSource, '');
+  cards[1].go(); assert.equal(c.state.view, 'outsourcing-suppliers');
 });
 
 test('overview metric deltas render as compact semantic tags', () => {
@@ -60,9 +60,9 @@ test('review and running metrics dedupe their own entities and exclude other sta
     { id: 'r3', status: 'queued', running: 8 }
   ], []);
   assert.equal(cards[0].v, 1);
-  assert.equal(cards[1].v, 2);
-  assert.match(cards[1].description, /Run ID 去重/);
-  assert.equal(cards[1].unit, '个任务');
+  assert.equal(cards[2].v, 2);
+  assert.match(cards[2].description, /Run ID 去重/);
+  assert.equal(cards[2].unit, '个任务');
 });
 
 test('delivery shortage counts approved linked delivery Item IDs once and clamps each sheet at zero', () => {
@@ -76,8 +76,8 @@ test('delivery shortage counts approved linked delivery Item IDs once and clamps
     { target: 4, passed: 2 }
   ];
   assert.equal(c.overviewFinalDeliveryCount(sheets[0]), 1);
-  assert.equal(c.overviewSummary([], sheets)[2].v, 4);
-  assert.match(c.overviewSummary([], sheets)[2].description, /按交付 Item ID 去重/);
+  assert.equal(c.overviewSummary([], sheets)[3].v, 4);
+  assert.match(c.overviewSummary([], sheets)[3].description, /按交付 Item ID 去重/);
 });
 
 test('yesterday cost uses workspace calendar-day events and only shows a meaningful previous-day change', () => {
@@ -89,13 +89,13 @@ test('yesterday cost uses workspace calendar-day events and only shows a meaning
   ] });
   let billing = c.billingYesterday();
   assert.equal(billing.value, '$1.50'); assert.equal(billing.delta, '较前日 +50.0%');
-  let costCard = c.overviewSummary([], [])[3];
+  let costCard = c.overviewSummary([], [])[4];
   assert.equal(costCard.v, '$1.50'); assert.equal(costCard.auxiliaryLabel, '较前日'); assert.equal(costCard.auxiliaryValue, '+50.0%'); assert.equal(costCard.auxiliaryTone, 'danger');
   c.billingSource = () => ({ kind: 'ready', demo: false, events: [
     { occurredAt: start + 1000, costMicros: 500000, inputTokens: 0, outputTokens: 0 },
     { occurredAt: start - 1000, costMicros: 1000000, inputTokens: 0, outputTokens: 0 }
   ] });
-  costCard = c.overviewSummary([], [])[3];
+  costCard = c.overviewSummary([], [])[4];
   assert.equal(costCard.auxiliaryValue, '−50.0%'); assert.equal(costCard.auxiliaryTone, 'success');
   c.billingSource = () => ({ kind: 'ready', demo: false, events: [{ occurredAt: start + 1000, costMicros: 1, inputTokens: 0, outputTokens: 0 }] });
   billing = c.billingYesterday();
@@ -193,18 +193,18 @@ test('supplier identities have fixed compact dimensions, uncropped images and de
 });
 
 test('model summary uses labelled mock data by default while live sources require complete fresh evidence', () => {
-  const mockedComponent = component(), mocked = mockedComponent.renderVals().over.stats[4];
+  const mockedComponent = component(), mocked = mockedComponent.renderVals().over.stats[5];
   assert.equal(mocked.v, 100); assert.equal(mocked.unit, '%'); assert.equal(mocked.auxiliaryLabel, '5 / 5 个模型可用'); assert.match(mocked.description, /演示数据/);
   mocked.go(); assert.equal(mockedComponent.state.view, 'models'); assert.equal(mockedComponent.state.modelSource, '');
   for (const modelMonitoring of [{ status: 'loading' }, { status: 'error' }, {}, []]) {
-    const card = component({ modelMonitoring }).renderVals().over.stats[4];
+    const card = component({ modelMonitoring }).renderVals().over.stats[5];
     assert.equal(card.v, '—'); assert.equal(card.cardLabel, '模型状态，待检测');
   }
   const seed = component(), liveInput = seed.modelDemoInput();
-  const live = component({ modelMonitoring: liveInput }).renderVals().over.stats[4];
+  const live = component({ modelMonitoring: liveInput }).renderVals().over.stats[5];
   assert.equal(typeof live.v, 'number'); assert.equal(live.unit, '%');
   liveInput.catalogCheckedAt = Date.now() - 2 * 86400000;
-  assert.equal(component({ modelMonitoring: liveInput }).renderVals().over.stats[4].v, '—');
+  assert.equal(component({ modelMonitoring: liveInput }).renderVals().over.stats[5].v, '—');
 });
 
 test('external expert performance uses labelled mock data by default and final risk state ordering when connected', () => {
@@ -212,7 +212,7 @@ test('external expert performance uses labelled mock data by default and final r
   assert.equal(mock.metric, 3); assert.equal(mock.rows.length, 3); assert.equal(mock.mocked, true); assert.equal(mock.canOpenAll, true);
   assert.equal(mock.passRate, 92.4); assert.equal(mock.passRateDelta, '较前日 +2.1pp');
   assert.deepEqual(Array.from(mock.rows, row => row.id), ['mock-weixiang', 'mock-lingxi', 'mock-guanlan']);
-  assert.equal(component().renderVals().over.stats[5].k, '外部专家表现');
+  assert.equal(component().renderVals().over.stats[1].k, '质检通过率');
   const unavailable = component({ fellowSupplierRisk: { status: 'error' } }).renderVals().over.supplierPerformance;
   assert.equal(unavailable.metric, '待接入'); assert.equal(unavailable.rows.length, 0);
   const input = { status: 'ready', complete: true, yesterdayPassRate: 88.2, previousDayPassRate: 87.9, suppliers: [
@@ -225,8 +225,8 @@ test('external expert performance uses labelled mock data by default and final r
   const data = c.renderVals().over.supplierPerformance;
   assert.equal(data.metric, 3);
   assert.deepEqual(Array.from(data.rows, row => row.id), ['h-soon', 'h-late', 'm-late']);
-  const card = c.renderVals().over.stats[5];
-  assert.equal(card.v, 88.2); assert.equal(card.unit, '%'); assert.equal(card.auxiliaryValue, '+0.3pp'); assert.match(card.cardLabel, /外部专家表现/);
+  const card = c.renderVals().over.stats[1];
+  assert.equal(card.v, 88.2); assert.equal(card.unit, '%'); assert.equal(card.auxiliaryValue, '+0.3pp'); assert.match(card.cardLabel, /质检通过率/);
   card.go(); assert.equal(c.state.view, 'outsourcing-suppliers');
   data.rows[0].open(); assert.equal(c.state.supplierVendor, 'h-soon');
 });

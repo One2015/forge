@@ -262,6 +262,8 @@
       review.next = () => move(1); review.previous = () => move(-1);
     }
     return {
+      externalQA:this.externalReviewValues(),
+      showBack: !!review.backLabel && review.backLabel !== '返回概览',
       subtitle: recs.length + ' 个运行 · ' + list.length + ' 条待处理', pending: list.length, rework: list.filter(r => r.type === 'rework').length, today,
       summary: [
         { label: '待审核', description: '尚未完成审核的条目，包含已领取和未领取的任务。点击查看待审核队列。', value: list.length, selected: !done && type === 'all', pick: () => { reset(); patch({reviewPhase:'pending'}); } },

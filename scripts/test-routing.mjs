@@ -179,3 +179,12 @@ test('receipt URLs restore the matching submission, not the latest unrelated one
   assert.equal(c.state.view, 'submitted'); assert.equal(c.state.activeRun, receipt.id); assert.equal(c.state.selDs, ds.name);
   assert.equal(c.state.runIds.length, 1); assert.equal(c.renderVals().done.rows[0].v, pipe.name + ' ' + pipe.version);
 });
+
+
+test('members page has a stable standalone route', () => {
+  const result = codec.read('/members');
+  assert.equal(result.error, '');
+  assert.equal(result.patch.view, 'members');
+  assert.equal(codec.write(result.patch), '/members');
+  assert.notEqual(codec.read('/members/unknown').error, '');
+});

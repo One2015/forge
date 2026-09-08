@@ -22,11 +22,11 @@ function component(props = {}, narrow = false) {
   return context.instance;
 }
 
-test('five destinations, including external experts, live in the semantic left navigation', () => {
+test('six destinations, including member management, live in the semantic left navigation', () => {
   assert.match(sidebar, /<nav[^>]+aria-label="主导航"/);
   const buttons = [...sidebar.matchAll(/<button[^>]+class="[^"]*\bforge-sidebar-link\b[^"]*"[^>]+aria-label="([^"]+)"/g)].map(x => x[1]);
-  assert.deepEqual(buttons, ['概览', '生产', '审核', '交付', '外部专家']);
-  for (const action of ['goOverview', 'goRuns', 'goReview', 'goDelivery', 'goSuppliers']) {
+  assert.deepEqual(buttons, ['概览', '生产', '审核', '交付', '外部专家', '成员管理']);
+  for (const action of ['goOverview', 'goRuns', 'goReview', 'goDelivery', 'goSuppliers', 'goMembers']) {
     assert(sidebar.includes('{{ sidebar.' + action + ' }}'));
     assert(!toolbar.includes('{{ ' + action + ' }}'));
   }

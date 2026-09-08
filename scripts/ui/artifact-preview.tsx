@@ -150,7 +150,7 @@ function ArtifactPreview({ config, toolbarHost, linkHost }: { config: Config; to
       <fieldset className="forge-artifact-switch"><legend className="forge-artifact-sr-only">产物视图</legend>
         {[['preview', '预览', cube], ['files', '文件列表', list]].map(([value, label, svg]) => <label key={value} title={label} data-checked={mode === value}>
           <input type="radio" name={'artifact-view-' + inputId} aria-label={label} value={value} checked={mode === value} onChange={() => setMode(value)}/>
-          {toolbarHost ? <span>{value === 'preview' ? 'Preview' : '文件'}</span> : <Icon svg={svg}/>}
+          {toolbarHost ? <span>{value === 'preview' ? '预览' : '文件'}</span> : <Icon svg={svg}/>}
         </label>)}
       </fieldset>
       {!toolbarHost && selected && <span className="forge-artifact-filename" title={selected.name}>{selected.name}</span>}

@@ -92,9 +92,7 @@ test('Forge v2 visual system uses a cool brand and covers every major product su
  for(const selector of ['forge-production-tabs','forge-model-page-tabs','forge-billing-tabs','forge-outsourcing-tabs'])assert(built.includes('.'+selector),selector);
  for(const selector of ['pm-delivery-customer-group','forge-wizard-card','forge-model-overview-metrics','forge-billing-chart','forge-outsourcing-section'])assert(built.includes('.'+selector),selector);
  assert.match(built,/\.forge-postman \.forge-model-overview-metrics>div:is\(\[data-tone=success\],\[data-tone=warning\],\[data-tone=danger\]\)\{background:transparent!important\}/);
- const topbar=built.slice(built.indexOf('<header class="pm-topbar">'),built.indexOf('</header>',built.indexOf('<header class="pm-topbar">')));
- assert.match(topbar,/arrows-down-up|<svg class="forge-icon"/);
- assert.doesNotMatch(topbar,/[↕◐☼]/);
+ assert.doesNotMatch(built,/<header class="pm-topbar">/);
  assert.match(built,/\[data-pm-tabs\]\[data-pm-tabs\]\{scrollbar-width:none!important\}/);
  assert.doesNotMatch(built,/\.pm-pipeline-node\{[^}]*border-left:3px/);
 });
@@ -243,7 +241,7 @@ test('overview delivery progress is a flat section without a sheet-count label',
  const tableIndex=section.indexOf('class="pm-overview-delivery-table"');
  assert(headingIndex>=0&&tableIndex>headingIndex);
  assert.doesNotMatch(section.slice(tableIndex),/id="forge-overview-delivery-heading"/);
- assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span>项目负责人<\/span><span class="pm-overview-delivery-sort-column" role="columnheader" aria-sort="\{\{ g\.sortAria \}\}">/);
+ assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span class="pm-overview-delivery-owner-column"[\s\S]*?<span class="pm-overview-delivery-sort-column" role="columnheader" aria-sort="\{\{ g\.sortAria \}\}">/);
  assert.match(section,/<button[^>]*type="button"[^>]*class="pm-overview-delivery-sort"[^>]*sc-camel-on-click="\{\{ g\.toggleSort \}\}"[^>]*aria-label="\{\{ g\.sortActionLabel \}\}"/);
  assert.match(section,/class="pm-overview-delivery-sort-icons" aria-hidden="true"/);
  assert.match(section,/data-phosphor="arrow-up"/);
@@ -658,6 +656,7 @@ test('Item explorer scopes evidence to the exact Item and Run and preserves tabs
  assert.deepEqual(Array.from(e.nodes,n=>n.name),Array.from(c.pipeData().find(p=>p.name==='web3d-gen-build-eval-v3').dag,n=>n.split('/')[0]));
  e.tabs.find(t=>t.key==='pipeline').pick();e.nodes[1].pick();e=c.pmItemExplorerValues({id});
  assert(e.pipelineTab);assert.equal(e.node.name,'build');assert(e.node.hasConfig);assert(e.node.hasResult);
+ assert(e.nodes.find(node=>node.name==='build').failed);assert(!e.nodes.find(node=>node.name==='task').failed);
  e.tabs.find(t=>t.key==='files').pick();e.files[2].pick();e=c.pmItemExplorerValues({id});assert.equal(e.file.name,'prompts/build_product.md');assert.match(e.file.content,/长城/);
  c.props.artifacts={[id]:{[runId]:{files:[{name:'actual.txt',content:'actual evidence',url:'javascript:alert(1)'}],execution:{prompts:[{content:'actual prompt'}],events:[{detail:'actual event'}],nodes:{}}}}};
  e=c.pmItemExplorerValues({id});assert(!e.demo);assert.equal(e.fileCount,1);assert.equal(e.file.url,'');assert.equal(e.prompts[0].content,'actual prompt');
@@ -670,6 +669,10 @@ test('Item explorer shows a truthful related Pipeline graph when the historical 
  assert(current);assert(e.hasPipeline);assert(e.pipelineReference);assert(!e.noPipeline);
  assert.equal(e.nodes.length,current.dag.length);assert.deepEqual(Array.from(e.nodes,node=>node.name),Array.from(current.dag,definition=>definition.split('/')[0]));
  assert.match(e.definitionNote,new RegExp('当前 '+current.version));assert(e.nodes.every(node=>['当前定义','已停用'].includes(node.status)));
+ assert(e.unmatchedFailure);assert.equal(e.runNode,'build_product');assert(e.nodes.every(node=>!node.failed));
+ c.state.runItemTech={[runId+':0']:{status:'failed',node:'runtime'}};const matched=c.pmItemExplorerValues({id});assert(!matched.unmatchedFailure);assert.equal(matched.nodes.filter(node=>node.failed).length,1);assert(matched.nodes.find(node=>node.name==='runtime').failed);
+ c.state.lifeRun='unrelated-run';assert(c.pmItemExplorerValues({id}).nodes.every(node=>!node.failed));
+
  assert.match(built,/class="pm-pipeline-reference" role="note"/);assert.doesNotMatch(built,/\[\[icon:info:14\]\]/);
 });
 test('Pipeline inspector prefers versioned configuration over marked mock defaults',()=>{
@@ -1293,4 +1296,28 @@ test('appended review photos remain with their saved feedback after the upload d
  const round=c.renderVals().sheet.pick.appendedRounds.at(-1);
  assert.equal(round.note,'调整材质');assert.equal(round.referenceImages.length,1);assert.equal(round.referenceImages[0].name,'材质参考');
  assert.equal(c.state.appendedRework[item].note,'第三轮：调整材质');
+});
+
+
+test('overview owner filter composes with date sorting and resets to all owners',()=>{
+ const c=vm.runInContext('new Component()',ctx); c.state.view='overview';
+ let group=c.renderVals().over.groups[0];
+ const allCount=group.rows.length;
+ assert.deepEqual(Array.from(group.ownerOptions, option=>option.name), ['一万','allen','yokiguan']);
+ group.onOwner({target:{value:'allen'}});
+ group=c.renderVals().over.groups[0];
+ assert.equal(group.rows.length,2);
+ assert(group.rows.every(row=>row.owner==='allen'));
+ group.toggleSort();
+ group=c.renderVals().over.groups[0];
+ assert.deepEqual(Array.from(group.rows,row=>row.deliveryDays),[16,13]);
+ group.onOwner({target:{value:'missing-owner'}});
+ group=c.renderVals().over.groups[0];
+ assert(group.noOwnerMatches); assert.equal(group.rows.length,0);
+ assert.equal(group.ownerOptions.length,3);
+ group.onOwner({target:{value:''}});
+ group=c.renderVals().over.groups[0];
+ assert.equal(group.rows.length,allCount); assert(!group.noOwnerMatches);
+ assert.equal(group.sortAria,'descending');
+ assert.match(built,/aria-label="筛选项目负责人"[^>]*sc-camel-on-change="\{\{ g\.onOwner \}\}"/);
 });

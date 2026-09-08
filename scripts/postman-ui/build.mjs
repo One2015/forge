@@ -44,7 +44,6 @@ import {installUtilityPanels} from './utility-panels.mjs';
 import {phosphorIcon,renderPhosphorIcons} from './phosphor-icons.mjs';
 const root=new URL('../../',import.meta.url);
 export function buildPostman(source){
- const themeIcon=phosphorIcon('circle-half',16);
  const opening='<script type="__bundler/template">', closing='\n</script>\n</body>\n</html>';
  const start=source.indexOf(opening),end=source.lastIndexOf(closing);
  if(start<0||end<0)throw Error('Missing prototype template boundary');
@@ -53,7 +52,7 @@ export function buildPostman(source){
  replace('<html><head>','<html lang="zh-CN"><head><title>Forge · Postman UI 优化版</title>');
  t=t.replace(/<title>[^<]*<\/title>/,'<title>Forge · Postman UI 优化版</title>');
  t=t.replace('<body','<body class="forge-postman forge-rbac-prototype"');
- replace('<main class="forge-main"',`<header class="pm-topbar"><span class="pm-brand-mark" aria-hidden="true">F</span><strong>Forge</strong><span class="pm-workspace-name">生产与交付工作台</span><div class="pm-topbar-actions" role="group" aria-label="界面偏好"><button type="button" id="forge-theme-toggle" class="pm-preference-control" aria-pressed="false"><span aria-hidden="true" data-forge-theme-icon data-mode="dark">${themeIcon}</span><span data-forge-theme-label>深色</span></button></div></header>\n<main class="forge-main"`);
+ t=t.replace(/<button type="button" class="forge-outsourcing-back"[^>]*>[\s\S]*?返回概览<\/button>/,'');
  const deliveryStart=t.indexOf('<sc-if value="{{ isDelivery }}"');
  const deliveryEnd=t.indexOf('<sc-if value="{{ isSheet }}"',deliveryStart);
  let delivery=t.slice(deliveryStart,deliveryEnd);
@@ -78,14 +77,16 @@ export function buildPostman(source){
  if(versionStart<0||versionEnd<versionStart)throw Error('Sheet version tree boundary changed');
  sheet=sheet.slice(0,versionStart)+sheet.slice(versionEnd+'</sc-if>'.length);
  sheet=sheet.replace('查看产物、版本关系与审核记录','查看产物、相关 Skill 与审核记录');
- // Instructions belong to an on-demand help tooltip, not a persistent status banner.
+ // Keep the sheet toolbar focused on search and item count.
  const tipStart=sheet.indexOf('<sc-if value="{{ sheet.showTip }}"');
  const tipEnd=sheet.indexOf('</sc-if>',tipStart);
  if(tipStart<0||tipEnd<tipStart)throw Error('Sheet help boundary changed');
  sheet=sheet.slice(0,tipStart)+sheet.slice(tipEnd+'</sc-if>'.length);
- sheet=sheet.replace('<div data-forge-segmented="pill" role="group"', '<div class="pm-sheet-filters" data-forge-segmented="pill" role="group" aria-label="子项状态筛选"');
+ const filtersStart=sheet.indexOf('<div data-forge-segmented="pill" role="group"');
+ const filtersEnd=sheet.indexOf('</div>',filtersStart);
+ if(filtersStart<0||filtersEnd<filtersStart)throw Error('Sheet filter boundary changed');
+ sheet=sheet.slice(0,filtersStart)+sheet.slice(filtersEnd+'</div>'.length);
  sheet=sheet.replace('<div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--forge-border);flex-wrap:wrap">', '<div class="pm-sheet-toolbar" style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--forge-border);flex-wrap:wrap">');
- sheet=sheet.replace('{{ sheet.count }}</div>', '{{ sheet.count }}</div><span class="pm-sheet-help">操作说明<span data-forge-tooltip="点击子项查看产物、相关 Skill 与审核记录。在详情页中使用 ↑ / ↓ 切换子项，Esc 关闭。" data-tooltip-label="子项操作说明"></span></span>');
  sheet=sheet.replace('class="forge-sheet-scroll" style="grid-column:2;grid-row:1;','class="forge-sheet-scroll pm-item-details-panel" style="grid-column:2;grid-row:1;');
  sheet=sheet.replace('<div sc-camel-on-click="{{ goDelivery }}"','<div class="pm-sheet-back" sc-camel-on-click="{{ goDelivery }}"')
  .replace('<div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px">','<div class="pm-sheet-heading" style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px">')
@@ -251,7 +252,7 @@ export function buildPostman(source){
  const rbacJs=fs.readFileSync(new URL('public/postman-ui/rbac-prototype.js',root),'utf8');
  const rbacVersion=createHash('sha256').update(rbacCss).update(rbacJs).digest('hex').slice(0,12);
  const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css','loading.css','checkbox-motion.css','empty-states.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
- replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n/* forge-ui-upgrade: semantic design-system layer */\n'+fs.readFileSync(new URL('public/postman-ui/forge-system.css',root),'utf8')+'\n</style>');
+ replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n/* forge-ui-upgrade: semantic design-system layer */\n'+['forge-system.css','dropdowns.css'].map(name=>fs.readFileSync(new URL('public/postman-ui/'+name,root),'utf8')).join('\n')+'\n</style>');
  replace('</head>',[
   '<script type="module" src="/postman-ui/behavior.mjs"></script>',
   '<script type="module" src="/postman-ui/forge-system.mjs"></script>',

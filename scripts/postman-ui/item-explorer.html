@@ -20,9 +20,10 @@
   <sc-if value="{{ explorer.noPipeline }}"><p class="pm-explorer-empty">未提供该运行版本的 Pipeline 定义。</p></sc-if>
   <sc-if value="{{ explorer.hasPipeline }}">
    <sc-if value="{{ explorer.pipelineReference }}"><p class="pm-pipeline-reference" role="note">{{ explorer.definitionNote }}</p></sc-if>
+   <sc-if value="{{ explorer.unmatchedFailure }}"><p class="pm-item-unmatched-failure">[[icon:x-circle:14]] 本轮失败节点：<code>{{ explorer.runNode }}</code> · 当前结构中未找到同名节点</p></sc-if>
    <div class="pm-item-graph" tabindex="0" role="region" aria-label="Pipeline 节点，可横向滚动">
     <div class="pm-item-graph-track"><sc-for list="{{ explorer.nodes }}" as="node">
-     <button class="pm-item-graph-node" type="button" aria-pressed="{{ node.selected }}" sc-camel-on-click="{{ node.pick }}"><span class="pm-node-kind" data-kind="{{ node.kind }}">{{ node.kindLabel }}</span><strong>{{ node.name }}</strong><small>{{ node.status }}</small></button>
+     <button class="pm-item-graph-node" data-node-kind="{{ node.kind }}" data-node-failed="{{ node.failed }}" type="button" aria-pressed="{{ node.selected }}" sc-camel-on-click="{{ node.pick }}"><span class="pm-item-node-heading"><span class="pm-item-node-mark" aria-hidden="true"></span><span class="pm-node-kind" data-kind="{{ node.kind }}">{{ node.kindLabel }}</span></span><strong title="{{ node.name }}">{{ node.name }}</strong><small>{{ node.status }}</small><sc-if value="{{ node.failed }}"><span class="pm-item-node-error">[[icon:x-circle:14]] {{ node.failureLabel }}</span></sc-if></button>
      <sc-if value="{{ node.hasEdge }}"><span class="pm-item-edge" aria-hidden="true"></span></sc-if>
     </sc-for></div>
    </div>

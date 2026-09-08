@@ -8,8 +8,9 @@ export function installPipelineNodeDrawer(t){
  const start=t.indexOf('      <sc-if value="{{ pe.hasSel }}"'),end=t.indexOf('\n      </sc-if>',start)+'\n      </sc-if>'.length;
  if(start<0 || end<start)throw Error('Node inspector boundary changed');
  t=t.slice(0,start)+t.slice(end);
- const marker='  <sc-if value="{{ isDatasets }}"';
- t=t.replace(marker,fs.readFileSync(new URL('pipeline-node-drawer.html',import.meta.url),'utf8')+marker);
+ const marker='</div><div class="pm-pipeline-zoom"';
+ if(!t.includes(marker))throw Error('Pipeline workspace drawer boundary changed');
+ t=t.replace(marker,'</div>'+fs.readFileSync(new URL('pipeline-node-drawer.html',import.meta.url),'utf8')+'<div class="pm-pipeline-zoom"');
  t=t.replace('<div data-pm-readonly="{{ pe.readOnly }}" class="pm-pipeline-editor ', '<div data-pm-readonly="{{ pe.readOnly }}" data-pm-inspector-open="{{ pe.hasSel }}" class="pm-pipeline-editor ');
  t=t.replace(/<div\b[^>]*sc-camel-on-click="\{\{ pe.back \}\}"[^>]*>([\s\S]*?) 返回<\/div>/,(_,icon)=>'<button type="button" class="pm-pipeline-back" aria-label="返回 Pipeline 列表" title="返回 Pipeline 列表" sc-camel-on-click="{{ pe.back }}">'+icon+'</button>');
  t=t.replace('<span class="pm-pipeline-mode">{{ pe.modeLabel }}</span>','<sc-if value="{{ pe.showModeLabel }}"><span class="pm-pipeline-mode">{{ pe.modeLabel }}</span></sc-if>');

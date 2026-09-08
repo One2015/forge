@@ -69,6 +69,7 @@ export function installUtilityPanels(t) {
   }
 
   let downloads = t.slice(downloadId, notificationId);
+  downloads = downloads.replace(/<div\b[^>]*sc-camel-on-click="\{\{ dl\.clearDone \}\}"[^>]*>清除已完成<\/div>/, '');
   downloads = replaceOnce(
     downloads,
     '<div style="padding:12px 15px;border-bottom:1px solid #f4f0ea">',

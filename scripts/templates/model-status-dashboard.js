@@ -181,9 +181,24 @@
     const summarize = (key, nameKey) => Array.from(new Set(lines.map(line => line[key]))).map(id => {
       const grouped = lines.filter(line => line[key] === id), calls = grouped.reduce((n,line)=>n+(line.calls||0),0), failures = grouped.reduce((n,line)=>n+(line.failures||0),0), cost = grouped.reduce((n,line)=>n+(line.costUsd||0),0), usageKnown = grouped.every(line=>line.usageKnown);
       const latencies = grouped.map(line=>line.latencyMs).filter(Number.isFinite), speeds = grouped.map(line=>line.throughput).filter(Number.isFinite), [statusLabel,tone] = runStatusFor(grouped);
-      return { id, name:grouped[0]?.[nameKey]||id, requests:usageKnown?num(calls,0):'—', availability:grouped.filter(line=>line.active&&line.result==='passed').length+' / '+grouped.filter(line=>line.active).length, success:usageKnown&&calls?percent((calls-failures)/calls*100):'—', latency:latencies.length?num(Math.max(...latencies)/1000,2)+'s':'—', speed:speeds.length?num(speeds.reduce((a,b)=>a+b,0)/speeds.length)+' Tokens/s':'—', qualityStatus:qualityStatusFor(grouped), cost:usageKnown?money(cost):'—', unitCost:usageKnown&&calls?money(cost/calls):'—', statusLabel, tone, open:()=>this.setState({modelPageTab:'lines',[key==='modelId'?'modelModel':'modelProvider']:id}) };
+      return { id, sortValues:{requests:usageKnown?calls:null,success:usageKnown&&calls?(calls-failures)/calls:null,latency:latencies.length?Math.max(...latencies):null,speed:speeds.length?speeds.reduce((a,b)=>a+b,0)/speeds.length:null,cost:usageKnown?cost:null}, name:grouped[0]?.[nameKey]||id, requests:usageKnown?num(calls,0):'—', availability:grouped.filter(line=>line.active&&line.result==='passed').length+' / '+grouped.filter(line=>line.active).length, success:usageKnown&&calls?percent((calls-failures)/calls*100):'—', latency:latencies.length?num(Math.max(...latencies)/1000,2)+'s':'—', speed:speeds.length?num(speeds.reduce((a,b)=>a+b,0)/speeds.length)+' Tokens/s':'—', qualityStatus:qualityStatusFor(grouped), cost:usageKnown?money(cost):'—', unitCost:usageKnown&&calls?money(cost/calls):'—', statusLabel, tone, open:()=>this.setState({modelPageTab:'lines',[key==='modelId'?'modelModel':'modelProvider']:id}) };
     });
-    const modelOverviewRows=summarize('modelId','model');
+    const modelOverviewAll=summarize('modelId','model');
+    const modelQualityFilter=state.modelQualityFilter || 'all';
+    const modelOverviewControls={qualityValue:modelQualityFilter,onQuality:event=>this.setState({modelQualityFilter:event.target.value})};
+    for(const [key,label] of [['requests','请求量'],['success','成功率'],['latency','P95 TTFT'],['speed','生成速度'],['cost','总成本']]){
+      const active=state.modelOverviewSortKey===key, ascending=state.modelOverviewSortDirection==='asc';
+      modelOverviewControls[key+'Direction']=active?(ascending?'ascending':'descending'):'none';
+      modelOverviewControls[key+'Label']=label+'，'+(active?(ascending?'当前升序，点击降序':'当前降序，点击升序'):'点击升序');
+      modelOverviewControls[key+'Toggle']=()=>this.setState({modelOverviewSortKey:key,modelOverviewSortDirection:active&&ascending?'desc':'asc'});
+    }
+    const modelOverviewRows=modelOverviewAll.filter(row=>modelQualityFilter==='all'||row.qualityStatus===modelQualityFilter);
+    if(['requests','success','latency','speed','cost'].includes(state.modelOverviewSortKey))modelOverviewRows.sort((a,b)=>{
+      const av=a.sortValues[state.modelOverviewSortKey],bv=b.sortValues[state.modelOverviewSortKey];
+      if(!Number.isFinite(av))return Number.isFinite(bv)?1:0;
+      if(!Number.isFinite(bv))return -1;
+      return (av-bv)*(state.modelOverviewSortDirection==='asc'?1:-1);
+    });
     const errorMap=new Map();
     lines.forEach(line=>(line.alertReasonItems||[]).forEach(reason=>{
       const current=errorMap.get(reason.id)||{id:reason.id,name:reason.label,count:0,companies:new Set(),tasks:0,failures:0,lastSeen:'待确认',lastSeenAt:-Infinity};
@@ -194,7 +209,10 @@
       if(Number.isFinite(line.observedAt)&&line.observedAt>current.lastSeenAt){current.lastSeenAt=line.observedAt;current.lastSeen=line.abnormalStartedAt||line.observedLabel||'待确认';}
       errorMap.set(reason.id,current);
     }));
-    const errorOverviewRows=Array.from(errorMap.values()).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'zh-CN')).map(row=>({id:row.id,name:row.name,company:Array.from(row.companies).sort((a,b)=>a.localeCompare(b,'zh-CN')).join('、')||'待确认',impact:[row.tasks?num(row.tasks,0)+' 个运行任务':'',row.failures?num(row.failures,0)+' 次失败':''].filter(Boolean).join(' · ')||'待确认',count:num(row.count,0),countLabel:num(row.count,0)+' 次',lastSeen:row.lastSeen,open:()=>{
+    const errorCompanyValue=state.modelErrorCompany || 'all';
+    const errorCompanyOptions=Array.from(new Set(Array.from(errorMap.values()).flatMap(row=>Array.from(row.companies)))).sort((a,b)=>a.localeCompare(b,'zh-CN')).map(name=>({value:name,label:name}));
+    const errorCountDirection=state.modelErrorCountDirection==='asc'?'ascending':'descending';
+    const errorOverviewRows=Array.from(errorMap.values()).filter(row=>errorCompanyValue==='all'||row.companies.has(errorCompanyValue)).sort((a,b)=>(state.modelErrorCountDirection==='asc'?a.count-b.count:b.count-a.count)||a.name.localeCompare(b.name,'zh-CN')).map(row=>({id:row.id,name:row.name,company:Array.from(row.companies).sort((a,b)=>a.localeCompare(b,'zh-CN')).join('、')||'待确认',impact:[row.tasks?num(row.tasks,0)+' 个运行任务':'',row.failures?num(row.failures,0)+' 次失败':''].filter(Boolean).join(' · ')||'待确认',count:num(row.count,0),countLabel:num(row.count,0)+' 次',lastSeen:row.lastSeen,open:()=>{
       this.setState({modelPageTab:'lines',modelQuery:'',modelProvider:'',modelModel:'',modelLine:'',modelFilter:row.id,modelBusinessOnly:false,modelSelection:'',modelRoute:'',modelDrawerMode:'',modelChartPoint:null});
       setTimeout(()=>{if(typeof document!=='undefined')document.getElementById('forge-model-table-title')?.focus();},0);
     }}));
@@ -296,7 +314,7 @@
       closeBilling: () => this.setState({ modelDrawerMode: 'diagnostic' }),
       dismissMessage: () => this.setState({ modelRetestMessage: '' }), message: state.modelRetestMessage || '',
       pageTab, overviewTab:pageTab==='overview', linesTab:pageTab==='lines', pageTabs:[['overview','运行概览'],['lines','模型线路']].map(([id,label])=>({id,label,current:pageTab===id?'page':'false',pick:()=>this.setState({modelPageTab:id,modelSelection:'',modelRoute:'',modelDrawerMode:''})})),
-      overviewMetrics,availabilityMetrics,operationMetrics,overviewWindow,overviewWindowLabel,overviewWindowStart,overviewWindowEnd,overviewWindowInvalid,overviewWindowCustom:overviewWindow==='custom',overviewWindowOptions:overviewWindowDefs.map(([id,label])=>({id,label,active:id===overviewWindow,pick:()=>this.setState({modelOverviewWindow:id})})),onOverviewWindowStart:event=>this.setState({modelOverviewStart:event.target.value}),onOverviewWindowEnd:event=>this.setState({modelOverviewEnd:event.target.value}),modelOverviewRows,errorOverviewRows,hasErrors:errorOverviewRows.length>0,
+      overviewMetrics,availabilityMetrics,operationMetrics,overviewWindow,overviewWindowLabel,overviewWindowStart,overviewWindowEnd,overviewWindowInvalid,overviewWindowCustom:overviewWindow==='custom',overviewWindowOptions:overviewWindowDefs.map(([id,label])=>({id,label,active:id===overviewWindow,pick:()=>this.setState({modelOverviewWindow:id})})),onOverviewWindowStart:event=>this.setState({modelOverviewStart:event.target.value}),onOverviewWindowEnd:event=>this.setState({modelOverviewEnd:event.target.value}),modelOverviewRows, modelOverviewControls, modelOverviewEmpty:modelOverviewRows.length===0,errorOverviewRows,hasErrors:errorMap.size>0,errorOverviewEmpty:errorOverviewRows.length===0,errorCompanyValue,errorCompanyOptions,onErrorCompany:event=>this.setState({modelErrorCompany:event.target.value}),errorCountDirection,errorCountSortLabel:'次数，'+(errorCountDirection==='ascending'?'当前升序，点击降序':'当前降序，点击升序'),toggleErrorCount:()=>this.setState({modelErrorCountDirection:state.modelErrorCountDirection==='asc'?'desc':'asc'}),
       tabs: [['providers', '模型供应商'], ['models', '模型评估']].map(([id, label]) => ({ id, label, selected: state.modelDimension === id, select: () => this.setState({ modelDimension: id }) })),
       providersView: state.modelDimension !== 'models', modelsView: state.modelDimension === 'models', accountTitle: state.modelDimension === 'models' ? '固定集得分' : '账户余额'
     };

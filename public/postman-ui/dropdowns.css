@@ -1,0 +1,75 @@
+/* Shared option styling for native pickers and custom dropdowns.
+   Keep trigger layouts page-specific; menu typography never inherits a heading. */
+:is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock){
+  --dropdown-font:400 13px/20px var(--font-sans);
+  --dropdown-option-height:36px;
+  --dropdown-radius:8px;
+  --dropdown-option-radius:4px;
+}
+
+@supports(appearance:base-select){
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]),
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size])::picker(select){appearance:base-select!important}
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]){align-items:center;gap:8px}
+  .forge-postman .forge-review-sort>.forge-icon{display:none}
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size])::picker-icon{color:var(--text-muted);flex:none;margin-inline-start:auto}
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size])::picker(select){
+    box-sizing:border-box;min-inline-size:160px;max-inline-size:calc(100vw - 24px);
+    max-height:min(320px,70dvh);overflow:auto;overscroll-behavior:contain;
+    margin-block:4px;padding:4px!important;border:1px solid var(--border-default)!important;
+    border-radius:var(--dropdown-radius)!important;background:var(--surface-overlay)!important;
+    color:var(--text-primary)!important;font:var(--dropdown-font)!important;
+    box-shadow:var(--shadow-overlay)!important;scrollbar-width:thin;
+    scrollbar-color:var(--border-strong) transparent;
+  }
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]) option{
+    display:flex;align-items:center;gap:12px;box-sizing:border-box;
+    min-height:var(--dropdown-option-height);padding:8px 10px!important;
+    border:0!important;border-radius:var(--dropdown-option-radius)!important;background:transparent!important;
+    color:var(--text-primary)!important;font:var(--dropdown-font)!important;
+    text-align:start;white-space:normal;overflow-wrap:anywhere;
+    box-shadow:none!important;cursor:pointer;
+  }
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]) option:hover:not(:disabled,:checked){background:var(--surface-hover)!important}
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]) option:checked{
+    background:var(--accent-soft)!important;color:var(--text-primary)!important;font-weight:500!important;
+  }
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]) option:focus-visible{
+    outline:2px solid var(--focus-ring)!important;outline-offset:-2px;
+  }
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]) option::checkmark{
+    order:1;margin-inline-start:auto;flex:none;color:var(--accent-primary);font:500 14px/20px var(--font-sans);
+  }
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]) option:disabled{
+    background:transparent!important;color:var(--text-disabled,var(--text-muted))!important;cursor:not-allowed;
+  }
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]) optgroup{
+    color:var(--text-muted);font:500 12px/20px var(--font-sans);
+  }
+}
+
+:is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) :is([role=menu],[role=listbox],.forge-motion-menu,.pm-task-tag-options,.pm-profile-create-menu,.forge-delivery-skill-create-menu,.pm-delivery-filter-menu,.rbac-skill-create-options){
+  padding:4px!important;border:1px solid var(--border-default)!important;border-radius:var(--dropdown-radius)!important;
+  background:var(--surface-overlay)!important;color:var(--text-primary)!important;
+  font:var(--dropdown-font)!important;box-shadow:var(--shadow-overlay)!important;
+}
+:is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) :is([role=menu],[role=listbox],.forge-motion-menu,.pm-task-tag-options,.pm-profile-create-menu,.forge-delivery-skill-create-menu,.pm-delivery-filter-menu,.rbac-skill-create-options) :is(button,label,[role=option],[role^=menuitem]){
+  box-sizing:border-box;min-height:var(--dropdown-option-height)!important;padding:8px 10px!important;
+  border:0!important;border-radius:var(--dropdown-option-radius)!important;background:transparent!important;
+  color:var(--text-primary)!important;font:var(--dropdown-font)!important;
+  text-align:start;box-shadow:none!important;--selected-edge:none;
+}
+:is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) :is([role=menu],[role=listbox],.forge-motion-menu,.pm-task-tag-options,.pm-profile-create-menu,.forge-delivery-skill-create-menu,.pm-delivery-filter-menu,.rbac-skill-create-options) :is(button,label,[role=option],[role^=menuitem]):hover:not(:disabled,[aria-disabled=true],[aria-selected=true],[aria-checked=true],[data-selected=true]){background:var(--surface-hover)!important}
+:is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) :is([role=menu],[role=listbox],.forge-motion-menu,.pm-task-tag-options,.pm-profile-create-menu,.forge-delivery-skill-create-menu,.pm-delivery-filter-menu,.rbac-skill-create-options) :is([aria-selected=true],[aria-checked=true],[data-selected=true]){
+  background:var(--accent-soft)!important;color:var(--text-primary)!important;font-weight:500!important;
+  border-inline-start:0!important;box-shadow:none!important;
+}
+:is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) :is([role=menu],[role=listbox],.forge-motion-menu,.pm-task-tag-options,.pm-profile-create-menu,.forge-delivery-skill-create-menu,.pm-delivery-filter-menu,.rbac-skill-create-options) :is(button,label,[role=option],[role^=menuitem]):focus-visible{
+  outline:2px solid var(--focus-ring)!important;outline-offset:-2px!important;
+}
+:is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) :is([role=menu],[role=listbox],.forge-motion-menu,.pm-task-tag-options,.pm-profile-create-menu,.forge-delivery-skill-create-menu,.pm-delivery-filter-menu,.rbac-skill-create-options) :is(:disabled,[aria-disabled=true]){
+  background:transparent!important;color:var(--text-disabled,var(--text-muted))!important;cursor:not-allowed;
+}
+@media(pointer:coarse){
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock){--dropdown-option-height:44px}
+}

@@ -41,3 +41,22 @@ test('Vision2Web sheet exposes child items matching its aggregate progress', () 
   assert.equal(values.rows.length, 84);
   assert.equal(values.count, '84 / 80 个子项');
 });
+
+test('failure filter shows failed child items with the correct status and combines with search', () => {
+  const component = context.component;
+  component.setState({ view: 'sheet', sheetKey: 'stepv2w', sheetFilter: 'all', sheetQuery: '' });
+  let values = component.renderVals().sheet;
+  assert.equal(values.statusOptions.find(option => option.value === 'failed').label, '失败');
+  values.onStatusFilter({ target: { value: 'failed' } });
+  values = component.renderVals().sheet;
+  assert.equal(values.rows.length, 5);
+  assert.ok(values.rows.every(row => row.state === '失败'));
+  const firstId = values.rows[0].id;
+  values.onQuery({ target: { value: firstId } });
+  values = component.renderVals().sheet;
+  assert.equal(values.rows.length, 1);
+  assert.equal(values.rows[0].id, firstId);
+  values.onQuery({ target: { value: '' } });
+  values.onStatusFilter({ target: { value: 'all' } });
+  assert.equal(component.renderVals().sheet.rows.length, 84);
+});

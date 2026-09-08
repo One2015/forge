@@ -20,6 +20,13 @@ export function updateForgeSidebar(source) {
   const navPattern = /  <nav class="forge-sidebar-nav"[\s\S]*?  <\/nav>/;
   if (!navPattern.test(template)) throw new Error('Missing generated sidebar navigation');
   template = template.replace(navPattern, nav);
+  if (!template.includes('goMembers:')) {
+    template = template.replace('        goSuppliers:', "        goMembers: () => this.setState({ view: 'members', dlOpen: false, notifOpen: false, profileOpen: false }),\n        membersCurrent: view === 'members' ? 'page' : 'false',\n        goSuppliers:");
+    template = template.replace("      isOverview: view === 'overview',", "      isMembers: view === 'members',\n      isOverview: view === 'overview',");
+    template = template.replace("view !== 'outsourcing-suppliers' ? 'page'", "view !== 'outsourcing-suppliers' && view !== 'members' ? 'page'");
+    template = template.replace("'outsourcing-suppliers', 'pipeedit'", "'outsourcing-suppliers', 'members', 'pipeedit'");
+    template = template.replace('</main>', '<sc-if value="{{ isMembers }}"><section class="forge-page" data-forge-members-page><h1>成员管理</h1></section></sc-if>\n</main>');
+  }
   const css = fs.readFileSync(new URL('./templates/forge-sidebar.css', import.meta.url), 'utf8').trim();
   const cssPattern = /\/\* forge-sidebar:start \*\/[\s\S]*?\/\* forge-sidebar:end \*\//;
   if (!cssPattern.test(template)) throw new Error('Missing generated sidebar CSS');

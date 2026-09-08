@@ -24,9 +24,9 @@ export function installReviewQueue(t) {
       modal = modal.replace(before, after);
     }
   }
-  let page = renderPhosphorIcons(read('review-queue.html'));
+  let page = renderPhosphorIcons(read('review-queue.html').replace('<!-- external-review-panel -->',read('external-review.html')));
   t = t.slice(0, start) + page + '\n' + modal + '\n</sc-if>\n\n' + t.slice(end);
-  t = t.replace('class Component extends DCLogic {', 'class Component extends DCLogic {\n' + read('review-queue-methods.js'));
+  t = t.replace('class Component extends DCLogic {', 'class Component extends DCLogic {\n' + read('review-queue-methods.js')+'\n'+read('external-review-methods.js'));
   t = t.replace('const mineRows = rows.filter(r => r.assignee === me);', 'const mineRows = rows.filter(r => (this.reviewQueueClaim(r) || r.assignee).toLowerCase() === me.toLowerCase()); // pm-review-queue-owner');
   const boundary = '\n    let done = {};';
   const pos = t.indexOf(boundary);

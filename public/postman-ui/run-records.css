@@ -16,7 +16,7 @@
 .forge-postman .rr-filter-trigger[aria-expanded=true]>.forge-icon{transform:rotate(180deg)}
 .forge-postman .rr-filter-trigger:focus-visible,.forge-postman .rr-filter-option:focus-visible{outline:2px solid var(--pm-focus);outline-offset:2px}
 .forge-postman .rr-filter-scrim{position:fixed;inset:0;z-index:var(--z-popover);width:100%;height:100%;padding:0;border:0;background:transparent;cursor:default}
-.forge-postman .rr-page .rr-filter-menu{position:fixed;z-index:calc(var(--z-popover) + 2);display:grid;gap:1px;max-height:min(288px,calc(100dvh - 24px));overflow-y:auto;overscroll-behavior:contain;margin:0;padding:var(--space-1)!important;border:0!important;border-radius:var(--radius-surface)!important;background:var(--surface-overlay)!important;box-shadow:var(--shadow-overlay)!important;color:var(--text-primary);scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
+.forge-postman .rr-page .rr-filter-menu{position:fixed;z-index:calc(var(--z-popover) + 2);display:grid;gap:1px;max-height:min(288px,calc(100dvh - 24px));overflow-y:auto;overscroll-behavior:contain;margin:0;padding:var(--space-1)!important;border:0!important;border-radius:0!important;background:var(--surface-overlay)!important;box-shadow:var(--shadow-overlay)!important;color:var(--text-primary);scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
 .forge-postman .rr-filter-menu[data-placement=top]{--forge-menu-origin:bottom left}
 .forge-postman .rr-filter-option{display:grid;grid-template-columns:minmax(0,1fr) 16px;align-items:center;gap:10px;width:100%;min-height:36px;padding:7px 9px;border:0;border-radius:var(--radius-control);background:transparent;color:var(--text-secondary);font-size:var(--type-component-size);line-height:var(--type-component-leading);font-weight:var(--weight-regular);text-align:left;white-space:nowrap}
 .forge-postman .rr-filter-option>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -61,8 +61,6 @@
 .rr-operations>.rr-action{width:96px}
 .forge-postman .rr-action{height:30px;min-width:96px;border:1px solid #d2d2d2;border-radius:4px;background:white;color:#525252;padding:0 9px;font:500 12px var(--pm-font);white-space:nowrap;cursor:pointer;box-shadow:none}
 .forge-postman .rr-action:hover{background:#f7f7f7;border-color:#999}
-.forge-postman .rr-action[data-kind=review]{border-color:var(--pm-action-border)!important;background:var(--pm-action)!important;color:var(--pm-on-action)!important}
-.forge-postman .rr-action[data-kind=review]:hover{border-color:var(--pm-action-border)!important;background:var(--pm-action-hover)!important;color:var(--pm-on-action)!important}
 .rr-pagination{display:flex;align-items:center;gap:12px;padding:12px 0;color:#696969;font-size:12px;font-variant-numeric:tabular-nums}
 .rr-pagination>span:first-child{margin-right:auto}.rr-pagination label{display:flex;align-items:center;gap:6px}
 .rr-pagination select,.rr-pagination button{height:30px;border:1px solid #ddd;border-radius:4px;background:white;color:#525252;font:inherit;padding:0 7px}

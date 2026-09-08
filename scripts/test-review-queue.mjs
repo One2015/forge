@@ -105,7 +105,7 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.doesNotMatch(html,/超时|即将|SLA|截止|等待时间/);assert.doesNotMatch(html,/review\.owners|review-queue-card-header/);
  assert.match(html,/<h1 id="queue-title">审核<\/h1>/);assert.doesNotMatch(html,/review\.queue\.subtitle|<h1 id="queue-title">审核队列<\/h1>/);assert.match(html,/<h2 class="pq-list-title">审核列表<\/h2>/);
  assert.match(html,/sc-camel-on-input/);assert.match(html,/aria-busy/);assert.match(html,/role="alert"/);
- assert.doesNotMatch(html,/class="pq-tabs"|role="tablist"/);
+ assert.doesNotMatch(html,/class="pq-tabs"/);
  for(const label of ['filter.ariaLabel','filter.label','review.queue.activeFilter.ariaLabel'])assert(html.includes(label),label);
  assert.match(html,/sc-for list="\{\{ review\.queue\.filters \}\}"[^>]*hint-placeholder-count="5"/);
  assert.match(html,/class="pq-filter-trigger"[^>]*aria-haspopup="menu"[^>]*aria-expanded="\{\{ filter\.open \}\}"/);
@@ -125,7 +125,7 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.match(css,/\.pm-review-queue \.pq-filter-trigger\{[^}]*grid-template-columns:minmax\(0,1fr\) 14px[^}]*border-radius:var\(--radius-control\)[^}]*background:var\(--surface-raised\)[^}]*color:var\(--text-disabled\)[^}]*font-size:var\(--type-component-size\)/);
  assert.match(css,/\.pm-review-queue \.pq-filter-trigger\[data-filtered=true\],[^}]*\{color:var\(--text-primary\);font-weight:var\(--weight-medium\)\}/);
  assert.match(css,/\.pm-review-queue \.pq-filter-trigger\[aria-expanded=true\]\{[^}]*background:var\(--surface-raised\)[^}]*box-shadow:none/);
- assert.match(css,/\.forge-postman \.pm-review-queue \.pq-filter-menu\{[^}]*position:fixed[^}]*border-radius:var\(--radius-surface\)!important[^}]*background:var\(--surface-overlay\)!important[^}]*box-shadow:var\(--shadow-overlay\)!important/);
+ assert.match(css,/\.forge-postman \.pm-review-queue \.pq-filter-menu\{[^}]*position:fixed[^}]*border-radius:0!important[^}]*background:var\(--surface-overlay\)!important[^}]*box-shadow:var\(--shadow-overlay\)!important/);
  assert.match(css,/\.pq-filter-menu\[data-placement=top\]\{--forge-menu-origin:bottom left\}/);
  assert.match(css,/\.pm-review-queue \.pq-filter-option\[data-selected=true\]\{background:var\(--accent-soft\);color:var\(--text-primary\);font-weight:var\(--weight-medium\)\}/);
  assert.match(css,/\.pq-table-head>\[role=columnheader\]\{[^}]*text-align:left[^}]*font-weight:var\(--weight-semibold\)/);
@@ -159,4 +159,61 @@ test('column sort toggles both directions and keeps person filtering',()=>{
  q().toggleRoundSort();assert.equal(q().roundSort,'descending');assert(q().rows.every((r,i,a)=>!i||a[i-1].n>=r.n));
  q().toggleTimeSort();assert.equal(q().timeSort,'ascending');assert.equal(q().roundSort,'none');assert(q().rows.every((r,i,a)=>!i||a[i-1].stamp<=r.stamp));
  q().toggleTimeSort();assert.equal(q().timeSort,'descending');assert(q().rows.every((r,i,a)=>!i||a[i-1].stamp>=r.stamp));assert.equal(q().person,'yokiguan');
+});
+
+test('external QA requires explicit decisions, keeps internal queue intact and tracks versioned resubmission',()=>{
+ const {c,q}=fixture();const internal=q().total;
+ let qa=c.externalReviewValues();assert.equal(qa.pending,1);qa.showExternal();qa=c.externalReviewValues();qa.rows[0].open();
+ qa=c.externalReviewValues();assert(!qa.canSubmit);qa.submit();assert(c.externalReviewValues().hasError);
+ qa.choices.find(choice=>choice.id==='rework').pick();qa=c.externalReviewValues();assert(!qa.canSubmit);qa.submit();assert(c.externalReviewValues().hasError);
+ qa.onNote({target:{value:'标签遮挡，请修复交互并重新提交。'}});qa=c.externalReviewValues();assert(qa.canSubmit);qa.submit();
+ qa=c.externalReviewValues();assert.equal(qa.pending,0);assert.equal(qa.rework,1);assert.equal(qa.history.length,1);assert.equal(q().total,internal);
+ const submission={...c.externalReviewSource()[0],version:'v2',round:2};c.props.externalReviewItems=[submission];
+ qa=c.externalReviewValues();assert.equal(qa.pending,1);qa.phases.find(phase=>phase.id==='pending').pick();qa=c.externalReviewValues();qa.rows[0].open();
+ qa=c.externalReviewValues();qa.choices.find(choice=>choice.id==='pass').pick();qa=c.externalReviewValues();qa.submit();qa.submit();
+ qa=c.externalReviewValues();assert.equal(qa.passed,1);assert.equal(qa.history.length,2);assert.equal(qa.pending,0);assert.equal(q().total,internal);
+});
+test('external QA rejection requires a note and empty connected data never substitutes demo tasks',()=>{
+ const {c}=fixture();c.props.externalReviewItems=[];assert.equal(c.externalReviewValues().pending,0);assert(!c.externalReviewValues().demo);
+ delete c.props.externalReviewItems;let qa=c.externalReviewValues();qa.rows[0].open();qa=c.externalReviewValues();qa.choices.find(choice=>choice.id==='reject').pick();qa=c.externalReviewValues();assert(!qa.canSubmit);
+ qa.onNote({target:{value:'结果不符合交付要求。'}});qa=c.externalReviewValues();qa.submit();assert.equal(c.externalReviewValues().rejected,1);
+});
+
+test('review audience tabs support arrow keys and Home/End without changing pending counts',()=>{
+ const {c}=fixture();const before=c.externalReviewValues().pending;
+ for(const [key,expected] of [['ArrowRight',true],['ArrowLeft',false],['End',true],['Home',false]]){
+  let prevented=false;c.externalReviewValues().audienceKey({key,preventDefault(){prevented=true}});
+  assert(prevented);assert.equal(c.externalReviewValues().external,expected);assert.equal(c.externalReviewValues().pending,before);
+ }
+ assert.match(template,/role="tablist" aria-label="审核分类"/);
+ assert.match(template,/class="eq-pending-badge"/);
+ assert.match(template,/externalQA.pending > 0/);
+});
+
+
+test('external review preview navigation follows the visible queue and stops at its ends',()=>{
+ const {c}=fixture();const first=c.externalReviewSource()[0];
+ c.props.externalReviewItems=[first,{...first,id:'external-next',itemId:'next-item',name:'第二项'}];
+ let qa=c.externalReviewValues();qa.rows[0].open();qa=c.externalReviewValues();
+ assert(qa.cannotPrevious);assert(!qa.cannotNext);assert.equal(qa.positionLabel,'第 1 项，共 2 项');
+ qa.previous();assert.equal(c.externalReviewValues().selected.id,first.id);
+ qa.next();qa=c.externalReviewValues();assert.equal(qa.selected.id,'external-next');assert(qa.cannotNext);
+ qa.next();assert.equal(c.externalReviewValues().selected.id,'external-next');
+ qa.previous();assert.equal(c.externalReviewValues().selected.id,first.id);
+ const html=fs.readFileSync(new URL('./postman-ui/external-review.html',import.meta.url),'utf8');
+ assert.match(html,/data-pm-artifact-toolbar/);
+ for(const key of ['ArrowUp','ArrowDown','Escape'])assert(html.includes('aria-keyshortcuts="'+key+'"'));
+});
+
+
+test('external review bottom actions submit pass directly and require a note for return or rejection',()=>{
+ const {c}=fixture();let qa=c.externalReviewValues();qa.rows[0].open();qa=c.externalReviewValues();
+ qa.requestRework();qa=c.externalReviewValues();assert(qa.requiresNote);assert(!qa.canSubmit);assert.equal(qa.submitLabel,'提交返修');
+ qa.cancelDecision();qa=c.externalReviewValues();assert(!qa.requiresNote);assert.equal(qa.pending,1);
+ qa.requestReject();qa=c.externalReviewValues();assert.equal(qa.submitLabel,'提交不通过');assert(!qa.canSubmit);
+ qa.cancelDecision();qa=c.externalReviewValues();qa.approve();qa.approve();
+ qa=c.externalReviewValues();assert.equal(qa.passed,1);assert.equal(qa.history.length,1);
+ const html=fs.readFileSync(new URL('./postman-ui/external-review.html',import.meta.url),'utf8');
+ assert.match(html,/footer class="review-workbench-actions eq-review-actions"/);
+ assert.doesNotMatch(html,/class="eq-choices"|class="eq-submit"|class="forge-artifact-toolbar"/);
 });

@@ -5,9 +5,9 @@
   const dockCaretIcon = '<svg class="forge-icon rbac-dock-caret" data-phosphor="caret-down" width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>';
   const ACTIONS = ['view', 'create', 'modify', 'remove'];
   const roleLabels = {
-    'project-owner': 'Project Owner',
-    member: 'Member',
-    'external-expert': 'External Experts',
+    'project-owner': '项目负责人',
+    member: '成员',
+    'external-expert': '外部专家',
   };
   const inviteRoleLabels = {
     admin: '管理员',
@@ -208,7 +208,7 @@
     return [...Object.entries(roleLabels), ...(state.customRoles || []).map(role => [role.id, role.name])];
   }
   function roleLabel(roleKey) {
-    return roleEntries().find(([key]) => key === roleKey)?.[1] || roleKey || 'Member';
+    return roleEntries().find(([key]) => key === roleKey)?.[1] || roleKey || '成员';
   }
   function inviteRoleLabel(roleKey) {
     return inviteRoleLabels[roleKey] || inviteRoleLabels.member;
@@ -306,9 +306,12 @@
         skillMenu.querySelector('summary')?.focus();
       }
     }, true);
-    window.addEventListener('popstate', () => closeWorkspace());
+    window.addEventListener('popstate', () => requestAnimationFrame(() => syncMembersPage(true)));
+    const membersObserver = new MutationObserver(() => syncMembersPage());
+    membersObserver.observe(document.querySelector('.forge-main') || document.body, { childList: true, subtree: true });
     applyFeatureAccess();
     render();
+    syncMembersPage();
   }
   function waitForForge() {
     if (document.querySelector('.forge-app-shell')) return mount();
@@ -321,6 +324,20 @@
     setTimeout(() => { observer.disconnect(); if (!root) mount(); }, 6000);
   }
 
+  let membersPageMounted = false;
+  function syncMembersPage(force = false) {
+    const mounted = !!document.querySelector('[data-forge-members-page]');
+    if (!force && mounted === membersPageMounted) return;
+    membersPageMounted = mounted;
+    if (mounted) {
+      state.activeTab = 'member';
+      state.activeMemberId = '';
+      root.dataset.open = 'true';
+      render();
+      root.scrollTop = 0;
+      requestAnimationFrame(() => root.querySelector('[data-members-title]')?.focus());
+    } else closeWorkspace();
+  }
   function handleDocumentClick(event) {
     const skillMenu = root?.querySelector('.rbac-skill-create-menu[open]');
     if (skillMenu && !event.target.closest?.('.rbac-skill-create-menu')) skillMenu.open = false;
@@ -334,6 +351,7 @@
     const nav = event.target.closest?.('.forge-sidebar-link,.forge-sidebar-brand');
     if (!nav) return;
     const label = nav.getAttribute('aria-label') || nav.textContent.trim();
+    if (label === '成员管理') { if (membersPageMounted) syncMembersPage(true); return; }
     const feature = navFeature(label);
     if (feature && !permissionValue(feature, 'view')) {
       event.preventDefault();
@@ -364,7 +382,7 @@
     });
     const profile = document.querySelector('.forge-sidebar-profile');
     if (profile) {
-      profile.dataset.rbacCurrent = String(root?.dataset.open === 'true');
+      profile.dataset.rbacCurrent = String(root?.dataset.open === 'true' && !(membersPageMounted && ['member', 'permission'].includes(state.activeTab)));
       const label = profile.querySelector('.forge-sidebar-profile-label');
       if (label) label.textContent = isAdmin() ? 'Admin' : 'Internal Member';
     }
@@ -394,6 +412,14 @@
     if (!root || !dock) return;
     renderDock();
     if (root.dataset.open !== 'true') return;
+    if (membersPageMounted && ['member', 'permission'].includes(state.activeTab)) {
+      const tabs = [['member', '成员'], ['permission', '权限']];
+      root.innerHTML = `<div class="rbac-page rbac-members-page"><header class="rbac-page-head"><div><h1 tabindex="-1" data-members-title>成员管理</h1></div></header>
+        <nav class="rbac-tabs rbac-members-tabs" role="tablist" aria-label="成员管理">${tabs.map(([key,label]) => `<button id="members-tab-${key}" class="rbac-tab" type="button" role="tab" aria-selected="${state.activeTab === key}" aria-controls="members-panel-${key}" tabindex="${state.activeTab === key ? '0' : '-1'}" data-members-tab="${key}">${label}</button>`).join('')}</nav>
+        <main id="members-panel-${state.activeTab}" role="tabpanel" aria-labelledby="members-tab-${state.activeTab}">${isAdmin() ? activeView() : '<section class="rbac-boundary">仅管理员可查看和管理工作台成员与权限。</section>'}</main></div>`;
+      bindRootEvents();
+      return;
+    }
     if (isExternalPreview()) {
       root.innerHTML = externalBoundaryView();
       bindRootEvents();
@@ -439,6 +465,10 @@
           <div><span class="rbac-field-label">平台角色</span><span class="rbac-field-value">${isAdmin() ? 'Admin' : 'Internal Member'}</span></div>
         </div>
       </section>
+      <section class="rbac-section" aria-labelledby="profile-appearance-title">
+        <div class="rbac-section-head"><h2 id="profile-appearance-title">外观</h2></div>
+        <div class="rbac-card rbac-appearance-card"><span>界面主题</span><button type="button" id="forge-theme-toggle" class="rbac-secondary" aria-pressed="false"><span data-forge-theme-label>深色</span></button></div>
+      </section>
       <section class="rbac-section" aria-labelledby="profile-projects-title">
         <div class="rbac-section-head"><div><h2 id="profile-projects-title">相关任务列表</h2><p class="rbac-section-copy">列出所有与当前用户相关的 Project，并显示其在每个项目中的角色。</p></div></div>
         <div class="rbac-card rbac-table-wrap"><table class="rbac-table"><thead><tr><th>Project / 交付单</th><th>客户</th><th>项目角色</th><th>状态</th><th>交付时间</th></tr></thead><tbody>
@@ -453,15 +483,15 @@
     const members = state.members.filter(member => !query || `${member.name} ${member.email}`.toLowerCase().includes(query));
     return `
       <section class="rbac-section">
-        <div class="rbac-section-head"><div><h2>Member</h2><p class="rbac-section-copy">管理 Forge 内部成员与 Fellow External Experts。</p></div><button class="rbac-primary" type="button" data-action="show-invite">＋ 邀请成员</button></div>
+        <div class="rbac-section-head"><div><h2>成员</h2><p class="rbac-section-copy">管理 Forge 内部成员与 Fellow 外部专家。</p></div></div>
         <div class="rbac-tabs" role="tablist" aria-label="成员管理内容">
           <button class="rbac-tab" type="button" role="tab" aria-selected="${state.memberView === 'list'}" data-member-view="list">成员列表</button>
           <button class="rbac-tab" type="button" role="tab" aria-selected="${state.memberView === 'invite'}" data-member-view="invite">邀请记录${state.invites.length ? ` · ${state.invites.length}` : ''}</button>
         </div>
         ${state.memberView === 'invite' ? inviteView() : `
-          <div class="rbac-toolbar" style="margin-bottom:12px"><input class="rbac-search" type="search" value="${escapeHtml(state.memberQuery || '')}" placeholder="搜索姓名或邮箱" aria-label="搜索成员" data-action="member-search"><span class="rbac-badge">${members.length} 位成员</span></div>
+          <div class="rbac-toolbar" style="margin-bottom:12px"><input class="rbac-search" type="search" value="${escapeHtml(state.memberQuery || '')}" placeholder="搜索姓名或邮箱" aria-label="搜索成员" data-action="member-search"><button class="rbac-primary" type="button" data-action="show-invite">＋ 邀请成员</button></div>
           <div class="rbac-card rbac-table-wrap"><table class="rbac-table"><thead><tr><th>成员</th><th>来源</th><th>平台角色</th><th>参与项目</th><th>状态</th></tr></thead><tbody>
-            ${members.map(member => `<tr><td><button class="rbac-member-name" type="button" data-member-id="${member.id}" aria-label="查看 ${escapeHtml(member.name)} 的用户 Profile">${escapeHtml(member.name)}<span class="rbac-member-email">${escapeHtml(member.email)}</span></button></td><td>${escapeHtml(member.source)}</td><td><span class="rbac-member-role-value">${platformRoleLabel(member.platformRole)}</span></td><td>${memberProjectsFor(member.id).length} 个</td><td>${escapeHtml(member.status)}</td></tr>`).join('')}
+            ${members.length ? '' : '<tr><td colspan="5" class="rbac-empty">没有匹配的成员，请尝试其他姓名或邮箱。</td></tr>'}${members.map(member => `<tr><td><button class="rbac-member-name" type="button" data-member-id="${member.id}" aria-label="查看 ${escapeHtml(member.name)} 的用户 Profile">${escapeHtml(member.name)}<span class="rbac-member-email">${escapeHtml(member.email)}</span></button></td><td>${escapeHtml(member.source)}</td><td><span class="rbac-member-role-value">${platformRoleLabel(member.platformRole)}</span></td><td>${memberProjectsFor(member.id).length} 个</td><td>${escapeHtml(member.status)}</td></tr>`).join('')}
           </tbody></table></div>`}
       </section>`;
   }
@@ -490,7 +520,7 @@
   function inviteView() {
     return `
       <div class="rbac-invite-layout">
-        <form class="rbac-card rbac-invite-form" data-form="invite" novalidate>
+        <form class="rbac-invite-form" data-form="invite" novalidate>
           <div class="rbac-section-head"><div><h2>通过邮箱邀请</h2><p class="rbac-section-copy">邀请管理员和成员加入 Forge，或邀请外部专家通过 Fellow 协作。</p></div></div>
           <div class="rbac-form-grid">
             <label class="rbac-form-field"><span>用户邮箱</span><input class="rbac-input" type="email" name="email" placeholder="name@company.com" autocomplete="email" required></label>
@@ -545,12 +575,10 @@
   }
   function permissionView() {
     const selected = state.permissionRole;
-    const customRole = state.customRoles?.find(role => role.id === selected);
     return `
       <section class="rbac-section"><div class="rbac-section-head"><div><h2>项目角色与默认权限</h2><p class="rbac-section-copy">用户被分配项目角色后自动继承；个人覆盖不会被默认权限更新清除。</p></div><button class="rbac-primary" type="button" data-action="open-role-create">＋ 新增角色</button></div>
         <div class="rbac-permission-role-tabs" role="tablist" aria-label="选择项目角色">${roleEntries().map(([key, label]) => `<button type="button" role="tab" data-permission-role="${escapeHtml(key)}" aria-selected="${selected === key}" tabindex="${selected === key ? '0' : '-1'}">${escapeHtml(label)}${state.customRoles?.some(role => role.id === key) ? '<span>自定义</span>' : ''}</button>`).join('')}</div>
-        <div class="rbac-role-summary"><div><strong>${escapeHtml(roleLabel(selected))}</strong><p>${escapeHtml(roleDescription(selected))}</p></div><span class="rbac-badge" data-tone="${customRole ? 'accent' : ''}">${customRole ? '自定义角色' : '系统角色'}</span></div>
-        ${selected === 'external-expert' ? '<div class="rbac-inline-note" style="margin-bottom:12px"><div><strong>External Experts 安全边界</strong><br>即使勾选权限，也只作用于同步到 Fellow 的任务包，不会开放 Forge 登录或内部数据。</div></div>' : ''}
+        ${selected === 'external-expert' ? '<p class="rbac-role-note">外部专家权限仅适用于同步至 Fellow 的任务包，不包含 Forge 登录和内部数据访问。</p>' : ''}
         <div class="rbac-card rbac-table-wrap"><table class="rbac-table rbac-permission-table"><thead><tr><th>权限范围</th><th>View</th><th>Create</th><th>Modify</th><th>Remove</th></tr></thead><tbody>${permissionRowsMarkup((feature, action) => `<input type="checkbox" data-role-permission="${feature}:${action}" ${state.rolePermissions[selected]?.[feature]?.[action] ? 'checked' : ''} aria-label="${feature} ${action}">`)}</tbody></table><footer class="rbac-permission-footer"><p>Prototype 设置保存在当前浏览器；刷新后仍保留。</p><button class="rbac-primary" type="button" data-action="save-role-permissions">保存默认权限</button></footer></div>
       </section>${state.roleCreateOpen ? roleCreateSheet() : ''}`;
   }
@@ -665,6 +693,19 @@
   }
 
   function bindRootEvents() {
+    const selectMembersTab = key => {
+      update({ activeTab: key, activeMemberId: '', editingMemberPermissions: false, roleCreateOpen: false });
+      requestAnimationFrame(() => root.querySelector(`[data-members-tab="${key}"]`)?.focus());
+    };
+    root.querySelectorAll('[data-members-tab]').forEach(button => {
+      button.addEventListener('click', () => selectMembersTab(button.dataset.membersTab));
+      button.addEventListener('keydown', event => {
+        if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+        event.preventDefault();
+        const key = event.key === 'Home' ? 'member' : event.key === 'End' ? 'permission' : button.dataset.membersTab === 'member' ? 'permission' : 'member';
+        selectMembersTab(key);
+      });
+    });
     root.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => update({ activeTab: button.dataset.tab, activeMemberId: '', editingMemberPermissions: false, activeSkillId: '', skillEditMode: false, skillCreateMode: '' })));
     root.querySelector('[data-action="close-workspace"]')?.addEventListener('click', closeWorkspace);
     root.querySelector('[data-action="avatar"]')?.addEventListener('change', event => {

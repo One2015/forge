@@ -96,7 +96,10 @@
     const nodes = (pipeline?.dag || []).map((declared,index)=>{
       const [name,kind] = typeof declared==='string' ? declared.split('/') : [declared.name,declared.kind];
       const enabled = pipeline?.enabledNodes?.[name] !== false;
-      return {name,kind,kindLabel:this.pmNodeKindLabel(kind),index:index+1,selected:stored.node===name,status:pipelineReference ? (enabled ? '当前定义' : '已停用') : evidence.nodes?.[name]?.status || '未提供执行状态',pick:()=>update({node:name}),hasEdge:index < pipeline.dag.length-1};
+      const executionStatus = evidence.nodes?.[name]?.status;
+      const failed = executionStatus ? ['failed','error','失败','执行失败','运行失败'].includes(String(executionStatus).toLowerCase()) : runItem?.status === 'failed' && runItem.node === name;
+
+      return {name,kind,failed,failureLabel:pipelineReference ? '本轮同名节点失败' : '本轮失败',kindLabel:this.pmNodeKindLabel(kind),index:index+1,selected:stored.node===name,status:pipelineReference ? (enabled ? '当前定义' : '已停用') : evidence.nodes?.[name]?.status || '未提供执行状态',pick:()=>update({node:name}),hasEdge:index < pipeline.dag.length-1};
     });
     const selected = nodes.find(node=>node.name===stored.node);
     return {
@@ -112,6 +115,7 @@
       canEditPipeline:!!current && this.pmCanEditPipeline(),
       hasPipeline:!!pipeline,noPipeline:!pipeline,pipelineReference,
       definitionNote:pipelineReference ? '未保存该 Run 使用的 '+version+' Pipeline 定义；以下展示同名 Pipeline 当前 '+current.version+' 的完整结构，仅供参考。' : '',
+      unmatchedFailure:runItem?.status === 'failed' && !nodes.some(node=>node.name===runItem.node),
       nodes,hasNode:!!selected,node:selected ? this.pmNodeDetails(pipeline,selected.name,evidence.nodes?.[selected.name]) : {},closeNode:()=>update({node:null}),
       fileCount:allFiles.length,files,hasFiles:allFiles.length>0,noFiles:allFiles.length===0,noMatches:allFiles.length>0&&files.length===0,
       file:file ? {...file,hasUrl:!!file.url,showImage:file.image&&!!file.url,unavailable:!file.hasContent&&!(file.image&&file.url)} : {},hasFile:!!file,

@@ -1,3 +1,4 @@
+import {installPipelineTableControls} from './pipeline-table-controls.mjs';
 // Layout-only adaptation; preserve the editor's existing handlers and data.
 export function installPipelineResponsive(t) {
  const filterOrder="const filters = ['活跃', '全部', '废弃'].map(label => {";
@@ -6,7 +7,7 @@ export function installPipelineResponsive(t) {
  const statusValues="stale: staleOf(p), bg: open ? '#fdf5f2' : '#fff',";
  if(!t.includes(statusValues))throw Error('Pipeline status values anchor changed');
  t=t.replace(statusValues,"stale: staleOf(p), statusLabel: staleOf(p) ? '废弃' : '活跃', statusTone: staleOf(p) ? 'stale' : 'active', bg: open ? '#fdf5f2' : '#fff',");
- t=installPipelineListLayout(t);
+ t=installPipelineTableControls(installPipelineListLayout(t));
  const start=t.indexOf('<div class="pm-pipeline-editor '), end=t.indexOf('<sc-if value="{{ isDatasets }}"',start);
  if(start<0||end<0) throw Error('Pipeline editor boundary changed');
  let p=t.slice(start,end);

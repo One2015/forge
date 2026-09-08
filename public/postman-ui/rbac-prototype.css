@@ -4,7 +4,7 @@
 .forge-rbac-prototype [data-rbac-blocked="true"]{opacity:.42!important;cursor:not-allowed!important}
 .forge-rbac-prototype .forge-sidebar-profile[data-rbac-current="true"]{background:var(--rbac-accent-soft);box-shadow:inset 3px 0 0 var(--rbac-accent)}
 
-#forge-rbac-root{position:fixed;z-index:520;top:52px;right:0;bottom:0;left:var(--rbac-sidebar-edge,var(--sidebar-width,184px));display:none;background:var(--forge-bg,#fbfaf8);color:var(--rbac-ink);font:14px/1.5 var(--forge-font,"Helvetica Neue",Helvetica,"PingFang SC",sans-serif);overflow:auto;overscroll-behavior:contain}
+#forge-rbac-root{position:fixed;z-index:520;top:var(--topbar-height,0px);right:0;bottom:0;left:var(--rbac-sidebar-edge,var(--sidebar-width,184px));display:none;background:var(--forge-bg,#fbfaf8);color:var(--rbac-ink);font:14px/1.5 var(--forge-font,"Helvetica Neue",Helvetica,"PingFang SC",sans-serif);overflow:auto;overscroll-behavior:contain}
 #forge-rbac-root[data-open="true"]{display:block}
 #forge-rbac-root *{box-sizing:border-box}
 #forge-rbac-root button,#forge-rbac-root input,#forge-rbac-root select,#forge-rbac-root textarea{font:inherit}
@@ -85,17 +85,14 @@
 .rbac-empty{padding:40px 20px;text-align:center;color:var(--rbac-muted)}
 .rbac-empty h3{margin:0 0 5px;color:var(--rbac-ink);font-size:15px}
 
-.rbac-permission-role-tabs{display:flex;align-items:center;gap:4px;padding-bottom:8px;margin-bottom:16px;border-bottom:1px solid var(--rbac-line);overflow-x:auto;scrollbar-width:none}
+.rbac-permission-role-tabs{display:flex;align-items:flex-end;gap:4px;padding-bottom:0;margin-bottom:16px;border-bottom:1px solid var(--rbac-line);overflow-x:auto;scrollbar-width:none}
 .rbac-permission-role-tabs::-webkit-scrollbar{display:none}
-.rbac-permission-role-tabs button{display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:7px 12px;border:0;border-radius:var(--radius-control,8px);background:transparent;color:var(--rbac-muted);white-space:nowrap;transition:background-color var(--motion-fast,.1s) var(--ease-standard,ease-out),color var(--motion-fast,.1s) var(--ease-standard,ease-out)}
+.rbac-permission-role-tabs button{margin:0 0 -1px;display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:7px 12px;border:0;border-radius:var(--radius-control,8px);background:transparent;color:var(--rbac-muted);white-space:nowrap;transition:background-color var(--motion-fast,.1s) var(--ease-standard,ease-out),color var(--motion-fast,.1s) var(--ease-standard,ease-out)}
 .rbac-permission-role-tabs button:hover{background:var(--surface-hover,var(--rbac-soft));color:var(--rbac-ink)}
 .rbac-permission-role-tabs button:active{background:var(--surface-pressed,var(--rbac-soft))}
 .rbac-permission-role-tabs button span{padding:1px 5px;border-radius:4px;background:var(--rbac-soft);font-size:10px;font-weight:600;color:var(--rbac-muted)}
 .rbac-permission-role-tabs button[aria-selected="true"]{background:var(--surface-pressed,var(--rbac-soft));color:var(--rbac-ink);font-weight:600}
 .rbac-permission-role-tabs button[aria-selected="true"] span{color:var(--rbac-ink)}
-.rbac-role-summary{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:12px;padding:12px 14px;border:1px solid var(--rbac-line);border-radius:8px;background:#fff}
-.rbac-role-summary strong{font-size:14px}
-.rbac-role-summary p{margin:2px 0 0;color:var(--rbac-muted);font-size:12px}
 .rbac-permission-table{min-width:780px}
 .rbac-permission-table th:not(:first-child),.rbac-permission-table td:not(:first-child){width:92px;text-align:center}
 .rbac-permission-table tr[data-group="true"] td{background:#faf9f7;font-weight:620;color:#3f3b37}
@@ -123,7 +120,7 @@
 @keyframes rbac-sheet-in{from{transform:translateX(24px);opacity:.65}to{transform:translateX(0);opacity:1}}
 
 .rbac-invite-layout{display:block}
-.rbac-invite-form{padding:18px}
+.rbac-invite-form{padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
 .rbac-form-grid{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:12px}
 .rbac-form-field{display:block}
 .rbac-form-field>span{display:block;margin-bottom:6px;font-size:12px;font-weight:600}
@@ -258,3 +255,15 @@
   #forge-rbac-toast{right:12px;bottom:116px;max-width:calc(100vw - 24px)}
 }
 @media(prefers-reduced-motion:reduce){#forge-rbac-toast,.rbac-avatar-control span,.rbac-skill-create-menu>summary .rbac-dock-caret,.rbac-skill-card{transition:none}.rbac-role-sheet{animation:none}}
+
+#forge-rbac-root [data-members-title]:focus{outline:none}
+
+/* Member management uses the same underline tabs at both navigation levels. */
+#forge-rbac-root .rbac-members-page .rbac-page-head{margin-bottom:18px}
+#forge-rbac-root .rbac-members-page .rbac-tabs{gap:24px;padding-bottom:0;margin-bottom:28px}
+#forge-rbac-root .rbac-members-page .rbac-tab{padding:10px 0;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;box-shadow:none}
+#forge-rbac-root .rbac-members-page .rbac-tab[aria-selected="true"]{border-bottom-color:var(--accent-primary,var(--rbac-accent));background:transparent;color:var(--text-primary,var(--rbac-ink))}
+
+#forge-rbac-root .rbac-appearance-card{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px}
+
+#forge-rbac-root .rbac-role-note{margin:0 0 16px;padding:10px 12px;border:0;border-radius:var(--radius-control,4px);background:var(--surface-subtle);color:var(--text-secondary);font-size:13px;line-height:20px}
