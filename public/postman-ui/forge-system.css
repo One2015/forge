@@ -49,9 +49,10 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .forge-sidebar-link{min-height:2.375rem;padding:.5rem .625rem;gap:.625rem;border-radius:var(--radius-control);font-size:var(--type-component-size);line-height:var(--type-component-leading);color:var(--text-secondary);transition:color var(--motion-fast) var(--ease-standard),background-color var(--motion-fast) var(--ease-standard)}
 .forge-postman .forge-sidebar-link>.forge-icon{width:1.125rem;height:1.125rem;color:var(--text-muted)}
 .forge-postman .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile){border-radius:var(--radius-control)}
-.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true]){background:var(--surface-selected)!important;color:var(--accent-primary)!important;font-weight:var(--weight-medium)}
+.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true],.forge-sidebar-profile[data-rbac-current=true]){background:var(--surface-selected)!important;color:var(--accent-primary)!important;font-weight:var(--weight-medium)}
 .forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true])>.forge-icon{color:var(--accent-primary)}
-.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true])::before{content:none!important}
+.forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true],.forge-sidebar-profile[data-rbac-current=true])::before{content:none!important}
+.forge-postman .forge-sidebar-profile:is([aria-expanded=true],[data-rbac-current=true]) :is(.forge-sidebar-username,.forge-sidebar-avatar){color:var(--accent-primary)}
 .forge-postman .forge-sidebar-utilities{padding:var(--space-2);gap:2px;border-top:1px solid var(--border-subtle)}
 .forge-postman .forge-sidebar-tool{min-height:2.25rem;padding:.4375rem .625rem;border-radius:var(--radius-control);color:var(--text-secondary)}
 .forge-postman .forge-sidebar-profile{min-height:3rem;margin-top:var(--space-1)}

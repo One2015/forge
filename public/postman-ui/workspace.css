@@ -24,8 +24,8 @@ body.forge-postman{background:var(--pm-canvas);font:13px/1.55 var(--pm-font);col
 .forge-postman .forge-sidebar-profile[aria-expanded=true] :is(.forge-sidebar-username,.forge-sidebar-avatar){color:var(--pm-nav)}
 .forge-postman .forge-sidebar-profile-label{font-weight:400}
 .forge-postman .forge-sidebar :is(.forge-sidebar-link[aria-current=page],.forge-sidebar-tool[aria-expanded=true],.forge-sidebar-profile[aria-expanded=true])::before{content:"";position:absolute;left:-8px;top:6px;bottom:6px;width:3px;border-radius:0 2px 2px 0;background:var(--pm-brand);pointer-events:none}
-@media(hover:hover){.forge-postman .forge-sidebar :is(.forge-sidebar-link:not([aria-current=page]),.forge-sidebar-tool:not([aria-expanded=true]),.forge-sidebar-profile:not([aria-expanded=true])):hover{background:var(--pm-hover)!important;color:var(--pm-text)}}
-.forge-postman .forge-sidebar :is(.forge-sidebar-link:not([aria-current=page]),.forge-sidebar-tool:not([aria-expanded=true]),.forge-sidebar-profile:not([aria-expanded=true])):active{background:var(--pm-pressed)!important}
+@media(hover:hover){.forge-postman .forge-sidebar :is(.forge-sidebar-link:not([aria-current=page]),.forge-sidebar-tool:not([aria-expanded=true]),.forge-sidebar-profile:not([aria-expanded=true]):not([data-rbac-current=true])):hover{background:var(--pm-hover)!important;color:var(--pm-text)}}
+.forge-postman .forge-sidebar :is(.forge-sidebar-link:not([aria-current=page]),.forge-sidebar-tool:not([aria-expanded=true]),.forge-sidebar-profile:not([aria-expanded=true]):not([data-rbac-current=true])):active{background:var(--pm-pressed)!important}
 .forge-postman .forge-app-shell .forge-sidebar :is(.forge-sidebar-link,.forge-sidebar-tool,.forge-sidebar-profile,.forge-sidebar-collapse):focus-visible{outline:var(--pm-focus-width) solid var(--pm-focus)!important;outline-offset:-1px!important}
 .forge-postman .forge-app-shell .forge-sidebar .forge-sidebar-link[aria-current=page]:focus-visible{outline:0!important;box-shadow:none!important}
 .forge-postman .forge-sidebar-utilities{padding:8px;gap:0}

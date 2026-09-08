@@ -425,11 +425,11 @@
       bindRootEvents();
       return;
     }
-    if (!isAdmin() && ['member', 'permission'].includes(state.activeTab)) state.activeTab = 'profile';
+    if (!['profile', 'skill'].includes(state.activeTab)) state.activeTab = 'profile';
     root.innerHTML = `
       <div class="rbac-page">
         <header class="rbac-page-head">
-          <div><h1>Profile</h1><p>${isAdmin() ? '账号、成员和权限管理' : '个人信息与工作内容'}</p></div>
+          <div><h1>Profile</h1><p>个人信息与工作内容</p></div>
           <button class="rbac-secondary" type="button" data-action="close-workspace">返回工作台</button>
         </header>
         ${tabsMarkup()}
@@ -438,9 +438,7 @@
     bindRootEvents();
   }
   function tabsMarkup() {
-    const tabs = isAdmin()
-      ? [['profile', '基础信息'], ['member', 'Member'], ['permission', 'Permission'], ['skill', 'Skill']]
-      : [['profile', '基础信息'], ['skill', 'Skill']];
+    const tabs = [['profile', '基础信息'], ['skill', 'Skill']];
     return `<nav class="rbac-tabs" role="tablist" aria-label="Profile 内容">${tabs.map(([key, label]) => `
       <button class="rbac-tab" type="button" role="tab" aria-selected="${state.activeTab === key}" data-tab="${key}">${label}</button>`).join('')}</nav>`;
   }

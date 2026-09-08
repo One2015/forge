@@ -136,6 +136,8 @@
 
 .forge-postman .pm-review-item-page .eq-review-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
 .forge-postman .pm-review-item-page .eq-review-actions[data-editing=true]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.forge-postman .pm-review-item-page .eq-review-actions .review-workbench-approve{background:transparent;border:1px solid var(--pm-control);color:var(--pm-text)}
+.forge-postman .pm-review-item-page .eq-review-actions .review-workbench-reject{background:var(--pm-action);border:1px solid var(--pm-action-border);color:var(--pm-on-action)}
 .forge-postman .pm-review-item-page .eq-review-actions .eq-reject-action{background:transparent;color:var(--status-danger);border:1px solid var(--status-danger)}
 .forge-postman .pm-review-item-page .eq-review-actions .eq-reject-action:hover:not(:disabled){background:var(--status-danger-soft);filter:none}
 

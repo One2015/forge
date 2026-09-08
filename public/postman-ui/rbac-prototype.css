@@ -2,7 +2,7 @@
 .forge-rbac-prototype{--rbac-ink:#1f1d1a;--rbac-muted:#6f6a64;--rbac-line:#dfdcd7;--rbac-soft:#f6f5f3;--rbac-accent:#e65323;--rbac-accent-soft:#fff1eb;--rbac-green:#18794e;--rbac-blue:#2859b8}
 .forge-rbac-prototype #forge-profile-panel{display:none!important}
 .forge-rbac-prototype [data-rbac-blocked="true"]{opacity:.42!important;cursor:not-allowed!important}
-.forge-rbac-prototype .forge-sidebar-profile[data-rbac-current="true"]{background:var(--rbac-accent-soft);box-shadow:inset 3px 0 0 var(--rbac-accent)}
+.forge-rbac-prototype .forge-sidebar-profile[data-rbac-current="true"]{background:var(--surface-selected,var(--forge-nav-tint));color:var(--accent-primary,var(--forge-accent));box-shadow:none}
 
 #forge-rbac-root{position:fixed;z-index:520;top:var(--topbar-height,0px);right:0;bottom:0;left:var(--rbac-sidebar-edge,var(--sidebar-width,184px));display:none;background:var(--forge-bg,#fbfaf8);color:var(--rbac-ink);font:14px/1.5 var(--forge-font,"Helvetica Neue",Helvetica,"PingFang SC",sans-serif);overflow:auto;overscroll-behavior:contain}
 #forge-rbac-root[data-open="true"]{display:block}
