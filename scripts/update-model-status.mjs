@@ -22,6 +22,8 @@ export function updateModelStatus(source) {
   });
   if (template.includes('<!-- model-status:start -->')) replace(/<!-- model-status:start -->[\s\S]*?<!-- model-status:end -->/, markup);
   else replace(/<\/main>/, markup + '\n</main>');
+  // Absorb legacy model rules appended after the generated style boundary.
+  template = template.replace(/(\/\* model-status:end \*\/)(?:(?:\s*\/\* Model table[^*]*\*\/)|(?:\s*\.forge-model-[^\n]+))*/g, '$1');
   const css = read('model-status.css');
   if (template.includes('/* model-status:start */')) replace(/\/\* model-status:start \*\/[\s\S]*?\/\* model-status:end \*\//, css);
   else replace(/<\/style>/, css + '\n</style>');
