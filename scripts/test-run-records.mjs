@@ -59,3 +59,34 @@ test('operation filter matches button actions and composes with other filters',(
  q().statusFilter.options.find(o=>o.value==='running').pick();assert(q().empty);
  q().clear();assert.equal(q().actionFilter.filtered,false);
 });
+
+test('run detail status filtering preserves totals, item identity and per-run selection',()=>{
+ const {c}=fixture();
+ const runId='20260825-034505-c19f2a';
+ c.setState({view:'run',activeRun:runId});
+ const readRun=()=>c.renderVals().run;
+ const all=readRun();
+ assert.equal(all.items.length,24);
+ assert.equal(all.statusFilter,'all');
+ all.filterStatus({target:{value:'failed'}});
+ const failed=readRun();
+ assert.equal(failed.items.length,3);
+ assert(failed.items.every(item=>item.statusKey==='failed'));
+ assert.deepEqual(Array.from(failed.items,item=>item.id),Array.from(all.items.filter(item=>item.statusKey==='failed'),item=>item.id));
+ assert.deepEqual(Array.from(failed.stats,s=>s.n),Array.from(all.stats,s=>s.n));
+ assert.match(failed.itemHint,/3 \/ 24/);
+ failed.filterStatus({target:{value:'running'}});
+ assert.equal(readRun().items.length,0);
+ assert(readRun().noStatusMatches);
+ readRun().clearStatusFilter();
+ assert.equal(readRun().items.length,24);
+ readRun().filterStatus({target:{value:'failed'}});
+ c.setState({activeRun:'20260825-093412-a4f7c1'});
+ assert.equal(readRun().statusFilter,'all');
+ c.setState({activeRun:runId});
+ assert.equal(readRun().statusFilter,'failed');
+ const item=readRun().items[0];
+ item.keyOpen({target:null,currentTarget:null,key:'Enter',preventDefault(){}});
+ assert.equal(c.state.lifeItem,item.id);
+ assert.equal(c.state.lifeRun,runId);
+});

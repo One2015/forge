@@ -71,4 +71,23 @@
     try { if(typeof navigator==='undefined'||!navigator.clipboard?.writeText)throw Error('clipboard unavailable'); await navigator.clipboard.writeText(id);this.setState({runsCopied:id,runsNotice:'Run ID 已复制'}); }
     catch {this.setState({runsNotice:'复制失败，请选中 Run ID 手动复制。'});}
   }
+  runItemStatusValues(run, runId) {
+    const states = [['all', '全部状态'], ['success', '待审核'], ['running', '运行中'], ['failed', '失败'], ['queued', '排队中'], ['stopping', '停止中'], ['stopped', '已停止'], ['cancelled', '已取消']];
+    const saved = this.state.runItemStatusFilters?.[runId] || 'all';
+    const selected = states.some(([key]) => key === saved) ? saved : 'all';
+    const rows = run.items;
+    const items = selected === 'all' ? rows : rows.filter(item => item.statusKey === selected);
+    return {...run, items,
+      itemHint: selected === 'all' ? run.itemHint : '显示 ' + items.length + ' / ' + rows.length + ' 条 · 节点进度按 18 步计',
+      statusFilter: selected,
+      statusOptions: states.map(([value, label]) => ({value, label})),
+      filterStatus: event => {
+        const value = event.target.value;
+        if (!states.some(([key]) => key === value)) return;
+        this.setState({runItemStatusFilters: {...this.state.runItemStatusFilters, [runId]: value}});
+      },
+      noStatusMatches: !items.length,
+      clearStatusFilter: () => this.setState({runItemStatusFilters: {...this.state.runItemStatusFilters, [runId]: 'all'}})
+    };
+  }
   // pm-run-records-methods:end

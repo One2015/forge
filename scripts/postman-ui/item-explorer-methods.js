@@ -58,6 +58,32 @@
     return {index,status,label:({success:'待审核',running:'运行中',failed:'失败',queued:'排队中',stopping:'停止中',stopped:'已停止',cancelled:'已取消'})[status] || '状态未知',progress,node,cost,elapsed};
   }
 
+  pmFitItemPipeline(dialog, actual = false) {
+    const graph=dialog?.querySelector('.pm-item-graph'),track=graph?.querySelector('.pm-item-graph-track');
+    if(!track)return;
+    track.style.zoom='1';
+    if(!actual)track.style.zoom=String(Math.min(1,graph.clientWidth / track.scrollWidth));
+    graph.scrollLeft=0;
+  }
+
+  async pmSyncItemFailure(itemId,runId,index,node) {
+    if(this.state.view!=='itemlife' || this.state.lifeItem!==itemId)return;
+    const current=this.pmItemExplorerValues({id:itemId});
+    if(current.runId!==runId || !current.unmatchedFailure || current.failureIssue.itemIndex!==index || current.runNode!==node)return;
+    const key=JSON.stringify([itemId,runId,index,node]);
+    if(['sending','sent','unknown'].includes(this.state.pmItemIssueSync?.[key]?.status))return;
+    const update=patch=>this.setState({pmItemIssueSync:{...this.state.pmItemIssueSync,[key]:patch}});
+    const send=this.props.syncPipelineNodeIssue;
+    if(typeof send!=='function'){update({status:'not-connected',message:'Forge 报警群尚未接入，报警暂未发送。'});return;}
+    update({status:'sending',message:''});
+    try {
+      const result=await send({groupName:'Forge报警群',issue:current.failureIssue});
+      if(result?.ok===true)update({status:'sent',message:'已同步到 Forge 报警群。'});
+      else if(!result || result.code==='delivery_unknown')update({status:'unknown',message:'同步结果未确认，请先查看报警群，避免重复发送。'});
+      else update({status:'failed',message:result.message || '同步失败，请重试。'});
+    } catch {update({status:'unknown',message:'连接中断，同步结果未确认，请先查看报警群。'});}
+  }
+
   pmItemExplorerValues(life) {
     const state = this.state, id = life?.id || state.lifeItem;
     const source = this.deliveryData().flatMap(group=>group.sheets).flatMap(sheet=>this.sheetRows(sheet)).find(row=>row[2]===id);
@@ -102,6 +128,9 @@
       return {name,kind,failed,failureLabel:pipelineReference ? '本轮同名节点失败' : '本轮失败',kindLabel:this.pmNodeKindLabel(kind),index:index+1,selected:stored.node===name,status:pipelineReference ? (enabled ? '当前定义' : '已停用') : evidence.nodes?.[name]?.status || '未提供执行状态',pick:()=>update({node:name}),hasEdge:index < pipeline.dag.length-1};
     });
     const selected = nodes.find(node=>node.name===stored.node);
+    const failureKey=JSON.stringify([id,runId,runItem?.index,runItem?.node]);
+    const sync=this.state.pmItemIssueSync?.[failureKey] || {};
+
     return {
       demo:!!manifest.demo,
       tabs:[['history','完整记录'],['pipeline','Pipeline'],['files','文件'],['prompt','查看 Prompt'],['trace','轨迹']].map(([key,label])=>({key,label,selected:tab===key,pick:()=>update({tab:key})})),
@@ -115,6 +144,14 @@
       canEditPipeline:!!current && this.pmCanEditPipeline(),
       hasPipeline:!!pipeline,noPipeline:!pipeline,pipelineReference,
       definitionNote:pipelineReference ? '未保存该 Run 使用的 '+version+' Pipeline 定义；以下展示同名 Pipeline 当前 '+current.version+' 的完整结构，仅供参考。' : '',
+      failureIssue:{pipeline:pipelineName,version,runId,itemId:id,itemIndex:runItem?.index,node:runItem?.node,status:runItem?.status,errorMessage:'当前结构中未找到同名节点'},
+      syncDisabled:['sending','sent','unknown'].includes(sync.status),
+      syncLabel:sync.status==='sending'?'同步中…':sync.status==='sent'?'已同步':sync.status==='unknown'?'结果待确认':'同步 Forge 报警群',
+      syncMessage:sync.message || '',syncFailure:()=>this.pmSyncItemFailure(id,runId,runItem?.index,runItem?.node),
+      expandPipeline:event=>{const dialog=event.currentTarget.closest('.pm-item-pipeline').querySelector('.pm-item-pipeline-dialog');dialog.showModal();this.pmFitItemPipeline(dialog);},
+      closePipeline:event=>event.currentTarget.closest('dialog').close(),
+      fitPipeline:event=>this.pmFitItemPipeline(event.currentTarget.closest('dialog')),
+      actualPipeline:event=>this.pmFitItemPipeline(event.currentTarget.closest('dialog'),true),
       unmatchedFailure:runItem?.status === 'failed' && !nodes.some(node=>node.name===runItem.node),
       nodes,hasNode:!!selected,node:selected ? this.pmNodeDetails(pipeline,selected.name,evidence.nodes?.[selected.name]) : {},closeNode:()=>update({node:null}),
       fileCount:allFiles.length,files,hasFiles:allFiles.length>0,noFiles:allFiles.length===0,noMatches:allFiles.length>0&&files.length===0,

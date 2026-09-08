@@ -434,8 +434,12 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .pm-run-item-cost,
 .forge-postman .pm-run-cost-heading,
 .forge-postman .pm-run-actions-heading {text-align:end}
+.forge-postman .pm-page-run .pm-run-items-columns .pm-run-status-filter{width:max-content;max-width:100%;height:28px!important;min-height:28px!important;padding:0 4px 0 0;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;font:inherit!important;color:inherit!important;cursor:pointer}
+.forge-postman .pm-run-status-empty{display:flex;align-items:center;justify-content:center;gap:12px;padding:32px 20px;color:var(--text-muted);font-size:var(--type-component-size)}
+.forge-postman .pm-run-status-empty button{border:0;background:transparent;color:var(--accent-primary);font:inherit;cursor:pointer}
 @container pm-run (max-width:760px) {
-  .forge-postman .pm-page-run .pm-run-items-columns {display:none}
+  .forge-postman .pm-page-run .pm-run-items-columns {display:flex;justify-content:flex-end}
+  .forge-postman .pm-page-run .pm-run-items-columns>div:not(.pm-run-status-heading){display:none}
   .forge-postman .pm-page-run .pm-run-item-row {grid-template-columns:minmax(0,1fr) auto!important}
   .forge-postman .pm-page-run .pm-run-item-cost {grid-column:1;grid-row:4;text-align:start}
   .forge-postman .pm-page-run .pm-run-item-row>div:last-child {grid-row:4}

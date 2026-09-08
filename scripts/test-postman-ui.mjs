@@ -1321,3 +1321,35 @@ test('overview owner filter composes with date sorting and resets to all owners'
  assert.equal(group.sortAria,'descending');
  assert.match(built,/aria-label="筛选项目负责人"[^>]*sc-camel-on-change="\{\{ g\.onOwner \}\}"/);
 });
+
+
+test('Item failure sync preserves run identity and handles delivery outcomes without duplicate sends',async()=>{
+ const c=vm.runInContext('new Component()',ctx),id='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f',runId='20260825-034505-c19f2a';
+ Object.assign(c.state,{view:'itemlife',lifeItem:id,lifeRun:runId,lifeRunIndex:21,lifeFrom:'run',pmItemTab:'pipeline'});
+ const get=()=>c.pmItemExplorerValues({id});
+ await get().syncFailure();assert.match(get().syncMessage,/尚未接入/);assert(!get().syncDisabled);
+ let calls=0,release,payload;
+ c.props.syncPipelineNodeIssue=value=>{calls++;payload=value;return new Promise(resolve=>release=resolve);};
+ const pending=get().syncFailure();assert(get().syncDisabled);await get().syncFailure();assert.equal(calls,1);
+ assert.equal(payload.groupName,'Forge报警群');assert.equal(payload.issue.itemId,id);assert.equal(payload.issue.runId,runId);assert.equal(payload.issue.itemIndex,21);assert.equal(payload.issue.node,'ref_search');assert.equal(payload.issue.version,'v7');
+ release({ok:true});await pending;assert.equal(get().syncLabel,'已同步');await get().syncFailure();assert.equal(calls,1);
+ c.state.pmItemIssueSync={};c.props.syncPipelineNodeIssue=async()=>({ok:false,message:'服务暂不可用'});
+ await get().syncFailure();assert(!get().syncDisabled);assert.equal(get().syncMessage,'服务暂不可用');
+ c.props.syncPipelineNodeIssue=async()=>{throw Error('disconnected');};await get().syncFailure();assert(get().syncDisabled);assert.match(get().syncMessage,/未确认/);
+ c.state.pmItemIssueSync={};const stale=get().syncFailure;c.state.lifeRunIndex=1;c.props.syncPipelineNodeIssue=()=>{throw Error('must not send stale issue');};await stale();assert.equal(Object.keys(c.state.pmItemIssueSync).length,0);
+});
+
+
+test('Full Pipeline highlights the same failed node as Item evidence and clears it on recovery',()=>{
+ const c=vm.runInContext('new Component()',ctx),pipeline='web3d-gen-build-eval-v3',itemId='b3d81c4e77af4a5c9e2f1a6b8c0d3e5f',runId='20260825-034505-c19f2a';
+ c.setState({view:'pipeedit',editPipe:pipeline,editSel:'build',pmPipelineView:true});
+ let pe=c.renderVals().pe;
+ assert.deepEqual(Array.from(pe.nodes.filter(n=>n.failed),n=>n.name),['build']);
+ assert.equal(pe.failures[0].errorCode,'GLB_EXPORT_TIMEOUT');assert.equal(pe.failures[0].runId,runId);assert.equal(pe.failures[0].itemId,itemId);assert(pe.failures[0].demo);
+ c.props.pipelineNodeExecutions=[];assert(!c.renderVals().pe.nodes.some(n=>n.failed));delete c.props.pipelineNodeExecutions;
+ c.props.artifacts={[itemId]:{[runId]:{execution:{pipeline:{name:pipeline,version:'v7'},nodes:{build:{status:'failed',attempts:[{number:1,error:{code:'EXPORT_FAILED',message:'导出失败'}}]}}}}}};
+ pe=c.renderVals().pe;assert(pe.nodes.find(n=>n.name==='build').failed);assert(!pe.failures[0].demo);assert.equal(pe.failures[0].errorCode,'EXPORT_FAILED');
+ c.props.itemExecution={[itemId]:{[runId]:{pipeline:{name:pipeline,version:'v7'},nodes:{build:{status:'success'}}}}};
+ assert(!c.renderVals().pe.nodes.some(n=>n.failed));
+ c.props.itemExecution[itemId][runId]={};assert(!c.renderVals().pe.nodes.some(n=>n.failed));
+});

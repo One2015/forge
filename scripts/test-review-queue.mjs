@@ -106,9 +106,9 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.match(html,/<h1 id="queue-title">审核<\/h1>/);assert.doesNotMatch(html,/review\.queue\.subtitle|<h1 id="queue-title">审核队列<\/h1>/);assert.match(html,/<h2 class="pq-list-title">审核列表<\/h2>/);
  assert.match(html,/sc-camel-on-input/);assert.match(html,/aria-busy/);assert.match(html,/role="alert"/);
  assert.doesNotMatch(html,/class="pq-tabs"/);
- for(const label of ['filter.ariaLabel','filter.label','review.queue.activeFilter.ariaLabel'])assert(html.includes(label),label);
- assert.match(html,/sc-for list="\{\{ review\.queue\.filters \}\}"[^>]*hint-placeholder-count="5"/);
- assert.match(html,/class="pq-filter-trigger"[^>]*aria-haspopup="menu"[^>]*aria-expanded="\{\{ filter\.open \}\}"/);
+ assert.doesNotMatch(html,/review\.queue\.filters|id="pq-filter-(?:owner|round)"|class="pq-inline-filter"/);
+ assert.match(html,/role="search" aria-label="搜索审核任务"/);
+ assert.match(html,/review\.queue\.activeFilter\.ariaLabel/);
  assert.match(html,/class="pq-filter-menu forge-motion-menu"[^>]*role="menu"/);assert.match(html,/role="menuitemradio"[^>]*aria-checked="\{\{ option\.selected \}\}"/);
  assert.match(html,/data-placement="\{\{ review\.queue\.activeFilter\.placement \}\}"/);
  assert.match(html,/class="pq-filter-scrim"/);assert.match(html,/class="pq-search-clear"[^>]*aria-label="清除搜索"/);assert.doesNotMatch(html,/pq-filter-control|<select aria-label="审核/);

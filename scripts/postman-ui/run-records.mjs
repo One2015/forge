@@ -51,5 +51,13 @@ export function installRunRecords(t){
               },`;
  if(!t.includes(oldOpen))throw Error('Run Item detail entry changed');
  t=t.replace(oldOpen,newOpen);
+ const statusHeading='<div class="pm-run-items-columns"><div>任务</div><div>状态</div>';
+ if(!t.includes(statusHeading))throw Error('Run Item status heading changed');
+ t=t.replace(statusHeading, '<div class="pm-run-items-columns"><div>任务</div><div class="pm-run-status-heading"><select class="pm-run-status-filter" aria-label="筛选 Item 状态" value="{{ run.statusFilter }}" sc-camel-on-change="{{ run.filterStatus }}"><sc-for list="{{ run.statusOptions }}" as="option"><option value="{{ option.value }}">{{ option.label }}</option></sc-for></select></div>');
+ t=t.replace('<sc-for list="{{ run.items }}"', '<sc-if value="{{ run.noStatusMatches }}"><div class="pm-run-status-empty" role="status">没有该状态的 Item<button type="button" sc-camel-on-click="{{ run.clearStatusFilter }}">显示全部</button></div></sc-if><sc-for list="{{ run.items }}"');
+ t=t.replace('              state: label, stateFg: fg, stateBorder: border, stateDot: dot,','              statusKey: state, state: label, stateFg: fg, stateBorder: border, stateDot: dot,');
+ const runEndValues='          })\n        };\n      }\n    }\n\n    const lifeFromReview';
+ if(!t.includes(runEndValues))throw Error('Run Item values boundary changed');
+ t=t.replace(runEndValues,'          })\n        };\n        run = this.runItemStatusValues(run, rec.id);\n      }\n    }\n\n    const lifeFromReview');
  return t;
 }

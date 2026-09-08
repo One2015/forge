@@ -16,11 +16,11 @@
 </nav>
 <sc-if value="{{ explorer.pipelineTab }}">
  <section class="pm-item-pipeline" aria-label="Item Pipeline">
-  <header class="pm-pipeline-context"><div><a href="{{ explorer.pipelineHref }}" data-forge-route>{{ explorer.pipelineLabel }}</a><code>Run · {{ explorer.runId }}</code></div><sc-if value="{{ explorer.canEditPipeline }}"><a class="pm-pipeline-edit-link" href="{{ explorer.pipelineEditHref }}" data-forge-route>编辑 Pipeline</a></sc-if></header>
+  <header class="pm-pipeline-context"><div><a href="{{ explorer.pipelineHref }}" data-forge-route>{{ explorer.pipelineLabel }}</a><code>Run · {{ explorer.runId }}</code></div><div class="pm-item-pipeline-actions"><sc-if value="{{ explorer.canEditPipeline }}"><a class="pm-pipeline-edit-link" href="{{ explorer.pipelineEditHref }}" data-forge-route>编辑 Pipeline</a></sc-if><sc-if value="{{ explorer.hasPipeline }}"><button type="button" class="pm-item-pipeline-expand" aria-label="放大查看完整 Pipeline" title="放大查看完整 Pipeline" sc-camel-on-click="{{ explorer.expandPipeline }}">[[icon:arrows-out-simple:16]]</button></sc-if></div></header>
   <sc-if value="{{ explorer.noPipeline }}"><p class="pm-explorer-empty">未提供该运行版本的 Pipeline 定义。</p></sc-if>
   <sc-if value="{{ explorer.hasPipeline }}">
    <sc-if value="{{ explorer.pipelineReference }}"><p class="pm-pipeline-reference" role="note">{{ explorer.definitionNote }}</p></sc-if>
-   <sc-if value="{{ explorer.unmatchedFailure }}"><p class="pm-item-unmatched-failure">[[icon:x-circle:14]] 本轮失败节点：<code>{{ explorer.runNode }}</code> · 当前结构中未找到同名节点</p></sc-if>
+   <sc-if value="{{ explorer.unmatchedFailure }}"><div class="pm-item-unmatched-failure"><span class="pm-item-failure-copy">[[icon:x-circle:14]] 本轮失败节点：<code>{{ explorer.runNode }}</code> · 当前结构中未找到同名节点</span><button type="button" class="pm-item-failure-sync" disabled="{{ explorer.syncDisabled }}" sc-camel-on-click="{{ explorer.syncFailure }}">{{ explorer.syncLabel }}</button><sc-if value="{{ explorer.syncMessage }}"><p class="pm-item-sync-message" role="status">{{ explorer.syncMessage }}</p></sc-if></div></sc-if>
    <div class="pm-item-graph" tabindex="0" role="region" aria-label="Pipeline 节点，可横向滚动">
     <div class="pm-item-graph-track"><sc-for list="{{ explorer.nodes }}" as="node">
      <button class="pm-item-graph-node" data-node-kind="{{ node.kind }}" data-node-failed="{{ node.failed }}" type="button" aria-pressed="{{ node.selected }}" sc-camel-on-click="{{ node.pick }}"><span class="pm-item-node-heading"><span class="pm-item-node-mark" aria-hidden="true"></span><span class="pm-node-kind" data-kind="{{ node.kind }}">{{ node.kindLabel }}</span></span><strong title="{{ node.name }}">{{ node.name }}</strong><small>{{ node.status }}</small><sc-if value="{{ node.failed }}"><span class="pm-item-node-error">[[icon:x-circle:14]] {{ node.failureLabel }}</span></sc-if></button>
@@ -38,6 +38,28 @@
     <sc-for list="{{ explorer.node.attempts }}" as="attempt"><details class="pm-attempt"><summary><strong>{{ attempt.label }}</strong><span>{{ attempt.status }}</span><span>{{ attempt.duration }}</span></summary><pre>{{ attempt.detail }}</pre></details></sc-for>
     <h3>结果</h3><sc-if value="{{ explorer.node.hasResult }}"><pre>{{ explorer.node.result }}</pre></sc-if><sc-if value="{{ !explorer.node.hasResult }}"><p class="pm-explorer-note">该节点未提供执行结果。</p></sc-if>
    </section></sc-if>
+   <dialog class="pm-item-pipeline-dialog" aria-label="完整 Pipeline">
+    <header class="pm-pipeline-context"><div><strong>{{ explorer.pipelineLabel }}</strong><code>Run · {{ explorer.runId }}</code></div><div class="pm-item-pipeline-actions"><button type="button" sc-camel-on-click="{{ explorer.fitPipeline }}">适应画布</button><button type="button" sc-camel-on-click="{{ explorer.actualPipeline }}">100%</button><button type="button" aria-label="关闭完整 Pipeline" autofocus sc-camel-on-click="{{ explorer.closePipeline }}">[[icon:x:16]]</button></div></header>
+   <sc-if value="{{ explorer.pipelineReference }}"><p class="pm-pipeline-reference" role="note">{{ explorer.definitionNote }}</p></sc-if>
+   <sc-if value="{{ explorer.unmatchedFailure }}"><div class="pm-item-unmatched-failure"><span class="pm-item-failure-copy">[[icon:x-circle:14]] 本轮失败节点：<code>{{ explorer.runNode }}</code> · 当前结构中未找到同名节点</span><button type="button" class="pm-item-failure-sync" disabled="{{ explorer.syncDisabled }}" sc-camel-on-click="{{ explorer.syncFailure }}">{{ explorer.syncLabel }}</button><sc-if value="{{ explorer.syncMessage }}"><p class="pm-item-sync-message" role="status">{{ explorer.syncMessage }}</p></sc-if></div></sc-if>
+   <div class="pm-item-graph" tabindex="0" role="region" aria-label="Pipeline 节点，可横向滚动">
+    <div class="pm-item-graph-track"><sc-for list="{{ explorer.nodes }}" as="node">
+     <button class="pm-item-graph-node" data-node-kind="{{ node.kind }}" data-node-failed="{{ node.failed }}" type="button" aria-pressed="{{ node.selected }}" sc-camel-on-click="{{ node.pick }}"><span class="pm-item-node-heading"><span class="pm-item-node-mark" aria-hidden="true"></span><span class="pm-node-kind" data-kind="{{ node.kind }}">{{ node.kindLabel }}</span></span><strong title="{{ node.name }}">{{ node.name }}</strong><small>{{ node.status }}</small><sc-if value="{{ node.failed }}"><span class="pm-item-node-error">[[icon:x-circle:14]] {{ node.failureLabel }}</span></sc-if></button>
+     <sc-if value="{{ node.hasEdge }}"><span class="pm-item-edge" aria-hidden="true"></span></sc-if>
+    </sc-for></div>
+   </div>
+   <sc-if value="{{ !explorer.hasNode }}"><p class="pm-explorer-note">点击节点查看配置、执行尝试与结果。</p></sc-if>
+   <sc-if value="{{ explorer.hasNode }}"><section class="pm-node-detail" aria-label="所选节点详情">
+    <header><h2 data-pm-no-permalink>{{ explorer.node.name }}</h2><span class="pm-node-kind" data-kind="{{ explorer.node.kind }}">{{ explorer.node.kindLabel }}</span><button type="button" sc-camel-on-click="{{ explorer.closeNode }}">收起</button></header>
+    <h3>配置</h3>
+    <sc-for list="{{ explorer.node.configFields }}" as="field"><div class="pm-node-field"><span>{{ field.key }}</span><pre>{{ field.value }}</pre></div></sc-for>
+    <sc-if value="{{ explorer.node.noConfig }}"><p class="pm-explorer-note">该版本仅提供节点声明，未提供函数参数、模型或审核规则等详细配置。</p><pre>{{ explorer.node.definition }}</pre></sc-if>
+    <h3>执行尝试</h3>
+    <sc-if value="{{ explorer.node.noAttempts }}"><p class="pm-explorer-note">该节点未提供 Attempt 明细。</p></sc-if>
+    <sc-for list="{{ explorer.node.attempts }}" as="attempt"><details class="pm-attempt"><summary><strong>{{ attempt.label }}</strong><span>{{ attempt.status }}</span><span>{{ attempt.duration }}</span></summary><pre>{{ attempt.detail }}</pre></details></sc-for>
+    <h3>结果</h3><sc-if value="{{ explorer.node.hasResult }}"><pre>{{ explorer.node.result }}</pre></sc-if><sc-if value="{{ !explorer.node.hasResult }}"><p class="pm-explorer-note">该节点未提供执行结果。</p></sc-if>
+   </section></sc-if>
+   </dialog>
   </sc-if>
  </section>
 </sc-if>
