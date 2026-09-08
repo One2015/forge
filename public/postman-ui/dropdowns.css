@@ -5,6 +5,8 @@
   --dropdown-option-height:36px;
   --dropdown-radius:8px;
   --dropdown-option-radius:4px;
+  --dropdown-caret-size:14px;
+  --dropdown-caret:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%20fill%3D%22currentColor%22%3E%3Cpath%20d%3D%22M213.66%2C101.66l-80%2C80a8%2C8%2C0%2C0%2C1-11.32%2C0l-80-80A8%2C8%2C0%2C0%2C1%2C53.66%2C90.34L128%2C164.69l74.34-74.35a8%2C8%2C0%2C0%2C1%2C11.32%2C11.32Z%22%2F%3E%3C%2Fsvg%3E");
 }
 
 @supports(appearance:base-select){
@@ -12,7 +14,12 @@
   :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size])::picker(select){appearance:base-select!important}
   :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]){align-items:center;gap:8px}
   .forge-postman .forge-review-sort>.forge-icon{display:none}
-  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size])::picker-icon{color:var(--text-muted);flex:none;margin-inline-start:auto}
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size])::picker-icon{
+    content:"";display:block;flex:none;margin-inline-start:auto;
+    width:var(--dropdown-caret-size);height:var(--dropdown-caret-size);
+    background:currentColor;mask:var(--dropdown-caret) center/contain no-repeat;
+    color:var(--text-muted);transform:none;
+  }
   :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size])::picker(select){
     box-sizing:border-box;min-inline-size:160px;max-inline-size:calc(100vw - 24px);
     max-height:min(320px,70dvh);overflow:auto;overscroll-behavior:contain;
@@ -73,3 +80,34 @@
 @media(pointer:coarse){
   :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock){--dropdown-option-height:44px}
 }
+
+/* Use the same Phosphor caret for native selects and custom menu triggers.
+   Sort indicators are nested separately and retain their two-arrow treatment. */
+:is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) :is([aria-haspopup=menu],[aria-haspopup=listbox],[popovertarget],.pm-task-tag-picker>summary,.rbac-skill-create-menu>summary,.forge-model-actions>summary)>[data-phosphor=caret-down]{
+  width:var(--dropdown-caret-size)!important;height:var(--dropdown-caret-size)!important;
+  flex:none;color:var(--text-muted)!important;opacity:1!important;transform:none!important;
+}
+:is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) :is([aria-haspopup=menu],[aria-haspopup=listbox],[popovertarget]):is(:disabled,[aria-disabled=true])>[data-phosphor=caret-down]{color:var(--text-disabled)!important}
+@supports(appearance:base-select){
+  :is(.forge-postman,#forge-rbac-root,#forge-rbac-role-dock) select:not([multiple],[size]):disabled::picker-icon{color:var(--text-disabled)}
+}
+
+/* Stacked chevrons share one geometry and one state treatment across tables. */
+.forge-postman .forge-app-shell .forge-sort-indicator{
+  display:inline-grid!important;grid-template-rows:8px 8px!important;
+  align-items:center!important;justify-items:center!important;
+  width:14px!important;height:16px!important;gap:0!important;flex:none!important;
+  color:var(--text-muted)!important;vertical-align:middle;pointer-events:none;
+}
+.forge-postman .forge-app-shell .forge-sort-indicator>*{display:none!important}
+.forge-postman .forge-app-shell .forge-sort-indicator::before,
+.forge-postman .forge-app-shell .forge-sort-indicator::after{
+  content:"";display:block;width:12px;height:8px;
+  background:currentColor;mask:var(--dropdown-caret) center/12px 12px no-repeat;
+  color:var(--text-muted);opacity:.4;
+}
+.forge-postman .forge-app-shell .forge-sort-indicator::before{transform:rotate(180deg)}
+.forge-postman .forge-app-shell :is([data-direction=ascending],[data-sort=ascending],[aria-sort=ascending]) .forge-sort-indicator::before,
+.forge-postman .forge-app-shell .forge-sort-indicator:is([data-direction=ascending],[data-sort=ascending],[data-ascending=true])::before,
+.forge-postman .forge-app-shell :is([data-direction=descending],[data-sort=descending],[aria-sort=descending]) .forge-sort-indicator::after,
+.forge-postman .forge-app-shell .forge-sort-indicator:is([data-direction=descending],[data-sort=descending],[data-descending=true])::after{color:var(--accent-primary);opacity:1}

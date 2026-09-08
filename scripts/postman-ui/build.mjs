@@ -1,4 +1,5 @@
 import {installPipelineNodeDrawer} from './pipeline-node-drawer.mjs';
+import {installSortIndicators} from './sort-indicators.mjs';
 import {installReviewReferenceSkills} from './review-reference-skills.mjs';
 import {installProfileSkillEditor} from './profile-skill-editor.mjs';
 import {installDeliveryEditPage} from './delivery-edit-page.mjs';
@@ -248,11 +249,12 @@ export function buildPostman(source){
  t=installGlobalResponsive(t);
  t=installLoadingStates(t);
  t=installCheckboxMotion(t);
+ t=installSortIndicators(t);
  const rbacCss=fs.readFileSync(new URL('public/postman-ui/rbac-prototype.css',root),'utf8');
  const rbacJs=fs.readFileSync(new URL('public/postman-ui/rbac-prototype.js',root),'utf8');
  const rbacVersion=createHash('sha256').update(rbacCss).update(rbacJs).digest('hex').slice(0,12);
  const css=['primitives.css','tokens.css','workspace.css','pages.css','controls.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n')+'\n'+legacyPaletteCss()+'\n'+fs.readFileSync(new URL('public/postman-ui/states.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/review-queue.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/run-records.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-preview-page.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/progress-indicators.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/tabs.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/pipeline-responsive.css',root),'utf8')+'\n'+fs.readFileSync(new URL('public/postman-ui/item-explorer.css',root),'utf8')+'\n'+['global-responsive.css','motion.css','loading.css','checkbox-motion.css','empty-states.css'].map(n=>fs.readFileSync(new URL('public/postman-ui/'+n,root),'utf8')).join('\n');
- replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n/* forge-ui-upgrade: semantic design-system layer */\n'+['forge-system.css','dropdowns.css'].map(name=>fs.readFileSync(new URL('public/postman-ui/'+name,root),'utf8')).join('\n')+'\n</style>');
+ replace('</style>', '\n/* postman-ui: overrides after the legacy foundation */\n'+css+'\n'+fs.readFileSync(new URL('public/postman-ui/import-motion.css',root),'utf8')+'\n/* forge-ui-upgrade: semantic design-system layer */\n'+['forge-system.css','page-spacing.css','dropdowns.css'].map(name=>fs.readFileSync(new URL('public/postman-ui/'+name,root),'utf8')).join('\n')+'\n</style>');
  replace('</head>',[
   '<script type="module" src="/postman-ui/behavior.mjs"></script>',
   '<script type="module" src="/postman-ui/forge-system.mjs"></script>',
