@@ -55,7 +55,10 @@
       phases:[['pending','待质检'],['done','已质检'],['rework','待返修'],['all','全部']].map(([id,label])=>({id,label,selected:phase===id,pick:()=>selectPhase(id)})),
       metrics:[['待质检',pending,'pending'],['已通过',passed,'pass'],['不通过',rejected,'reject']].map(([label,value,id])=>({label,value,pick:()=>selectPhase(id)})),
       query:st.externalReviewQuery||'',onQuery:e=>this.setState({externalReviewQuery:e.target.value}),empty:!visible.length,
-      rows:visible.map(row=>({...row,tone:row.status==='pass'?'success':row.status==='reject'?'danger':row.status==='rework'?'warning':'neutral',initial:Array.from(row.expert||'外')[0],timeLabel:Number.isFinite(Date.parse(row.submittedAt))?new Date(row.submittedAt).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'待确认',actionLabel:row.status==='pending'?'开始质检':'查看结果',statusLabel:labels[row.status],expanded:row.key===st.externalReviewOpen,open:()=>openItem(row)})),
+      rows:visible.map(row=>({...row,tone:row.status==='pass'?'success':row.status==='reject'?'danger':row.status==='rework'?'warning':'neutral',initial:Array.from(row.expert||'外')[0],timeLabel:Number.isFinite(Date.parse(row.submittedAt))?new Date(row.submittedAt).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'待确认',actionLabel:row.status==='pending'?'开始质检':'查看结果',statusLabel:labels[row.status],expanded:row.key===st.externalReviewOpen,open:()=>openItem(row),
+        openRow:event=>{if(event.target?.closest?.('button,a,input,select,textarea,[role="button"]'))return;openItem(row);},
+        keyOpenRow:event=>{if(event.target!==event.currentTarget||!['Enter',' '].includes(event.key))return;event.preventDefault();openItem(row);}
+      })),
       positionLabel:selectionIndex>=0?'第 '+(selectionIndex+1)+' 项，共 '+visible.length+' 项':'',
       cannotPrevious:selectionIndex<=0,cannotNext:selectionIndex<0||selectionIndex>=visible.length-1,
       previous:()=>{if(selectionIndex>0)openItem(visible[selectionIndex-1]);},next:()=>{if(selectionIndex>=0&&selectionIndex<visible.length-1)openItem(visible[selectionIndex+1]);},

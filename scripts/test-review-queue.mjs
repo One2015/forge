@@ -217,3 +217,14 @@ test('external review bottom actions submit pass directly and require a note for
  assert.match(html,/footer class="review-workbench-actions eq-review-actions"/);
  assert.doesNotMatch(html,/class="eq-choices"|class="eq-submit"|class="forge-artifact-toolbar"/);
 });
+
+
+test('external review rows open from cells and keyboard without duplicating nested actions',()=>{
+ const {c}=fixture();c.externalReviewValues().showExternal();
+ const row=c.externalReviewValues().rows[0],cell={closest:()=>null};
+ row.openRow({target:cell});assert.equal(c.state.externalReviewOpen,row.key);c.externalReviewValues().close();
+ row.openRow({target:{closest:()=>({tagName:'BUTTON'})}});assert(!c.state.externalReviewOpen);
+ for(const key of ['Enter',' ']){let prevented=false;row.keyOpenRow({key,target:cell,currentTarget:cell,preventDefault(){prevented=true}});assert(prevented);assert.equal(c.state.externalReviewOpen,row.key);c.externalReviewValues().close();}
+ row.keyOpenRow({key:'Enter',target:{},currentTarget:cell,preventDefault(){throw Error('nested button handles its own key')}});assert(!c.state.externalReviewOpen);
+ row.open();assert.equal(c.state.externalReviewOpen,row.key);assert.equal(Object.keys(c.externalReviewRecords()).length,0);
+});

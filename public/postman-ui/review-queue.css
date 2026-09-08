@@ -136,8 +136,12 @@
 
 .forge-postman .pm-review-item-page .eq-review-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
 .forge-postman .pm-review-item-page .eq-review-actions[data-editing=true]{grid-template-columns:repeat(2,minmax(0,1fr))}
-.forge-postman .pm-review-item-page .eq-review-actions .eq-reject-action{color:var(--status-danger);border-color:var(--status-danger)}
+.forge-postman .pm-review-item-page .eq-review-actions .eq-reject-action{background:transparent;color:var(--status-danger);border:1px solid var(--status-danger)}
+.forge-postman .pm-review-item-page .eq-review-actions .eq-reject-action:hover:not(:disabled){background:var(--status-danger-soft);filter:none}
 
 .forge-postman .eq-audience-row{display:flex;align-items:center;gap:16px;margin:16px 0 24px;border-bottom:1px solid var(--pm-border)}
 .forge-postman .eq-audience-row .eq-audience{flex:1;min-width:0;margin:0;border-bottom:0}
 .forge-postman .eq-audience-row .pq-refresh{flex:none;margin-left:auto}
+
+.forge-postman .eq-clickable-row{cursor:pointer}
+.forge-postman .eq-clickable-row:focus-visible{outline:2px solid var(--accent-primary);outline-offset:-2px}
