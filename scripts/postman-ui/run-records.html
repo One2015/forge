@@ -2,7 +2,7 @@
  <header class="fg-page-header pm-production-page-heading"><div><h1 id="fg-runs-title">运行任务</h1><p>{{ runs.subtitle }}</p></div></header>
 
 <div class="rr-summary forge-overview-summary" role="group" aria-label="运行摘要"><sc-for list="{{ runs.kpis }}" as="k">
- <article class="forge-summary-card rr-summary-item" data-actionable="false">
+ <article class="forge-summary-card rr-summary-item" data-actionable="false" data-metric-priority="{{ k.priority }}">
   <div class="forge-summary-heading"><span class="forge-summary-title">{{ k.label }}</span><span class="forge-summary-help" data-forge-tooltip="{{ k.title }}" data-tooltip-label="{{ k.label }}说明"></span></div>
   <div class="forge-summary-value"><strong>{{ k.value }}</strong></div>
   <sc-if value="{{ k.hasHint }}"><p class="forge-summary-note">{{ k.hint }}</p></sc-if>

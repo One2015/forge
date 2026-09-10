@@ -21,7 +21,7 @@ function component(props = {}) {
   return context.instance;
 }
 
-test('overview keeps six equal summary cards in one group with exact destinations', () => {
+test('overview keeps all six metrics and their exact destinations', () => {
   const c = component(), overview = c.renderVals().over, cards = overview.stats;
   assert.deepEqual(Array.from(cards, card => card.k), ['内部待审核', '质检通过率', '运行中', '交付缺口', '昨日成本', '模型状态']);
   assert(cards.every(card => !Object.hasOwn(card, 'prefix') && card.actionable && card.description.length > 15 && card.cardLabel));
@@ -238,7 +238,7 @@ test('info controls are separate from card navigation and supported in the stand
   assert(markup.includes('data-phosphor="info"'));
   assert(markup.includes('aria-label="{{ s.cardLabel }}"'));
   assert(markup.includes('class="forge-summary-link" sc-camel-on-click="{{ s.go }}"'));
-  assert(markup.includes('hint-placeholder-count="6"'));
+  assert(markup.includes('list="{{ over.metricGroups }}"'));
   assert(!markup.includes('forge-overview-signals'));
   assert(!markup.includes('错误类型'));
   assert(!markup.includes('forge-summary-prefix'));
@@ -265,4 +265,30 @@ test('focused generators are idempotent and 开始审核 retains the original en
   assert.equal(updateReviewQueueLayout(legacy), source);
   assert(template.includes('Reroll'));
   assert(template.includes('继续填写返工说明'));
+});
+
+
+test('overview groups prioritize pending work while preserving all six metric actions', () => {
+  const c = component(), groups = c.overviewMetricGroups(c.runsData(), []);
+  assert.deepEqual(Array.from(groups, group => [group.label, ...Array.from(group.metrics, metric => metric.k)]), [
+    ['待处理', '内部待审核', '交付缺口'], ['生产情况', '质检通过率', '运行中'], ['辅助信息', '昨日成本', '模型状态']
+  ]);
+  assert.equal(groups.flatMap(group => group.metrics).length, 6);
+  assert(groups.flatMap(group => group.metrics).every(metric => typeof metric.go === 'function'));
+});
+
+test('delivery presentation preserves existing totals and handles zero and large targets', () => {
+  const c = component();
+  for (const customer of c.deliveryData()) for (const sheet of customer.sheets) {
+    const result = c.overviewDeliveryProgress(sheet);
+    assert.equal(result.delivered, sheet.passed);
+    assert.equal(result.target, sheet.target);
+    assert.equal(result.remaining, Math.max(0, sheet.target - sheet.passed));
+  }
+  assert.equal(c.overviewDeliveryProgress({target:0,passed:0}).percentageLabel, '—');
+  assert.equal(c.overviewDeliveryProgress({target:20,passed:30}).remaining, 0);
+  assert.equal(c.overviewDeliveryProgress({target:20,passed:30}).percentage, 100);
+  const large = c.overviewDeliveryProgress({target:1234567,passed:123456});
+  assert.equal(large.targetLabel, '1,234,567'); assert.equal(large.deliveredLabel, '123,456');
+  assert.equal(large.remainingLabel, '1,111,111');
 });

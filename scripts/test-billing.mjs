@@ -33,7 +33,7 @@ test('billing chart uses the centralized Forge chart sequence', () => {
 test('time view is a secondary mutually-exclusive control while metrics retain their segment', () => {
   assert(template.includes('class="forge-billing-granularity" role="group" aria-label="时间视图"'));
   assert(template.includes('class="forge-billing-segment" role="group" aria-label="趋势指标"'));
-  assert.match(template, /<section class="forge-billing-distribution"[^>]*>\s*<header class="forge-billing-section-header"><h2[^>]*>\{\{ billing\.chartTitle \}\}<\/h2><\/header>\s*<div class="forge-billing-chart">\s*<div class="forge-billing-chart-controls">/);
+  assert.match(template, /<header class="forge-billing-section-header">[\s\S]*?aria-label="时间视图"[\s\S]*?<div class="forge-billing-chart forge-analytics-card">[\s\S]*?billing\.chartTotal/);
   assert.doesNotMatch(template, /<small>\{\{ billing\.period \}\} · \{\{ billing\.unit \}\}<\/small>/);
   assert.match(template, /class="forge-billing-custom-time"[^>]*aria-pressed="\{\{ billing\.customTimeActive \}\}"[^>]*aria-haspopup="dialog"[^>]*aria-controls="forge-billing-calendar"[^>]*aria-label="选择自定义时间范围"/);
   assert.doesNotMatch(template, /\{\{ billing\.period \}\}<br>\{\{ billing\.timezoneLabel \}\} · 包含结束日期/);
@@ -71,7 +71,7 @@ test('yesterday is a UTC+8 calendar day with inclusive start and exclusive end',
     event('last', { occurredAt: '2026-09-02T23:59:59.999+08:00' }),
     event('today', { occurredAt: '2026-09-03T00:00:00+08:00', costMicros: 100000000 })
   ]));
-  const card = c.overviewSummary([{ h: 1, cost: '$99999' }], [])[3];
+  const card = c.overviewSummary([{ h: 1, cost: '$99999' }], []).find(card => card.k === '昨日成本');
   assert.equal(card.k, '昨日成本'); assert.equal(card.v, '$5.00'); assert.match(c.billingYesterday().note, /2026-09-02/);
   card.go(); const view = c.renderVals();
   assert.equal(view.billing.metrics[0].value, card.v); assert.equal(view.billing.grain, 'hour'); assert.equal(view.billing.bars.length, 24);
@@ -389,4 +389,25 @@ test('reset is conditional and resets dates and filters without changing analysi
   c.billingValues().tabs.find(t => t.id === 'models').pick(); c.billingValues().reset();
   const v = c.billingValues(); assert(!v.filtered); assert.equal(v.preset, 'yesterday'); assert(v.tabs.find(t => t.id === 'models').active);
   assert(!/品牌 \/ 型号|全部型号|点击柱形查看该时段/.test(template.match(/<!-- billing:start -->[\s\S]*?<!-- billing:end -->/)[0]));
+});
+
+test('chart total retains the full plotted range and series colors survive metric and scope changes', () => {
+  const c = values(ledger([
+    event('a', { costMicros: 9000000 }),
+    event('b', { projectId: 'project-b', projectName: '项目 B', inputTokens: 90000, costMicros: 1000000 }),
+    event('c', { projectId: 'project-b', projectName: '项目 B', occurredAt: '2026-09-02T11:15:00+08:00', costMicros: 1000000 })
+  ]));
+  const initial = c.billingValues();
+  assert.equal(initial.chartTotal, '$11.00');
+  const colors = new Map(Array.from(initial.chartSeries, row => [row.id, row.color]));
+  for (const metric of ['tokens', 'calls', 'cost']) {
+    c.updateBilling({ metric });
+    for (const row of c.billingValues().chartSeries) assert.equal(row.color, colors.get(row.id));
+  }
+  initial.bars.find(bar => bar.calls === '2').pick();
+  assert.equal(c.billingValues().chartTotal, '$11.00');
+  assert.equal(c.billingValues().metrics[0].value, '$10.00');
+  c.updateBilling({ project: 'project-b' });
+  assert.equal(c.billingValues().chartTotal, '$2.00');
+  assert.equal(c.billingValues().chartSeries[0].color, colors.get('project-b'));
 });

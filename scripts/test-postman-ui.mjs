@@ -241,9 +241,9 @@ test('overview delivery progress is a flat section without a sheet-count label',
  const tableIndex=section.indexOf('class="pm-overview-delivery-table"');
  assert(headingIndex>=0&&tableIndex>headingIndex);
  assert.doesNotMatch(section.slice(tableIndex),/id="forge-overview-delivery-heading"/);
- assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span class="pm-overview-delivery-owner-column"[\s\S]*?<span class="pm-overview-delivery-sort-column" role="columnheader" aria-sort="\{\{ g\.sortAria \}\}">/);
+ assert.match(section,/class="pm-overview-delivery-columns"><span>数据单<\/span><span>交付进度<\/span><span class="pm-overview-remaining-heading">剩余数量<\/span><span class="pm-overview-delivery-owner-column"[\s\S]*?<span class="pm-overview-delivery-sort-column" role="columnheader" aria-sort="\{\{ g\.sortAria \}\}">/);
  assert.match(section,/<button[^>]*type="button"[^>]*class="pm-overview-delivery-sort"[^>]*sc-camel-on-click="\{\{ g\.toggleSort \}\}"[^>]*aria-label="\{\{ g\.sortActionLabel \}\}"/);
- assert.match(section,/class="pm-overview-delivery-sort-icons" aria-hidden="true"/);
+ assert.match(section,/class="pm-overview-delivery-sort-icons forge-sort-indicator" aria-hidden="true"/);
  assert.match(section,/data-phosphor="arrow-up"/);
  assert.match(section,/data-phosphor="arrow-down"/);
  assert.match(section,/class="pm-overview-delivery-date"[\s\S]*\{\{ r\.deliveryDate \}\}/);
@@ -261,14 +261,16 @@ test('overview delivery progress is a flat section without a sheet-count label',
  group.toggleSort();
  assert.deepEqual(Array.from(c.renderVals().over.groups[0].rows,row=>row.deliveryDays),[7,10,13,16,19]);
  assert.match(built,/\.forge-postman \.pm-overview-delivery-section\{background:transparent\}/);
- assert.match(built,/\.forge-postman \.pm-overview-delivery-heading\{[^}]*margin:0 0 var\(--space-3\)/);
- assert.match(built,/\.forge-postman \.pm-overview-delivery-table\{[^}]*border:1px solid var\(--border-subtle\)[^}]*border-radius:var\(--radius-surface\)[^}]*overflow:hidden/);
- assert.match(built,/\.forge-postman \.pm-overview-delivery-sort\{[^}]*width:100%[^}]*min-height:2\.5rem[^}]*border-radius:0[^}]*background:transparent!important/);
- assert.match(built,/\.forge-postman \.pm-overview-delivery-sort\[data-direction=ascending\] \.pm-overview-delivery-sort-icon-ascending[^}]*opacity:1/);
- assert.match(built,/\.forge-postman \.pm-overview-delivery-sort:focus-visible\{outline:2px solid var\(--focus-ring\)[^}]*outline-offset:-2px/);
- assert.match(built,/@media\(max-width:760px\)\{[\s\S]*\.forge-postman \.pm-overview-delivery-columns\{display:flex!important/);
- assert.match(built,/\.forge-postman \.pm-overview-delivery-row\{[^}]*width:100%[^}]*border-radius:0!important[^}]*background:var\(--surface-raised\)!important[^}]*box-shadow:none!important/);
- assert.match(built,/@media\(hover:hover\)\{\.forge-postman :is\([^}]*\.pm-overview-delivery-row\):hover\{background:var\(--surface-hover\)!important\}\}/);
+ assert.match(section,/role="link" tabindex="0" aria-label="打开数据单：/);
+ assert.match(section,/sc-camel-on-keydown="\{\{ r\.onKey \}\}"/);
+ const first=group.rows[0]; let prevented=false; const target={};
+ first.onKey({target,currentTarget:target,key:'Enter',preventDefault(){prevented=true;}});
+ assert(prevented); assert.equal(c.state.view,'sheet');
+ c.state.view='overview'; prevented=false; first.onKey({target,currentTarget:target,key:' ',preventDefault(){prevented=true;}});
+ assert(prevented); assert.equal(c.state.view,'sheet');
+ c.state.view='overview'; first.onKey({target:{},currentTarget:target,key:'Enter',preventDefault(){throw Error('nested event');}});
+ assert.equal(c.state.view,'overview');
+ assert.deepEqual(Array.from(c.renderVals().over.groups[0].rows,row=>row.progress.delivered),[156,38,31,104,121]);
 });
 test('delivery browser replaces the result count with search and list or folder views',()=>{
  const page=built.slice(built.indexOf('<sc-if value="{{ isDelivery }}"'),built.indexOf('<sc-if value="{{ isSheet }}"'));

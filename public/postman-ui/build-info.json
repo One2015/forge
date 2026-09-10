@@ -1,7 +1,7 @@
 {
   "name": "Postman UI 优化版",
   "source": "scripts/templates/forge-base.html",
-  "sourceSha256": "50538d4c76433018f8c5973ca2f2b41200bfa8874b0fb951341d69965a75caa5",
+  "sourceSha256": "001cdc06557376ca9e2e155c2b85e44e99ad4099ef4cde96750ffc7c939c1cd9",
   "output": "public/forge-postman.html",
-  "outputSha256": "63317570190f8102dbac598f63cc17c3a6f77bbb3948b352f70874da17f1523e"
+  "outputSha256": "5757a69a6693371abed8fa8d2f0dc048e40c70ade93b89e1b83377eaee2b1d3f"
 }

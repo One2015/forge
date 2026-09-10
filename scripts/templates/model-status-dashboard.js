@@ -296,6 +296,8 @@
       closeDrawer: () => this.setState({ modelSelection: '', modelRoute: '', modelDrawerMode: '', modelNoteOpen: false, modelChartPoint: null, modelTestResult: false }),
       diagnosisMetrics, reason: selected?.reason || '', explanation: selected?.explanation || '', errors: selected?.errors || '', qualityTests: selected?.tests || '',
       metricTabs: [['ttft', 'P95 TTFT'], ['throughput', 'Tokens/s'], ['total', 'P95 总耗时'], ['errors', '错误率']].map(([id, label]) => ({ id, label, selected: metric === id, select: () => this.setState({ modelChartMetric: id, modelChartPoint: null }) })),
+      chartLatest: chartValues.length ? num(chartValues.at(-1), metric === 'ttft' || metric === 'total' ? 2 : 1) + (metricConfig?.unit ? ' ' + metricConfig.unit : '') : '—',
+      chartStart: chartPoints.length ? time(evidence.trend[0].at) : '', chartEnd: chartPoints.length ? time(evidence.trend.at(-1).at) : '',
       trendTitle: metricConfig?.label + ' 趋势', chartPath, chartPoints, hasTrend: chartPoints.length > 0, baselineStyle: 'top:' + (baselineY / 40 * 100).toFixed(2) + '%', chartBaseline: '基线 ' + num(metricConfig?.baseline || 0, 2) + (metricConfig?.unit || ''), chartReadout: pointed?.title || '最近 1 小时 · 每 5 分钟 · 基线为过去 7 天同类请求中位数',
       note: selected ? noteFor(selected) : '', noteOpen: !!state.modelNoteOpen,
       contact: () => this.setState({ modelNoteOpen: true, modelRetestMessage: '已生成供应商跟进信息，未自动发送。' }),

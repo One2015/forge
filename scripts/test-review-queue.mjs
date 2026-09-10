@@ -117,7 +117,7 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.doesNotMatch(html,/pq-context|pq-issue|task\.dataset|task\.issue|data-owned/);
  assert.doesNotMatch(css,/pq-row\[data-owned/);
  assert.match(css,/\.forge-postman \.pq-summary\.forge-overview-summary\{[^}]*margin:20px 0 32px/);
- assert.match(css,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*min-height:60px[^}]*border-left:0!important/);
+ assert.match(css,/\.forge-postman \.pm-review-queue \.pq-row\{[^}]*min-height:72px[^}]*border-left:0!important/);
  assert.match(css,/\.pm-review-queue \.pq-task\{[^}]*min-height:60px[^}]*padding:9px 0 9px var\(--content-inset-compact\)[^}]*border-radius:0!important/);
  assert.match(css,/\.pm-review-queue \.pq-filters\{[^}]*display:flex[^}]*flex-wrap:nowrap[^}]*overflow-x:auto[^}]*scrollbar-width:none/);
  assert.match(css,/\.pm-review-queue \.pq-filters::\-webkit-scrollbar\{display:none\}/);
@@ -132,7 +132,7 @@ test('queue markup has six stable columns, semantic table, labels and no alarm d
  assert.match(css,/\.forge-postman \.pm-review-queue \.pq-table-head\{[^}]*background:var\(--surface-inset\)!important[^}]*border-bottom:1px solid var\(--border-default\)!important/);
  assert.match(css,/:root\[data-forge-theme=dark\] \.forge-postman \.pm-review-queue \.pq-table-head\{background:var\(--surface-inset\)!important;border-color:var\(--border-default\)!important\}/);
  assert.match(css,/\.pq-table\{min-width:1010px\}/);
- assert.match(css,/\.pq-columns\{[^}]*grid-template-columns:minmax\(400px,1fr\) 96px 72px 108px 152px 112px/);
+ assert.match(css,/\.pq-columns\{[^}]*grid-template-columns:minmax\(300px,1fr\) 112px 80px 132px 152px 112px/);
  assert.doesNotMatch(css,/pq-column-filter|pq-mobile-column-filters/);
  assert.match(responsive,/\.pq-filter-trigger\{height:44px!important;min-height:44px!important;font-size:16px!important\}/);
  assert.match(responsive,/@container pm-review \(max-width:980px\)\{[\s\S]*?\.pq-table-scroll\{max-height:none;overflow:hidden\}/);

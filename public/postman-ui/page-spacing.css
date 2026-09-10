@@ -1,16 +1,15 @@
 /* Shared page rhythm: separate sections, keep headings and controls grouped. */
 .forge-postman :is(.forge-outsourcing-heading,.forge-model-heading,.forge-billing-heading){margin-block:0}
-.forge-postman :is(.forge-outsourcing-tabs,.forge-model-page-tabs,.forge-billing-tabs){margin-block:var(--space-6) var(--space-8)}
+.forge-postman :is(.forge-outsourcing-tabs,.forge-model-page-tabs,.forge-billing-tabs){margin-block:var(--space-6) var(--space-6)}
 .forge-postman :is(.forge-outsourcing-section,.forge-outsourcing-delivery-section,.forge-model-lines-section,.forge-model-overview+.forge-model-table-section){margin-top:var(--density-section-gap)}
 .forge-postman .forge-outsourcing-tabs+:is(.forge-outsourcing-section,.forge-outsourcing-delivery-section){margin-top:0}
 .forge-postman :is(.forge-outsourcing-section>header,.forge-outsourcing-delivery-section>header,.forge-model-table-heading,.forge-model-overview-heading,.forge-model-table-section>h2,.pm-overview-delivery-heading,.pq-list-title){margin-bottom:var(--section-heading-gap)}
 .forge-postman .forge-billing-section-header{margin-block:var(--density-section-gap) var(--section-heading-gap)!important}
-.forge-postman :is(.pq-summary,.rr-summary).forge-overview-summary,
-.forge-postman .pm-page-overview .forge-overview-summary{margin-bottom:var(--density-section-gap)}
+.forge-postman :is(.pq-summary,.rr-summary).forge-overview-summary{margin-bottom:var(--density-section-gap)}
 .forge-postman :is(.pq-filters,.fg-runs-toolbar,.forge-model-lines-section>.forge-model-filters){margin-bottom:var(--section-heading-gap)}
 
 /* Analytics cards and table rows use the same content inset. */
-.forge-postman :is(.forge-outsourcing-metrics,.forge-model-overview-metrics)>div{padding:var(--section-card-inset)}
+.forge-postman .forge-model-overview-metrics>div{padding:var(--section-card-inset)}
 .forge-postman .forge-outsourcing-trend-toolbar{flex-wrap:wrap;gap:var(--space-4);margin:0 0 var(--section-heading-gap)}
 .forge-postman .forge-outsourcing-trend-cards{gap:var(--section-card-gap)}
 .forge-postman .forge-outsourcing-trend-cards>article{padding:var(--section-card-inset)}
@@ -21,7 +20,7 @@
 
 /* The members area renders in a separate root, but follows the page scale. */
 #forge-rbac-root .rbac-page .rbac-page-head{margin-bottom:var(--space-6)}
-#forge-rbac-root .rbac-members-page .rbac-members-tabs{margin-bottom:var(--space-8)}
+#forge-rbac-root .rbac-members-page .rbac-members-tabs{margin-bottom:var(--space-6)}
 #forge-rbac-root .rbac-section{margin-top:var(--density-section-gap)}
 #forge-rbac-root .rbac-section:first-child{margin-top:0}
 #forge-rbac-root .rbac-section-head{margin-bottom:var(--section-heading-gap)}

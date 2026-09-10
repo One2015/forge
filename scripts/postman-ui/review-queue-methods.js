@@ -266,9 +266,9 @@
       showBack: !!review.backLabel && review.backLabel !== '返回概览',
       subtitle: recs.length + ' 个运行 · ' + list.length + ' 条待处理', pending: list.length, rework: list.filter(r => r.type === 'rework').length, today,
       summary: [
-        { label: '待审核', description: '尚未完成审核的条目，包含已领取和未领取的任务。点击查看待审核队列。', value: list.length, selected: !done && type === 'all', pick: () => { reset(); patch({reviewPhase:'pending'}); } },
-        { label: '返工后待审', description: '待审核队列中审核轮次大于 1 的条目。点击筛选这些条目。', value: list.filter(r => r.type === 'rework').length, selected: !done && type === 'rework', pick: () => { reset(); patch({reviewPhase:'pending',queueType:'rework'}); } },
-        { label: '今日已审核', description: '今天已有审核结果的条目；无准确时间的历史记录不计入。点击查看今日审核结果。', value: today, selected: done && !!st.queueToday, pick: () => { reset(); patch({reviewPhase:'done',queueToday:true}); } }
+        { label: '待审核', priority: 'primary', description: '尚未完成审核的条目，包含已领取和未领取的任务。点击查看待审核队列。', value: list.length, selected: !done && type === 'all', pick: () => { reset(); patch({reviewPhase:'pending'}); } },
+        { label: '返工后待审', priority: 'primary', description: '待审核队列中审核轮次大于 1 的条目。点击筛选这些条目。', value: list.filter(r => r.type === 'rework').length, selected: !done && type === 'rework', pick: () => { reset(); patch({reviewPhase:'pending',queueType:'rework'}); } },
+        { label: '今日已审核', priority: 'secondary', description: '今天已有审核结果的条目；无准确时间的历史记录不计入。点击查看今日审核结果。', value: today, selected: done && !!st.queueToday, pick: () => { reset(); patch({reviewPhase:'done',queueToday:true}); } }
       ],
       done, todayOnly: done && !!st.queueToday, clearToday:()=>patch({queueToday:false}),
       query: st.reviewQuery || '', hasQuery:!!query, onQuery:e=>patch({reviewQuery:e.target.value,queueFilterMenu:null}), clearQuery:()=>patch({reviewQuery:'',queueFilterMenu:null}), owner, setOwner:e=>patch({reviewOwner:e.target.value,queueFilterMenu:null}),

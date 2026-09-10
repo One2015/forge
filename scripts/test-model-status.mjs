@@ -45,7 +45,7 @@ test('monitoring absent, loading, error and empty catalog do not invent percenta
 test('percentage is deduplicated by production model, not supplier or protocol count', () => {
   const payload = data([model('a'), model('a'), model('b'), model('c'), model('off', { enabled: false })], [route('r1', 'a'), route('r1', 'a'), route('r2', 'a', 'p', { outcome: 'failed' }), route('r3', 'b', 'p', { outcome: 'failed' }), route('r4', 'c', 'p', { outcome: 'failed' }), route('r5', 'off')]);
   const result = snap(payload); assert.equal(result.rate, 33.3); assert.equal(result.total, 3); assert.equal(result.available, 1); assert.equal(result.unavailable, 2); assert.equal(result.rows.length, 5);
-  const { c } = component(payload), card = c.overviewSummary([], [])[4];
+  const { c } = component(payload), card = c.overviewSummary([], []).find(card => card.k === '模型状态');
   assert.equal(card.v, result.rate); assert.equal(Object.hasOwn(card, 'prefix'), false); assert.equal(card.unit, '%'); assert.equal(card.auxiliary, '1 / 3 个模型可用');
 });
 
@@ -221,7 +221,7 @@ test('exception-first routes support real supplier, status and text filters and 
 });
 
 test('overview opens dedicated details, sidebar stays in overview, and back returns', () => {
-  const { c } = component(data()); c.renderVals().over.stats[4].go();
+  const { c } = component(data()); c.renderVals().over.stats.find(card => card.k === '模型状态').go();
   const view = c.renderVals(); assert.equal(c.state.view, 'models'); assert(view.modelStatus.open); assert(!view.isOverview && !view.showSubNav && !view.isRuns);
   assert.equal(view.sidebar.overviewCurrent, 'page'); assert.equal(view.sidebar.productionCurrent, 'false');
   view.modelStatus.back(); assert.equal(c.state.view, 'overview'); assert(!c.modelStatusValues().open);

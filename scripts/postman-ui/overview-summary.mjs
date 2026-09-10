@@ -35,13 +35,25 @@ export function refineOverviewSummary(t) {
   const rowsStart=t.indexOf('<sc-for list="{{ g.rows }}"');
   const rowsEnd=t.indexOf('</sc-for>',rowsStart)+'</sc-for>'.length;
   if(rowsStart<0||rowsEnd<rowsStart)throw Error('Overview delivery rows anchor changed');
-  let rows=t.slice(rowsStart,rowsEnd)
-    .replace('<div sc-camel-on-click="{{ r.go }}"','<div class="pm-overview-delivery-row" sc-camel-on-click="{{ r.go }}"')
-    .replace('<div style="flex:1;min-width:0">','<div class="pm-overview-delivery-identity" style="flex:1;min-width:0">')
-    .replace('<div style="font-size:12px;color:{{ r.fg }};white-space:nowrap">{{ r.right }}</div>',
-      '<div class="pm-overview-delivery-owner"><span class="pm-overview-owner-label">项目负责人</span><span>{{ r.owner }}</span></div>\n                <div class="pm-overview-delivery-date"><span class="pm-overview-delivery-mobile-label">交付日期</span><span>{{ r.deliveryDate }}</span></div>\n                <div class="pm-overview-delivery-status" style="font-size:12px;color:{{ r.fg }};white-space:nowrap">{{ r.right }}</div>');
-  const columns='<sc-if value="{{ !g.empty }}"><div class="pm-overview-delivery-columns"><span>数据单</span><span class="pm-overview-delivery-owner-column" role="columnheader"><select class="pm-overview-owner-filter" aria-label="筛选项目负责人" value="{{ g.ownerFilter }}" sc-camel-on-change="{{ g.onOwner }}"><option value="">项目负责人</option><sc-for list="{{ g.ownerOptions }}" as="option"><option value="{{ option.name }}" selected="{{ option.selected }}">{{ option.name }}</option></sc-for></select></span><span class="pm-overview-delivery-sort-column" role="columnheader" aria-sort="{{ g.sortAria }}"><button type="button" class="pm-overview-delivery-sort" data-direction="{{ g.sortDirection }}" sc-camel-on-click="{{ g.toggleSort }}" aria-label="{{ g.sortActionLabel }}" title="{{ g.sortLabel }}"><span>交付日期</span>'+deliverySortIcon+'</button></span><span>交付状态</span></div></sc-if>\n';
+  const identity = t.slice(t.indexOf('<!-- overview-delivery-identity:start -->', rowsStart), t.indexOf('<!-- overview-delivery-identity:end -->', rowsStart) + '<!-- overview-delivery-identity:end -->'.length);
+  const rows = `<sc-for list="{{ g.rows }}" as="r">
+    <div class="pm-overview-delivery-row" role="link" tabindex="0" aria-label="打开数据单：{{ r.title }}" sc-camel-on-click="{{ r.go }}" sc-camel-on-keydown="{{ r.onKey }}">
+      <div class="pm-overview-delivery-identity">${identity}<div class="pm-overview-delivery-name"><strong title="{{ r.title }}">{{ r.displayTitle }}</strong><span>{{ r.supplier.name }}</span></div></div>
+      <div class="pm-overview-delivery-progress" aria-label="{{ r.progress.label }}">
+        <div class="pm-overview-progress-numbers"><span>{{ r.progress.deliveredLabel }} <span class="pm-overview-progress-target">/ {{ r.progress.targetLabel }}</span></span><strong>{{ r.progress.percentageLabel }}</strong></div>
+        <div class="pm-overview-progress-track" aria-hidden="true"><span style="width:{{ r.progress.percentage }}%"></span></div>
+      </div>
+      <div class="pm-overview-delivery-remaining"><span class="pm-overview-delivery-mobile-label">剩余</span><strong>{{ r.progress.remainingLabel }}</strong><span class="pm-overview-unit">项</span></div>
+      <div class="pm-overview-delivery-owner"><span class="pm-overview-owner-label">负责人</span><span>{{ r.owner }}</span></div>
+      <div class="pm-overview-delivery-date"><span class="pm-overview-delivery-mobile-label">交付日期</span><span>{{ r.deliveryDate }}</span></div>
+    </div>
+  </sc-for>`;
+  const columns='<sc-if value="{{ !g.empty }}"><div class="pm-overview-delivery-columns"><span>数据单</span><span>交付进度</span><span class="pm-overview-remaining-heading">剩余数量</span><span class="pm-overview-delivery-owner-column" role="columnheader"><select class="pm-overview-owner-filter" aria-label="筛选项目负责人" value="{{ g.ownerFilter }}" sc-camel-on-change="{{ g.onOwner }}"><option value="">负责人</option><sc-for list="{{ g.ownerOptions }}" as="option"><option value="{{ option.name }}" selected="{{ option.selected }}">{{ option.name }}</option></sc-for></select></span><span class="pm-overview-delivery-sort-column" role="columnheader" aria-sort="{{ g.sortAria }}"><button type="button" class="pm-overview-delivery-sort" data-direction="{{ g.sortDirection }}" sc-camel-on-click="{{ g.toggleSort }}" aria-label="{{ g.sortActionLabel }}" title="{{ g.sortLabel }}"><span>交付日期</span>'+deliverySortIcon+'</button></span></div></sc-if>\n';
   t=t.slice(0,rowsStart)+columns+rows+'<sc-if value="{{ g.noOwnerMatches }}"><div class="pm-overview-owner-empty" role="status">没有该负责人负责的交付数据单</div></sc-if>'+t.slice(rowsEnd);
+  t=t.replace("                title: d.name,", `                title: d.name,
+                displayTitle: d.customer && d.name.startsWith(d.customer + ' ') ? d.name.slice(d.customer.length + 1) : d.name,
+                progress: this.overviewDeliveryProgress(d),
+                onKey: event => { if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); this.setState({ view: 'sheet', sheetKey: d.key, sheetRow: null }); } },`);
   for (const [from,to] of overviewSummaryCopy) {
     if(!t.includes(from))throw Error('Overview summary copy anchor changed: '+from.slice(0,60));
     t=t.replace(from,()=>to);

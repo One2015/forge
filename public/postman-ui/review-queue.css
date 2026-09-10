@@ -48,13 +48,13 @@
 .pm-review-queue .pq-date-filter button{border:0;background:transparent;color:inherit}
 .pm-review-queue .pq-table-scroll{overflow-x:auto;max-height:none;min-height:0;border-bottom:1px solid var(--pm-border);scrollbar-width:thin;scrollbar-color:var(--pm-control) transparent}
 .pm-review-queue .pq-table{min-width:1010px}
-.pm-review-queue .pq-columns{display:grid;grid-template-columns:minmax(400px,1fr) 96px 72px 108px 152px 112px;align-items:center;column-gap:14px}
+.pm-review-queue .pq-columns{display:grid;grid-template-columns:minmax(300px,1fr) 112px 80px 132px 152px 112px;align-items:center;column-gap:14px}
 .forge-postman .pm-review-queue .pq-table-head{height:calc(var(--pm-control-height) + 8px);position:sticky;top:0;z-index:3;background:var(--surface-inset)!important;font-size:var(--pm-meta-size);line-height:var(--pm-meta-leading);color:var(--text-secondary);border-bottom:1px solid var(--border-default)!important;font-weight:var(--weight-semibold)}
 :root[data-forge-theme=dark] .forge-postman .pm-review-queue .pq-table-head{background:var(--surface-inset)!important;border-color:var(--border-default)!important}
 .pm-review-queue .pq-table-head>[role=columnheader]{min-width:0;text-align:left;font-weight:var(--weight-semibold)}
 .pm-review-queue .pq-table-head>[role=columnheader]:first-child{padding-left:var(--content-inset-compact)}
 .pm-review-queue .pq-table-head>[role=columnheader]:last-child{padding-right:var(--content-inset-compact)}
-.forge-postman .pm-review-queue .pq-row{min-height:60px;background:var(--pm-canvas);border-left:0!important;border-bottom:1px solid #f1f1f1;font-size:12px}
+.forge-postman .pm-review-queue .pq-row{min-height:72px;background:var(--pm-canvas);border-left:0!important;border-bottom:1px solid #f1f1f1;font-size:12px}
 .pm-review-queue .pq-row:last-child{border-bottom:0}
 .pm-review-queue .pq-task-cell{min-width:0}
 .pm-review-queue .pq-task{display:flex;align-items:center;gap:10px;width:100%;min-height:60px;padding:9px 0 9px var(--content-inset-compact);border:0;border-radius:0!important;background:transparent;color:var(--pm-text);text-align:left}

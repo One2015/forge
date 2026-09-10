@@ -238,7 +238,8 @@
     const seriesMap = new Map(); matched.forEach(row => { const id=dimensionId(row); if(!seriesMap.has(id))seriesMap.set(id,{id,name:dimensionName(row),value:0}); seriesMap.get(id).value+=eventMetric(row); });
     const colors=['var(--pm-chart-1)','var(--pm-chart-2)','var(--pm-chart-3)','var(--pm-chart-4)','var(--pm-chart-5)','var(--pm-chart-6)'];
     const sortedSeries=Array.from(seriesMap.values()).sort((a,b)=>b.value-a.value), keep=sortedSeries.slice(0,5), keepIds=new Set(keep.map(row=>row.id));
-    const chartSeries=keep.map((row,index)=>({...row,color:colors[index]})); if(sortedSeries.length>5)chartSeries.push({id:'__other',name:'其他',color:colors[5]});
+    const seriesIds=[...new Set(source.events.map(dimensionId))].sort();
+    const chartSeries=keep.map(row=>({...row,color:colors[seriesIds.indexOf(row.id) % (colors.length-1)]})); if(sortedSeries.length>5)chartSeries.push({id:'__other',name:'其他',color:colors[5]});
     const maxCost = Math.max(1, ...buckets.map(b => b.cost)), maxTokens = Math.max(1, ...buckets.map(b => b.input + b.output));
     const chartMax = Math.max(1, ...buckets.map(metricValue));
     const chartFormat = value => s.metric === 'cost' ? this.billingMoney(value) : this.billingCompact(value);
@@ -348,6 +349,8 @@
       tabs: [['overview', '总览'], ['suppliers', '按模型供应商'], ['models', '按模型']].map(([id, name]) => ({ id, name, active: s.tab === id, current: s.tab === id ? 'page' : 'false', pick: () => this.updateBilling({ tab: id, query: '' }) })),
       grains: [['hour', '小时'], ['day', '日'], ['month', '月'], ['year', '年']].map(([id, name]) => ({ id, name, active: timeMode === id, pick: () => this.updateBilling({ grain: id, timeMode: id }) })),
       chartMetrics: [['cost', '费用'], ['tokens', 'Tokens'], ['calls', '调用次数']].map(([id, name]) => ({ id, name, active: s.metric === id, pick: () => this.updateBilling({ metric: id }) })),
+      chartTotal: s.metric === 'cost' ? this.billingMoney(this.billingSum(matched).cost) : this.billingNumber(buckets.reduce((total, bucket) => total + metricValue(bucket), 0)),
+      chartTotalLabel: s.metric === 'cost' ? '总费用 · USD' : s.metric === 'tokens' ? '总 Tokens' : '调用次数',
       chartSeries, chartTitle: s.metric === 'tokens' ? 'Token 用量分布' : s.metric === 'calls' ? '调用次数分布' : '费用分布', unit: s.metric === 'cost' ? 'USD' : s.metric === 'tokens' ? 'Tokens' : '次',
       metrics: [
         metric(s.preset==='yesterday'&&!selected?'昨日成本':'总费用', this.billingMoney(sum.cost), comparisonKnown ? (s.preset==='yesterday'&&!selected?'较前日 ':'较上一周期 ') + compareText : '上一周期数据不足', '当前时间范围与筛选条件下的账单费用合计。按 UTC+8 的调用计费时间统计 USD 金额，包含所选结束日期；计入产生费用的失败请求，不含充值、税费或人工费用。变化比例对比上一等长时段。', costTone(sum.cost, prior.cost)),

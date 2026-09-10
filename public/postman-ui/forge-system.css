@@ -62,8 +62,8 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .forge-main{min-width:0;background:var(--surface-canvas)}
 .forge-postman :is(.forge-page,.fg-runs){width:100%;max-width:var(--page-max)!important;padding:var(--page-block-start) var(--page-gutter) var(--page-block-end)!important;margin-inline:auto}
 .forge-postman :is(.forge-page,.fg-page-header,.forge-billing-heading,.forge-model-heading) h1{margin:0;color:var(--text-primary);font:var(--weight-semibold) var(--type-page-size)/var(--type-page-leading) var(--font-sans)!important;letter-spacing:-.022em!important}
-.forge-postman :is(h2,.forge-delivery-section-heading h2){color:var(--text-primary);font:var(--weight-semibold) var(--type-section-size)/var(--type-section-leading) var(--font-sans)!important;letter-spacing:-.012em}
-.forge-postman h3{color:var(--text-primary);font:var(--weight-medium) var(--type-subsection-size)/var(--type-subsection-leading) var(--font-sans)!important}
+.forge-postman :is(h2:not(.forge-overview-group-title),.forge-delivery-section-heading h2){color:var(--text-primary);font:var(--weight-semibold) var(--type-section-size)/var(--type-section-leading) var(--font-sans)!important;letter-spacing:-.012em}
+.forge-postman h3:not(.forge-overview-metric .forge-summary-title){color:var(--text-primary);font:var(--weight-medium) var(--type-subsection-size)/var(--type-subsection-leading) var(--font-sans)!important}
 .forge-postman :is(.forge-page,.fg-runs)>.pm-production-page-heading{min-height:auto;margin-bottom:var(--density-section-gap)!important;gap:var(--space-6)!important}
 .forge-postman .pm-production-page-heading>div:first-child>:is(p,div){max-width:72ch;margin-top:var(--space-1)!important;color:var(--text-secondary)!important;font-size:var(--type-body-size)!important;line-height:var(--type-body-leading)!important}
 
@@ -168,7 +168,7 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 @media(hover:hover){.forge-postman :is(.forge-model-table-row,.forge-billing-tbody [role=row],.forge-outsourcing-table-row):hover{background:var(--surface-hover)!important}}
 
 /* Summary bands use typography and rules; status color stays local. */
-.forge-postman :is(.forge-model-overview-metrics,.forge-outsourcing-metrics,.forge-billing-metrics){overflow:hidden;border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important}
+.forge-postman :is(.forge-model-overview-metrics,.forge-outsourcing-metrics){overflow:hidden;border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important}
 .forge-postman :is(.forge-model-overview-metrics,.forge-outsourcing-metrics,.forge-billing-metrics)>div{background:transparent!important;border-color:var(--border-subtle)!important}
 .forge-postman .forge-model-overview-metrics>div:is([data-tone=success],[data-tone=warning],[data-tone=danger]){background:transparent!important}
 .forge-postman .forge-model-overview-metrics>div[data-tone=success] dd{color:var(--status-success)!important}
@@ -198,17 +198,87 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .forge-outsourcing .forge-outsourcing-column-filter select{width:max-content!important;min-width:0!important;max-width:100%!important;min-height:28px!important;padding:3px 4px!important;border:1px solid transparent!important;border-radius:var(--radius-control)!important;background:transparent!important;box-shadow:none!important;field-sizing:content}
 .forge-postman .forge-outsourcing .forge-outsourcing-column-filter[data-active=true] select{border-color:var(--border-default)!important;background:var(--surface-raised)!important}
 @supports(appearance:base-select){.forge-postman .forge-outsourcing .forge-outsourcing-column-filter select{gap:4px!important}.forge-postman .forge-outsourcing .forge-outsourcing-column-filter select::picker-icon{margin-inline-start:4px!important}}
-.forge-postman .forge-billing-section-header{margin:var(--space-5) 0 var(--space-3)!important;padding:0!important;border:0!important;background:transparent!important}
-.forge-postman .forge-billing-chart{border:1px solid var(--border-subtle)!important;padding:var(--content-inset)!important}
+/* Analytics: shared type, chart surfaces and controls. */
+.forge-postman .forge-billing-section-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin:32px 0 16px!important;padding:0!important;border:0!important;background:transparent!important}
+.forge-postman .forge-analytics-description{margin:6px 0 0;color:var(--text-secondary);font:var(--font-caption)}
+.forge-postman .forge-analytics-card{--analytics-plot-height:200px;min-width:0;padding:24px;border:1px solid var(--border-subtle);border-radius:var(--radius-dialog);background:var(--surface-raised);box-shadow:none}
+.forge-postman .forge-billing-chart.forge-analytics-card{padding:24px!important;border-radius:var(--radius-dialog)!important}
+.forge-postman .forge-analytics-summary{display:flex;flex-direction:column;gap:4px;min-width:0}
+.forge-postman .forge-analytics-summary>span,.forge-postman .forge-outsourcing-trend-cards header div>span{font:var(--font-content);color:var(--text-secondary)}
+.forge-postman .forge-analytics-card .forge-analytics-total{display:block;color:var(--text-primary);font:var(--weight-medium) 32px/40px var(--font-sans)!important;letter-spacing:-.025em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.forge-postman .forge-analytics-legend{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:12px 24px;margin:20px 0 0;color:var(--text-secondary);font:var(--font-caption)}
+.forge-postman .forge-analytics-legend>span{display:inline-flex;align-items:center;gap:8px;min-width:0;overflow-wrap:anywhere}
+.forge-postman .forge-analytics-legend i{display:block;flex:none;width:9px;height:9px;border-radius:50%;background:var(--accent-primary)}
+.forge-postman .forge-analytics-plot{display:grid;grid-template-columns:44px minmax(0,1fr);gap:16px;margin-top:28px;padding-right:6px}
+.forge-postman .forge-analytics-y{position:relative;height:var(--analytics-plot-height);color:var(--text-muted);font:var(--font-caption);font-variant-numeric:tabular-nums}
+.forge-postman .forge-analytics-y>span{position:absolute;top:0;transform:translateY(-50%)}
+.forge-postman .forge-analytics-y>span:nth-child(2){top:50%}
+.forge-postman .forge-analytics-y>span:last-child{top:100%}
+.forge-postman .forge-analytics-x{display:flex;justify-content:space-between;gap:16px;margin-top:12px;color:var(--text-muted);font:var(--font-caption);font-variant-numeric:tabular-nums}
+.forge-postman .forge-billing-chart-controls{align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px}
+.forge-postman .forge-app-shell .forge-billing-segment{display:flex;padding:3px!important;gap:2px!important;border-radius:var(--radius-control)!important;background:var(--surface-subtle)!important}
+.forge-postman .forge-app-shell .forge-billing-segment button[aria-pressed]{padding:6px 12px!important;min-height:32px;border:0!important;color:var(--text-secondary)!important;font:var(--font-content)!important}
+.forge-postman .forge-app-shell .forge-billing-segment button[aria-pressed=true]{background:var(--surface-raised)!important;color:var(--text-primary)!important;box-shadow:0 1px 3px rgb(26 31 54 / 8%)!important}
+.forge-postman .forge-billing-y{height:calc(var(--analytics-plot-height) + 4px);font:var(--font-caption)!important}
+.forge-postman .forge-billing-bars{min-height:0;padding-bottom:4px}
+.forge-postman .forge-billing-bar-space{height:var(--analytics-plot-height);border:0;background:transparent}
+.forge-postman .forge-billing-chart-scroll{background:repeating-linear-gradient(to bottom,var(--border-subtle) 0 1px,transparent 1px calc(var(--analytics-plot-height) / 2));background-size:100% var(--analytics-plot-height);background-repeat:no-repeat;background-position:0 4px}
+.forge-postman .forge-billing-bar-space>span{max-width:56px}
+.forge-postman .forge-billing-stack{border-radius:4px 4px 0 0}
+.forge-postman .forge-billing-x{height:32px;font:var(--font-caption)!important}
+.forge-postman .forge-billing-zero{opacity:0}
+.forge-postman .forge-billing-bar-slot:is(:hover,:focus-visible) .forge-billing-zero{opacity:1}
+.forge-postman .forge-outsourcing-trend-cards{grid-template-columns:minmax(0,1fr)}
+.forge-postman .forge-outsourcing-trend-cards>article:last-child{grid-column:auto}
+.forge-postman .forge-outsourcing-trend-cards>article>header{align-items:flex-end}
+.forge-postman .forge-outsourcing-trend-cards header small{font:var(--font-caption);color:var(--text-secondary)}
+.forge-postman .forge-outsourcing-mini-chart{height:var(--analytics-plot-height);margin:0;border:0;background-size:100% 50%;background-image:linear-gradient(to bottom,var(--border-subtle) 1px,transparent 1px)}
+.forge-postman .forge-outsourcing-mini-chart button:before{width:6px;height:6px;border-width:1px}
+.forge-postman .forge-outsourcing-trend-cards footer{margin:12px 6px 0 60px;font:var(--font-caption)!important}
+.forge-postman .forge-model-trend-heading{display:flex;flex-direction:column;align-items:stretch;gap:12px;margin-bottom:20px}
+.forge-postman .forge-model-trend-heading>div{justify-content:flex-start;gap:4px}
+.forge-postman .forge-app-shell .forge-model-trend-heading button{font:var(--font-caption)!important;min-height:32px;padding:5px 8px;border-radius:var(--radius-control);color:var(--text-secondary)}
+.forge-postman .forge-app-shell .forge-model-trend-heading button[aria-pressed=true]{background:var(--surface-subtle);color:var(--text-primary)}
+.forge-postman .forge-model-chart-readout{margin:8px 0 24px;font:var(--font-caption)!important;color:var(--text-secondary)}
+.forge-postman .forge-model-line-plot{height:var(--analytics-plot-height);margin-inline:4px;border-color:var(--border-subtle);background-image:linear-gradient(to bottom,var(--border-subtle) 1px,transparent 1px)}
+.forge-postman .forge-model-line-plot path{stroke:var(--accent-primary);stroke-width:2}
+.forge-postman .forge-model-chart-point{width:24px;height:24px;margin:-12px 0 0 -12px;border:0;background:transparent}
+.forge-postman .forge-model-chart-point:before{content:"";display:block;width:6px;height:6px;margin:auto;border-radius:50%;background:var(--accent-primary)}
+.forge-postman .forge-model-chart-point:is(:hover,:focus-visible):before{width:10px;height:10px}
+.forge-postman .forge-model-chart-baseline span{font:var(--font-caption)!important}
+@media(max-width:640px){
+ .forge-postman .forge-analytics-card{--analytics-plot-height:164px;padding:16px!important}
+ .forge-postman .forge-billing-chart.forge-analytics-card{padding:16px!important}
+ .forge-postman .forge-billing-section-header{align-items:flex-start}
+ .forge-postman .forge-billing-chart-controls{align-items:flex-start;gap:16px}
+ .forge-postman .forge-analytics-card .forge-analytics-total{font-size:28px!important;line-height:36px!important}
+ .forge-postman .forge-analytics-legend{gap:8px 16px}
+ .forge-postman .forge-outsourcing-trend-cards header small{width:100%}
+}
 .forge-postman :is(.forge-billing-cost-bar,.forge-billing-contributor-bar i,.forge-billing-share i){background:var(--accent-primary)!important}
 .forge-postman .rbac-prototype-tag{border-radius:var(--radius-xs)!important;background:var(--accent-soft)!important;color:var(--accent-primary)!important}
 
 /* Review, records and engineering workspaces share the compact system. */
-.forge-postman :is(.pq-summary,.rr-summary){overflow:hidden;border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important}
+.forge-postman :is(.pq-summary,.rr-summary){overflow:visible;gap:0;padding-block:0 var(--space-6);border:0!important;border-bottom:1px solid var(--border-subtle)!important;border-radius:0!important;background:transparent!important}
+.forge-postman :is(.pq-summary,.rr-summary)>.forge-summary-card{min-height:112px;padding:0 var(--space-6)!important;justify-content:flex-start}
+.forge-postman :is(.pq-summary,.rr-summary)>.forge-summary-card:first-child{padding-left:0!important}
+.forge-postman :is(.pq-summary,.rr-summary) .forge-summary-heading{justify-content:flex-start;align-items:center;gap:4px;min-height:28px}
+.forge-postman :is(.pq-summary,.rr-summary) .forge-summary-title{margin:0;font:var(--font-caption);color:var(--text-secondary)}
+.forge-postman :is(.pq-summary,.rr-summary) .forge-summary-value{margin-top:12px;min-height:48px;align-items:baseline}
+.forge-postman :is(.pq-summary,.rr-summary) .forge-summary-value strong{font-size:30px;line-height:44px;font-weight:var(--weight-semibold);letter-spacing:-.025em}
+.forge-postman :is(.pq-summary,.rr-summary) [data-metric-priority=primary] .forge-summary-value strong{font-size:40px}
+.forge-postman .pq-summary .pq-summary-item[data-selected=true] .forge-summary-title{color:var(--accent-primary);font-weight:var(--weight-regular)}
+@media(max-width:760px){.forge-postman :is(.pq-summary,.rr-summary)>.forge-summary-card{padding:12px!important;min-height:112px}.forge-postman :is(.pq-summary,.rr-summary)>.forge-summary-card:nth-child(odd){padding-left:0!important}.forge-postman .rr-summary.forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.forge-postman .rr-summary>.forge-summary-card:nth-child(even){border-right:0!important}
+.forge-postman .pm-review-queue .pq-summary.forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+.forge-postman .pm-review-queue .pq-summary>.forge-summary-card:nth-child(2){border-right:0!important}
+.forge-postman .pm-review-queue .pq-summary>.forge-summary-card:last-child{grid-column:1/-1;min-height:64px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding-left:0!important;border:0!important;border-top:1px solid var(--border-subtle)!important}
+.forge-postman .pm-review-queue .pq-summary>.forge-summary-card:last-child .forge-summary-value{margin:0;min-height:0}
+.forge-postman .pm-review-queue .pq-summary>.forge-summary-card:last-child .forge-summary-value strong{font-size:24px;line-height:32px}}
+
 .forge-postman :is(.pq-summary,.rr-summary)>.forge-summary-card{background:transparent!important;border-color:var(--border-subtle)!important;box-shadow:none!important}
 .forge-postman .rr-status-tabs{border-color:var(--border-subtle)!important;background:transparent!important}
 .forge-postman .rr-status-tabs .fg-button[aria-pressed=true]{background:var(--surface-raised)!important;color:var(--text-primary)!important;box-shadow:inset 0 0 0 1px var(--border-default)!important}
-.forge-postman :is(.pq-table-scroll,.rr-scroll,.pm-dataset-split){border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;overflow:hidden}
+.forge-postman :is(.pq-table-scroll,.rr-scroll,.pm-dataset-split){border:1px solid var(--border-subtle)!important;border-radius:var(--radius-surface)!important;background:var(--surface-raised)!important;overflow:auto}
 .forge-postman :is(.pq-table-head,.rr-heading){background:var(--surface-subtle)!important;color:var(--text-muted)!important;border-color:var(--border-subtle)!important}
 .forge-postman :is(.pq-row,.rr-row){background:var(--surface-raised)!important;border-color:var(--border-subtle)!important}
 @media(hover:hover){.forge-postman :is(.pq-row,.rr-row):hover{background:var(--surface-hover)!important}}
@@ -220,38 +290,108 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .forge-app-shell .forge-sidebar-logo{background:var(--accent-soft)!important;color:var(--accent-primary)!important}
 
 /* Overview: a calm report surface, not a row of dashboard cards. */
-.forge-postman .pm-page-overview{max-width:88rem!important}
+.forge-postman .pm-page-overview{max-width:76rem!important}
 .forge-postman .pm-page-overview>div:has(>div>h1){margin-bottom:var(--space-6)!important}
-.forge-postman .pm-page-overview .forge-overview-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;margin:0 0 var(--space-10);border:1px solid var(--border-subtle);border-radius:var(--radius-surface);background:var(--surface-raised);overflow:hidden}
-.forge-postman .pm-page-overview .forge-summary-card{min-height:8rem;padding:var(--space-5)!important;border:0!important;border-right:1px solid var(--border-subtle)!important;border-radius:0;background:transparent;box-shadow:none}
-.forge-postman .pm-page-overview .forge-summary-card:last-child{border-right:0!important}
-.forge-postman .pm-page-overview .forge-summary-heading{align-items:center}
-.forge-postman .pm-page-overview .forge-summary-title{color:var(--text-secondary);font-size:var(--type-caption-size);font-weight:var(--weight-medium)}
-.forge-postman .pm-page-overview .forge-summary-value{margin-top:var(--space-4)}
-.forge-postman .pm-page-overview .forge-summary-value strong{color:var(--text-primary)!important;font-size:1.75rem;line-height:2rem;font-weight:var(--weight-semibold);letter-spacing:-.035em}
-.forge-postman .pm-page-overview .forge-summary-auxiliary{display:flex;align-items:center;gap:var(--space-1)}
-.forge-postman .pm-page-overview .forge-summary-auxiliary .forge-metric-delta-tag{display:inline-flex;align-items:center;margin-left:0;padding:.125rem .5rem;border-radius:var(--radius-xs);font-size:.75rem!important;line-height:1.25rem!important}
-.forge-postman .pm-page-overview .forge-summary-note{margin-top:var(--space-2);color:var(--text-muted);font-size:var(--type-caption-size);line-height:var(--type-caption-leading)}
-@media(hover:hover){.forge-postman .pm-page-overview .forge-summary-card[data-actionable=true]:hover{background:var(--surface-hover)!important}}
+/* Overview composition */
+.forge-postman .pm-page-overview{container:overview / inline-size;
+ --overview-section-font:var(--font-section);
+ --overview-body-font:var(--font-content);
+ --overview-caption-font:var(--font-caption);
+ --overview-header-font:var(--font-table-heading);
+ --overview-number-font:var(--font-number);
+}
+.forge-postman .forge-overview-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:28px;padding-block:0 24px;border-bottom:1px solid var(--border-subtle)}
+.forge-postman .forge-overview-metric-group{min-width:0}
+.forge-postman .forge-overview-metric-group+.forge-overview-metric-group{padding-left:24px;border-left:1px solid var(--border-subtle)}
+.forge-postman .forge-overview-group-title{min-height:var(--type-section-leading);margin:0 0 12px;color:var(--text-primary)}
+.forge-postman .pm-page-overview :is(.forge-overview-group-title,.pm-overview-delivery-heading){font:var(--overview-section-font)!important;letter-spacing:-.012em}
+.forge-postman .forge-overview-group-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.forge-postman .forge-overview-metric{container-type:inline-size;position:relative;display:grid;grid-template-rows:24px 54px auto;min-width:0;border-radius:var(--radius-control)}
+.forge-postman .forge-overview-metric .forge-summary-heading{justify-content:flex-start;gap:4px;min-height:24px}
+.forge-postman .forge-overview-metric .forge-summary-title{margin:0;white-space:normal;font:var(--overview-caption-font);color:var(--text-secondary)}
+.forge-postman .forge-overview-metric .forge-summary-help{width:24px;height:24px;margin:0}
+.forge-postman .forge-overview-metric .forge-summary-info{width:24px;height:24px;color:var(--text-muted)}
+.forge-postman .forge-overview-metric .forge-summary-info svg{width:14px;height:14px}
+.forge-postman .forge-overview-metric .forge-summary-value{gap:4px;margin:0;align-self:end;color:var(--text-primary)!important;flex-wrap:nowrap}
+.forge-postman .forge-overview-metric .forge-summary-value strong{font-size:30px;line-height:36px;font-weight:var(--weight-semibold);letter-spacing:-.035em;white-space:nowrap}
+.forge-postman .forge-overview-metric .forge-summary-value>span{font:var(--overview-caption-font);color:var(--text-secondary)}
+.forge-postman [data-priority=primary] .forge-summary-value strong{font-size:40px;line-height:44px}
+.forge-postman .forge-overview-metric[data-long-value=true] .forge-summary-value strong{font-size:clamp(18px,17cqw,32px);line-height:1.3}
+.forge-postman .forge-overview-metric .forge-summary-auxiliary{gap:4px;flex-wrap:wrap;margin-top:8px;font:var(--overview-caption-font);color:var(--text-secondary)}
+.forge-postman .forge-overview-metric .forge-summary-auxiliary strong{font:var(--overview-header-font);padding:0 4px}
+.forge-postman [data-priority=tertiary] .forge-summary-value strong{font-size:24px;line-height:30px;letter-spacing:-.025em}
+.forge-postman .forge-overview-metric .forge-summary-link{background:transparent!important}
+.forge-postman .forge-overview-metric:has(.forge-summary-link:focus-visible){outline:2px solid var(--focus-ring);outline-offset:6px}
+@media(hover:hover){.forge-postman .forge-overview-metric:has(.forge-summary-link:hover) .forge-summary-title{color:var(--accent-primary)}.forge-postman .forge-overview-metric:has(.forge-summary-link:hover) .forge-summary-value strong{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}}
 .forge-postman .pm-overview-delivery-section{background:transparent}
-.forge-postman .pm-overview-delivery-heading{margin:0 0 var(--space-3);font-size:var(--type-section-size)!important;line-height:var(--type-section-leading)!important;font-weight:var(--weight-semibold)!important}
+.forge-postman .pm-overview-delivery-heading{margin:0 0 16px}
 .forge-postman .pm-overview-delivery-table{border:1px solid var(--border-subtle);border-radius:var(--radius-surface);background:var(--surface-raised);overflow:hidden}
-.forge-postman .pm-overview-delivery-columns{min-height:2.5rem;padding:.625rem var(--space-5);background:var(--surface-subtle)!important;border-bottom-color:var(--border-subtle)}
-.forge-postman .pm-overview-delivery-table .pm-overview-delivery-columns>span,
-.forge-postman .pm-overview-delivery-table .pm-overview-delivery-columns :is(.pm-overview-owner-filter,.pm-overview-delivery-sort){font:inherit!important;color:inherit!important}
-.forge-postman .pm-overview-delivery-table .pm-overview-delivery-columns .pm-overview-owner-filter{field-sizing:content;max-width:100%;height:2.5rem!important;min-height:2.5rem!important;margin-block:-.625rem;padding:0 .25rem 0 0;border:0!important;border-radius:0!important;background:transparent!important;cursor:pointer;box-shadow:none!important}
-.forge-postman .pm-overview-owner-filter:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
-.forge-postman .pm-overview-owner-empty{padding:var(--space-5);color:var(--text-muted);text-align:center}
-.forge-postman .pm-overview-delivery-sort-column{display:flex;align-items:stretch}
-.forge-postman .pm-overview-delivery-sort{display:inline-flex;align-items:center;justify-content:flex-start;width:100%;min-height:2.5rem;margin-block:-.625rem;padding:0;border:0;border-radius:0;background:transparent!important;color:var(--text-muted);font:inherit;font-weight:var(--weight-medium);cursor:pointer;touch-action:manipulation}
-.forge-postman .pm-overview-delivery-sort-icons{display:inline-flex;align-items:center;gap:0;margin-inline-start:.375rem;color:var(--text-muted)}
-.forge-postman .pm-overview-delivery-sort-icon{width:.625rem;height:.625rem;flex:none;opacity:.3;transition:color var(--motion-fast) var(--ease-standard),opacity var(--motion-fast) var(--ease-standard)}
-.forge-postman .pm-overview-delivery-sort[data-direction=ascending] .pm-overview-delivery-sort-icon-ascending,.forge-postman .pm-overview-delivery-sort[data-direction=descending] .pm-overview-delivery-sort-icon-descending{color:var(--text-secondary);opacity:1}
-.forge-postman .pm-overview-delivery-sort:focus-visible{outline:2px solid var(--focus-ring);outline-offset:-2px;border-radius:var(--radius-xs)}
-@media(hover:hover){.forge-postman .pm-overview-delivery-sort:hover{background:transparent!important;color:var(--text-primary)}.forge-postman .pm-overview-delivery-sort:hover .pm-overview-delivery-sort-icon{color:var(--text-secondary);opacity:.7}.forge-postman .pm-overview-delivery-sort:hover :is(.pm-overview-delivery-sort-icon-ascending,.pm-overview-delivery-sort-icon-descending){opacity:1}}
-.forge-postman .pm-overview-delivery-table .pm-overview-delivery-row{width:100%;min-height:4.25rem;padding:.75rem var(--space-5)!important;border-radius:0!important;border-bottom-color:var(--border-subtle)!important;background:var(--surface-raised)!important;box-shadow:none!important}
-.forge-postman .pm-overview-delivery-row:last-child{border-bottom:0!important}
-.forge-postman .pm-overview-delivery-status{text-align:left;justify-self:stretch}
+.forge-postman :is(.pm-overview-delivery-columns,.pm-overview-delivery-row){display:grid;grid-template-columns:minmax(220px,1fr) minmax(230px,1.15fr) 96px 108px 96px;gap:24px;align-items:center;padding-inline:20px}
+.forge-postman .pm-overview-delivery-columns{min-height:44px;background:var(--surface-subtle);border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);font:var(--overview-header-font)}
+.forge-postman .pm-page-overview .pm-overview-delivery-columns>span{font:var(--overview-header-font)!important}
+.forge-postman .pm-page-overview .pm-overview-delivery-columns :is(.pm-overview-owner-filter,.pm-overview-delivery-sort){font:var(--overview-header-font)!important;color:inherit!important;min-height:40px;height:40px;padding:0;border:0!important;border-radius:var(--radius-control);background:transparent!important;cursor:pointer;box-shadow:none!important;white-space:nowrap}
+.forge-postman .pm-overview-delivery-columns .pm-overview-owner-filter{field-sizing:content;width:max-content;max-width:100%;padding-right:0!important}
+.forge-postman .pm-overview-delivery-sort{display:inline-flex;align-items:center;gap:4px}
+.forge-postman :is(.pm-overview-owner-filter,.pm-overview-delivery-sort):focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.forge-postman .pm-overview-owner-empty{padding:24px;color:var(--text-secondary);text-align:center}
+.forge-postman .pm-overview-delivery-row{min-height:76px;padding-block:14px;border-bottom:1px solid var(--border-subtle);color:var(--text-primary);font:var(--overview-body-font);cursor:pointer;font-variant-numeric:tabular-nums}
+.forge-postman .pm-overview-delivery-row:last-child{border-bottom:0}
+.forge-postman .pm-overview-delivery-row:focus-visible{outline:2px solid var(--focus-ring);outline-offset:-3px!important;border-radius:4px}
+@media(hover:hover){.forge-postman .pm-overview-delivery-row:hover{background:var(--surface-hover)}.forge-postman .pm-overview-delivery-row:hover .pm-overview-delivery-name strong{color:var(--accent-primary)}}
+.forge-postman .pm-overview-delivery-identity{display:flex;align-items:center;gap:12px;min-width:0}
+.forge-postman .pm-overview-delivery-name{display:flex;flex-direction:column;gap:3px;min-width:0}
+.forge-postman .pm-overview-delivery-name strong{font:var(--overview-body-font);font-weight:var(--weight-medium);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.forge-postman .pm-overview-delivery-name>span{font:var(--overview-caption-font);color:var(--text-secondary)}
+.forge-postman .pm-overview-delivery-progress{min-width:0}
+.forge-postman .pm-overview-progress-numbers{display:flex;justify-content:space-between;align-items:baseline;gap:8px;white-space:nowrap;font:var(--overview-body-font)}
+.forge-postman :is(.pm-overview-progress-numbers strong,.pm-overview-delivery-remaining strong){font:var(--overview-number-font)}
+.forge-postman .pm-overview-progress-target{color:var(--text-secondary)}
+.forge-postman .pm-overview-progress-track{height:4px;margin-top:8px;background:var(--border-subtle);border-radius:2px;overflow:hidden}
+.forge-postman .pm-overview-progress-track>span{display:block;height:100%;background:var(--accent-primary);border-radius:inherit}
+.forge-postman .pm-overview-delivery-remaining{display:flex;align-items:baseline;justify-content:flex-end;gap:4px;white-space:nowrap}
+.forge-postman .pm-overview-remaining-heading{text-align:right}
+.forge-postman .pm-overview-unit{font:var(--overview-caption-font);color:var(--text-secondary)}
+.forge-postman .pm-overview-delivery-owner{min-width:0;overflow-wrap:anywhere}
+.forge-postman .pm-overview-delivery-date{white-space:nowrap}
+.forge-postman :is(.pm-overview-owner-label,.pm-overview-delivery-mobile-label){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@container overview (max-width:980px){
+ .forge-postman .forge-overview-metrics{grid-template-columns:1fr 1fr;gap:20px 24px}
+ .forge-postman .forge-overview-metric-group[data-priority=tertiary]{grid-column:1/-1;padding:16px 0 0;border-left:0;border-top:1px solid var(--border-subtle)}
+ .forge-postman [data-priority=tertiary] .forge-overview-group-values{gap:24px}
+ .forge-postman [data-priority=tertiary] .forge-overview-metric{grid-template-rows:24px 38px auto}
+ .forge-postman [data-priority=tertiary] .forge-summary-value strong{font-size:22px;line-height:28px}
+ .forge-postman :is(.pm-overview-delivery-columns,.pm-overview-delivery-row){gap:20px;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) 70px 76px 84px}
+}
+@container overview (max-width:720px){
+ .forge-postman .forge-overview-metrics{gap:24px 20px;padding-bottom:24px;margin-bottom:28px}
+ .forge-postman .forge-overview-metric-group+.forge-overview-metric-group{padding-left:20px}
+ .forge-postman .forge-overview-group-values{gap:16px}
+ .forge-postman .forge-overview-metric .forge-summary-heading{flex-wrap:wrap;gap:0}
+ .forge-postman [data-priority=primary] .forge-summary-value strong{font-size:36px;line-height:42px}
+ .forge-postman [data-priority=secondary] .forge-summary-value strong{font-size:28px!important;line-height:36px!important}
+ .forge-postman .pm-overview-delivery-columns{display:flex;justify-content:space-between;padding-inline:16px;gap:16px}
+ .forge-postman .pm-overview-delivery-columns>span:not(.pm-overview-delivery-sort-column):not(.pm-overview-delivery-owner-column){display:none}
+ .forge-postman .pm-overview-delivery-row{grid-template-columns:minmax(0,1fr) auto;gap:16px 24px;padding:18px 16px}
+ .forge-postman .pm-overview-delivery-identity{grid-column:1/-1}
+ .forge-postman .pm-overview-delivery-name strong{white-space:normal;overflow-wrap:anywhere}
+ .forge-postman .pm-overview-delivery-progress{grid-column:1}
+ .forge-postman .pm-overview-delivery-remaining{grid-column:2}
+ .forge-postman :is(.pm-overview-delivery-owner,.pm-overview-delivery-date){display:flex;gap:8px;font:var(--overview-body-font)}
+ .forge-postman :is(.pm-overview-owner-label,.pm-overview-delivery-mobile-label){position:static;width:auto;height:auto;overflow:visible;clip-path:none;color:var(--text-secondary);font:var(--overview-caption-font)}
+ .forge-postman .pm-overview-delivery-date{justify-content:flex-end}
+}
+@container overview (max-width:440px){
+ .forge-postman .forge-overview-metrics{grid-template-columns:1fr}
+ .forge-postman .forge-overview-metric-group+.forge-overview-metric-group{padding:20px 0 0;border-left:0;border-top:1px solid var(--border-subtle)}
+ .forge-postman [data-priority=tertiary] .forge-overview-group-values{gap:20px}
+ .forge-postman [data-priority=tertiary] .forge-summary-value strong{font-size:20px}
+ .forge-postman .pm-overview-delivery-row{column-gap:16px}
+ .forge-postman .pm-overview-delivery-progress{grid-column:1/-1}
+ .forge-postman .pm-overview-delivery-remaining{grid-column:1;grid-row:3;justify-content:flex-start}
+ .forge-postman .pm-overview-delivery-owner{grid-column:2;grid-row:3;justify-content:flex-end}
+ .forge-postman .pm-overview-delivery-date{grid-column:1/-1;justify-content:flex-start}
+}
+
 
 /* Dense workspaces -------------------------------------------------------- */
 :root[data-forge-density=compact] .forge-postman :is(.pm-page-datasets,.pm-page-resources,.pm-page-review,.pm-page-run,.pm-page-pipeedit,.pm-item-page){--type-body-size:.875rem;--type-body-leading:1.25rem;--type-component-size:.8125rem;--type-component-leading:1.125rem;--type-caption-size:.75rem;--type-caption-leading:1rem}
@@ -317,7 +457,8 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman :not(pre)>code{font-size:var(--type-caption-size)!important;line-height:var(--type-caption-leading)!important}
 .forge-postman :is(th,[role=columnheader],[data-pm-table-heading=true],.pq-table-head,.rr-heading,.forge-model-table-head,.forge-billing-thead,.forge-outsourcing-table-head),
 #forge-rbac-root .rbac-table th{font-size:var(--type-caption-size)!important;line-height:var(--type-caption-leading)!important;font-weight:var(--weight-semibold)!important}
-.forge-postman [role=columnheader] :is(button,select){font-size:inherit!important;line-height:inherit!important;font-weight:inherit!important}
+.forge-postman .forge-app-shell :is([role=columnheader],.rr-heading,.pq-table-head,.forge-outsourcing-table-head,[data-pm-table-heading=true]) :is(button,select),
+.forge-postman :is([role=columnheader],.rr-heading,.pq-table-head,.forge-outsourcing-table-head,[data-pm-table-heading=true]){font:var(--font-table-heading)!important;color:var(--text-secondary)}
 .forge-postman :is(td,[role=cell],.pq-row,.rr-row,.forge-model-table-row,.forge-billing-tbody [role=row],.forge-outsourcing-table-row),
 #forge-rbac-root .rbac-table td{font-size:var(--type-component-size)!important;line-height:var(--type-component-leading)!important}
 .forge-postman :is(.fg-badge,.pm-delivery-badge,.pq-badge,.rr-status,.forge-model-badge,.forge-wizard-status,.review-queue-card-status,.forge-outsourcing-status,.forge-metric-delta-tag),
@@ -328,6 +469,28 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 #forge-rbac-root h1{font:var(--weight-semibold) var(--type-page-size)/var(--type-page-leading) var(--font-sans)!important}
 #forge-rbac-root h2{font:var(--weight-semibold) var(--type-section-size)/var(--type-section-leading) var(--font-sans)!important}
 #forge-rbac-root h3{font:var(--weight-medium) var(--type-subsection-size)/var(--type-subsection-leading) var(--font-sans)!important}
+
+/* Content roles span queues, delivery and member tables. */
+.forge-postman :is(.rr-identity>strong,.pq-task-copy>strong,.pm-delivery-table-name),
+#forge-rbac-root .rbac-member-name{font:var(--font-content)!important;font-weight:var(--weight-medium)!important}
+.forge-postman :is(.rr-pipeline,.rr-context,.rr-pagination),
+#forge-rbac-root :is(.rbac-member-email,.rbac-section-copy){font:var(--font-caption);color:var(--text-secondary)}
+.forge-postman :is(.rr-number,.pm-delivery-data-row,[role=cell],.forge-outsourcing-table-row),
+#forge-rbac-root .rbac-table td{font-variant-numeric:tabular-nums}
+.forge-postman .pm-delivery-data-row>:nth-child(n+6):nth-child(-n+9){justify-content:flex-end;text-align:right}
+.forge-postman .pm-delivery-data-row>[role=cell]:nth-child(n+6):nth-child(-n+9){font-weight:var(--weight-medium)}
+.forge-postman .forge-outsourcing-metrics dt{font:var(--font-caption)!important;color:var(--text-secondary)}
+.forge-postman .forge-outsourcing-metrics dd{font-size:30px;line-height:44px;font-weight:var(--weight-semibold);letter-spacing:-.025em;white-space:nowrap}
+.forge-postman .forge-outsourcing-metrics [data-metric-priority=primary] dd{font-size:40px}
+.forge-postman .forge-outsourcing-metrics{padding-bottom:var(--space-6);border:0!important;border-bottom:1px solid var(--border-subtle)!important;border-radius:0!important;background:transparent!important}
+.forge-postman .forge-outsourcing-metrics>div{padding:0 16px;border-bottom:0}
+.forge-postman .forge-outsourcing-metrics>div:first-child{padding-left:0}
+.forge-postman .forge-outsourcing-metrics>div:nth-child(odd){border-right:0}
+#forge-rbac-root .rbac-members-page{width:auto;max-width:var(--page-max);margin-inline:auto;padding:var(--page-block-start) var(--page-gutter) var(--page-block-end)}
+#forge-rbac-root .rbac-members-page .rbac-table td{padding-block:16px}
+#forge-rbac-root .rbac-members-page .rbac-search{max-width:480px}
+#forge-rbac-root .rbac-members-page .rbac-toolbar>.rbac-primary{margin-left:auto;flex:none}
+@media(max-width:640px){.forge-postman .forge-outsourcing-metrics>div{padding:12px!important}.forge-postman .forge-outsourcing-metrics>div:nth-child(odd){padding-left:0!important;border-right:1px solid var(--border-subtle)}.forge-postman .forge-outsourcing-metrics>div:nth-child(even){border-right:0}.forge-postman .forge-outsourcing-metrics [data-metric-priority=primary] dd{font-size:34px}#forge-rbac-root .rbac-members-page .rbac-toolbar{flex-wrap:wrap}}
 
 /* Dark theme also neutralizes legacy inline light surfaces. */
 :root[data-forge-theme=dark] body.forge-postman :is([style*="background:#fff"],[style*="background: #fff"],[style*="background:#ffffff"],[style*="background: #ffffff"]):not(.forge-artifact-preview):not(.forge-sheet-preview){background:var(--surface-raised)!important}
@@ -348,9 +511,6 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 /* Responsive ------------------------------------------------------------- */
 @media(max-width:1180px){
   :root{--page-gutter:1.5rem;--page-block-start:2rem}
-  .forge-postman .pm-page-overview .forge-overview-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .forge-postman .pm-page-overview .forge-summary-card:nth-child(3n){border-right:0!important}
-  .forge-postman .pm-page-overview .forge-summary-card:nth-child(-n+3){border-bottom:1px solid var(--border-subtle)!important}
 }
 @media(max-width:760px){
   :root{--page-gutter:.875rem;--page-block-start:1.25rem;--page-block-end:2.5rem;--sidebar-width:9.5rem;--content-inset:var(--space-4);--content-inset-compact:var(--space-3)}
@@ -359,25 +519,11 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
   .pm-preference-control{min-width:1.875rem;width:1.875rem;padding:0}
   .pm-preference-control>span:last-child{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
   .forge-postman .forge-app-shell{--forge-sidebar-width:var(--sidebar-width-collapsed)}
-  .forge-postman .pm-page-overview .forge-overview-summary{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:var(--space-6)}
-  .forge-postman .pm-page-overview .forge-summary-card{min-height:6.75rem;padding:var(--space-4)!important}
-  .forge-postman .pm-page-overview .forge-summary-card:nth-child(odd){border-right:1px solid var(--border-subtle)!important}
-  .forge-postman .pm-page-overview .forge-summary-card:nth-child(even){border-right:0!important}
-  .forge-postman .pm-page-overview .forge-summary-card:nth-child(-n+4){border-bottom:1px solid var(--border-subtle)!important}
-  .forge-postman .pm-page-overview .forge-summary-value{margin-top:var(--space-2)}
-  .forge-postman .pm-page-overview .forge-summary-value strong{font-size:1.375rem;line-height:1.75rem}
-  .forge-postman .pm-overview-delivery-columns{display:flex!important;justify-content:flex-end;min-height:2.5rem;padding:.375rem .625rem!important}
-  .forge-postman .pm-overview-delivery-columns>span:not(.pm-overview-delivery-sort-column):not(.pm-overview-delivery-owner-column){display:none}
-  .forge-postman .pm-overview-delivery-sort-column{margin-inline-start:auto}
-  .forge-postman .pm-overview-delivery-table .pm-overview-delivery-row{grid-template-columns:1.5rem minmax(0,1fr)!important;padding:.875rem!important}
   .forge-postman :is(.forge-motion-dialog,dialog){width:calc(100vw - 1.5rem)!important;max-height:calc(100dvh - 1.5rem)!important;border-radius:var(--radius-surface)!important}
   #forge-rbac-root .rbac-page{width:min(100% - 1.75rem,74rem)}
   #forge-rbac-root .rbac-role-sheet{width:calc(100vw - 1rem);border-radius:var(--radius-surface) 0 0 var(--radius-surface)!important}
 }
 @media(max-width:480px){
-  .forge-postman .pm-page-overview .forge-overview-summary{grid-template-columns:1fr}
-  .forge-postman .pm-page-overview .forge-summary-card{border-right:0!important;border-bottom:1px solid var(--border-subtle)!important}
-  .forge-postman .pm-page-overview .forge-summary-card:last-child{border-bottom:0!important}
   #forge-rbac-role-dock{right:.5rem;bottom:.5rem;width:calc(100vw - 1rem)}
 }
 @media(pointer:coarse){
@@ -458,27 +604,26 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .forge-postman .pm-delivery-reference-toolbar .pm-delivery-search{flex:0 1 480px;width:480px;max-width:100%}
 .forge-postman .pm-delivery-reference-toolbar .forge-delivery-create{margin:0;flex:none}
 .pm-delivery-table-scroll{overflow-x:auto;border:1px solid var(--border-subtle);border-radius:var(--radius-surface);background:var(--surface-raised)}
-.forge-postman .pm-delivery-data-table{width:100%;min-width:1170px;border-collapse:collapse;font-size:var(--type-component-size);line-height:var(--type-component-leading);text-align:start}
+.forge-postman .pm-delivery-data-table{width:100%;min-width:1140px;border-collapse:collapse;font-size:var(--type-component-size);line-height:var(--type-component-leading);text-align:start}
 .pm-delivery-data-row>[role=columnheader],.pm-delivery-data-row>[role=cell]{padding:20px 12px;border-bottom:1px solid var(--border-subtle);white-space:nowrap;vertical-align:middle;text-align:start}
 .pm-delivery-data-head{padding-block:16px;font-weight:var(--weight-medium)}
 .pm-delivery-data-table [role=rowgroup]:last-child .pm-delivery-data-row:last-child>[role=cell]{border-bottom:0}
 .pm-delivery-data-row:not(.pm-delivery-data-head):hover{background:var(--surface-subtle)}
 .pm-delivery-data-row>div:first-child{padding-inline-start:16px}
-.pm-delivery-table-customer{display:flex;align-items:center;gap:10px;min-width:90px}
+.pm-delivery-table-customer{display:flex;align-items:center;gap:8px;min-width:0}
 .pm-delivery-table-customer img{object-fit:contain;flex:none}
 .forge-postman .pm-delivery-table-name{padding:0;border:0;background:transparent;color:var(--text-primary);font:inherit;font-weight:var(--weight-medium);text-align:start;cursor:pointer;min-width:220px}
-.pm-delivery-table-muted{color:var(--text-muted)}
+.pm-delivery-table-muted{color:var(--text-secondary)}
 .pm-delivery-table-progress{display:flex;flex-direction:column;gap:8px;min-width:180px;color:var(--text-muted);font-size:var(--type-caption-size)}
 .pm-delivery-table-progress .pm-progress-bar{width:100%;height:5px}
 .forge-postman .pm-delivery-table-open{padding:6px 10px;border:1px solid var(--border-default);border-radius:var(--radius-control);background:var(--surface-raised);color:var(--text-primary);font:inherit;cursor:pointer}
 @media(max-width:600px){.forge-postman .pm-delivery-reference-toolbar{flex-wrap:wrap}.forge-postman .pm-delivery-reference-toolbar .pm-delivery-search{flex-basis:100%}}
 
 .forge-postman .pm-delivery-reference-toolbar{justify-content:flex-end}
-.pm-delivery-data-row{display:grid;grid-template-columns:120px minmax(240px,1.7fr) 110px 90px 80px 70px 94px 78px 78px minmax(190px,1fr) 72px;align-items:stretch}
+.pm-delivery-data-row{display:grid;grid-template-columns:100px minmax(190px,1.4fr) 108px 80px 76px 72px 92px 76px 76px minmax(160px,1fr) 64px;align-items:stretch}
 .pm-delivery-data-row>[role=cell],.pm-delivery-data-row>[role=columnheader]{display:flex;align-items:center;min-width:0}
 .pm-delivery-data-head{padding-block:0;background:var(--surface-subtle);color:var(--text-muted);font-size:var(--type-caption-size)}
 .pm-delivery-data-row .pm-delivery-table-progress{width:100%;min-width:0}
-.pm-delivery-data-table{min-width:1322px!important}
 
 .forge-postman .pm-delivery-column-sort,.pm-delivery-column-filter{display:inline-flex;align-items:center;gap:5px;position:relative;padding:0;min-height:28px;border:0;background:transparent;color:inherit;font:inherit!important;white-space:nowrap;cursor:pointer}
 .pm-delivery-column-filter select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
@@ -486,9 +631,8 @@ body.forge-postman{min-width:0;background:var(--surface-canvas);color:var(--text
 .pm-delivery-column-filter[data-active=true],.forge-postman .pm-delivery-column-sort:hover{color:var(--accent-primary)}
 .forge-postman .pm-delivery-data-row .pm-delivery-status{display:inline-block;padding:0;border:0;background:transparent;color:var(--status-warning,#946300);font:inherit;line-height:1.4;white-space:nowrap}
 .forge-postman .pm-delivery-status[data-status="已达标"]{color:var(--status-success,#27884c)}
-.pm-delivery-data-row{grid-template-columns:110px minmax(210px,1.6fr) 112px 94px 84px 82px 108px 84px 84px minmax(170px,1fr) 70px}
 .pm-delivery-data-row>[role=columnheader]{padding-block:12px}
-.pm-delivery-data-row>[role=cell]{min-height:80px;padding-block:16px}
+.pm-delivery-data-row>[role=cell]{min-height:76px;padding-block:16px}
 .pm-delivery-data-row:not(.pm-delivery-data-head){border-bottom:1px solid var(--border-subtle)}
 .pm-delivery-data-row>[role=cell]{border-bottom:0}
 .pm-delivery-data-row .pm-delivery-table-name{min-width:0;white-space:normal;line-height:1.5}

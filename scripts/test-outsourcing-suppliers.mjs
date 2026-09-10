@@ -49,7 +49,7 @@ test('performance page keeps the required section order without exposing fixture
   assert.doesNotMatch(page, /跟踪外部专家团队的交付、质量与履约风险，与模型 API 供应商分开管理。/);
   assert.match(page, /<header class="forge-outsourcing-heading"><h1 id="forge-outsourcing-supplier-title" tabindex="-1">外部专家<\/h1><\/header>/);
   assert.match(page, /aria-labelledby="outsourcing-overall"><header><h2 id="outsourcing-overall">外部专家整体表现<\/h2><\/header><dl class="forge-outsourcing-metrics">/);
-  assert.match(page, /aria-labelledby="outsourcing-trend"><header><h2 id="outsourcing-trend">外部专家达标趋势<\/h2><\/header><div class="forge-outsourcing-trend-toolbar">/);
+  assert.match(page, /aria-labelledby="outsourcing-trend"><header><div><h2 id="outsourcing-trend">外部专家达标趋势<\/h2>[\s\S]*?<\/header><div class="forge-outsourcing-trend-toolbar">/);
   assert.match(page, /aria-labelledby="outsourcing-issues"><header><h2 id="outsourcing-issues">高频问题<\/h2><\/header><sc-if/);
   const c = component(); c.openOutsourcingSuppliers(); const v = c.outsourcingSupplierValues();
   assert(v.demo); assert.deepEqual(Array.from(v.metrics, row => row.label), ['总交付目标', '已分配任务量', '最终有效交付量', '整体完成率', '整体质检通过率', '风险专家团队']);

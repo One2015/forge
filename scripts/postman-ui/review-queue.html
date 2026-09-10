@@ -6,7 +6,7 @@
   <sc-if value="{{ review.queue.externalQA.internal }}"><div id="review-panel-internal" role="tabpanel" aria-labelledby="review-tab-internal">
   <div class="pq-summary forge-overview-summary" role="group" aria-label="审核摘要">
     <sc-for list="{{ review.queue.summary }}" as="s">
-      <article class="forge-summary-card pq-summary-item" data-actionable="true" data-selected="{{ s.selected }}">
+      <article class="forge-summary-card pq-summary-item" data-actionable="true" data-selected="{{ s.selected }}" data-metric-priority="{{ s.priority }}">
         <div class="forge-summary-heading"><span class="forge-summary-title">{{ s.label }}</span><span class="forge-summary-help" data-forge-tooltip="{{ s.description }}" data-tooltip-label="{{ s.label }}说明"></span></div>
         <div class="forge-summary-value"><strong>{{ s.value }}</strong></div>
         <button type="button" class="forge-summary-link" aria-label="{{ s.label }}" aria-pressed="{{ s.selected }}" sc-camel-on-click="{{ s.pick }}"></button>

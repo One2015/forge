@@ -113,4 +113,26 @@
 
     ];
   }
+  overviewMetricGroups(runs, sheets) {
+    const metrics = this.overviewSummary(runs, sheets).map(metric => {
+      const displayValue = Number.isInteger(metric.v) ? metric.v.toLocaleString('en-US') : metric.v;
+      return { ...metric, displayValue, longValue: String(displayValue).length > (typeof metric.v === 'number' ? 6 : 10) };
+    });
+    return [
+      { label: '待处理', priority: 'primary', metrics: [metrics[0], metrics[3]] },
+      { label: '生产情况', priority: 'secondary', metrics: [metrics[1], metrics[2]] },
+      { label: '辅助信息', priority: 'tertiary', metrics: [metrics[4], metrics[5]] }
+    ];
+  }
+
+  overviewDeliveryProgress(sheet) {
+    const target = Math.max(0, Number(sheet.target) || 0);
+    const delivered = Math.max(0, Number(sheet.passed) || 0);
+    const remaining = Math.max(0, target - delivered);
+    const percentage = target > 0 ? Math.min(100, Math.round(delivered / target * 100)) : 0;
+    return { target, delivered, remaining, percentage,
+      targetLabel: target.toLocaleString('en-US'), deliveredLabel: delivered.toLocaleString('en-US'),
+      remainingLabel: remaining.toLocaleString('en-US'), percentageLabel: target > 0 ? percentage + '%' : '—',
+      label: '可交付 ' + delivered + ' / 目标 ' + target + (target > 0 ? '，' + percentage + '%' : '，未设置目标') };
+  }
   // overview-summary-methods:end

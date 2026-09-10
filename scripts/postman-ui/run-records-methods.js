@@ -42,7 +42,7 @@
         open:detail,keyOpen:e=>{if(e.target!==e.currentTarget||!['Enter',' '].includes(e.key))return;e.preventDefault();detail(e);},
         actionTone:action,actionKey,actionLabel:actionLabels[actionKey],action:action==='review'?review:action==='cause'?failed:detail};
     });
-    const kpis=[['all','全部',all.rows.length,'','当前范围内的全部运行记录'],['review','待审核',all.review,'','所有运行的待审核 Item 总数'],['running','运行中',all.running,'','按运行状态统计'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分 Item 失败']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title}));
+    const kpis=[['all','全部',all.rows.length,'','当前范围内的全部运行记录'],['review','待审核',all.review,'','所有运行的待审核 Item 总数'],['running','运行中',all.running,'','按运行状态统计'],['failed','运行失败',all.failed,'','仅统计运行失败；不包含运行已完成但部分 Item 失败']].map(([key,label,value,hint,title])=>({key,label,value,hint,hasHint:!!hint,title,priority:['review','failed'].includes(key)?'primary':'secondary'}));
     const filterCount=Number(filter!=='all')+Number(!!owner)+Number(actionFilterValue!=='all');
     const menuState=st.runsFilterMenu||null;
     const focusFilter=key=>{if(typeof document==='undefined')return;setTimeout(()=>document.getElementById('rr-filter-'+key)?.focus(),0);};

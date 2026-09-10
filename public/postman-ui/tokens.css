@@ -38,6 +38,13 @@ body.forge-postman .fg-theme {
   --type-micro-size:.75rem; --type-micro-leading:1rem;
   --weight-regular:400; --weight-medium:550; --weight-semibold:650;
 
+  /* Shared content roles, established by the overview. */
+  --font-section:var(--weight-semibold) var(--type-section-size)/var(--type-section-leading) var(--font-sans);
+  --font-content:var(--weight-regular) var(--type-component-size)/var(--type-component-leading) var(--font-sans);
+  --font-caption:var(--weight-regular) var(--type-caption-size)/var(--type-caption-leading) var(--font-sans);
+  --font-table-heading:var(--weight-semibold) var(--type-caption-size)/var(--type-caption-leading) var(--font-sans);
+  --font-number:var(--weight-medium) var(--type-subsection-size)/var(--type-subsection-leading) var(--font-sans);
+
   /* Space */
   --space-0:0; --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem;
   --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem; --space-10:2.5rem;
@@ -57,7 +64,7 @@ body.forge-postman .fg-theme {
   --page-max:96rem; --page-gutter:clamp(1.25rem,2.4vw,2.5rem);
   --page-block-start:clamp(1.75rem,3vw,3rem); --page-block-end:4rem;
   --content-inset:var(--space-5); --content-inset-compact:var(--space-4); --content-inset-mobile:var(--space-3);
-  --density-control-height:var(--size-control-md); --density-row-height:2.75rem; --density-section-gap:var(--space-10);
+  --density-control-height:var(--size-control-md); --density-row-height:2.75rem; --density-section-gap:var(--space-8);
   --section-heading-gap:var(--space-4); --section-card-gap:var(--space-5); --section-card-inset:var(--space-6);
 
   /* Motion and stacking */
