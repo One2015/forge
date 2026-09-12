@@ -4,6 +4,7 @@ const ForgeRoutes = (() => {
   const oneOf = (value, options, fallback) => options.includes(value) ? value : fallback;
   const enc = value => encodeURIComponent(String(value));
   const defaults = () => ({
+    teMode:'item', teOwner:'', teStart:'', teEnd:'', teQuery:'', teType:'', teDate:'', tePage:1, teDirection:'desc', teDetail:'',
     view: 'overview', openPipe: null, editPipe: null, editSel: null,
     selDs: null, dsVersion: null, dsVersions: false, runPipeline: null, picked: {},
     activeRun: null, runIds: [], reviewRun: 'all', reviewOpen: null, deepReview: null, reviewReturn: null,
@@ -58,6 +59,8 @@ const ForgeRoutes = (() => {
         } else if (section === 'datasets' && parts.length <= 3) {
           patch.view = 'datasets'; patch.selDs = id || null; patch.dsQuery = query;
           patch.dsVersion = get('version') || null; patch.runPipeline = get('pipeline') || null;
+        } else if (section === 'task-errors' && parts.length === 2) {
+          patch.view='task-errors'; patch.teMode=oneOf(get('mode'),['item','attempt'],'item'); patch.teOwner=get('owner'); patch.teStart=get('start'); patch.teEnd=get('end'); patch.teQuery=query; patch.teType=oneOf(get('type'),['validation','sandbox','model','other'],''); patch.teDate=get('date'); patch.tePage=Math.max(1,Math.min(10000,Math.floor(Number(get('page')))||1)); patch.teDirection=oneOf(get('direction'),['asc','desc'],'desc');
         } else if (section === 'resources' && parts.length === 2) patch.view = 'resources';
         else throw Error('production');
       } else if (parts[0] === 'review') {
@@ -124,6 +127,7 @@ const ForgeRoutes = (() => {
     const q = new URLSearchParams(); let path = '/overview', anchor = s.routeAnchor || '';
     const set = (key, value, fallback = '') => { if (value != null && value !== '' && String(value) !== String(fallback)) q.set(key, String(value)); };
     switch (s.view) {
+      case 'task-errors': path='/production/task-errors'; set('mode',s.teMode,'item'); set('owner',s.teOwner); set('start',s.teStart); set('end',s.teEnd); set('q',s.teQuery); set('type',s.teType); set('date',s.teDate); set('page',s.tePage,1); set('direction',s.teDirection,'desc'); break;
       case 'runs': path = '/production/runs'; set('status', ({'运行中':'running','成功':'success','失败':'failed'})[s.runsFilter]); set('owner', s.runsOwner || (s.runsMine ? 'mine' : '')); set('q', s.runsQuery); break;
       case 'run': path = '/production/runs/' + enc(s.activeRun || 'missing'); break;
       case 'submitted': path = '/production/submitted'; set('run', s.activeRun); break;
